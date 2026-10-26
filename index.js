@@ -69115,18 +69115,23 @@ var CloudClient = class {
     const res = await this.request("POST", "/api/v1/translate", req);
     return res.key_mappings;
   }
-  async request(method, route, body) {
-    const attempts = this.opts.maxAttempts ?? 4;
+  async reportRun(report) {
+    await this.request("POST", "/api/v1/runs", report, { attempts: 2, timeoutMs: 15e3 });
+  }
+  async request(method, route, body, limits = {}) {
+    const attempts = limits.attempts ?? this.opts.maxAttempts ?? 4;
     let lastError = new Error("request not sent");
     for (let attempt = 1; attempt <= attempts; attempt++) {
       let res;
       try {
         res = await this.fetchImpl(`${this.base}${route}`, {
           method,
-          signal: AbortSignal.timeout(this.opts.timeoutMs ?? 31e4),
+          signal: AbortSignal.timeout(limits.timeoutMs ?? this.opts.timeoutMs ?? 31e4),
           headers: {
             authorization: `Bearer ${this.opts.apiKey}`,
             ...body ? { "content-type": "application/json" } : {},
+            ...this.opts.context?.repo ? { "x-localize-repo": this.opts.context.repo } : {},
+            ...this.opts.context?.runKey ? { "x-localize-run": this.opts.context.runKey } : {},
             "user-agent": "localize-dev-cli"
           },
           body: body ? JSON.stringify(body) : void 0
@@ -75209,12 +75214,27 @@ async function main() {
     targetLocales: locales ? locales.split(",").map((l) => l.trim()).filter(Boolean) : void 0
   });
   const log = { info, warn: warning };
-  const translator = offline ? new OfflineTranslator() : new CloudTranslator(new CloudClient({ apiKey, apiUrl: getInput("api_url") || process.env.LOCALIZE_API_URL || DEFAULT_API_URL }));
+  const repoName = `${owner}/${repo}`;
+  const runId = process.env.GITHUB_RUN_ID;
+  const runKey = runId ? `${runId}-${process.env.GITHUB_RUN_ATTEMPT ?? "1"}` : void 0;
+  const client = apiKey ? new CloudClient({
+    apiKey,
+    apiUrl: getInput("api_url") || process.env.LOCALIZE_API_URL || DEFAULT_API_URL,
+    context: { repo: repoName, runKey }
+  }) : null;
+  const translator = offline || !client ? new OfflineTranslator() : new CloudTranslator(client);
+  const report = async (r) => {
+    if (!client || !runKey) return;
+    const url = `${process.env.GITHUB_SERVER_URL ?? "https://github.com"}/${repoName}/actions/runs/${runId}`;
+    await client.reportRun({ repo: repoName, runKey, branch: baseBranch, url, ...r }).catch((err) => info(`Couldn't report the run: ${err.message}`));
+  };
+  reportFailure = (message) => report({ status: "failed", error: message.slice(0, 1e3) });
   const result = await runPipeline({ cwd, config, translator, write: false, log });
   setOutput("strings_count", result.stats.stringsReplaced);
   for (const w of result.warnings) info(`Skipped ${w.filePath}:${w.loc.line} "${w.text}": ${w.reason}`);
   if (!result.files.length) {
     info("No hardcoded UI strings found. Nothing to do.");
+    await report({ status: "no_changes" });
     return;
   }
   const pkg = result.files.find((f) => f.path === "package.json");
@@ -75239,8 +75259,21 @@ async function main() {
   });
   setOutput("pr_url", pr.url);
   info(`${pr.created ? "Opened" : "Updated"} pull request ${pr.url}`);
+  await report({
+    status: pr.created ? "opened" : "updated",
+    prUrl: pr.url,
+    stringsReplaced: result.stats.stringsReplaced,
+    newKeys: result.stats.newKeys,
+    filesChanged: result.files.length,
+    translations: result.stats.translations
+  });
 }
-main().catch((err) => setFailed(err.message));
+var reportFailure = null;
+main().catch(async (err) => {
+  const message = err.message;
+  await reportFailure?.(message);
+  setFailed(message);
+});
 /*! Bundled license information:
 
 undici/lib/web/fetch/body.js:
