@@ -22,8 +22,10 @@ jobs:
   localize:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # Fork PRs get a read-only token and can't receive a PR.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # Skip Localize.dev's own branches, and fork PRs (their token is read-only).
+    if: >-
+      !startsWith(github.head_ref || github.ref_name, 'localize-dev/') &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     steps:
       - name: Checkout
         uses: actions/checkout@v5
