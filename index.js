@@ -1074,14 +1074,14 @@ var require_util = __commonJS({
         }
         const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
         let origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`;
-        let path4 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
+        let path5 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
         if (origin[origin.length - 1] === "/") {
           origin = origin.slice(0, origin.length - 1);
         }
-        if (path4 && path4[0] !== "/") {
-          path4 = `/${path4}`;
+        if (path5 && path5[0] !== "/") {
+          path5 = `/${path5}`;
         }
-        return new URL(`${origin}${path4}`);
+        return new URL(`${origin}${path5}`);
       }
       if (!isHttpOrHttpsPrefixed(url.origin || url.protocol)) {
         throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
@@ -1532,39 +1532,39 @@ var require_diagnostics = __commonJS({
       });
       diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
         const {
-          request: { method, path: path4, origin }
+          request: { method, path: path5, origin }
         } = evt;
-        debuglog("sending request to %s %s/%s", method, origin, path4);
+        debuglog("sending request to %s %s/%s", method, origin, path5);
       });
       diagnosticsChannel.channel("undici:request:headers").subscribe((evt) => {
         const {
-          request: { method, path: path4, origin },
+          request: { method, path: path5, origin },
           response: { statusCode }
         } = evt;
         debuglog(
           "received response to %s %s/%s - HTTP %d",
           method,
           origin,
-          path4,
+          path5,
           statusCode
         );
       });
       diagnosticsChannel.channel("undici:request:trailers").subscribe((evt) => {
         const {
-          request: { method, path: path4, origin }
+          request: { method, path: path5, origin }
         } = evt;
-        debuglog("trailers received from %s %s/%s", method, origin, path4);
+        debuglog("trailers received from %s %s/%s", method, origin, path5);
       });
       diagnosticsChannel.channel("undici:request:error").subscribe((evt) => {
         const {
-          request: { method, path: path4, origin },
+          request: { method, path: path5, origin },
           error: error2
         } = evt;
         debuglog(
           "request to %s %s/%s errored - %s",
           method,
           origin,
-          path4,
+          path5,
           error2.message
         );
       });
@@ -1613,9 +1613,9 @@ var require_diagnostics = __commonJS({
         });
         diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
           const {
-            request: { method, path: path4, origin }
+            request: { method, path: path5, origin }
           } = evt;
-          debuglog("sending request to %s %s/%s", method, origin, path4);
+          debuglog("sending request to %s %s/%s", method, origin, path5);
         });
       }
       diagnosticsChannel.channel("undici:websocket:open").subscribe((evt) => {
@@ -1678,7 +1678,7 @@ var require_request = __commonJS({
     var kHandler = /* @__PURE__ */ Symbol("handler");
     var Request = class {
       constructor(origin, {
-        path: path4,
+        path: path5,
         method,
         body,
         headers,
@@ -1693,11 +1693,11 @@ var require_request = __commonJS({
         expectContinue,
         servername
       }, handler2) {
-        if (typeof path4 !== "string") {
+        if (typeof path5 !== "string") {
           throw new InvalidArgumentError("path must be a string");
-        } else if (path4[0] !== "/" && !(path4.startsWith("http://") || path4.startsWith("https://")) && method !== "CONNECT") {
+        } else if (path5[0] !== "/" && !(path5.startsWith("http://") || path5.startsWith("https://")) && method !== "CONNECT") {
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        } else if (invalidPathRegex.test(path4)) {
+        } else if (invalidPathRegex.test(path5)) {
           throw new InvalidArgumentError("invalid request path");
         }
         if (typeof method !== "string") {
@@ -1763,7 +1763,7 @@ var require_request = __commonJS({
         this.completed = false;
         this.aborted = false;
         this.upgrade = upgrade || null;
-        this.path = query ? buildURL(path4, query) : path4;
+        this.path = query ? buildURL(path5, query) : path5;
         this.origin = origin;
         this.idempotent = idempotent == null ? method === "HEAD" || method === "GET" : idempotent;
         this.blocking = blocking == null ? false : blocking;
@@ -6456,7 +6456,7 @@ var require_client_h1 = __commonJS({
       return method !== "GET" && method !== "HEAD" && method !== "OPTIONS" && method !== "TRACE" && method !== "CONNECT";
     }
     function writeH1(client, request2) {
-      const { method, path: path4, host, upgrade, blocking, reset } = request2;
+      const { method, path: path5, host, upgrade, blocking, reset } = request2;
       let { body, headers, contentLength } = request2;
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH" || method === "QUERY" || method === "PROPFIND" || method === "PROPPATCH";
       if (util.isFormDataLike(body)) {
@@ -6537,7 +6537,7 @@ var require_client_h1 = __commonJS({
       if (blocking) {
         socket[kBlocking] = true;
       }
-      let header = `${method} ${path4} HTTP/1.1\r
+      let header = `${method} ${path5} HTTP/1.1\r
 `;
       if (typeof host === "string") {
         header += `host: ${host}\r
@@ -7066,7 +7066,7 @@ var require_client_h2 = __commonJS({
     }
     function writeH2(client, request2) {
       const session = client[kHTTP2Session];
-      const { method, path: path4, host, upgrade, expectContinue, signal, headers: reqHeaders } = request2;
+      const { method, path: path5, host, upgrade, expectContinue, signal, headers: reqHeaders } = request2;
       let { body } = request2;
       if (upgrade) {
         util.errorRequest(client, request2, new Error("Upgrade not supported for H2"));
@@ -7163,7 +7163,7 @@ var require_client_h2 = __commonJS({
         });
         return true;
       }
-      headers[HTTP2_HEADER_PATH] = path4;
+      headers[HTTP2_HEADER_PATH] = path5;
       headers[HTTP2_HEADER_SCHEME] = "https";
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH";
       if (body && typeof body.read === "function") {
@@ -7516,9 +7516,9 @@ var require_redirect_handler = __commonJS({
           return this.handler.onHeaders(statusCode, headers, resume, statusText);
         }
         const { origin, pathname, search } = util.parseURL(new URL(this.location, this.opts.origin && new URL(this.opts.path, this.opts.origin)));
-        const path4 = search ? `${pathname}${search}` : pathname;
+        const path5 = search ? `${pathname}${search}` : pathname;
         this.opts.headers = cleanRequestHeaders(this.opts.headers, statusCode === 303, this.opts.origin !== origin);
-        this.opts.path = path4;
+        this.opts.path = path5;
         this.opts.origin = origin;
         this.opts.maxRedirections = 0;
         this.opts.query = null;
@@ -8757,10 +8757,10 @@ var require_proxy_agent = __commonJS({
         };
         const {
           origin,
-          path: path4 = "/",
+          path: path5 = "/",
           headers = {}
         } = opts;
-        opts.path = origin + path4;
+        opts.path = origin + path5;
         if (!("host" in headers) && !("Host" in headers)) {
           const { host } = new URL2(origin);
           headers.host = host;
@@ -10732,20 +10732,20 @@ var require_mock_utils = __commonJS({
       }
       return true;
     }
-    function safeUrl(path4) {
-      if (typeof path4 !== "string") {
-        return path4;
+    function safeUrl(path5) {
+      if (typeof path5 !== "string") {
+        return path5;
       }
-      const pathSegments = path4.split("?");
+      const pathSegments = path5.split("?");
       if (pathSegments.length !== 2) {
-        return path4;
+        return path5;
       }
       const qp = new URLSearchParams(pathSegments.pop());
       qp.sort();
       return [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path4, method, body, headers }) {
-      const pathMatch = matchValue(mockDispatch2.path, path4);
+    function matchKey(mockDispatch2, { path: path5, method, body, headers }) {
+      const pathMatch = matchValue(mockDispatch2.path, path5);
       const methodMatch = matchValue(mockDispatch2.method, method);
       const bodyMatch = typeof mockDispatch2.body !== "undefined" ? matchValue(mockDispatch2.body, body) : true;
       const headersMatch = matchHeaders(mockDispatch2, headers);
@@ -10767,7 +10767,7 @@ var require_mock_utils = __commonJS({
     function getMockDispatch(mockDispatches, key) {
       const basePath = key.query ? buildURL(key.path, key.query) : key.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
-      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path4 }) => matchValue(safeUrl(path4), resolvedPath));
+      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path5 }) => matchValue(safeUrl(path5), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
@@ -10805,9 +10805,9 @@ var require_mock_utils = __commonJS({
       }
     }
     function buildKey(opts) {
-      const { path: path4, method, body, headers, query } = opts;
+      const { path: path5, method, body, headers, query } = opts;
       return {
-        path: path4,
+        path: path5,
         method,
         body,
         headers,
@@ -11270,10 +11270,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         const withPrettyHeaders = pendingInterceptors.map(
-          ({ method, path: path4, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method, path: path5, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method,
             Origin: origin,
-            Path: path4,
+            Path: path5,
             "Status code": statusCode,
             Persistent: persist ? PERSISTENT : NOT_PERSISTENT,
             Invocations: timesInvoked,
@@ -16152,9 +16152,9 @@ var require_util6 = __commonJS({
         }
       }
     }
-    function validateCookiePath(path4) {
-      for (let i = 0; i < path4.length; ++i) {
-        const code = path4.charCodeAt(i);
+    function validateCookiePath(path5) {
+      for (let i = 0; i < path5.length; ++i) {
+        const code = path5.charCodeAt(i);
         if (code < 32 || // exclude CTLs (0-31)
         code > 126 || // exclude DEL and non-ascii
         code === 59) {
@@ -19074,11 +19074,11 @@ var require_undici = __commonJS({
           if (typeof opts.path !== "string") {
             throw new InvalidArgumentError("invalid opts.path");
           }
-          let path4 = opts.path;
+          let path5 = opts.path;
           if (!opts.path.startsWith("/")) {
-            path4 = `/${path4}`;
+            path5 = `/${path5}`;
           }
-          url = new URL(util.parseOrigin(url).origin + path4);
+          url = new URL(util.parseOrigin(url).origin + path5);
         } else {
           if (!opts) {
             opts = typeof url === "object" ? url : {};
@@ -19317,7 +19317,7 @@ var require_path = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
     var os5 = __require("os");
-    var path4 = __require("path");
+    var path5 = __require("path");
     var IS_WINDOWS_PLATFORM = os5.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
@@ -19329,7 +19329,7 @@ var require_path = __commonJS({
     }
     exports.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path4.resolve(cwd, filepath);
+      return path5.resolve(cwd, filepath);
     }
     exports.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -20626,7 +20626,7 @@ var require_braces = __commonJS({
 var require_constants7 = __commonJS({
   "../../node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
-    var path4 = __require("path");
+    var path5 = __require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DEFAULT_MAX_EXTGLOB_RECURSION = 0;
@@ -20800,7 +20800,7 @@ var require_constants7 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path4.sep,
+      SEP: path5.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -20827,7 +20827,7 @@ var require_constants7 = __commonJS({
 var require_utils3 = __commonJS({
   "../../node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
-    var path4 = __require("path");
+    var path5 = __require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -20856,7 +20856,7 @@ var require_utils3 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path4.sep === "\\";
+      return win32 === true || path5.sep === "\\";
     };
     exports.escapeLast = (input, char, lastIdx) => {
       const idx = input.lastIndexOf(char, lastIdx);
@@ -21720,9 +21720,9 @@ var require_parse3 = __commonJS({
                 const idx = prev.value.lastIndexOf("[");
                 const pre = prev.value.slice(0, idx);
                 const rest2 = prev.value.slice(idx + 2);
-                const posix = POSIX_REGEX_SOURCE[rest2];
-                if (posix) {
-                  prev.value = pre + posix;
+                const posix2 = POSIX_REGEX_SOURCE[rest2];
+                if (posix2) {
+                  prev.value = pre + posix2;
                   state.backtrack = true;
                   advance();
                   if (!bos.output && tokens.indexOf(prev) === 1) {
@@ -22220,7 +22220,7 @@ var require_parse3 = __commonJS({
 var require_picomatch = __commonJS({
   "../../node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
-    var path4 = __require("path");
+    var path5 = __require("path");
     var scan = require_scan();
     var parse3 = require_parse3();
     var utils = require_utils3();
@@ -22243,7 +22243,7 @@ var require_picomatch = __commonJS({
         throw new TypeError("Expected pattern to be a non-empty string");
       }
       const opts = options || {};
-      const posix = utils.isWindows(options);
+      const posix2 = utils.isWindows(options);
       const regex = isState ? picomatch.compileRe(glob, options) : picomatch.makeRe(glob, options, false, true);
       const state = regex.state;
       delete regex.state;
@@ -22253,8 +22253,8 @@ var require_picomatch = __commonJS({
         isIgnored2 = picomatch(opts.ignore, ignoreOpts, returnState);
       }
       const matcher = (input, returnObject = false) => {
-        const { isMatch, match, output } = picomatch.test(input, regex, options, { glob, posix });
-        const result = { glob, state, regex, posix, input, output, match, isMatch };
+        const { isMatch, match, output } = picomatch.test(input, regex, options, { glob, posix: posix2 });
+        const result = { glob, state, regex, posix: posix2, input, output, match, isMatch };
         if (typeof opts.onResult === "function") {
           opts.onResult(result);
         }
@@ -22279,7 +22279,7 @@ var require_picomatch = __commonJS({
       }
       return matcher;
     };
-    picomatch.test = (input, regex, options, { glob, posix } = {}) => {
+    picomatch.test = (input, regex, options, { glob, posix: posix2 } = {}) => {
       if (typeof input !== "string") {
         throw new TypeError("Expected input to be a string");
       }
@@ -22287,7 +22287,7 @@ var require_picomatch = __commonJS({
         return { isMatch: false, output: "" };
       }
       const opts = options || {};
-      const format = opts.format || (posix ? utils.toPosixSlashes : null);
+      const format = opts.format || (posix2 ? utils.toPosixSlashes : null);
       let match = input === glob;
       let output = match && format ? format(input) : input;
       if (match === false) {
@@ -22296,16 +22296,16 @@ var require_picomatch = __commonJS({
       }
       if (match === false || opts.capture === true) {
         if (opts.matchBase === true || opts.basename === true) {
-          match = picomatch.matchBase(input, regex, options, posix);
+          match = picomatch.matchBase(input, regex, options, posix2);
         } else {
           match = regex.exec(output);
         }
       }
       return { isMatch: Boolean(match), match, output };
     };
-    picomatch.matchBase = (input, glob, options, posix = utils.isWindows(options)) => {
+    picomatch.matchBase = (input, glob, options, posix2 = utils.isWindows(options)) => {
       const regex = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
-      return regex.test(path4.basename(input));
+      return regex.test(path5.basename(input));
     };
     picomatch.isMatch = (str, patterns, options) => picomatch(patterns, options)(str);
     picomatch.parse = (pattern, options) => {
@@ -22492,9 +22492,9 @@ var require_micromatch = __commonJS({
       return [].concat(patterns).every((p) => picomatch(p, options)(str));
     };
     micromatch.capture = (glob, input, options) => {
-      let posix = utils.isWindows(options);
+      let posix2 = utils.isWindows(options);
       let regex = picomatch.makeRe(String(glob), { ...options, capture: true });
-      let match = regex.exec(posix ? utils.toPosixSlashes(input) : input);
+      let match = regex.exec(posix2 ? utils.toPosixSlashes(input) : input);
       if (match) {
         return match.slice(1).map((v) => v === void 0 ? "" : v);
       }
@@ -22532,7 +22532,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
-    var path4 = __require("path");
+    var path5 = __require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -22627,7 +22627,7 @@ var require_pattern = __commonJS({
     }
     exports.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename2 = path4.basename(pattern);
+      const basename2 = path5.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename2);
     }
     exports.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -22685,7 +22685,7 @@ var require_pattern = __commonJS({
     }
     exports.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute(pattern) {
-      return path4.isAbsolute(pattern);
+      return path5.isAbsolute(pattern);
     }
     exports.isAbsolute = isAbsolute;
   }
@@ -22860,10 +22860,10 @@ var require_utils4 = __commonJS({
     exports.array = array;
     var errno = require_errno();
     exports.errno = errno;
-    var fs6 = require_fs();
-    exports.fs = fs6;
-    var path4 = require_path();
-    exports.path = path4;
+    var fs7 = require_fs();
+    exports.fs = fs7;
+    var path5 = require_path();
+    exports.path = path5;
     var pattern = require_pattern();
     exports.pattern = pattern;
     var stream = require_stream();
@@ -22975,8 +22975,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path4, settings, callback) {
-      settings.fs.lstat(path4, (lstatError, lstat2) => {
+    function read(path5, settings, callback) {
+      settings.fs.lstat(path5, (lstatError, lstat2) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -22985,7 +22985,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat2);
           return;
         }
-        settings.fs.stat(path4, (statError, stat2) => {
+        settings.fs.stat(path5, (statError, stat2) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -23017,13 +23017,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path4, settings) {
-      const lstat2 = settings.fs.lstatSync(path4);
+    function read(path5, settings) {
+      const lstat2 = settings.fs.lstatSync(path5);
       if (!lstat2.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat2;
       }
       try {
-        const stat2 = settings.fs.statSync(path4);
+        const stat2 = settings.fs.statSync(path5);
         if (settings.markSymbolicLink) {
           stat2.isSymbolicLink = () => true;
         }
@@ -23045,12 +23045,12 @@ var require_fs2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs6 = __require("fs");
+    var fs7 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs6.lstat,
-      stat: fs6.stat,
-      lstatSync: fs6.lstatSync,
-      statSync: fs6.statSync
+      lstat: fs7.lstat,
+      stat: fs7.stat,
+      lstatSync: fs7.lstatSync,
+      statSync: fs7.statSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -23067,12 +23067,12 @@ var require_settings = __commonJS({
   "../../node_modules/@nodelib/fs.stat/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var fs6 = require_fs2();
+    var fs7 = require_fs2();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLink = this._getValue(this._options.followSymbolicLink, true);
-        this.fs = fs6.createFileSystemAdapter(this._options.fs);
+        this.fs = fs7.createFileSystemAdapter(this._options.fs);
         this.markSymbolicLink = this._getValue(this._options.markSymbolicLink, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
       }
@@ -23094,17 +23094,17 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports.Settings = settings_1.default;
-    function stat2(path4, optionsOrSettingsOrCallback, callback) {
+    function stat2(path5, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path4, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path5, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path4, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path5, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat2;
-    function statSync(path4, optionsOrSettings) {
+    function statSync(path5, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path4, settings);
+      return sync.read(path5, settings);
     }
     exports.statSync = statSync;
     function getSettings(settingsOrOptions = {}) {
@@ -23227,8 +23227,8 @@ var require_utils5 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.fs = void 0;
-    var fs6 = require_fs3();
-    exports.fs = fs6;
+    var fs7 = require_fs3();
+    exports.fs = fs7;
   }
 });
 
@@ -23320,16 +23320,16 @@ var require_async2 = __commonJS({
           return;
         }
         const tasks = names.map((name) => {
-          const path4 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path5 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done) => {
-            fsStat.stat(path4, settings.fsStatSettings, (error2, stats) => {
+            fsStat.stat(path5, settings.fsStatSettings, (error2, stats) => {
               if (error2 !== null) {
                 done(error2);
                 return;
               }
               const entry = {
                 name,
-                path: path4,
+                path: path5,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -23423,14 +23423,14 @@ var require_fs4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs6 = __require("fs");
+    var fs7 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs6.lstat,
-      stat: fs6.stat,
-      lstatSync: fs6.lstatSync,
-      statSync: fs6.statSync,
-      readdir: fs6.readdir,
-      readdirSync: fs6.readdirSync
+      lstat: fs7.lstat,
+      stat: fs7.stat,
+      lstatSync: fs7.lstatSync,
+      statSync: fs7.statSync,
+      readdir: fs7.readdir,
+      readdirSync: fs7.readdirSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -23447,15 +23447,15 @@ var require_settings2 = __commonJS({
   "../../node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path4 = __require("path");
+    var path5 = __require("path");
     var fsStat = require_out();
-    var fs6 = require_fs4();
+    var fs7 = require_fs4();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
-        this.fs = fs6.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path4.sep);
+        this.fs = fs7.createFileSystemAdapter(this._options.fs);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path5.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -23482,17 +23482,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports.Settings = settings_1.default;
-    function scandir(path4, optionsOrSettingsOrCallback, callback) {
+    function scandir(path5, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path4, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path5, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path4, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path5, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.scandir = scandir;
-    function scandirSync(path4, optionsOrSettings) {
+    function scandirSync(path5, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path4, settings);
+      return sync.read(path5, settings);
     }
     exports.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -24140,7 +24140,7 @@ var require_settings3 = __commonJS({
   "../../node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path4 = __require("path");
+    var path5 = __require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -24150,7 +24150,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path4.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path5.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -24212,7 +24212,7 @@ var require_reader2 = __commonJS({
   "../../node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path4 = __require("path");
+    var path5 = __require("path");
     var fsStat = require_out();
     var utils = require_utils4();
     var Reader = class {
@@ -24225,7 +24225,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path4.resolve(this._settings.cwd, filepath);
+        return path5.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -24641,7 +24641,7 @@ var require_provider = __commonJS({
   "../../node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path4 = __require("path");
+    var path5 = __require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error();
@@ -24655,7 +24655,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path4.resolve(this._settings.cwd, task.base);
+        return path5.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -24836,16 +24836,16 @@ var require_settings4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = void 0;
-    var fs6 = __require("fs");
+    var fs7 = __require("fs");
     var os5 = __require("os");
     var CPU_COUNT = Math.max(os5.cpus().length, 1);
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = {
-      lstat: fs6.lstat,
-      lstatSync: fs6.lstatSync,
-      stat: fs6.stat,
-      statSync: fs6.statSync,
-      readdir: fs6.readdir,
-      readdirSync: fs6.readdirSync
+      lstat: fs7.lstat,
+      lstatSync: fs7.lstatSync,
+      stat: fs7.stat,
+      statSync: fs7.statSync,
+      readdir: fs7.readdir,
+      readdirSync: fs7.readdirSync
     };
     var Settings = class {
       constructor(_options = {}) {
@@ -24946,19 +24946,19 @@ var require_out4 = __commonJS({
         return utils.path.convertPathToPattern(source);
       }
       FastGlob2.convertPathToPattern = convertPathToPattern;
-      let posix;
-      (function(posix2) {
+      let posix2;
+      (function(posix3) {
         function escapePath2(source) {
           assertPatternsInput(source);
           return utils.path.escapePosixPath(source);
         }
-        posix2.escapePath = escapePath2;
+        posix3.escapePath = escapePath2;
         function convertPathToPattern2(source) {
           assertPatternsInput(source);
           return utils.path.convertPosixPathToPattern(source);
         }
-        posix2.convertPathToPattern = convertPathToPattern2;
-      })(posix = FastGlob2.posix || (FastGlob2.posix = {}));
+        posix3.convertPathToPattern = convertPathToPattern2;
+      })(posix2 = FastGlob2.posix || (FastGlob2.posix = {}));
       let win32;
       (function(win322) {
         function escapePath2(source) {
@@ -54779,11 +54779,11 @@ var require_visitors = __commonJS({
       }
       visitor._verified = true;
     }
-    function validateVisitorMethods(path4, val) {
+    function validateVisitorMethods(path5, val) {
       const fns = [].concat(val);
       for (const fn of fns) {
         if (typeof fn !== "function") {
-          throw new TypeError(`Non-function found defined in ${path4} with type ${typeof fn}`);
+          throw new TypeError(`Non-function found defined in ${path5} with type ${typeof fn}`);
         }
       }
     }
@@ -54826,8 +54826,8 @@ var require_visitors = __commonJS({
         fns = fns.map(function(fn) {
           let newFn = fn;
           if (state) {
-            newFn = function(path4) {
-              fn.call(state, path4, state);
+            newFn = function(path5) {
+              fn.call(state, path5, state);
             };
           }
           if (wrapper) {
@@ -54860,8 +54860,8 @@ var require_visitors = __commonJS({
     function wrapCheck(nodeType, fn) {
       const fnKey = `is${nodeType}`;
       const validator = virtualTypesValidators[fnKey];
-      const newFn = function(path4) {
-        if (validator.call(path4)) {
+      const newFn = function(path5) {
+        if (validator.call(path5)) {
           return fn.apply(this, arguments);
         }
       };
@@ -54886,24 +54886,24 @@ var require_visitors = __commonJS({
       }
     }
     var _environmentVisitor = {
-      FunctionParent(path4) {
-        if (path4.isArrowFunctionExpression()) return;
-        path4.skip();
-        if (path4.isMethod()) {
-          if (!path4.requeueComputedKeyAndDecorators) {
-            _context.requeueComputedKeyAndDecorators.call(path4);
+      FunctionParent(path5) {
+        if (path5.isArrowFunctionExpression()) return;
+        path5.skip();
+        if (path5.isMethod()) {
+          if (!path5.requeueComputedKeyAndDecorators) {
+            _context.requeueComputedKeyAndDecorators.call(path5);
           } else {
-            path4.requeueComputedKeyAndDecorators();
+            path5.requeueComputedKeyAndDecorators();
           }
         }
       },
-      Property(path4) {
-        if (path4.isObjectProperty()) return;
-        path4.skip();
-        if (!path4.requeueComputedKeyAndDecorators) {
-          _context.requeueComputedKeyAndDecorators.call(path4);
+      Property(path5) {
+        if (path5.isObjectProperty()) return;
+        path5.skip();
+        if (!path5.requeueComputedKeyAndDecorators) {
+          _context.requeueComputedKeyAndDecorators.call(path5);
         } else {
-          path4.requeueComputedKeyAndDecorators();
+          path5.requeueComputedKeyAndDecorators();
         }
       }
     };
@@ -54937,18 +54937,18 @@ var require_renamer = __commonJS({
           node.name = state.newName;
         }
       },
-      Scope(path4, state) {
-        if (!path4.scope.bindingIdentifierEquals(state.oldName, state.binding.identifier)) {
-          path4.skip();
-          if (path4.isMethod()) {
-            if (!path4.requeueComputedKeyAndDecorators) {
-              _context.requeueComputedKeyAndDecorators.call(path4);
+      Scope(path5, state) {
+        if (!path5.scope.bindingIdentifierEquals(state.oldName, state.binding.identifier)) {
+          path5.skip();
+          if (path5.isMethod()) {
+            if (!path5.requeueComputedKeyAndDecorators) {
+              _context.requeueComputedKeyAndDecorators.call(path5);
             } else {
-              path4.requeueComputedKeyAndDecorators();
+              path5.requeueComputedKeyAndDecorators();
             }
           }
-          if (path4.isSwitchStatement()) {
-            path4.context.maybeQueue(path4.get("discriminant"));
+          if (path5.isSwitchStatement()) {
+            path5.context.maybeQueue(path5.get("discriminant"));
           }
         }
       },
@@ -54965,9 +54965,9 @@ var require_renamer = __commonJS({
           if ((_node$extra = node.extra) != null && _node$extra.shorthand) node.extra.shorthand = false;
         }
       },
-      "AssignmentExpression|Declaration|VariableDeclarator"(path4, state) {
-        if (path4.isVariableDeclaration()) return;
-        const ids = path4.isAssignmentExpression() ? getAssignmentIdentifiers(path4.node) : path4.getOuterBindingIdentifiers();
+      "AssignmentExpression|Declaration|VariableDeclarator"(path5, state) {
+        if (path5.isVariableDeclaration()) return;
+        const ids = path5.isAssignmentExpression() ? getAssignmentIdentifiers(path5.node) : path5.getOuterBindingIdentifiers();
         for (const name in ids) {
           if (name === state.oldName) ids[name].name = state.newName;
         }
@@ -54997,11 +54997,11 @@ var require_renamer = __commonJS({
         }
         maybeExportDeclar.splitExportDeclaration();
       }
-      maybeConvertFromClassFunctionDeclaration(path4) {
-        return path4;
+      maybeConvertFromClassFunctionDeclaration(path5) {
+        return path5;
       }
-      maybeConvertFromClassFunctionExpression(path4) {
-        return path4;
+      maybeConvertFromClassFunctionExpression(path5) {
+        return path5;
       }
       rename() {
         const {
@@ -55011,9 +55011,9 @@ var require_renamer = __commonJS({
         } = this;
         const {
           scope,
-          path: path4
+          path: path5
         } = binding;
-        const parentDeclar = path4.find((path5) => path5.isDeclaration() || path5.isFunctionExpression() || path5.isClassExpression());
+        const parentDeclar = path5.find((path6) => path6.isDeclaration() || path6.isFunctionExpression() || path6.isClassExpression());
         if (parentDeclar) {
           const bindingIds = parentDeclar.getOuterBindingIdentifiers();
           if (bindingIds[oldName] === binding.identifier) {
@@ -55039,8 +55039,8 @@ var require_renamer = __commonJS({
           this.binding.identifier.name = newName;
         }
         if (parentDeclar) {
-          this.maybeConvertFromClassFunctionDeclaration(path4);
-          this.maybeConvertFromClassFunctionExpression(path4);
+          this.maybeConvertFromClassFunctionDeclaration(path5);
+          this.maybeConvertFromClassFunctionExpression(path5);
         }
       }
     };
@@ -55063,17 +55063,17 @@ var require_traverseForScope = __commonJS({
     var {
       VISITOR_KEYS
     } = _t;
-    function traverseForScope(path4, visitors, state) {
+    function traverseForScope(path5, visitors, state) {
       const exploded = (0, _visitors.explode)(visitors);
       if (exploded.enter || exploded.exit) {
         throw new Error("Should not be used with enter/exit visitors.");
       }
-      _traverse2(path4.parentPath, path4.parent, path4.node, path4.container, path4.key, path4.listKey, path4.hub, path4);
+      _traverse2(path5.parentPath, path5.parent, path5.node, path5.container, path5.key, path5.listKey, path5.hub, path5);
       function _traverse2(parentPath, parent, node, container, key, listKey, hub, inPath) {
         if (!node) {
           return;
         }
-        const path5 = inPath || _index.NodePath.get({
+        const path6 = inPath || _index.NodePath.get({
           hub,
           parentPath,
           parent,
@@ -55081,14 +55081,14 @@ var require_traverseForScope = __commonJS({
           listKey,
           key
         });
-        _context._forceSetScope.call(path5);
+        _context._forceSetScope.call(path6);
         const visitor = exploded[node.type];
         if (visitor != null && visitor.enter) {
           for (const visit of visitor.enter) {
-            visit.call(state, path5, state);
+            visit.call(state, path6, state);
           }
         }
-        if (path5.shouldSkip) {
+        if (path6.shouldSkip) {
           return;
         }
         const keys = VISITOR_KEYS[node.type];
@@ -55101,15 +55101,15 @@ var require_traverseForScope = __commonJS({
           if (Array.isArray(prop)) {
             for (let i = 0; i < prop.length; i++) {
               const value = prop[i];
-              _traverse2(path5, node, value, prop, i, key2);
+              _traverse2(path6, node, value, prop, i, key2);
             }
           } else {
-            _traverse2(path5, node, prop, node, key2, null);
+            _traverse2(path6, node, prop, node, key2, null);
           }
         }
         if (visitor != null && visitor.exit) {
           for (const visit of visitor.exit) {
-            visit.call(state, path5, state);
+            visit.call(state, path6, state);
           }
         }
       }
@@ -55129,7 +55129,7 @@ var require_binding = __commonJS({
       constructor({
         identifier,
         scope,
-        path: path4,
+        path: path5,
         kind
       }) {
         this.identifier = void 0;
@@ -55143,10 +55143,10 @@ var require_binding = __commonJS({
         this.references = 0;
         this.identifier = identifier;
         this.scope = scope;
-        this.path = path4;
+        this.path = path5;
         this.kind = kind;
-        if ((kind === "var" || kind === "hoisted") && isInitInLoop(path4)) {
-          this.reassign(path4);
+        if ((kind === "var" || kind === "hoisted") && isInitInLoop(path5)) {
+          this.reassign(path5);
         }
         this.clearValue();
       }
@@ -55164,20 +55164,20 @@ var require_binding = __commonJS({
         this.hasValue = false;
         this.value = null;
       }
-      reassign(path4) {
+      reassign(path5) {
         this.constant = false;
-        if (this.constantViolations.includes(path4)) {
+        if (this.constantViolations.includes(path5)) {
           return;
         }
-        this.constantViolations.push(path4);
+        this.constantViolations.push(path5);
       }
-      reference(path4) {
-        if (this.referencePaths.includes(path4)) {
+      reference(path5) {
+        if (this.referencePaths.includes(path5)) {
           return;
         }
         this.referenced = true;
         this.references++;
-        this.referencePaths.push(path4);
+        this.referencePaths.push(path5);
       }
       dereference() {
         this.references--;
@@ -55185,12 +55185,12 @@ var require_binding = __commonJS({
       }
     };
     exports.default = Binding;
-    function isInitInLoop(path4) {
-      const isFunctionDeclarationOrHasInit = !path4.isVariableDeclarator() || path4.node.init;
+    function isInitInLoop(path5) {
+      const isFunctionDeclarationOrHasInit = !path5.isVariableDeclarator() || path5.node.init;
       for (let {
         parentPath,
         key
-      } = path4; parentPath; {
+      } = path5; parentPath; {
         parentPath,
         key
       } = parentPath) {
@@ -55229,11 +55229,11 @@ var require_cache2 = __commonJS({
     function clearScope() {
       exports.scope = scope = /* @__PURE__ */ new WeakMap();
     }
-    function getCachedPaths(path4) {
+    function getCachedPaths(path5) {
       const {
         parent,
         parentPath
-      } = path4;
+      } = path5;
       return pathsCache.get(parent);
     }
     function getOrCreateCachedPaths(node, parentPath) {
@@ -55509,128 +55509,128 @@ var require_scope = __commonJS({
       scope.bindings = /* @__PURE__ */ Object.create(null);
       scope.globals = /* @__PURE__ */ Object.create(null);
     }
-    function isAnonymousFunctionExpression(path4) {
-      return path4.isFunctionExpression() && !path4.node.id || path4.isArrowFunctionExpression();
+    function isAnonymousFunctionExpression(path5) {
+      return path5.isFunctionExpression() && !path5.node.id || path5.isArrowFunctionExpression();
     }
     var NOT_LOCAL_BINDING = /* @__PURE__ */ Symbol.for("should not be considered a local binding");
     var collectorVisitor = {
-      ForStatement(path4) {
-        const declar = path4.get("init");
+      ForStatement(path5) {
+        const declar = path5.get("init");
         if (declar.isVar()) {
           const {
             scope
-          } = path4;
+          } = path5;
           const parentScope = scope.getFunctionParent() || scope.getProgramParent();
           parentScope.registerBinding("var", declar);
         }
       },
-      Declaration(path4) {
-        if (path4.isBlockScoped()) return;
-        if (path4.isImportDeclaration()) return;
-        if (path4.isExportDeclaration()) return;
-        const parent = path4.scope.getFunctionParent() || path4.scope.getProgramParent();
-        parent.registerDeclaration(path4);
+      Declaration(path5) {
+        if (path5.isBlockScoped()) return;
+        if (path5.isImportDeclaration()) return;
+        if (path5.isExportDeclaration()) return;
+        const parent = path5.scope.getFunctionParent() || path5.scope.getProgramParent();
+        parent.registerDeclaration(path5);
       },
-      ImportDeclaration(path4) {
-        const parent = path4.scope.getBlockParent();
-        parent.registerDeclaration(path4);
+      ImportDeclaration(path5) {
+        const parent = path5.scope.getBlockParent();
+        parent.registerDeclaration(path5);
       },
-      TSImportEqualsDeclaration(path4) {
-        const parent = path4.scope.getBlockParent();
-        parent.registerDeclaration(path4);
+      TSImportEqualsDeclaration(path5) {
+        const parent = path5.scope.getBlockParent();
+        parent.registerDeclaration(path5);
       },
-      ReferencedIdentifier(path4, state) {
-        if (t2.isTSQualifiedName(path4.parent) && path4.parent.right === path4.node) {
+      ReferencedIdentifier(path5, state) {
+        if (t2.isTSQualifiedName(path5.parent) && path5.parent.right === path5.node) {
           return;
         }
-        if (path4.parentPath.isTSImportEqualsDeclaration()) return;
-        state.references.push(path4);
+        if (path5.parentPath.isTSImportEqualsDeclaration()) return;
+        state.references.push(path5);
       },
-      ForXStatement(path4, state) {
-        const left = path4.get("left");
+      ForXStatement(path5, state) {
+        const left = path5.get("left");
         if (left.isPattern() || left.isIdentifier()) {
-          state.constantViolations.push(path4);
+          state.constantViolations.push(path5);
         } else if (left.isVar()) {
           const {
             scope
-          } = path4;
+          } = path5;
           const parentScope = scope.getFunctionParent() || scope.getProgramParent();
           parentScope.registerBinding("var", left);
         }
       },
       ExportDeclaration: {
-        exit(path4) {
+        exit(path5) {
           const {
             node,
             scope
-          } = path4;
+          } = path5;
           if (isExportAllDeclaration(node)) return;
           const declar = node.declaration;
           if (isClassDeclaration(declar) || isFunctionDeclaration2(declar)) {
             const id = declar.id;
             if (!id) return;
             const binding = scope.getBinding(id.name);
-            binding == null || binding.reference(path4);
+            binding == null || binding.reference(path5);
           } else if (isVariableDeclaration(declar)) {
             for (const decl of declar.declarations) {
               for (const name of Object.keys(getBindingIdentifiers(decl))) {
                 const binding = scope.getBinding(name);
-                binding == null || binding.reference(path4);
+                binding == null || binding.reference(path5);
               }
             }
           }
         }
       },
-      LabeledStatement(path4) {
-        path4.scope.getBlockParent().registerDeclaration(path4);
+      LabeledStatement(path5) {
+        path5.scope.getBlockParent().registerDeclaration(path5);
       },
-      AssignmentExpression(path4, state) {
-        state.assignments.push(path4);
+      AssignmentExpression(path5, state) {
+        state.assignments.push(path5);
       },
-      UpdateExpression(path4, state) {
-        state.constantViolations.push(path4);
+      UpdateExpression(path5, state) {
+        state.constantViolations.push(path5);
       },
-      UnaryExpression(path4, state) {
-        if (path4.node.operator === "delete") {
-          state.constantViolations.push(path4);
+      UnaryExpression(path5, state) {
+        if (path5.node.operator === "delete") {
+          state.constantViolations.push(path5);
         }
       },
-      BlockScoped(path4) {
-        let scope = path4.scope;
-        if (scope.path === path4) scope = scope.parent;
+      BlockScoped(path5) {
+        let scope = path5.scope;
+        if (scope.path === path5) scope = scope.parent;
         const parent = scope.getBlockParent();
-        parent.registerDeclaration(path4);
-        if (path4.isClassDeclaration() && path4.node.id) {
-          const id = path4.node.id;
+        parent.registerDeclaration(path5);
+        if (path5.isClassDeclaration() && path5.node.id) {
+          const id = path5.node.id;
           const name = id.name;
-          path4.scope.bindings[name] = path4.scope.parent.getBinding(name);
+          path5.scope.bindings[name] = path5.scope.parent.getBinding(name);
         }
       },
-      CatchClause(path4) {
-        path4.scope.registerBinding("let", path4);
+      CatchClause(path5) {
+        path5.scope.registerBinding("let", path5);
       },
-      Function(path4) {
-        const params = path4.get("params");
+      Function(path5) {
+        const params = path5.get("params");
         for (const param of params) {
-          path4.scope.registerBinding("param", param);
+          path5.scope.registerBinding("param", param);
         }
-        if (path4.isFunctionExpression() && path4.node.id && !path4.node.id[NOT_LOCAL_BINDING]) {
-          path4.scope.registerBinding("local", path4.get("id"), path4);
-        }
-      },
-      ClassExpression(path4) {
-        if (path4.node.id && !path4.node.id[NOT_LOCAL_BINDING]) {
-          path4.scope.registerBinding("local", path4.get("id"), path4);
+        if (path5.isFunctionExpression() && path5.node.id && !path5.node.id[NOT_LOCAL_BINDING]) {
+          path5.scope.registerBinding("local", path5.get("id"), path5);
         }
       },
-      TSTypeAnnotation(path4) {
-        path4.skip();
+      ClassExpression(path5) {
+        if (path5.node.id && !path5.node.id[NOT_LOCAL_BINDING]) {
+          path5.scope.registerBinding("local", path5.get("id"), path5);
+        }
+      },
+      TSTypeAnnotation(path5) {
+        path5.skip();
       }
     };
     var scopeVisitor;
     var uid = 0;
     var Scope = class _Scope {
-      constructor(path4) {
+      constructor(path5) {
         this.uid = void 0;
         this.path = void 0;
         this.block = void 0;
@@ -55644,15 +55644,15 @@ var require_scope = __commonJS({
         this.crawling = void 0;
         const {
           node
-        } = path4;
+        } = path5;
         const cached = _cache.scope.get(node);
-        if ((cached == null ? void 0 : cached.path) === path4) {
+        if ((cached == null ? void 0 : cached.path) === path5) {
           return cached;
         }
         _cache.scope.set(node, this);
         this.uid = uid++;
         this.block = node;
-        this.path = path4;
+        this.path = path5;
         this.labels = /* @__PURE__ */ new Map();
         this.inited = false;
         Object.defineProperties(this, {
@@ -55672,14 +55672,14 @@ var require_scope = __commonJS({
       }
       get parent() {
         var _parent;
-        let parent, path4 = this.path;
+        let parent, path5 = this.path;
         do {
           var _path;
-          const shouldSkip = path4.key === "key" || path4.listKey === "decorators";
-          path4 = path4.parentPath;
-          if (shouldSkip && path4.isMethod()) path4 = path4.parentPath;
-          if ((_path = path4) != null && _path.isScope()) parent = path4;
-        } while (path4 && !parent);
+          const shouldSkip = path5.key === "key" || path5.listKey === "decorators";
+          path5 = path5.parentPath;
+          if (shouldSkip && path5.isMethod()) path5 = path5.parentPath;
+          if ((_path = path5) != null && _path.isScope()) parent = path5;
+        } while (path5 && !parent);
         return (_parent = parent) == null ? void 0 : _parent.scope;
       }
       get references() {
@@ -55769,8 +55769,8 @@ var require_scope = __commonJS({
         }
       }
       dump() {
-        const sep3 = "-".repeat(60);
-        console.log(sep3);
+        const sep4 = "-".repeat(60);
+        console.log(sep4);
         let scope = this;
         do {
           console.log("#", scope.block.type);
@@ -55784,7 +55784,7 @@ var require_scope = __commonJS({
             });
           }
         } while (scope = scope.parent);
-        console.log(sep3);
+        console.log(sep4);
       }
       hasLabel(name) {
         return !!this.getLabel(name);
@@ -55792,62 +55792,62 @@ var require_scope = __commonJS({
       getLabel(name) {
         return this.labels.get(name);
       }
-      registerLabel(path4) {
-        this.labels.set(path4.node.label.name, path4);
+      registerLabel(path5) {
+        this.labels.set(path5.node.label.name, path5);
       }
-      registerDeclaration(path4) {
-        if (path4.isLabeledStatement()) {
-          this.registerLabel(path4);
-        } else if (path4.isFunctionDeclaration()) {
-          this.registerBinding("hoisted", path4.get("id"), path4);
-        } else if (path4.isVariableDeclaration()) {
-          const declarations = path4.get("declarations");
+      registerDeclaration(path5) {
+        if (path5.isLabeledStatement()) {
+          this.registerLabel(path5);
+        } else if (path5.isFunctionDeclaration()) {
+          this.registerBinding("hoisted", path5.get("id"), path5);
+        } else if (path5.isVariableDeclaration()) {
+          const declarations = path5.get("declarations");
           const {
             kind
-          } = path4.node;
+          } = path5.node;
           for (const declar of declarations) {
             this.registerBinding(kind === "using" || kind === "await using" ? "const" : kind, declar);
           }
-        } else if (path4.isClassDeclaration()) {
-          if (path4.node.declare) return;
-          this.registerBinding("let", path4);
-        } else if (path4.isImportDeclaration()) {
-          const isTypeDeclaration = path4.node.importKind === "type" || path4.node.importKind === "typeof";
-          const specifiers = path4.get("specifiers");
+        } else if (path5.isClassDeclaration()) {
+          if (path5.node.declare) return;
+          this.registerBinding("let", path5);
+        } else if (path5.isImportDeclaration()) {
+          const isTypeDeclaration = path5.node.importKind === "type" || path5.node.importKind === "typeof";
+          const specifiers = path5.get("specifiers");
           for (const specifier of specifiers) {
             const isTypeSpecifier = isTypeDeclaration || specifier.isImportSpecifier() && (specifier.node.importKind === "type" || specifier.node.importKind === "typeof");
             this.registerBinding(isTypeSpecifier ? "unknown" : "module", specifier);
           }
-        } else if (path4.isExportDeclaration()) {
-          const declar = path4.get("declaration");
+        } else if (path5.isExportDeclaration()) {
+          const declar = path5.get("declaration");
           if (declar.isClassDeclaration() || declar.isFunctionDeclaration() || declar.isVariableDeclaration()) {
             this.registerDeclaration(declar);
           }
         } else {
-          this.registerBinding("unknown", path4);
+          this.registerBinding("unknown", path5);
         }
       }
       buildUndefinedNode() {
         return buildUndefinedNode();
       }
-      registerConstantViolation(path4) {
-        const ids = path4.getAssignmentIdentifiers();
+      registerConstantViolation(path5) {
+        const ids = path5.getAssignmentIdentifiers();
         for (const name of Object.keys(ids)) {
           var _this$getBinding;
-          (_this$getBinding = this.getBinding(name)) == null || _this$getBinding.reassign(path4);
+          (_this$getBinding = this.getBinding(name)) == null || _this$getBinding.reassign(path5);
         }
       }
-      registerBinding(kind, path4, bindingPath = path4) {
+      registerBinding(kind, path5, bindingPath = path5) {
         if (!kind) throw new ReferenceError("no `kind`");
-        if (path4.isVariableDeclaration()) {
-          const declarators = path4.get("declarations");
+        if (path5.isVariableDeclaration()) {
+          const declarators = path5.get("declarations");
           for (const declar of declarators) {
             this.registerBinding(kind, declar);
           }
           return;
         }
         const parent = this.getProgramParent();
-        const ids = path4.getOuterBindingIdentifiers(true);
+        const ids = path5.getOuterBindingIdentifiers(true);
         for (const name of Object.keys(ids)) {
           parent.references[name] = true;
           for (const id of ids[name]) {
@@ -55989,7 +55989,7 @@ var require_scope = __commonJS({
         }
       }
       crawl() {
-        const path4 = this.path;
+        const path5 = this.path;
         resetScope(this);
         this.data = /* @__PURE__ */ Object.create(null);
         let scope = this;
@@ -56007,27 +56007,27 @@ var require_scope = __commonJS({
         };
         this.crawling = true;
         scopeVisitor || (scopeVisitor = _index.default.visitors.merge([{
-          Scope(path5) {
-            resetScope(path5.scope);
+          Scope(path6) {
+            resetScope(path6.scope);
           }
         }, collectorVisitor]));
-        if (path4.type !== "Program") {
-          const typeVisitors = scopeVisitor[path4.type];
+        if (path5.type !== "Program") {
+          const typeVisitors = scopeVisitor[path5.type];
           if (typeVisitors) {
             for (const visit of typeVisitors.enter) {
-              visit.call(state, path4, state);
+              visit.call(state, path5, state);
             }
           }
         }
-        path4.traverse(scopeVisitor, state);
+        path5.traverse(scopeVisitor, state);
         this.crawling = false;
-        for (const path5 of state.assignments) {
-          const ids = path5.getAssignmentIdentifiers();
+        for (const path6 of state.assignments) {
+          const ids = path6.getAssignmentIdentifiers();
           for (const name of Object.keys(ids)) {
-            if (path5.scope.getBinding(name)) continue;
+            if (path6.scope.getBinding(name)) continue;
             programParent.addGlobal(ids[name]);
           }
-          path5.scope.registerConstantViolation(path5);
+          path6.scope.registerConstantViolation(path6);
         }
         for (const ref of state.references) {
           const binding = ref.scope.getBinding(ref.node.name);
@@ -56037,19 +56037,19 @@ var require_scope = __commonJS({
             programParent.addGlobal(ref.node);
           }
         }
-        for (const path5 of state.constantViolations) {
-          path5.scope.registerConstantViolation(path5);
+        for (const path6 of state.constantViolations) {
+          path6.scope.registerConstantViolation(path6);
         }
       }
       push(opts) {
-        let path4 = this.path;
-        if (path4.isPattern()) {
-          path4 = this.getPatternParent().path;
-        } else if (!path4.isBlockStatement() && !path4.isProgram()) {
-          path4 = this.getBlockParent().path;
+        let path5 = this.path;
+        if (path5.isPattern()) {
+          path5 = this.getPatternParent().path;
+        } else if (!path5.isBlockStatement() && !path5.isProgram()) {
+          path5 = this.getBlockParent().path;
         }
-        if (path4.isSwitchStatement()) {
-          path4 = (this.getFunctionParent() || this.getProgramParent()).path;
+        if (path5.isSwitchStatement()) {
+          path5 = (this.getFunctionParent() || this.getProgramParent()).path;
         }
         const {
           init,
@@ -56057,29 +56057,29 @@ var require_scope = __commonJS({
           kind = "var",
           id
         } = opts;
-        if (!init && !unique && (kind === "var" || kind === "let") && isAnonymousFunctionExpression(path4) && isCallExpression2(path4.parent, {
-          callee: path4.node
-        }) && path4.parent.arguments.length <= path4.node.params.length && isIdentifier2(id)) {
-          path4.pushContainer("params", id);
-          path4.scope.registerBinding("param", path4.get("params")[path4.node.params.length - 1]);
+        if (!init && !unique && (kind === "var" || kind === "let") && isAnonymousFunctionExpression(path5) && isCallExpression2(path5.parent, {
+          callee: path5.node
+        }) && path5.parent.arguments.length <= path5.node.params.length && isIdentifier2(id)) {
+          path5.pushContainer("params", id);
+          path5.scope.registerBinding("param", path5.get("params")[path5.node.params.length - 1]);
           return;
         }
-        if (path4.isLoop() || path4.isCatchClause() || path4.isFunction()) {
-          path4.ensureBlock();
-          path4 = path4.get("body");
+        if (path5.isLoop() || path5.isCatchClause() || path5.isFunction()) {
+          path5.ensureBlock();
+          path5 = path5.get("body");
         }
         const blockHoist = opts._blockHoist == null ? 2 : opts._blockHoist;
         const dataKey = `declaration:${kind}:${blockHoist}`;
-        let declarPath = !unique && path4.getData(dataKey);
+        let declarPath = !unique && path5.getData(dataKey);
         if (!declarPath) {
           const declar = variableDeclaration(kind, []);
           declar._blockHoist = blockHoist;
-          [declarPath] = path4.unshiftContainer("body", [declar]);
-          if (!unique) path4.setData(dataKey, declarPath);
+          [declarPath] = path5.unshiftContainer("body", [declar]);
+          if (!unique) path5.setData(dataKey, declarPath);
         }
         const declarator = variableDeclarator(id, init);
         const len = declarPath.node.declarations.push(declarator);
-        path4.scope.registerBinding(kind, declarPath.get("declarations")[len - 1]);
+        path5.scope.registerBinding(kind, declarPath.get("declarations")[len - 1]);
       }
       getProgramParent() {
         let scope = this;
@@ -56224,15 +56224,15 @@ var require_scope = __commonJS({
           const binding = this.bindings[name];
           if (!binding) continue;
           const {
-            path: path4
+            path: path5
           } = binding;
-          if (!path4.isVariableDeclarator()) continue;
+          if (!path5.isVariableDeclarator()) continue;
           const {
             parent,
             parentPath
-          } = path4;
+          } = path5;
           if (parent.kind !== "var" || seen.has(parent)) continue;
-          seen.add(path4.parent);
+          seen.add(path5.parent);
           let firstId;
           const init = [];
           for (const decl of parent.declarations) {
@@ -56879,16 +56879,16 @@ var require_resolve_uri_umd = __commonJS({
       }
       function parseFileUrl(input) {
         const match = fileRegex.exec(input);
-        const path4 = match[2];
-        return makeUrl("file:", "", match[1] || "", "", isAbsolutePath(path4) ? path4 : "/" + path4, match[3] || "", match[4] || "");
+        const path5 = match[2];
+        return makeUrl("file:", "", match[1] || "", "", isAbsolutePath(path5) ? path5 : "/" + path5, match[3] || "", match[4] || "");
       }
-      function makeUrl(scheme, user, host, port, path4, query, hash) {
+      function makeUrl(scheme, user, host, port, path5, query, hash) {
         return {
           scheme,
           user,
           host,
           port,
-          path: path4,
+          path: path5,
           query,
           hash,
           type: 7
@@ -56918,11 +56918,11 @@ var require_resolve_uri_umd = __commonJS({
         url.type = input ? input.startsWith("?") ? 3 : input.startsWith("#") ? 2 : 4 : 1;
         return url;
       }
-      function stripPathFilename(path4) {
-        if (path4.endsWith("/.."))
-          return path4;
-        const index = path4.lastIndexOf("/");
-        return path4.slice(0, index + 1);
+      function stripPathFilename(path5) {
+        if (path5.endsWith("/.."))
+          return path5;
+        const index = path5.lastIndexOf("/");
+        return path5.slice(0, index + 1);
       }
       function mergePaths(url, base) {
         normalizePath(base, base.type);
@@ -56960,14 +56960,14 @@ var require_resolve_uri_umd = __commonJS({
           pieces[pointer++] = piece;
           positive++;
         }
-        let path4 = "";
+        let path5 = "";
         for (let i = 1; i < pointer; i++) {
-          path4 += "/" + pieces[i];
+          path5 += "/" + pieces[i];
         }
-        if (!path4 || addTrailingSlash && !path4.endsWith("/..")) {
-          path4 += "/";
+        if (!path5 || addTrailingSlash && !path5.endsWith("/..")) {
+          path5 += "/";
         }
-        url.path = path4;
+        url.path = path5;
       }
       function resolve(input, base) {
         if (!input && !base)
@@ -57008,13 +57008,13 @@ var require_resolve_uri_umd = __commonJS({
           case 3:
             return queryHash;
           case 4: {
-            const path4 = url.path.slice(1);
-            if (!path4)
+            const path5 = url.path.slice(1);
+            if (!path5)
               return queryHash || ".";
-            if (isRelative(base || input) && !isRelative(path4)) {
-              return "./" + path4 + queryHash;
+            if (isRelative(base || input) && !isRelative(path5)) {
+              return "./" + path5 + queryHash;
             }
-            return path4 + queryHash;
+            return path5 + queryHash;
           }
           case 5:
             return url.path + queryHash;
@@ -57113,10 +57113,10 @@ var require_trace_mapping_umd = __commonJS({
       module2.exports = __toCommonJS(trace_mapping_exports);
       var import_sourcemap_codec2 = __toESM2(require_sourcemap_codec());
       var import_resolve_uri = __toESM2(require_resolve_uri());
-      function stripFilename(path4) {
-        if (!path4) return "";
-        const index = path4.lastIndexOf("/");
-        return path4.slice(0, index + 1);
+      function stripFilename(path5) {
+        if (!path5) return "";
+        const index = path5.lastIndexOf("/");
+        return path5.slice(0, index + 1);
       }
       function resolver(mapUrl, sourceRoot) {
         const from = stripFilename(mapUrl);
@@ -59771,16 +59771,16 @@ var require_typescript2 = __commonJS({
     function TSIntersectionType(node) {
       tsPrintUnionOrIntersectionType(this, node, "&");
     }
-    function tsPrintUnionOrIntersectionType(printer, node, sep3) {
+    function tsPrintUnionOrIntersectionType(printer, node, sep4) {
       var _printer$tokenMap;
       let hasLeadingToken = 0;
-      if ((_printer$tokenMap = printer.tokenMap) != null && _printer$tokenMap.startMatches(node, sep3)) {
+      if ((_printer$tokenMap = printer.tokenMap) != null && _printer$tokenMap.startMatches(node, sep4)) {
         hasLeadingToken = 1;
-        printer.token(sep3);
+        printer.token(sep4);
       }
       printer.printJoin(node.types, void 0, void 0, function(i) {
         this.space();
-        this.token(sep3, void 0, i + hasLeadingToken);
+        this.token(sep4, void 0, i + hasLeadingToken);
         this.space();
       });
     }
@@ -63447,56 +63447,56 @@ var require_ancestry = __commonJS({
       VISITOR_KEYS
     } = _t;
     function findParent(callback) {
-      let path4 = this;
-      while (path4 = path4.parentPath) {
-        if (callback(path4)) return path4;
+      let path5 = this;
+      while (path5 = path5.parentPath) {
+        if (callback(path5)) return path5;
       }
       return null;
     }
     function find(callback) {
-      let path4 = this;
+      let path5 = this;
       do {
-        if (callback(path4)) return path4;
-      } while (path4 = path4.parentPath);
+        if (callback(path5)) return path5;
+      } while (path5 = path5.parentPath);
       return null;
     }
     function getFunctionParent() {
       return this.findParent((p) => p.isFunction());
     }
     function getStatementParent() {
-      let path4 = this;
+      let path5 = this;
       do {
-        if (!path4.parentPath || Array.isArray(path4.container) && path4.isStatement()) {
+        if (!path5.parentPath || Array.isArray(path5.container) && path5.isStatement()) {
           break;
         } else {
-          path4 = path4.parentPath;
+          path5 = path5.parentPath;
         }
-      } while (path4);
-      if (path4 && (path4.isProgram() || path4.isFile())) {
+      } while (path5);
+      if (path5 && (path5.isProgram() || path5.isFile())) {
         throw new Error("File/Program node, we can't possibly find a statement parent to this");
       }
-      return path4;
+      return path5;
     }
     function getEarliestCommonAncestorFrom(paths) {
       return this.getDeepestCommonAncestorFrom(paths, function(deepest, i, ancestries) {
         let earliest;
         const keys = VISITOR_KEYS[deepest.type];
         for (const ancestry of ancestries) {
-          const path4 = ancestry[i + 1];
+          const path5 = ancestry[i + 1];
           if (!earliest) {
-            earliest = path4;
+            earliest = path5;
             continue;
           }
-          if (path4.listKey && earliest.listKey === path4.listKey) {
-            if (path4.key < earliest.key) {
-              earliest = path4;
+          if (path5.listKey && earliest.listKey === path5.listKey) {
+            if (path5.key < earliest.key) {
+              earliest = path5;
               continue;
             }
           }
           const earliestKeyIndex = keys.indexOf(earliest.parentKey);
-          const currentKeyIndex = keys.indexOf(path4.parentKey);
+          const currentKeyIndex = keys.indexOf(path5.parentKey);
           if (earliestKeyIndex > currentKeyIndex) {
-            earliest = path4;
+            earliest = path5;
           }
         }
         return earliest;
@@ -63511,11 +63511,11 @@ var require_ancestry = __commonJS({
       }
       let minDepth = Infinity;
       let lastCommonIndex, lastCommon;
-      const ancestries = paths.map((path4) => {
+      const ancestries = paths.map((path5) => {
         const ancestry = [];
         do {
-          ancestry.unshift(path4);
-        } while ((path4 = path4.parentPath) && path4 !== this);
+          ancestry.unshift(path5);
+        } while ((path5 = path5.parentPath) && path5 !== this);
         if (ancestry.length < minDepth) {
           minDepth = ancestry.length;
         }
@@ -63543,11 +63543,11 @@ var require_ancestry = __commonJS({
       }
     }
     function getAncestry() {
-      let path4 = this;
+      let path5 = this;
       const paths = [];
       do {
-        paths.push(path4);
-      } while (path4 = path4.parentPath);
+        paths.push(path5);
+      } while (path5 = path5.parentPath);
       return paths;
     }
     function isAncestor(maybeDescendant) {
@@ -63557,10 +63557,10 @@ var require_ancestry = __commonJS({
       return !!this.findParent((parent) => parent === maybeAncestor);
     }
     function inType(...candidateTypes) {
-      let path4 = this;
-      while (path4) {
-        if (candidateTypes.includes(path4.node.type)) return true;
-        path4 = path4.parentPath;
+      let path5 = this;
+      while (path5) {
+        if (candidateTypes.includes(path5.node.type)) return true;
+        path5 = path5.parentPath;
       }
       return false;
     }
@@ -63631,14 +63631,14 @@ var require_inferer_reference = __commonJS({
       } else if (node.name === "arguments") {
       }
     }
-    function getTypeAnnotationBindingConstantViolations(binding, path4, name) {
+    function getTypeAnnotationBindingConstantViolations(binding, path5, name) {
       const types = [];
       const functionConstantViolations = [];
-      let constantViolations = getConstantViolationsBefore(binding, path4, functionConstantViolations);
-      const testType = getConditionalAnnotation(binding, path4, name);
+      let constantViolations = getConstantViolationsBefore(binding, path5, functionConstantViolations);
+      const testType = getConditionalAnnotation(binding, path5, name);
       if (testType) {
         const testConstantViolations = getConstantViolationsBefore(binding, testType.ifStatement);
-        constantViolations = constantViolations.filter((path5) => !testConstantViolations.includes(path5));
+        constantViolations = constantViolations.filter((path6) => !testConstantViolations.includes(path6));
         types.push(testType.typeAnnotation);
       }
       if (constantViolations.length) {
@@ -63652,20 +63652,20 @@ var require_inferer_reference = __commonJS({
       }
       return (0, _util.createUnionType)(types);
     }
-    function getConstantViolationsBefore(binding, path4, functions) {
+    function getConstantViolationsBefore(binding, path5, functions) {
       const violations = binding.constantViolations.slice();
       violations.unshift(binding.path);
       return violations.filter((violation) => {
         violation = violation.resolve();
-        const status = violation._guessExecutionStatusRelativeTo(path4);
+        const status = violation._guessExecutionStatusRelativeTo(path5);
         if (functions && status === "unknown") functions.push(violation);
         return status === "before";
       });
     }
-    function inferAnnotationFromBinaryExpression(name, path4) {
-      const operator = path4.node.operator;
-      const right = path4.get("right").resolve();
-      const left = path4.get("left").resolve();
+    function inferAnnotationFromBinaryExpression(name, path5) {
+      const operator = path5.node.operator;
+      const right = path5.get("right").resolve();
+      const left = path5.get("left").resolve();
       let target;
       if (left.isIdentifier({
         name
@@ -63709,11 +63709,11 @@ var require_inferer_reference = __commonJS({
       if (typeof typeValue !== "string") return;
       return createTypeAnnotationBasedOnTypeof(typeValue);
     }
-    function getParentConditionalPath(binding, path4, name) {
+    function getParentConditionalPath(binding, path5, name) {
       let parentPath;
-      while (parentPath = path4.parentPath) {
+      while (parentPath = path5.parentPath) {
         if (parentPath.isIfStatement() || parentPath.isConditionalExpression()) {
-          if (path4.key === "test") {
+          if (path5.key === "test") {
             return;
           }
           return parentPath;
@@ -63721,24 +63721,24 @@ var require_inferer_reference = __commonJS({
         if (parentPath.isFunction()) {
           if (name == null || parentPath.parentPath.scope.getBinding(name) !== binding) return;
         }
-        path4 = parentPath;
+        path5 = parentPath;
       }
     }
-    function getConditionalAnnotation(binding, path4, name) {
-      const ifStatement = getParentConditionalPath(binding, path4, name);
+    function getConditionalAnnotation(binding, path5, name) {
+      const ifStatement = getParentConditionalPath(binding, path5, name);
       if (!ifStatement) return;
       const test = ifStatement.get("test");
       const paths = [test];
       const types = [];
       for (let i = 0; i < paths.length; i++) {
-        const path5 = paths[i];
-        if (path5.isLogicalExpression()) {
-          if (path5.node.operator === "&&") {
-            paths.push(path5.get("left"));
-            paths.push(path5.get("right"));
+        const path6 = paths[i];
+        if (path6.isLogicalExpression()) {
+          if (path6.node.operator === "&&") {
+            paths.push(path6.get("left"));
+            paths.push(path6.get("right"));
           }
-        } else if (path5.isBinaryExpression()) {
-          const type = inferAnnotationFromBinaryExpression(name, path5);
+        } else if (path6.isBinaryExpression()) {
+          const type = inferAnnotationFromBinaryExpression(name, path6);
           if (type) types.push(type);
         }
       }
@@ -64557,12 +64557,12 @@ var require_hoister = __commonJS({
       variableDeclarator
     } = _t2;
     var referenceVisitor = {
-      ReferencedIdentifier(path4, state) {
-        if (path4.isJSXIdentifier() && react.isCompatTag(path4.node.name) && !path4.parentPath.isJSXMemberExpression()) {
+      ReferencedIdentifier(path5, state) {
+        if (path5.isJSXIdentifier() && react.isCompatTag(path5.node.name) && !path5.parentPath.isJSXMemberExpression()) {
           return;
         }
-        if (path4.node.name === "this") {
-          let scope = path4.scope;
+        if (path5.node.name === "this") {
+          let scope = path5.scope;
           do {
             if (scope.path.isFunction() && !scope.path.isArrowFunctionExpression()) {
               break;
@@ -64570,21 +64570,21 @@ var require_hoister = __commonJS({
           } while (scope = scope.parent);
           if (scope) state.breakOnScopePaths.push(scope.path);
         }
-        const binding = path4.scope.getBinding(path4.node.name);
+        const binding = path5.scope.getBinding(path5.node.name);
         if (!binding) return;
         for (const violation of binding.constantViolations) {
           if (violation.scope !== binding.path.scope) {
             state.mutableBinding = true;
-            path4.stop();
+            path5.stop();
             return;
           }
         }
-        if (binding !== state.scope.getBinding(path4.node.name)) return;
-        state.bindings[path4.node.name] = binding;
+        if (binding !== state.scope.getBinding(path5.node.name)) return;
+        state.bindings[path5.node.name] = binding;
       }
     };
     var PathHoister = class {
-      constructor(path4, scope) {
+      constructor(path5, scope) {
         this.breakOnScopePaths = void 0;
         this.bindings = void 0;
         this.mutableBinding = void 0;
@@ -64597,7 +64597,7 @@ var require_hoister = __commonJS({
         this.mutableBinding = false;
         this.scopes = [];
         this.scope = scope;
-        this.path = path4;
+        this.path = path5;
         this.attachAfter = false;
       }
       isCompatibleScope(scope) {
@@ -64623,11 +64623,11 @@ var require_hoister = __commonJS({
         } while (scope = scope.parent);
       }
       getAttachmentPath() {
-        let path4 = this._getAttachmentPath();
-        if (!path4) return;
-        let targetScope = path4.scope;
-        if (targetScope.path === path4) {
-          targetScope = path4.scope.parent;
+        let path5 = this._getAttachmentPath();
+        if (!path5) return;
+        let targetScope = path5.scope;
+        if (targetScope.path === path5) {
+          targetScope = path5.scope.parent;
         }
         if (targetScope.path.isProgram() || targetScope.path.isFunction()) {
           for (const name of Object.keys(this.bindings)) {
@@ -64637,18 +64637,18 @@ var require_hoister = __commonJS({
               continue;
             }
             const bindingParentPath = this.getAttachmentParentForPath(binding.path);
-            if (bindingParentPath.key >= path4.key) {
+            if (bindingParentPath.key >= path5.key) {
               this.attachAfter = true;
-              path4 = binding.path;
+              path5 = binding.path;
               for (const violationPath of binding.constantViolations) {
-                if (this.getAttachmentParentForPath(violationPath).key > path4.key) {
-                  path4 = violationPath;
+                if (this.getAttachmentParentForPath(violationPath).key > path5.key) {
+                  path5 = violationPath;
                 }
               }
             }
           }
         }
-        return path4;
+        return path5;
       }
       _getAttachmentPath() {
         const scopes = this.scopes;
@@ -64673,13 +64673,13 @@ var require_hoister = __commonJS({
         const scope = this.scopes.pop();
         if (scope) return this.getAttachmentParentForPath(scope.path);
       }
-      getAttachmentParentForPath(path4) {
+      getAttachmentParentForPath(path5) {
         do {
-          if (!path4.parentPath || Array.isArray(path4.container) && path4.isStatement()) {
-            return path4;
+          if (!path5.parentPath || Array.isArray(path5.container) && path5.isStatement()) {
+            return path5;
           }
-        } while (path4 = path4.parentPath);
-        return path4;
+        } while (path5 = path5.parentPath);
+        return path5;
       }
       hasOwnParamBindings(scope) {
         for (const name of Object.keys(this.bindings)) {
@@ -64781,18 +64781,18 @@ var require_modification = __commonJS({
       for (let i = 0; i < nodes.length; i++) {
         var _this$context;
         const to = from + i;
-        const path4 = this.getSibling(to);
-        paths.push(path4);
+        const path5 = this.getSibling(to);
+        paths.push(path5);
         if ((_this$context = this.context) != null && _this$context.queue) {
-          _context.pushContext.call(path4, this.context);
+          _context.pushContext.call(path5, this.context);
         }
       }
       const contexts = _context._getQueueContexts.call(this);
-      for (const path4 of paths) {
-        _context.setScope.call(path4);
-        path4.debug("Inserted.");
+      for (const path5 of paths) {
+        _context.setScope.call(path5);
+        path5.debug("Inserted.");
         for (const context of contexts) {
-          context.maybeQueue(path4, true);
+          context.maybeQueue(path5, true);
         }
       }
       return paths;
@@ -64804,8 +64804,8 @@ var require_modification = __commonJS({
       return _containerInsert.call(this, this.key + 1, nodes);
     }
     var last = (arr) => arr[arr.length - 1];
-    function isHiddenInSequenceExpression(path4) {
-      return isSequenceExpression(path4.parent) && (last(path4.parent.expressions) !== path4.node || isHiddenInSequenceExpression(path4.parentPath));
+    function isHiddenInSequenceExpression(path5) {
+      return isSequenceExpression(path5.parent) && (last(path5.parent.expressions) !== path5.node || isHiddenInSequenceExpression(path5.parentPath));
     }
     function isAlmostConstantAssignment(node, scope) {
       if (!isAssignmentExpression(node) || !isIdentifier2(node.left)) {
@@ -64879,9 +64879,9 @@ var require_modification = __commonJS({
       if (!this.parent) return;
       const paths = (0, _cache.getCachedPaths)(this);
       if (!paths) return;
-      for (const [, path4] of paths) {
-        if (typeof path4.key === "number" && path4.container === this.container && path4.key >= fromIndex) {
-          path4.key += incrementBy;
+      for (const [, path5] of paths) {
+        if (typeof path5.key === "number" && path5.container === this.container && path5.key >= fromIndex) {
+          path5.key += incrementBy;
         }
       }
     }
@@ -64915,27 +64915,27 @@ var require_modification = __commonJS({
       _removal._assertUnremoved.call(this);
       const verifiedNodes = _verifyNodeList.call(this, nodes);
       const container = this.node[listKey];
-      const path4 = _index.default.get({
+      const path5 = _index.default.get({
         parentPath: this,
         parent: this.node,
         container,
         listKey,
         key: 0
       }).setContext(this.context);
-      return _containerInsertBefore.call(path4, verifiedNodes);
+      return _containerInsertBefore.call(path5, verifiedNodes);
     }
     function pushContainer(listKey, nodes) {
       _removal._assertUnremoved.call(this);
       const verifiedNodes = _verifyNodeList.call(this, nodes);
       const container = this.node[listKey];
-      const path4 = _index.default.get({
+      const path5 = _index.default.get({
         parentPath: this,
         parent: this.node,
         container,
         listKey,
         key: container.length
       }).setContext(this.context);
-      return path4.replaceWithMultiple(verifiedNodes);
+      return path5.replaceWithMultiple(verifiedNodes);
     }
     exports.hoist = function hoist(scope = this.scope) {
       const hoister = new _hoister.default(this, scope);
@@ -65113,9 +65113,9 @@ var require_replacement = __commonJS({
         id
       }));
       const completionRecords = callee.getCompletionRecords();
-      for (const path4 of completionRecords) {
-        if (!path4.isExpressionStatement()) continue;
-        const loop = path4.findParent((path5) => path5.isLoop());
+      for (const path5 of completionRecords) {
+        if (!path5.isExpressionStatement()) continue;
+        const loop = path5.findParent((path6) => path6.isLoop());
         if (loop) {
           let uid = loop.getData("expressionReplacementReturnUid");
           if (!uid) {
@@ -65125,9 +65125,9 @@ var require_replacement = __commonJS({
           } else {
             uid = identifier(uid.name);
           }
-          path4.get("expression").replaceWith(assignmentExpression("=", cloneNode(uid), path4.node.expression));
+          path5.get("expression").replaceWith(assignmentExpression("=", cloneNode(uid), path5.node.expression));
         } else {
-          path4.replaceWith(returnStatement(path4.node.expression));
+          path5.replaceWith(returnStatement(path5.node.expression));
         }
       }
       callee.arrowFunctionToExpression();
@@ -65236,16 +65236,16 @@ var require_evaluation = __commonJS({
       const res = this.evaluate();
       if (res.confident) return !!res.value;
     }
-    function deopt(path4, state) {
+    function deopt(path5, state) {
       if (!state.confident) return;
-      state.deoptPath = path4;
+      state.deoptPath = path5;
       state.confident = false;
     }
     var Globals = /* @__PURE__ */ new Map([["undefined", void 0], ["Infinity", Infinity], ["NaN", NaN]]);
-    function evaluateCached(path4, state) {
+    function evaluateCached(path5, state) {
       const {
         node
-      } = path4;
+      } = path5;
       const {
         seen
       } = state;
@@ -65254,7 +65254,7 @@ var require_evaluation = __commonJS({
         if (existing.resolved) {
           return existing.value;
         } else {
-          deopt(path4, state);
+          deopt(path5, state);
           return;
         }
       } else {
@@ -65262,7 +65262,7 @@ var require_evaluation = __commonJS({
           resolved: false
         };
         seen.set(node, item);
-        const val = _evaluate(path4, state);
+        const val = _evaluate(path5, state);
         if (state.confident) {
           item.resolved = true;
           item.value = val;
@@ -65270,55 +65270,55 @@ var require_evaluation = __commonJS({
         return val;
       }
     }
-    function _evaluate(path4, state) {
+    function _evaluate(path5, state) {
       if (!state.confident) return;
-      if (path4.isSequenceExpression()) {
-        const exprs = path4.get("expressions");
+      if (path5.isSequenceExpression()) {
+        const exprs = path5.get("expressions");
         return evaluateCached(exprs[exprs.length - 1], state);
       }
-      if (path4.isStringLiteral() || path4.isNumericLiteral() || path4.isBooleanLiteral()) {
-        return path4.node.value;
+      if (path5.isStringLiteral() || path5.isNumericLiteral() || path5.isBooleanLiteral()) {
+        return path5.node.value;
       }
-      if (path4.isNullLiteral()) {
+      if (path5.isNullLiteral()) {
         return null;
       }
-      if (path4.isTemplateLiteral()) {
-        return evaluateQuasis(path4, path4.node.quasis, state);
+      if (path5.isTemplateLiteral()) {
+        return evaluateQuasis(path5, path5.node.quasis, state);
       }
-      if (path4.isTaggedTemplateExpression() && path4.get("tag").isMemberExpression()) {
-        const object = path4.get("tag.object");
+      if (path5.isTaggedTemplateExpression() && path5.get("tag").isMemberExpression()) {
+        const object = path5.get("tag.object");
         const {
           node: {
             name
           }
         } = object;
-        const property = path4.get("tag.property");
-        if (object.isIdentifier() && name === "String" && !path4.scope.getBinding(name) && property.isIdentifier() && property.node.name === "raw") {
-          return evaluateQuasis(path4, path4.node.quasi.quasis, state, true);
+        const property = path5.get("tag.property");
+        if (object.isIdentifier() && name === "String" && !path5.scope.getBinding(name) && property.isIdentifier() && property.node.name === "raw") {
+          return evaluateQuasis(path5, path5.node.quasi.quasis, state, true);
         }
       }
-      if (path4.isConditionalExpression()) {
-        const testResult = evaluateCached(path4.get("test"), state);
+      if (path5.isConditionalExpression()) {
+        const testResult = evaluateCached(path5.get("test"), state);
         if (!state.confident) return;
         if (testResult) {
-          return evaluateCached(path4.get("consequent"), state);
+          return evaluateCached(path5.get("consequent"), state);
         } else {
-          return evaluateCached(path4.get("alternate"), state);
+          return evaluateCached(path5.get("alternate"), state);
         }
       }
-      if (path4.isExpressionWrapper()) {
-        return evaluateCached(path4.get("expression"), state);
+      if (path5.isExpressionWrapper()) {
+        return evaluateCached(path5.get("expression"), state);
       }
-      if (path4.isMemberExpression() && !path4.parentPath.isCallExpression({
-        callee: path4.node
+      if (path5.isMemberExpression() && !path5.parentPath.isCallExpression({
+        callee: path5.node
       })) {
-        const property = path4.get("property");
-        const object = path4.get("object");
+        const property = path5.get("property");
+        const object = path5.get("object");
         if (object.isLiteral()) {
           const value = object.node.value;
           const type = typeof value;
           let key = null;
-          if (path4.node.computed) {
+          if (path5.node.computed) {
             key = evaluateCached(property, state);
             if (!state.confident) return;
           } else if (property.isIdentifier()) {
@@ -65329,10 +65329,10 @@ var require_evaluation = __commonJS({
           }
         }
       }
-      if (path4.isReferencedIdentifier()) {
-        const binding = path4.scope.getBinding(path4.node.name);
+      if (path5.isReferencedIdentifier()) {
+        const binding = path5.scope.getBinding(path5.node.name);
         if (binding) {
-          if (binding.constantViolations.length > 0 || path4.node.start < binding.path.node.end) {
+          if (binding.constantViolations.length > 0 || path5.node.start < binding.path.node.end) {
             deopt(binding.path, state);
             return;
           }
@@ -65341,7 +65341,7 @@ var require_evaluation = __commonJS({
             let hasUnsafeBlock = !bindingPathScope.path.parentPath.isBlockStatement();
             for (let scope = bindingPathScope.parent; scope; scope = scope.parent) {
               var _scope$path$parentPat;
-              if (scope === path4.scope) {
+              if (scope === path5.scope) {
                 if (hasUnsafeBlock) {
                   deopt(binding.path, state);
                   return;
@@ -65357,7 +65357,7 @@ var require_evaluation = __commonJS({
             return binding.value;
           }
         }
-        const name = path4.node.name;
+        const name = path5.node.name;
         if (Globals.has(name)) {
           if (!binding) {
             return Globals.get(name);
@@ -65366,7 +65366,7 @@ var require_evaluation = __commonJS({
           return;
         }
         if (!binding) {
-          deopt(path4, state);
+          deopt(path5, state);
           return;
         }
         const bindingPath = binding.path;
@@ -65387,19 +65387,19 @@ var require_evaluation = __commonJS({
         }
         return value;
       }
-      if (path4.isUnaryExpression({
+      if (path5.isUnaryExpression({
         prefix: true
       })) {
-        if (path4.node.operator === "void") {
+        if (path5.node.operator === "void") {
           return void 0;
         }
-        const argument = path4.get("argument");
-        if (path4.node.operator === "typeof" && (argument.isFunction() || argument.isClass())) {
+        const argument = path5.get("argument");
+        if (path5.node.operator === "typeof" && (argument.isFunction() || argument.isClass())) {
           return "function";
         }
         const arg = evaluateCached(argument, state);
         if (!state.confident) return;
-        switch (path4.node.operator) {
+        switch (path5.node.operator) {
           case "!":
             return !arg;
           case "+":
@@ -65412,9 +65412,9 @@ var require_evaluation = __commonJS({
             return typeof arg;
         }
       }
-      if (path4.isArrayExpression()) {
+      if (path5.isArrayExpression()) {
         const arr = [];
-        const elems = path4.get("elements");
+        const elems = path5.get("elements");
         for (const elem of elems) {
           const elemValue = elem.evaluate();
           if (elemValue.confident) {
@@ -65426,9 +65426,9 @@ var require_evaluation = __commonJS({
         }
         return arr;
       }
-      if (path4.isObjectExpression()) {
+      if (path5.isObjectExpression()) {
         const obj = {};
-        const props = path4.get("properties");
+        const props = path5.get("properties");
         for (const prop of props) {
           if (prop.isObjectMethod() || prop.isSpreadElement()) {
             deopt(prop, state);
@@ -65459,14 +65459,14 @@ var require_evaluation = __commonJS({
         }
         return obj;
       }
-      if (path4.isLogicalExpression()) {
+      if (path5.isLogicalExpression()) {
         const wasConfident = state.confident;
-        const left = evaluateCached(path4.get("left"), state);
+        const left = evaluateCached(path5.get("left"), state);
         const leftConfident = state.confident;
         state.confident = wasConfident;
-        const right = evaluateCached(path4.get("right"), state);
+        const right = evaluateCached(path5.get("right"), state);
         const rightConfident = state.confident;
-        switch (path4.node.operator) {
+        switch (path5.node.operator) {
           case "||":
             state.confident = leftConfident && (!!left || rightConfident);
             if (!state.confident) return;
@@ -65481,12 +65481,12 @@ var require_evaluation = __commonJS({
             return left != null ? left : right;
         }
       }
-      if (path4.isBinaryExpression()) {
-        const left = evaluateCached(path4.get("left"), state);
+      if (path5.isBinaryExpression()) {
+        const left = evaluateCached(path5.get("left"), state);
         if (!state.confident) return;
-        const right = evaluateCached(path4.get("right"), state);
+        const right = evaluateCached(path5.get("right"), state);
         if (!state.confident) return;
-        switch (path4.node.operator) {
+        switch (path5.node.operator) {
           case "-":
             return left - right;
           case "+":
@@ -65529,11 +65529,11 @@ var require_evaluation = __commonJS({
             return left >>> right;
         }
       }
-      if (path4.isCallExpression()) {
-        const callee = path4.get("callee");
+      if (path5.isCallExpression()) {
+        const callee = path5.get("callee");
         let context;
         let func;
-        if (callee.isIdentifier() && !path4.scope.getBinding(callee.node.name) && (isValidObjectCallee(callee.node.name) || isValidIdentifierCallee(callee.node.name))) {
+        if (callee.isIdentifier() && !path5.scope.getBinding(callee.node.name) && (isValidObjectCallee(callee.node.name) || isValidIdentifierCallee(callee.node.name))) {
           func = global[callee.node.name];
         }
         if (callee.isMemberExpression()) {
@@ -65555,17 +65555,17 @@ var require_evaluation = __commonJS({
           }
         }
         if (func) {
-          const args = path4.get("arguments").map((arg) => evaluateCached(arg, state));
+          const args = path5.get("arguments").map((arg) => evaluateCached(arg, state));
           if (!state.confident) return;
           return func.apply(context, args);
         }
       }
-      deopt(path4, state);
+      deopt(path5, state);
     }
-    function evaluateQuasis(path4, quasis, state, raw = false) {
+    function evaluateQuasis(path5, quasis, state, raw = false) {
       let str = "";
       let i = 0;
-      const exprs = path4.isTemplateLiteral() ? path4.get("expressions") : path4.get("quasi.expressions");
+      const exprs = path5.isTemplateLiteral() ? path5.get("expressions") : path5.get("quasi.expressions");
       for (const elem of quasis) {
         if (!state.confident) break;
         str += raw ? elem.value.raw : elem.value.cooked;
@@ -66359,8 +66359,8 @@ var require_conversion = __commonJS({
       }
       hoistFunctionEnvironment(this);
     }
-    function setType(path4, type) {
-      path4.node.type = type;
+    function setType(path5, type) {
+      path5.node.type = type;
     }
     function arrowFunctionToExpression({
       allowInsertArrow = true,
@@ -66775,14 +66775,14 @@ var require_conversion = __commonJS({
       return this;
     }
     var refersOuterBindingVisitor = {
-      "ReferencedIdentifier|BindingIdentifier"(path4, state) {
-        if (path4.node.name !== state.name) return;
+      "ReferencedIdentifier|BindingIdentifier"(path5, state) {
+        if (path5.node.name !== state.name) return;
         state.needsRename = true;
-        path4.stop();
+        path5.stop();
       },
-      Scope(path4, state) {
-        if (path4.scope.hasOwnBinding(state.name)) {
-          path4.skip();
+      Scope(path5, state) {
+        if (path5.scope.hasOwnBinding(state.name)) {
+          path5.skip();
         }
       }
     };
@@ -66931,21 +66931,21 @@ var require_introspection = __commonJS({
       return false;
     }
     function isCompletionRecord(allowInsideFunction) {
-      let path4 = this;
+      let path5 = this;
       let first = true;
       do {
         const {
           type,
           container
-        } = path4;
-        if (!first && (path4.isFunction() || type === "StaticBlock")) {
+        } = path5;
+        if (!first && (path5.isFunction() || type === "StaticBlock")) {
           return !!allowInsideFunction;
         }
         first = false;
-        if (Array.isArray(container) && path4.key !== container.length - 1) {
+        if (Array.isArray(container) && path5.key !== container.length - 1) {
           return false;
         }
-      } while ((path4 = path4.parentPath) && !path4.isProgram() && !path4.isDoExpression());
+      } while ((path5 = path5.parentPath) && !path5.isProgram() && !path5.isDoExpression());
       return true;
     }
     function isStatementOrBlock() {
@@ -66967,21 +66967,21 @@ var require_introspection = __commonJS({
       }
       const binding = this.scope.getBinding(this.node.name);
       if ((binding == null ? void 0 : binding.kind) !== "module") return false;
-      const path4 = binding.path;
-      const parent = path4.parentPath;
+      const path5 = binding.path;
+      const parent = path5.parentPath;
       if (!parent.isImportDeclaration()) return false;
       if (parent.node.source.value === moduleSource) {
         if (!importName) return true;
       } else {
         return false;
       }
-      if (path4.isImportDefaultSpecifier() && importName === "default") {
+      if (path5.isImportDefaultSpecifier() && importName === "default") {
         return true;
       }
-      if (path4.isImportNamespaceSpecifier() && importName === "*") {
+      if (path5.isImportNamespaceSpecifier() && importName === "*") {
         return true;
       }
-      if (path4.isImportSpecifier() && isIdentifier2(path4.node.imported, {
+      if (path5.isImportSpecifier() && isIdentifier2(path5.node.imported, {
         name: importName
       })) {
         return true;
@@ -66999,8 +66999,8 @@ var require_introspection = __commonJS({
     function willIMaybeExecuteBefore(target) {
       return this._guessExecutionStatusRelativeTo(target) !== "after";
     }
-    function getOuterFunction(path4) {
-      return path4.isProgram() ? path4 : (path4.parentPath.scope.getFunctionParent() || path4.parentPath.scope.getProgramParent()).path;
+    function getOuterFunction(path5) {
+      return path5.isProgram() ? path5 : (path5.parentPath.scope.getFunctionParent() || path5.parentPath.scope.getProgramParent()).path;
     }
     function isExecutionUncertain(type, key) {
       switch (type) {
@@ -67032,8 +67032,8 @@ var require_introspection = __commonJS({
     }
     function isExecutionUncertainInList(paths, maxIndex) {
       for (let i = 0; i < maxIndex; i++) {
-        const path4 = paths[i];
-        if (isExecutionUncertain(path4.parent.type, path4.parentKey)) {
+        const path5 = paths[i];
+        if (isExecutionUncertain(path5.parent.type, path5.parentKey)) {
           return true;
         }
       }
@@ -67063,10 +67063,10 @@ var require_introspection = __commonJS({
         this: 0
       };
       while (!commonPath && commonIndex.this < paths.this.length) {
-        const path4 = paths.this[commonIndex.this];
-        commonIndex.target = paths.target.indexOf(path4);
+        const path5 = paths.this[commonIndex.this];
+        commonIndex.target = paths.target.indexOf(path5);
         if (commonIndex.target >= 0) {
-          commonPath = path4;
+          commonPath = path5;
         } else {
           commonIndex.this++;
         }
@@ -67104,13 +67104,13 @@ var require_introspection = __commonJS({
       if (!binding.references) return "before";
       const referencePaths = binding.referencePaths;
       let allStatus;
-      for (const path4 of referencePaths) {
-        const childOfFunction = !!path4.find((path5) => path5.node === target.node);
+      for (const path5 of referencePaths) {
+        const childOfFunction = !!path5.find((path6) => path6.node === target.node);
         if (childOfFunction) continue;
-        if (path4.key !== "callee" || !path4.parentPath.isCallExpression()) {
+        if (path5.key !== "callee" || !path5.parentPath.isCallExpression()) {
           return "unknown";
         }
-        const status = _guessExecutionStatusRelativeToCached(base, path4, cache);
+        const status = _guessExecutionStatusRelativeToCached(base, path5, cache);
         if (allStatus && allStatus !== status) {
           return "unknown";
         } else {
@@ -67228,19 +67228,19 @@ var require_introspection = __commonJS({
     }
     function isInStrictMode() {
       const start = this.isProgram() ? this : this.parentPath;
-      const strictParent = start.find((path4) => {
-        if (path4.isProgram({
+      const strictParent = start.find((path5) => {
+        if (path5.isProgram({
           sourceType: "module"
         })) return true;
-        if (path4.isClass()) return true;
-        if (path4.isArrowFunctionExpression() && !path4.get("body").isBlockStatement()) {
+        if (path5.isClass()) return true;
+        if (path5.isArrowFunctionExpression() && !path5.get("body").isBlockStatement()) {
           return false;
         }
         let body;
-        if (path4.isFunction()) {
-          body = path4.node.body;
-        } else if (path4.isProgram()) {
-          body = path4.node;
+        if (path5.isFunction()) {
+          body = path5.node.body;
+        } else if (path5.isProgram()) {
+          body = path5.node;
         } else {
           return false;
         }
@@ -67289,16 +67289,16 @@ var require_family = __commonJS({
     } = _t;
     var NORMAL_COMPLETION = 0;
     var BREAK_COMPLETION = 1;
-    function NormalCompletion(path4) {
+    function NormalCompletion(path5) {
       return {
         type: NORMAL_COMPLETION,
-        path: path4
+        path: path5
       };
     }
-    function BreakCompletion(path4) {
+    function BreakCompletion(path5) {
       return {
         type: BREAK_COMPLETION,
-        path: path4
+        path: path5
       };
     }
     function getOpposite() {
@@ -67309,9 +67309,9 @@ var require_family = __commonJS({
       }
       return null;
     }
-    function addCompletionRecords(path4, records, context) {
-      if (path4) {
-        records.push(..._getCompletionRecords(path4, context));
+    function addCompletionRecords(path5, records, context) {
+      if (path5) {
+        records.push(..._getCompletionRecords(path5, context));
       }
       return records;
     }
@@ -67361,16 +67361,16 @@ var require_family = __commonJS({
       if (context.canHaveBreak) {
         let lastNormalCompletions = [];
         for (let i = 0; i < paths.length; i++) {
-          const path4 = paths[i];
+          const path5 = paths[i];
           const newContext = Object.assign({}, context, {
             inCaseClause: false
           });
-          if (path4.isBlockStatement() && (context.inCaseClause || context.shouldPopulateBreak)) {
+          if (path5.isBlockStatement() && (context.inCaseClause || context.shouldPopulateBreak)) {
             newContext.shouldPopulateBreak = true;
           } else {
             newContext.shouldPopulateBreak = false;
           }
-          const statementCompletions = _getCompletionRecords(path4, newContext);
+          const statementCompletions = _getCompletionRecords(path5, newContext);
           if (statementCompletions.length > 0 && statementCompletions.every((c) => c.type === BREAK_COMPLETION)) {
             if (lastNormalCompletions.length > 0 && statementCompletions.every((c) => c.path.isBreakStatement({
               label: null
@@ -67420,35 +67420,35 @@ var require_family = __commonJS({
       }
       return completions;
     }
-    function _getCompletionRecords(path4, context) {
+    function _getCompletionRecords(path5, context) {
       let records = [];
-      if (path4.isIfStatement()) {
-        records = addCompletionRecords(path4.get("consequent"), records, context);
-        records = addCompletionRecords(path4.get("alternate"), records, context);
-      } else if (path4.isDoExpression() || path4.isFor() || path4.isWhile() || path4.isLabeledStatement()) {
-        return addCompletionRecords(path4.get("body"), records, context);
-      } else if (path4.isProgram() || path4.isBlockStatement()) {
-        return getStatementListCompletion(path4.get("body"), context);
-      } else if (path4.isFunction()) {
-        return _getCompletionRecords(path4.get("body"), context);
-      } else if (path4.isTryStatement()) {
-        records = addCompletionRecords(path4.get("block"), records, context);
-        records = addCompletionRecords(path4.get("handler"), records, context);
-      } else if (path4.isCatchClause()) {
-        return addCompletionRecords(path4.get("body"), records, context);
-      } else if (path4.isSwitchStatement()) {
-        return completionRecordForSwitch(path4.get("cases"), records, context);
-      } else if (path4.isSwitchCase()) {
-        return getStatementListCompletion(path4.get("consequent"), {
+      if (path5.isIfStatement()) {
+        records = addCompletionRecords(path5.get("consequent"), records, context);
+        records = addCompletionRecords(path5.get("alternate"), records, context);
+      } else if (path5.isDoExpression() || path5.isFor() || path5.isWhile() || path5.isLabeledStatement()) {
+        return addCompletionRecords(path5.get("body"), records, context);
+      } else if (path5.isProgram() || path5.isBlockStatement()) {
+        return getStatementListCompletion(path5.get("body"), context);
+      } else if (path5.isFunction()) {
+        return _getCompletionRecords(path5.get("body"), context);
+      } else if (path5.isTryStatement()) {
+        records = addCompletionRecords(path5.get("block"), records, context);
+        records = addCompletionRecords(path5.get("handler"), records, context);
+      } else if (path5.isCatchClause()) {
+        return addCompletionRecords(path5.get("body"), records, context);
+      } else if (path5.isSwitchStatement()) {
+        return completionRecordForSwitch(path5.get("cases"), records, context);
+      } else if (path5.isSwitchCase()) {
+        return getStatementListCompletion(path5.get("consequent"), {
           canHaveBreak: true,
           shouldPopulateBreak: false,
           inCaseClause: true,
           shouldPreserveBreak: context.shouldPreserveBreak
         });
-      } else if (path4.isBreakStatement()) {
-        records.push(BreakCompletion(path4));
+      } else if (path5.isBreakStatement()) {
+        records.push(BreakCompletion(path5));
       } else {
-        records.push(NormalCompletion(path4));
+        records.push(NormalCompletion(path5));
       }
       return records;
     }
@@ -67528,19 +67528,19 @@ var require_family = __commonJS({
       }
     }
     function _getPattern(parts, context) {
-      let path4 = this;
+      let path5 = this;
       for (const part of parts) {
         if (part === ".") {
-          path4 = path4.parentPath;
+          path5 = path5.parentPath;
         } else {
-          if (Array.isArray(path4)) {
-            path4 = path4[part];
+          if (Array.isArray(path5)) {
+            path5 = path5[part];
           } else {
-            path4 = path4.get(part, context);
+            path5 = path5.get(part, context);
           }
         }
       }
-      return path4;
+      return path5;
     }
     function getAssignmentIdentifiers() {
       return _getAssignmentIdentifiers(this.node);
@@ -67552,8 +67552,8 @@ var require_family = __commonJS({
       return _getOuterBindingIdentifiers(this.node, duplicates);
     }
     function getBindingIdentifierPaths(duplicates = false, outerOnly = false) {
-      const path4 = this;
-      const search = [path4];
+      const path5 = this;
+      const search = [path5];
       const ids = /* @__PURE__ */ Object.create(null);
       while (search.length) {
         const id = search.shift();
@@ -67752,13 +67752,13 @@ var require_path2 = __commonJS({
         }
         const targetNode = container[key];
         const paths = cache.getOrCreateCachedPaths(parent, parentPath);
-        let path4 = paths.get(targetNode);
-        if (!path4) {
-          path4 = new NodePath(hub, parent);
-          if (targetNode) paths.set(targetNode, path4);
+        let path5 = paths.get(targetNode);
+        if (!path5) {
+          path5 = new NodePath(hub, parent);
+          if (targetNode) paths.set(targetNode, path5);
         }
-        _context.setup.call(path4, parentPath, container, listKey, key);
-        return path4;
+        _context.setup.call(path5, parentPath, container, listKey, key);
+        return path5;
       }
       getScope(scope) {
         return this.isScope() ? new _index2.default(this) : scope;
@@ -67792,12 +67792,12 @@ var require_path2 = __commonJS({
       }
       getPathLocation() {
         const parts = [];
-        let path4 = this;
+        let path5 = this;
         do {
-          let key = path4.key;
-          if (path4.inList) key = `${path4.listKey}[${key}]`;
+          let key = path5.key;
+          if (path5.inList) key = `${path5.listKey}[${key}]`;
           parts.unshift(key);
-        } while (path4 = path4.parentPath);
+        } while (path5 = path5.parentPath);
         return parts.join(".");
       }
       debug(message) {
@@ -68029,12 +68029,12 @@ var require_context = __commonJS({
           hub
         });
       }
-      maybeQueue(path4, notPriority) {
+      maybeQueue(path5, notPriority) {
         if (this.queue) {
           if (notPriority) {
-            this.queue.push(path4);
+            this.queue.push(path5);
           } else {
-            this.priorityQueue.push(path4);
+            this.priorityQueue.push(path5);
           }
         }
       }
@@ -68063,19 +68063,19 @@ var require_context = __commonJS({
         let stop = false;
         let visitIndex = 0;
         for (; visitIndex < queue.length; ) {
-          const path4 = queue[visitIndex];
+          const path5 = queue[visitIndex];
           visitIndex++;
-          _context.resync.call(path4);
-          if (path4.contexts.length === 0 || path4.contexts[path4.contexts.length - 1] !== this) {
-            _context.pushContext.call(path4, this);
+          _context.resync.call(path5);
+          if (path5.contexts.length === 0 || path5.contexts[path5.contexts.length - 1] !== this) {
+            _context.pushContext.call(path5, this);
           }
-          if (path4.key === null) continue;
+          if (path5.key === null) continue;
           const {
             node
-          } = path4;
+          } = path5;
           if (visited.has(node)) continue;
           if (node) visited.add(node);
-          if (path4.visit()) {
+          if (path5.visit()) {
             stop = true;
             break;
           }
@@ -68121,13 +68121,13 @@ var require_traverse_node = __commonJS({
     var {
       VISITOR_KEYS
     } = _t;
-    function traverseNode(node, opts, scope, state, path4, skipKeys, visitSelf) {
+    function traverseNode(node, opts, scope, state, path5, skipKeys, visitSelf) {
       const keys = VISITOR_KEYS[node.type];
       if (!keys) return false;
-      const context = new _context.default(scope, opts, state, path4);
+      const context = new _context.default(scope, opts, state, path5);
       if (visitSelf) {
-        if (skipKeys != null && skipKeys[path4.parentKey]) return false;
-        return context.visitQueue([path4]);
+        if (skipKeys != null && skipKeys[path5.parentKey]) return false;
+        return context.visitQueue([path5]);
       }
       for (const key of keys) {
         if (skipKeys != null && skipKeys[key]) continue;
@@ -68209,11 +68209,11 @@ var require_context2 = __commonJS({
       return denylist == null ? void 0 : denylist.includes(this.node.type);
     }
     exports.isBlacklisted = isDenylisted;
-    function restoreContext(path4, context) {
-      if (path4.context !== context) {
-        path4.context = context;
-        path4.state = context.state;
-        path4.opts = context.opts;
+    function restoreContext(path5, context) {
+      if (path5.context !== context) {
+        path5.context = context;
+        path5.state = context.state;
+        path5.opts = context.opts;
       }
     }
     function visit() {
@@ -68253,14 +68253,14 @@ var require_context2 = __commonJS({
     }
     function _forceSetScope() {
       var _this$scope;
-      let path4 = this.parentPath;
-      if ((this.key === "key" || this.listKey === "decorators") && path4.isMethod() || this.key === "discriminant" && path4.isSwitchStatement()) {
-        path4 = path4.parentPath;
+      let path5 = this.parentPath;
+      if ((this.key === "key" || this.listKey === "decorators") && path5.isMethod() || this.key === "discriminant" && path5.isSwitchStatement()) {
+        path5 = path5.parentPath;
       }
       let target;
-      while (path4 && !target) {
-        target = path4.scope;
-        path4 = path4.parentPath;
+      while (path5 && !target) {
+        target = path5.scope;
+        path5 = path5.parentPath;
       }
       this.scope = this.getScope(target);
       (_this$scope = this.scope) == null || _this$scope.init();
@@ -68268,16 +68268,16 @@ var require_context2 = __commonJS({
     function setScope() {
       var _this$opts2, _this$scope2;
       if ((_this$opts2 = this.opts) != null && _this$opts2.noScope) return;
-      let path4 = this.parentPath;
-      if ((this.key === "key" || this.listKey === "decorators") && path4.isMethod() || this.key === "discriminant" && path4.isSwitchStatement()) {
-        path4 = path4.parentPath;
+      let path5 = this.parentPath;
+      if ((this.key === "key" || this.listKey === "decorators") && path5.isMethod() || this.key === "discriminant" && path5.isSwitchStatement()) {
+        path5 = path5.parentPath;
       }
       let target;
-      while (path4 && !target) {
+      while (path5 && !target) {
         var _path$opts;
-        if ((_path$opts = path4.opts) != null && _path$opts.noScope) return;
-        target = path4.scope;
-        path4 = path4.parentPath;
+        if ((_path$opts = path5.opts) != null && _path$opts.noScope) return;
+        target = path5.scope;
+        path5 = path5.parentPath;
       }
       this.scope = this.getScope(target);
       (_this$scope2 = this.scope) == null || _this$scope2.init();
@@ -68385,12 +68385,12 @@ var require_context2 = __commonJS({
       }
     }
     function _getQueueContexts() {
-      let path4 = this;
+      let path5 = this;
       let contexts = this.contexts;
       while (!contexts.length) {
-        path4 = path4.parentPath;
-        if (!path4) break;
-        contexts = path4.contexts;
+        path5 = path5.parentPath;
+        if (!path5) break;
+        contexts = path5.contexts;
       }
       return contexts;
     }
@@ -68461,8 +68461,8 @@ var require_lib8 = __commonJS({
       traverseFast(node, enter);
       return;
     };
-    traverse2.node = function(node, opts, scope, state, path4, skipKeys) {
-      (0, _traverseNode.traverseNode)(node, opts, scope, state, path4, skipKeys);
+    traverse2.node = function(node, opts, scope, state, path5, skipKeys) {
+      (0, _traverseNode.traverseNode)(node, opts, scope, state, path5, skipKeys);
     };
     traverse2.clearNode = function(node, opts) {
       removeProperties(node, opts);
@@ -70148,17 +70148,17 @@ function requestLog(octokit) {
     octokit.log.debug("request", options);
     const start = Date.now();
     const requestOptions = octokit.request.endpoint.parse(options);
-    const path4 = requestOptions.url.replace(options.baseUrl, "");
+    const path5 = requestOptions.url.replace(options.baseUrl, "");
     return request2(options).then((response) => {
       const requestId = response.headers["x-github-request-id"];
       octokit.log.info(
-        `${requestOptions.method} ${path4} - ${response.status} with id ${requestId} in ${Date.now() - start}ms`
+        `${requestOptions.method} ${path5} - ${response.status} with id ${requestId} in ${Date.now() - start}ms`
       );
       return response;
     }).catch((error2) => {
       const requestId = error2.response?.headers["x-github-request-id"] || "UNKNOWN";
       octokit.log.error(
-        `${requestOptions.method} ${path4} - ${error2.status} with id ${requestId} in ${Date.now() - start}ms`
+        `${requestOptions.method} ${path5} - ${error2.status} with id ${requestId} in ${Date.now() - start}ms`
       );
       throw error2;
     });
@@ -72819,9 +72819,9 @@ var OfflineTranslator = class {
 };
 
 // src/pipeline.ts
-var import_fast_glob = __toESM(require_out4(), 1);
-import * as fs5 from "node:fs";
-import * as path3 from "node:path";
+var import_fast_glob2 = __toESM(require_out4(), 1);
+import * as fs6 from "node:fs";
+import * as path4 from "node:path";
 
 // src/ast/scanner.ts
 var import_parser = __toESM(require_lib(), 1);
@@ -72914,9 +72914,9 @@ function parseAndScanComponent(code, filePath, options = {}) {
   }
   const directives = ast.program.directives;
   const directivesEnd = directives.length ? directives[directives.length - 1].end : null;
-  const record = (path4, nodeType, text, range, kind, params = [], attributeName) => {
-    const loc = path4.node.loc?.start ?? { line: 0, column: 0 };
-    const hook2 = resolveHookTarget(path4, code);
+  const record = (path5, nodeType, text, range, kind, params = [], attributeName) => {
+    const loc = path5.node.loc?.start ?? { line: 0, column: 0 };
+    const hook2 = resolveHookTarget(path5, code);
     if ("reason" in hook2) {
       warnings.push({ filePath, loc: { line: loc.line, column: loc.column }, text, reason: hook2.reason });
       return;
@@ -72935,60 +72935,60 @@ function parseAndScanComponent(code, filePath, options = {}) {
     sites.set(id, { id, ...range, kind, params, hook: hook2 });
   };
   const consumed = /* @__PURE__ */ new Set();
-  const visitChildren = (path4) => {
-    const merged = mergeTextRun(path4.node.children, code);
-    if (!merged || !isTranslatable(merged.text) || isIgnored(path4, true)) return;
-    const first = path4.node.children.find((c) => !isBlankText(c));
-    const firstPath = path4.get("children").find((c) => c.node === first);
-    for (const c of path4.node.children) if (t.isJSXText(c)) consumed.add(c);
+  const visitChildren = (path5) => {
+    const merged = mergeTextRun(path5.node.children, code);
+    if (!merged || !isTranslatable(merged.text) || isIgnored(path5, true)) return;
+    const first = path5.node.children.find((c) => !isBlankText(c));
+    const firstPath = path5.get("children").find((c) => c.node === first);
+    for (const c of path5.node.children) if (t.isJSXText(c)) consumed.add(c);
     record(firstPath, "TemplateLiteral", merged.text, merged.range, "jsxChild", merged.params);
   };
   traverse(ast, {
     JSXElement: visitChildren,
     JSXFragment: visitChildren,
-    JSXText(path4) {
-      if (!t.isJSXElement(path4.parent) && !t.isJSXFragment(path4.parent)) return;
-      if (consumed.has(path4.node)) return;
-      if (isIgnored(path4)) return;
-      const { start, end } = path4.node;
+    JSXText(path5) {
+      if (!t.isJSXElement(path5.parent) && !t.isJSXFragment(path5.parent)) return;
+      if (consumed.has(path5.node)) return;
+      if (isIgnored(path5)) return;
+      const { start, end } = path5.node;
       const raw = code.slice(start, end);
       const lead = raw.length - raw.trimStart().length;
       const trimmed = raw.trim();
       const text = normalizeWhitespace(decodeEntities(trimmed));
       if (!isTranslatable(text)) return;
-      record(path4, "JSXText", text, { start: start + lead, end: start + lead + trimmed.length }, "jsxChild");
+      record(path5, "JSXText", text, { start: start + lead, end: start + lead + trimmed.length }, "jsxChild");
     },
-    JSXAttribute(path4) {
-      const name = attributeNameOf(path4.node);
+    JSXAttribute(path5) {
+      const name = attributeNameOf(path5.node);
       if (!attributes.has(name)) return;
-      const value = path4.node.value;
+      const value = path5.node.value;
       if (!t.isStringLiteral(value)) return;
-      if (isIgnored(path4)) return;
+      if (isIgnored(path5)) return;
       const text = normalizeWhitespace(value.value);
       if (!isTranslatable(text)) return;
-      record(path4, "JSXAttribute", text, { start: value.start, end: value.end }, "attrValue", [], name);
+      record(path5, "JSXAttribute", text, { start: value.start, end: value.end }, "attrValue", [], name);
     },
-    StringLiteral(path4) {
-      const slot = expressionSlot(path4, attributes);
-      if (!slot || isIgnored(path4)) return;
-      const text = normalizeWhitespace(path4.node.value);
+    StringLiteral(path5) {
+      const slot = expressionSlot(path5, attributes);
+      if (!slot || isIgnored(path5)) return;
+      const text = normalizeWhitespace(path5.node.value);
       if (!isTranslatable(text)) return;
       record(
-        path4,
+        path5,
         slot.attributeName ? "JSXAttribute" : "StringLiteral",
         text,
-        { start: path4.node.start, end: path4.node.end },
+        { start: path5.node.start, end: path5.node.end },
         "expression",
         [],
         slot.attributeName
       );
     },
-    TemplateLiteral(path4) {
-      if (t.isTaggedTemplateExpression(path4.parent)) return;
-      const slot = expressionSlot(path4, attributes);
-      if (!slot || isIgnored(path4)) return;
+    TemplateLiteral(path5) {
+      if (t.isTaggedTemplateExpression(path5.parent)) return;
+      const slot = expressionSlot(path5, attributes);
+      if (!slot || isIgnored(path5)) return;
       const params = [];
-      const placeholders = path4.node.expressions.map((expr) => {
+      const placeholders = path5.node.expressions.map((expr) => {
         const source = code.slice(expr.start, expr.end);
         const existing = params.find((p) => p.source === source);
         if (existing) return existing.name;
@@ -72997,17 +72997,17 @@ function parseAndScanComponent(code, filePath, options = {}) {
         return name;
       });
       let template = "";
-      path4.node.quasis.forEach((q, idx) => {
+      path5.node.quasis.forEach((q, idx) => {
         template += q.value.cooked ?? q.value.raw;
         if (idx < placeholders.length) template += `{${placeholders[idx]}}`;
       });
       const text = normalizeWhitespace(template);
       if (!isTranslatable(text)) return;
       record(
-        path4,
+        path5,
         slot.attributeName ? "JSXAttribute" : "TemplateLiteral",
         text,
-        { start: path4.node.start, end: path4.node.end },
+        { start: path5.node.start, end: path5.node.end },
         "expression",
         params,
         slot.attributeName
@@ -73073,7 +73073,7 @@ function mergeTextRun(children, code) {
   if (t.isJSXText(last)) end -= last.value.length - last.value.trimEnd().length;
   return { text: normalizeWhitespace(template), params, range: { start, end } };
 }
-function isIgnored(path4, includeSelf = false) {
+function isIgnored(path5, includeSelf = false) {
   const test = (p) => {
     if (!p.isJSXElement()) return false;
     if (IGNORED_ELEMENTS.has(elementName(p.node))) return true;
@@ -73084,10 +73084,10 @@ function isIgnored(path4, includeSelf = false) {
       return name === "translate" && t.isStringLiteral(a.value) && a.value.value === "no";
     });
   };
-  return includeSelf && test(path4) || !!path4.findParent(test);
+  return includeSelf && test(path5) || !!path5.findParent(test);
 }
-function expressionSlot(path4, attributes) {
-  let current = path4;
+function expressionSlot(path5, attributes) {
+  let current = path5;
   for (; ; ) {
     const parent = current.parentPath;
     if (!parent) return null;
@@ -73153,8 +73153,8 @@ function componentNameOf(fn) {
   if (holder.isExportDefaultDeclaration()) return "default";
   return null;
 }
-function resolveHookTarget(path4, code) {
-  let fn = path4.getFunctionParent();
+function resolveHookTarget(path5, code) {
+  let fn = path5.getFunctionParent();
   let name = null;
   while (fn) {
     if (fn.isClassMethod() || fn.isClassPrivateMethod()) {
@@ -73166,7 +73166,7 @@ function resolveHookTarget(path4, code) {
   }
   if (!fn || !name) return { reason: "not inside a function component or hook" };
   if (fn.node.async) return { reason: `component ${name} is async (server component?)` };
-  const binding = path4.scope.getBinding("t");
+  const binding = path5.scope.getBinding("t");
   const base = { fnStart: fn.node.start, componentName: name };
   if (binding) {
     const decl = binding.path;
@@ -74796,18 +74796,219 @@ ${importLine}`);
   return { code: s.toString(), changed: true, replacements };
 }
 
-// src/pipeline.ts
+// src/setup.ts
+var import_fast_glob = __toESM(require_out4(), 1);
+import { spawnSync } from "node:child_process";
+import * as fs5 from "node:fs";
+import * as path3 from "node:path";
+var I18N_PACKAGES = {
+  i18next: "^26.5.0",
+  "react-i18next": "^17.1.0"
+};
+var ICU_PACKAGES = {
+  "i18next-icu": "^2.6.0",
+  "intl-messageformat": "^12.1.0"
+};
 var toPosix = (p) => p.split(path3.sep).join("/");
+function readText(cwd, file, changed) {
+  if (changed.has(file)) return changed.get(file);
+  const abs = path3.join(cwd, file);
+  return fs5.existsSync(abs) ? fs5.readFileSync(abs, "utf8") : void 0;
+}
+function writeJsonLike(original, value) {
+  const indent = /^([ \t]+)"/m.exec(original)?.[1] ?? "  ";
+  return `${JSON.stringify(value, null, indent)}${original.endsWith("\n") ? "\n" : ""}`;
+}
+function majorOf(range) {
+  const m = /(\d+)(?:\.(\d+))?/.exec(range ?? "");
+  return m ? Number(m[1]) + (m[2] ? Number(m[2]) / 100 : 0) : null;
+}
+async function planI18nSetup(opts) {
+  const { cwd, config } = opts;
+  const result = { files: [], addedDependencies: {}, notes: [] };
+  if (config.importSource !== "react-i18next") return result;
+  const changed = new Map(opts.files.map((f) => [f.path, f.content]));
+  const out = (file, content) => {
+    changed.set(file, content);
+    result.files.push({ path: file, content });
+  };
+  const pkgText = readText(cwd, "package.json", changed);
+  const pkg = pkgText ? JSON.parse(pkgText) : null;
+  const deps = { ...pkg?.peerDependencies, ...pkg?.devDependencies, ...pkg?.dependencies };
+  const reactVersion = majorOf(deps.react);
+  if (reactVersion !== null && reactVersion < 16.08) {
+    result.notes.push(`React ${deps.react} has no hooks; upgrade to React 16.8 or later to use \`useTranslation\`.`);
+    return result;
+  }
+  if (pkg && pkgText) {
+    const wanted = { ...I18N_PACKAGES, ...config.interpolation === "icu" ? ICU_PACKAGES : {} };
+    for (const [name, range] of Object.entries(wanted)) if (!deps[name]) result.addedDependencies[name] = range;
+    if (Object.keys(result.addedDependencies).length) {
+      const merged = { ...pkg.dependencies, ...result.addedDependencies };
+      pkg.dependencies = Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)));
+      out("package.json", writeJsonLike(pkgText, pkg));
+    }
+  } else {
+    result.notes.push(`No package.json found; install ${Object.keys(I18N_PACKAGES).join(" and ")}.`);
+  }
+  const sources = await (0, import_fast_glob.default)(`${config.srcDir}/**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
+  const initRe = /initReactI18next|i18next\s*\.\s*init\s*\(|from\s+['"]i18next['"]/;
+  const existing = sources.find((f) => initRe.test(readText(cwd, f, changed) ?? ""));
+  if (existing) return result;
+  const typescript = fs5.existsSync(path3.join(cwd, "tsconfig.json"));
+  const i18nFile = `${config.srcDir}/i18n.${typescript ? "ts" : "js"}`;
+  if (readText(cwd, i18nFile, changed) !== void 0) {
+    result.notes.push(`\`${i18nFile}\` already exists, so i18next wasn't initialized; set it up there and import it once at startup.`);
+    return result;
+  }
+  const locales = [config.sourceLocale, ...config.targetLocales.filter((l) => l !== config.sourceLocale)];
+  const imports = [];
+  const entries = [];
+  for (const locale of locales) {
+    const file = toPosix(localePath(config.localesPath, locale));
+    if (readText(cwd, file, changed) === void 0) out(file, "{}\n");
+    let rel = path3.posix.relative(path3.posix.dirname(i18nFile), file);
+    if (!rel.startsWith(".")) rel = `./${rel}`;
+    const id = locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
+    imports.push(`import ${id} from '${rel}';`);
+    entries.push(`  ${/^[A-Za-z_$][\w$]*$/.test(locale) ? locale : `'${locale}'`}: { translation: ${id} },`);
+  }
+  const icu = config.interpolation === "icu";
+  const entry = deps.next ? void 0 : findEntry(cwd, config, changed);
+  const quote = prefersDoubleQuotes(entry ? readText(cwd, entry, changed) : opts.files[0]?.content ?? "") ? (code2) => code2.replace(/'/g, '"') : (code2) => code2;
+  out(
+    i18nFile,
+    quote([
+      "import i18n from 'i18next';",
+      ...icu ? ["import ICU from 'i18next-icu';"] : [],
+      "import { initReactI18next } from 'react-i18next';",
+      ...imports,
+      "",
+      "// Generated by Localize.dev. Every locale is bundled; the language comes from a saved choice",
+      `// (localStorage "lang"), then the browser, then ${config.sourceLocale}.`,
+      "export const resources = {",
+      ...entries,
+      "};",
+      "",
+      "const supported = Object.keys(resources);",
+      "const saved = typeof localStorage === 'undefined' ? null : localStorage.getItem('lang');",
+      "const browser = typeof navigator === 'undefined' ? undefined : navigator.language.split('-')[0];",
+      "",
+      `i18n${icu ? "\n  .use(ICU)" : ""}`,
+      "  .use(initReactI18next)",
+      "  .init({",
+      "    resources,",
+      `    lng: [saved, browser].find((l) => l && supported.includes(l)) ?? '${config.sourceLocale}',`,
+      `    fallbackLng: '${config.sourceLocale}',`,
+      "    interpolation: { escapeValue: false }, // React already escapes",
+      "  });",
+      "",
+      "export default i18n;",
+      ""
+    ].join("\n"))
+  );
+  result.i18nFile = i18nFile;
+  if (typescript) {
+    for (const name of ["tsconfig.app.json", "tsconfig.json"]) {
+      const text = readText(cwd, name, changed);
+      if (!text || !/"compilerOptions"\s*:\s*\{/.test(text)) continue;
+      if (!/"resolveJsonModule"\s*:\s*true/.test(text)) {
+        out(
+          name,
+          text.replace(/("compilerOptions"\s*:\s*\{)(\s*)/, (_m, open2, ws) => `${open2}${ws}"resolveJsonModule": true,${ws}`)
+        );
+      }
+      break;
+    }
+  }
+  if (deps.next) {
+    result.notes.push(
+      `Next.js has no single client entry: import \`${i18nFile}\` from a \`'use client'\` component that wraps your app (e.g. in the root layout). Components that call \`useTranslation\` must be client components.`
+    );
+    return result;
+  }
+  if (!entry) {
+    result.notes.push(`Couldn't find the app's entry file; add \`import './i18n';\` to it so i18next starts before the app renders.`);
+    return result;
+  }
+  let spec = path3.posix.relative(path3.posix.dirname(entry), i18nFile.replace(/\.[jt]s$/, ""));
+  if (!spec.startsWith(".")) spec = `./${spec}`;
+  const code = readText(cwd, entry, changed);
+  const insertAt = afterLastImport(code);
+  const line = quote(`import '${spec}';`);
+  out(entry, insertAt === 0 ? `${line}
+${code}` : `${code.slice(0, insertAt)}
+${line}${code.slice(insertAt)}`);
+  result.entryFile = entry;
+  return result;
+}
+var ENTRY_NAMES = ["main", "index"].flatMap((n2) => ["tsx", "jsx", "ts", "js"].map((e) => `${n2}.${e}`));
+function findEntry(cwd, config, changed) {
+  const html = readText(cwd, "index.html", changed);
+  const src = html && /<script[^>]+type=["']module["'][^>]+src=["']\/?([^"']+)["']/.exec(html)?.[1];
+  if (src && readText(cwd, src, changed) !== void 0) return src;
+  return ENTRY_NAMES.map((n2) => `${config.srcDir}/${n2}`).find((f) => readText(cwd, f, changed) !== void 0);
+}
+function prefersDoubleQuotes(code) {
+  return (code.match(/\bfrom\s+"/g)?.length ?? 0) > (code.match(/\bfrom\s+'/g)?.length ?? 0);
+}
+function afterLastImport(code) {
+  try {
+    const body = parseCode(code).program.body;
+    const last = body.filter((n2) => n2.type === "ImportDeclaration").pop();
+    return last?.end ?? 0;
+  } catch {
+    return 0;
+  }
+}
+function detectPackageManager(cwd) {
+  if (fs5.existsSync(path3.join(cwd, "pnpm-lock.yaml"))) return "pnpm";
+  if (fs5.existsSync(path3.join(cwd, "yarn.lock"))) return "yarn";
+  if (fs5.existsSync(path3.join(cwd, "bun.lock")) || fs5.existsSync(path3.join(cwd, "bun.lockb"))) return "bun";
+  if (fs5.existsSync(path3.join(cwd, "package-lock.json"))) return "npm";
+  return null;
+}
+var LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
+var LOCK_ONLY = {
+  npm: ["npm", "install", "--package-lock-only", "--ignore-scripts", "--no-audit", "--no-fund"],
+  pnpm: ["pnpm", "install", "--lockfile-only", "--ignore-scripts"],
+  yarn: ["yarn", "install", "--mode=update-lockfile"],
+  bun: ["bun", "install", "--lockfile-only", "--ignore-scripts"]
+};
+function updateLockfile(cwd, packageJson, log) {
+  const pm = detectPackageManager(cwd);
+  if (!pm) return null;
+  const lockfile = LOCKFILES[pm];
+  const before = fs5.existsSync(path3.join(cwd, lockfile)) ? fs5.readFileSync(path3.join(cwd, lockfile), "utf8") : "";
+  fs5.writeFileSync(path3.join(cwd, "package.json"), packageJson);
+  const [cmd, ...args] = LOCK_ONLY[pm];
+  log.info(`Updating ${lockfile}: ${cmd} ${args.join(" ")}`);
+  const run = spawnSync(cmd, args, { cwd, encoding: "utf8", timeout: 3e5, shell: process.platform === "win32" });
+  if (run.error || run.status !== 0) {
+    const detail = (run.error?.message ?? run.stderr ?? "").trim().split("\n").slice(-3).join(" ");
+    return { error: `\`${cmd} ${args.join(" ")}\` failed: ${detail}` };
+  }
+  const after = fs5.readFileSync(path3.join(cwd, lockfile), "utf8");
+  return after === before ? null : { file: { path: lockfile, content: after } };
+}
+function mergeFiles(files, extra) {
+  const byPath = new Map(files.map((f) => [f.path, f]));
+  for (const f of extra) byPath.set(f.path, f);
+  return [...byPath.values()];
+}
+
+// src/pipeline.ts
+var toPosix2 = (p) => p.split(path4.sep).join("/");
 var BATCH_SIZE = 10;
 var CONCURRENCY = 2;
 async function scanProject(cwd, config, log) {
-  const root = path3.join(cwd, config.srcDir);
-  const files = (await (0, import_fast_glob.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
+  const root = path4.join(cwd, config.srcDir);
+  const files = (await (0, import_fast_glob2.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
   const scanned = [];
   const warnings = [];
   for (const rel of files) {
-    const file = toPosix(path3.join(config.srcDir, rel));
-    const code = fs5.readFileSync(path3.join(cwd, file), "utf8");
+    const file = toPosix2(path4.join(config.srcDir, rel));
+    const code = fs6.readFileSync(path4.join(cwd, file), "utf8");
     try {
       const result = parseAndScanComponent(code, file, { attributes: config.attributes });
       warnings.push(...result.warnings);
@@ -74833,11 +75034,11 @@ async function runPipeline(opts) {
   const { cwd, config, translator, log } = opts;
   const { filesScanned, scanned, warnings } = await scanProject(cwd, config, log);
   const sourcePath = localePath(config.localesPath, config.sourceLocale);
-  const sourceDict = readDict(path3.join(cwd, sourcePath));
+  const sourceDict = readDict(path4.join(cwd, sourcePath));
   const targets = new Map(
     config.targetLocales.map((l) => {
       const p = localePath(config.localesPath, l);
-      return [l, { path: p, dict: readDict(path3.join(cwd, p)) }];
+      return [l, { path: p, dict: readDict(path4.join(cwd, p)) }];
     })
   );
   const originals = new Map([
@@ -74918,16 +75119,18 @@ async function runPipeline(opts) {
   const dicts = [[sourcePath, sourceDict], ...[...targets.values()].map((t2) => [t2.path, t2.dict])];
   for (const [p, dict] of dicts) {
     const content = serializeDict(dict);
-    if (content !== originals.get(p)) files.push({ path: toPosix(p), content });
+    if (content !== originals.get(p)) files.push({ path: toPosix2(p), content });
   }
+  const setup = opts.setup !== false && stats.stringsReplaced ? await planI18nSetup({ cwd, config, files }) : { files: [], addedDependencies: {}, notes: [] };
+  const allFiles = mergeFiles(files, setup.files);
   if (opts.write) {
-    for (const f of files) {
-      const abs = path3.join(cwd, f.path);
-      fs5.mkdirSync(path3.dirname(abs), { recursive: true });
-      fs5.writeFileSync(abs, f.content);
+    for (const f of allFiles) {
+      const abs = path4.join(cwd, f.path);
+      fs6.mkdirSync(path4.dirname(abs), { recursive: true });
+      fs6.writeFileSync(abs, f.content);
     }
   }
-  return { files, replacements, warnings, stats };
+  return { files: allFiles, replacements, warnings, setup, stats };
 }
 
 // src/report.ts
@@ -74961,6 +75164,15 @@ function buildPrBody(result, targetLocales) {
     }
   }
   if (omitted) lines.push("", `_\u2026and ${omitted} more._`);
+  const { setup } = result;
+  const added = Object.entries(setup.addedDependencies);
+  if (added.length || setup.i18nFile || setup.notes.length) {
+    lines.push("", "### i18n setup", "");
+    if (added.length) lines.push(`- Added ${added.map(([n2, v]) => `\`${n2}@${v}\``).join(", ")} to \`package.json\`. Run your install after merging.`);
+    if (setup.i18nFile) lines.push(`- Created \`${setup.i18nFile}\`, which initializes i18next with every locale file.`);
+    if (setup.entryFile) lines.push(`- Imported it in \`${setup.entryFile}\` so translations load before the app renders.`);
+    for (const note of setup.notes) lines.push(`- \u26A0\uFE0F ${note}`);
+  }
   if (result.warnings.length) {
     lines.push("", "<details><summary>\u26A0\uFE0F Skipped strings</summary>", "", "| File | Line | Text | Reason |", "| --- | --- | --- | --- |");
     for (const w of result.warnings.slice(0, MAX_ROWS)) {
@@ -75004,6 +75216,15 @@ async function main() {
   if (!result.files.length) {
     info("No hardcoded UI strings found. Nothing to do.");
     return;
+  }
+  const pkg = result.files.find((f) => f.path === "package.json");
+  if (pkg && Object.keys(result.setup.addedDependencies).length) {
+    const lock = updateLockfile(cwd, pkg.content, log);
+    if (lock && "file" in lock) result.files.push(lock.file);
+    else if (lock) {
+      warning(`Couldn't update the lockfile: ${lock.error}`);
+      result.setup.notes.push(`The lockfile wasn't updated (${lock.error}). Run your package manager's install on this branch.`);
+    }
   }
   const pr = await createLocalizationPullRequest({
     githubToken,

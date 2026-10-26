@@ -3,7 +3,7 @@
 Finds hardcoded UI strings in your React code, gives them semantic keys, translates them, and
 opens a pull request that swaps the strings for `t()` calls and adds the locale files.
 
-Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.1.0.
+Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.2.0.
 
 ## Setup
 
@@ -23,6 +23,13 @@ Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.1.0.
     api_key: ${{ secrets.LOCALIZEDEV_API_KEY }}
     target_locales: 'es,fr,de'
 ```
+
+## What the pull request contains
+
+- Components rewritten to `t()` calls, plus nested locale files (`locales/{locale}.json`).
+- If the app doesn't use i18next yet: `i18next` and `react-i18next` in `package.json` and
+  the lockfile, a `src/i18n.ts` that loads the locale files, and an import of it in your entry
+  file (`src/main.tsx` etc.). Existing i18next setups are left as they are.
 
 ## Inputs
 
