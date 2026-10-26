@@ -16,7 +16,7 @@ Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.2.0.
    and set your default branch and languages.
 
 ```yaml
-- uses: actions/checkout@v4
+- uses: actions/checkout@v5
 - uses: ufortstephen/autolocalize-action@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}

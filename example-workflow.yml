@@ -26,7 +26,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # On PRs, scan the branch itself rather than the merge commit.
           ref: ${{ github.head_ref || github.ref_name }}
