@@ -1,0 +1,41 @@
+# Copy to .github/workflows/localize.yml in the repository you want to localize.
+# Needs the repository secret LOCALIZEDEV_API_KEY (create a key in the Localize.dev dashboard).
+name: Localize
+
+on:
+  push:
+    branches: [master] # your default branch (main, master, ...)
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch: # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: write # push the localize-dev/<branch> branch
+  pull-requests: write # open or update the localization PR
+
+# One run per branch at a time; a newer push supersedes the running one.
+concurrency:
+  group: localize-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  localize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Fork PRs get a read-only token and can't receive a PR.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # On PRs, scan the branch itself rather than the merge commit.
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Localize
+        uses: ufortstephen/autolocalize-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          api_key: ${{ secrets.LOCALIZEDEV_API_KEY }}
+          target_locales: 'es,fr'
+          src_dir: 'src'
+          # locales_path: 'public/locales/{locale}/common.json' # default: locales/{locale}.json

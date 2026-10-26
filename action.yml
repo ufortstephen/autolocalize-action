@@ -1,0 +1,43 @@
+name: 'Localize.dev i18n Auto-Refactor'
+description: 'Automatically scans frontend codebases, extracts hardcoded text, and opens localized PRs.'
+author: 'Localize.dev'
+branding:
+  icon: 'globe'
+  color: 'blue'
+inputs:
+  github_token:
+    description: 'GitHub Token for creating PRs (needs contents: write, pull-requests: write)'
+    required: true
+  api_key:
+    description: 'Localize.dev API key (store it as a secret). Create one at https://localize-dev.vercel.app/dashboard/keys'
+    required: false
+  api_url:
+    description: 'Localize.dev API base URL (override for staging or self-hosted deployments)'
+    required: false
+    default: 'https://localize-dev.vercel.app'
+  target_locales:
+    description: 'Comma-separated target languages (e.g., es,fr,de,ja)'
+    required: false
+    default: 'es,fr'
+  src_dir:
+    description: 'Source code directory to scan'
+    required: false
+    default: 'src'
+  locales_path:
+    description: 'Dictionary path pattern; {locale} is replaced (default from localize.config.json, else locales/{locale}.json)'
+    required: false
+  base_branch:
+    description: 'Branch to open the PR against (default: PR head branch or pushed branch)'
+    required: false
+  offline:
+    description: 'Generate keys without translating (no API key needed); target locales are left untranslated'
+    required: false
+    default: 'false'
+outputs:
+  pr_url:
+    description: 'URL of the opened or updated pull request'
+  strings_count:
+    description: 'Number of strings replaced'
+runs:
+  using: 'node24'
+  main: 'index.js'
