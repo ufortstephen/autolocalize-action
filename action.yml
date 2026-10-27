@@ -9,12 +9,12 @@ inputs:
     description: 'GitHub Token for creating PRs (needs contents: write, pull-requests: write)'
     required: true
   api_key:
-    description: 'Localize.dev API key (store it as a secret). Create one at https://localize-dev.vercel.app/dashboard/keys'
+    description: 'Localize.dev API key (store it as a secret). Create one at https://uselocalize.dev/dashboard/keys'
     required: false
   api_url:
     description: 'Localize.dev API base URL (override for staging or self-hosted deployments)'
     required: false
-    default: 'https://localize-dev.vercel.app'
+    default: 'https://uselocalize.dev'
   target_locales:
     description: 'Comma-separated target languages (e.g., es,fr,de,ja)'
     required: false

@@ -3,11 +3,11 @@
 Finds hardcoded UI strings in your React code, gives them semantic keys, translates them, and
 opens a pull request that swaps the strings for `t()` calls and adds the locale files.
 
-Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.6.0.
+Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.6.5.
 
 ## Setup
 
-1. Create an API key in the [Localize.dev dashboard](https://localize-dev.vercel.app/dashboard/keys).
+1. Create an API key in the [Localize.dev dashboard](https://uselocalize.dev/dashboard/keys).
 2. Add it to your repository as the secret `LOCALIZEDEV_API_KEY`
    (Settings → Secrets and variables → Actions).
 3. Allow Actions to open pull requests: Settings → Actions → General →
@@ -42,7 +42,7 @@ Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.6.0.
 | `src_dir` | `src` | Directory to scan. |
 | `locales_path` | `locales/{locale}.json` | Where locale files go; `{locale}` is replaced. |
 | `base_branch` | the triggering branch | Branch the PR targets. |
-| `api_url` | `https://localize-dev.vercel.app` | API base URL, for staging deployments. |
+| `api_url` | `https://uselocalize.dev` | API base URL, for staging deployments. |
 | `offline` | `false` | Generate keys without translating; no API key needed. |
 
 ## Outputs

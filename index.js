@@ -69138,6 +69138,10 @@ var KeyRegistry = class {
     }
     return false;
   }
+  /** Makes `text` resolve to an existing key (another sense of the same copy that shares it). */
+  alias(text, key) {
+    this.byText.set(text, key);
+  }
   /** Returns the key to use for `text`, registering `proposed` if the text is new. */
   register(proposed, text) {
     const known = this.byText.get(text);
@@ -69159,7 +69163,7 @@ var KeyRegistry = class {
 };
 
 // src/cloud.ts
-var DEFAULT_API_URL = "https://localize-dev.vercel.app";
+var DEFAULT_API_URL = "https://uselocalize.dev";
 var API_KEY_ENV = "LOCALIZE_API_KEY";
 var CloudError = class extends Error {
   constructor(message, status) {
@@ -69168,6 +69172,9 @@ var CloudError = class extends Error {
   }
   status;
 };
+var BUSY = /* @__PURE__ */ new Set([429, 503]);
+var BUSY_ATTEMPTS = 10;
+var MAX_WAIT_MS = 6e4;
 var CloudClient = class {
   constructor(opts, fetchImpl = fetch, sleep = (ms) => new Promise((r) => setTimeout(r, ms))) {
     this.opts = opts;
@@ -69191,8 +69198,11 @@ var CloudClient = class {
   }
   async request(method, route, body, limits = {}) {
     const attempts = limits.attempts ?? this.opts.maxAttempts ?? 4;
+    const busyAttempts = Math.max(attempts, limits.attempts ?? BUSY_ATTEMPTS);
     let lastError = new Error("request not sent");
-    for (let attempt = 1; attempt <= attempts; attempt++) {
+    let failures = 0;
+    let busy = 0;
+    for (let attempt = 1; failures < attempts && busy < busyAttempts; attempt++) {
       let res;
       try {
         res = await this.fetchImpl(`${this.base}${route}`, {
@@ -69209,7 +69219,7 @@ var CloudClient = class {
         });
       } catch (err) {
         lastError = new Error(`Could not reach ${this.base}: ${err.message}`);
-        await this.sleep(backoff(attempt));
+        if (++failures < attempts) await this.wait(null, backoff(failures), attempt);
         continue;
       }
       if (res.ok) return await res.json();
@@ -69218,10 +69228,16 @@ var CloudClient = class {
       if (res.status === 402 || res.status === 403) throw new CloudError(message, res.status);
       if (res.status === 400 || res.status === 413 || res.status === 422) throw new CloudError(message, res.status);
       lastError = new Error(`Localize.dev API error ${res.status}: ${message}`);
+      const n2 = BUSY.has(res.status) ? ++busy : ++failures;
+      if (BUSY.has(res.status) ? busy >= busyAttempts : failures >= attempts) break;
       const retryAfter = Number(res.headers.get("retry-after"));
-      await this.sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1e3 : backoff(attempt));
+      await this.wait(res.status, Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter * 1e3, MAX_WAIT_MS) : backoff(n2), attempt);
     }
     throw lastError;
+  }
+  async wait(status, waitMs, attempt) {
+    this.opts.onRetry?.({ status, waitMs, attempt });
+    await this.sleep(waitMs);
   }
 };
 function backoff(attempt) {
@@ -69261,7 +69277,7 @@ var DEFAULT_ATTRIBUTES = ["placeholder", "alt", "title", "aria-label", "label", 
 var DEFAULT_CONFIG = {
   srcDir: "src",
   include: ["**/*.{tsx,jsx}"],
-  ignore: ["**/node_modules/**", "**/*.test.*", "**/*.spec.*", "**/*.stories.*", "**/*.d.ts"],
+  ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/out/**", "**/coverage/**", "**/*.test.*", "**/*.spec.*", "**/*.stories.*", "**/*.d.ts"],
   sourceLocale: "en",
   targetLocales: ["es", "fr"],
   localesPath: "locales/{locale}.json",
@@ -73006,6 +73022,8 @@ function parseAndScanComponent(code, filePath, options = {}) {
       return;
     }
     const id = `str_${extractedStrings.length + 1}`;
+    const owner = path5.findParent((p) => p.isJSXElement());
+    const element = owner ? elementName(owner.node) : void 0;
     extractedStrings.push({
       id,
       originalText: text,
@@ -73015,6 +73033,7 @@ function parseAndScanComponent(code, filePath, options = {}) {
       loc: { line: loc.line, column: loc.column },
       ...params.length ? { params: params.map((p) => p.name) } : {},
       component: hook2.componentName,
+      ...element ? { element } : {},
       ...plural ? { plural } : {}
     });
     sites.set(id, { id, ...range, kind, params, hook: hook2, ...components ? { components } : {} });
@@ -75047,6 +75066,30 @@ ${importLine}`);
   return { code: s.toString(), changed: true, replacements };
 }
 
+// src/sense.ts
+var MAX_CONTEXT = 200;
+function isAmbiguous(text) {
+  return text.length <= 40 && !/[{<]/.test(text) && text.trim().split(/\s+/).length <= 3;
+}
+function senseOf(s) {
+  if (s.plural || !isAmbiguous(s.originalText)) return void 0;
+  const sense = `${s.element ?? ""}${s.attributeName ? `[${s.attributeName}]` : ""}`;
+  return sense || void 0;
+}
+function senseId(s) {
+  const sense = senseOf(s);
+  const id = messageId(s.originalText, s.plural);
+  return sense ? `${id}${sense}` : id;
+}
+function contextOf(s) {
+  const what = s.attributeName ? `"${s.attributeName}" attribute` : s.nodeType === "JSXText" ? "element text" : "rendered text";
+  const where = [s.element && `${s.attributeName ? "on" : "inside"} <${s.element}>`, s.component && `in component <${s.component}>`];
+  return [what, ...where].filter(Boolean).join(" ").slice(0, MAX_CONTEXT);
+}
+function translationsAgree(existing, fresh) {
+  return Object.keys(fresh).every((l) => !fresh[l] || !existing[l] || existing[l] === fresh[l]);
+}
+
 // src/setup.ts
 var import_fast_glob = __toESM(require_out4(), 1);
 var t2 = __toESM(require_lib4(), 1);
@@ -75381,7 +75424,7 @@ async function planNextAppRouter(ctx) {
   out(layout, edited);
   result.entryFile = layout;
 }
-var SELF_VERSION = true ? "0.6.0" : "0.6.0";
+var SELF_VERSION = true ? "0.6.5" : "0.6.0";
 var isLegacySwitcher = (code) => code.includes("Generated by Localize.dev") && code.includes("function nameOf(") && code.includes("<select") && !code.includes("localize-dev/react");
 function addSwitcher(ctx) {
   const { cwd, config, changed, out, result, next } = ctx;
@@ -75398,7 +75441,7 @@ function addSwitcher(ctx) {
     " * this file sets the defaults for this app. Customise where you render it, e.g.",
     ` *   <LanguageSwitcher nameStyle="native-english" languages={['en', 'es']} buttonClassName="\u2026" />`,
     " * useLanguage() gives the current language, its flag and name, the list, and setLanguage().",
-    " * Options: https://localize-dev.vercel.app/docs#switcher",
+    " * Options: https://uselocalize.dev/docs#switcher",
     " */"
   ];
   const lines = next ? [
@@ -75570,6 +75613,10 @@ function mergeFiles(files, extra) {
 }
 
 // src/pipeline.ts
+var duration = (ms) => {
+  const s = Math.round(ms / 1e3);
+  return s >= 60 ? `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s` : `${s}s`;
+};
 var toPosix2 = (p) => p.split(path4.sep).join("/");
 var BATCH_SIZE = 10;
 var CONCURRENCY = 2;
@@ -75595,14 +75642,21 @@ async function scanProject(cwd, config, log) {
 }
 async function pool(items, limit, fn) {
   let next = 0;
+  let error2 = null;
+  const unfinished = [];
   const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (next < items.length) await fn(items[next++]);
+    while (next < items.length && !error2) {
+      const item = items[next++];
+      try {
+        await fn(item);
+      } catch (err) {
+        error2 ??= err;
+        unfinished.push(item);
+      }
+    }
   });
   await Promise.all(workers);
-}
-function contextOf(s) {
-  const what = s.attributeName ? `"${s.attributeName}" attribute` : s.nodeType === "JSXText" ? "element text" : "rendered text";
-  return s.component ? `${what} in <${s.component}>` : what;
+  return error2 ? { error: error2, unfinished: [...unfinished, ...items.slice(next)] } : null;
 }
 async function runPipeline(opts) {
   const { cwd, config, translator, log } = opts;
@@ -75620,19 +75674,27 @@ async function runPipeline(opts) {
     ...[...targets.values()].map((t3) => [t3.path, serializeDict(t3.dict)])
   ]);
   const registry = new KeyRegistry(flatten(sourceDict));
+  const keysByText = /* @__PURE__ */ new Map();
+  for (const [key, value] of flatten(sourceDict)) {
+    const text = fromDictFormat(value);
+    keysByText.set(text, [...keysByText.get(text) ?? [], key]);
+  }
   const queued = /* @__PURE__ */ new Set();
   const jobs = [];
+  const sids = /* @__PURE__ */ new Map();
   for (const { file, strings } of scanned) {
     const batch = [];
     for (const s of strings) {
-      const mid = messageId(s.originalText, s.plural);
+      const mid = senseId(s);
       if (queued.has(mid)) continue;
       const existing = registry.keyForText(mid);
       const has = (dict, key) => s.plural ? hasPlural(dict, key, config.interpolation) : getNested(dict, key) !== void 0;
       const missing = existing ? [...targets.values()].some((t3) => !has(t3.dict, existing)) : true;
       if (!missing) continue;
       queued.add(mid);
-      batch.push({ id: s.id, text: s.originalText, context: contextOf(s), ...s.plural ? { plural: s.plural } : {} });
+      sids.set(`${file}\0${s.id}`, mid);
+      const sense = senseOf(s);
+      batch.push({ id: s.id, text: s.originalText, context: contextOf(s), ...sense ? { sense } : {}, ...s.plural ? { plural: s.plural } : {} });
     }
     for (let i = 0; i < batch.length; i += BATCH_SIZE) {
       jobs.push({ file, strings: batch.slice(i, i + BATCH_SIZE) });
@@ -75642,16 +75704,39 @@ async function runPipeline(opts) {
   if (jobs.length) {
     log.info(`Requesting keys/translations for ${queued.size} unique string(s) in ${jobs.length} batch(es)...`);
   }
-  await pool(jobs, CONCURRENCY, async (job) => {
+  const started = Date.now();
+  let doneBatches = 0;
+  let doneStrings = 0;
+  const report = () => {
+    const elapsed = Date.now() - started;
+    const left = doneStrings ? elapsed / doneStrings * (queued.size - doneStrings) : 0;
+    log.progress?.(
+      `Translating ${doneBatches}/${jobs.length} batches \xB7 ${doneStrings}/${queued.size} strings \xB7 ${duration(elapsed)} elapsed` + (doneStrings && doneStrings < queued.size ? ` \xB7 ~${duration(left)} left` : "")
+    );
+  };
+  if (jobs.length) report();
+  const failure = await pool(jobs, CONCURRENCY, async (job) => {
     const mappings = await translator.translate({
       filePath: job.file,
       sourceLocale: config.sourceLocale,
       targetLocales: config.targetLocales,
       strings: job.strings
     });
-    const ids = new Map(job.strings.map((s) => [s.id, messageId(s.text, s.plural)]));
-    for (const m of mappings) byText.set(ids.get(m.id), m);
+    for (const m of mappings) {
+      const mid = sids.get(`${job.file}\0${m.id}`);
+      if (mid) byText.set(mid, m);
+    }
+    doneBatches += 1;
+    doneStrings += job.strings.length;
+    report();
   });
+  const untranslated = new Set(failure?.unfinished.flatMap((job) => job.strings.map((s) => sids.get(`${job.file}\0${s.id}`))) ?? []);
+  if (failure && untranslated.size === queued.size) throw failure.error;
+  if (failure) {
+    log.warn(`Translation stopped after ${doneStrings} of ${queued.size} string(s): ${failure.error.message}`);
+  } else if (jobs.length) {
+    log.info(`\u2713 Translated ${queued.size} string(s) in ${duration(Date.now() - started)}`);
+  }
   const stats = { filesScanned, stringsReplaced: 0, newKeys: 0, reusedKeys: 0, translations: {} };
   const files = [];
   const replacements = /* @__PURE__ */ new Map();
@@ -75668,9 +75753,18 @@ async function runPipeline(opts) {
   for (const { file, code, strings, server } of scanned) {
     const keys = /* @__PURE__ */ new Map();
     for (const s of strings) {
-      const mid = messageId(s.originalText, s.plural);
+      const mid = senseId(s);
+      if (untranslated.has(mid) && !registry.keyForText(mid)) continue;
       const mapping = byText.get(mid);
+      if (senseOf(s) && !registry.keyForText(mid)) {
+        const fresh = Object.fromEntries([...targets].map(([l]) => [l, mapping?.translations[l] && toDictFormat(mapping.translations[l], config.interpolation)]));
+        const same = keysByText.get(s.originalText)?.find(
+          (k) => translationsAgree(Object.fromEntries([...targets].map(([l, t3]) => [l, getNested(t3.dict, k)])), fresh)
+        );
+        if (same) registry.alias(mid, same);
+      }
       const { key, isNew } = registry.register(mapping?.key ?? fallbackKey(file, s.originalText), mid);
+      if (isNew && !s.plural) keysByText.set(s.originalText, [...keysByText.get(s.originalText) ?? [], key]);
       const write = (dict, value, where) => typeof value === "string" ? set(dict, key, toDictFormat(value, config.interpolation), where) : guard(() => writePlural(dict, key, value, config.interpolation), where);
       if (isNew) {
         if (!write(sourceDict, s.plural ?? s.originalText, sourcePath)) continue;
@@ -75716,7 +75810,14 @@ async function runPipeline(opts) {
       fs6.writeFileSync(abs, f.content);
     }
   }
-  return { files: allFiles, replacements, warnings, setup, stats };
+  return {
+    files: allFiles,
+    replacements,
+    warnings,
+    setup,
+    stats,
+    ...failure ? { incomplete: { error: failure.error, strings: untranslated.size } } : {}
+  };
 }
 
 // src/report.ts
@@ -75737,6 +75838,12 @@ function buildPrBody(result, targetLocales) {
     "",
     `Extracted **${stats.stringsReplaced}** hardcoded UI string(s) into translation keys (${stats.newKeys} new, ${stats.reusedKeys} reused).`,
     "",
+    ...result.incomplete ? [
+      `> [!WARNING]`,
+      `> Translation stopped partway, so ${result.incomplete.strings} string(s) were left as they are: ${result.incomplete.error.message.replace(/\s+/g, " ")}`,
+      `> Everything below is complete. The next run translates the rest and updates this pull request.`,
+      ""
+    ] : [],
     "| Locale | New translations |",
     "| --- | --- |",
     ...targetLocales.map((l) => `| \`${l}\` | ${stats.translations[l] ?? 0} |`),
@@ -75798,7 +75905,7 @@ async function main() {
     return;
   }
   if (!offline && !apiKey) {
-    throw new Error("api_key is required (create one at https://localize-dev.vercel.app/dashboard/keys), or set offline: true");
+    throw new Error("api_key is required (create one at https://uselocalize.dev/dashboard/keys), or set offline: true");
   }
   const config = loadConfig(cwd, {
     srcDir: getInput("src_dir") || void 0,
@@ -75824,7 +75931,11 @@ async function main() {
   const result = await runPipeline({ cwd, config, translator, write: false, log });
   setOutput("strings_count", result.stats.stringsReplaced);
   for (const w of result.warnings) info(`Skipped ${w.filePath}:${w.loc.line} "${w.text}": ${w.reason}`);
+  if (result.incomplete) {
+    warning(`Translation stopped partway (${result.incomplete.strings} string(s) left): ${result.incomplete.error.message}`);
+  }
   if (!result.files.length) {
+    if (result.incomplete) throw result.incomplete.error;
     info("No hardcoded UI strings found. Nothing to do.");
     await report({ status: "no_changes" });
     return;
@@ -75857,8 +75968,15 @@ async function main() {
     stringsReplaced: result.stats.stringsReplaced,
     newKeys: result.stats.newKeys,
     filesChanged: result.files.length,
-    translations: result.stats.translations
+    translations: result.stats.translations,
+    // A partial run still opened the PR; the dashboard shows why the rest is missing.
+    ...result.incomplete ? { error: `${result.incomplete.strings} string(s) not translated yet: ${result.incomplete.error.message}`.slice(0, 1e3) } : {}
   });
+  if (result.incomplete) {
+    setFailed(
+      `The pull request has everything translated so far; ${result.incomplete.strings} string(s) weren't translated (${result.incomplete.error.message}). Re-run the workflow to finish them.`
+    );
+  }
 }
 var reportFailure = null;
 main().catch(async (err) => {
