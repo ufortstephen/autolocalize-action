@@ -3,7 +3,7 @@
 Finds hardcoded UI strings in your React code, gives them semantic keys, translates them, and
 opens a pull request that swaps the strings for `t()` calls and adds the locale files.
 
-Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.5.0.
+Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.6.0.
 
 ## Setup
 
