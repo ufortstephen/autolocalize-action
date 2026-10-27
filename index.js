@@ -4966,12 +4966,12 @@ var require_file = __commonJS({
     var FileLike = class _FileLike {
       constructor(blobLike, fileName, options = {}) {
         const n2 = fileName;
-        const t2 = options.type;
+        const t3 = options.type;
         const d = options.lastModified ?? Date.now();
         this[kState] = {
           blobLike,
           name: n2,
-          type: t2,
+          type: t3,
           lastModified: d
         };
       }
@@ -8483,9 +8483,9 @@ var require_balanced_pool = __commonJS({
     function getGreatestCommonDivisor(a, b) {
       if (a === 0) return b;
       while (b !== 0) {
-        const t2 = b;
+        const t3 = b;
         b = a % b;
-        a = t2;
+        a = t3;
       }
       return a;
     }
@@ -21863,8 +21863,8 @@ var require_parse3 = __commonJS({
             brace.value = brace.output = "\\{";
             value = output = "\\}";
             state.output = out;
-            for (const t2 of toks) {
-              state.output += t2.output || t2.value;
+            for (const t3 of toks) {
+              state.output += t3.output || t3.value;
             }
           }
           push({ type: "brace", value, output });
@@ -25000,12 +25000,12 @@ var require_lib = __commonJS({
     });
     function _objectWithoutPropertiesLoose(r, e) {
       if (null == r) return {};
-      var t2 = {};
+      var t3 = {};
       for (var n2 in r) if ({}.hasOwnProperty.call(r, n2)) {
         if (-1 !== e.indexOf(n2)) continue;
-        t2[n2] = r[n2];
+        t3[n2] = r[n2];
       }
-      return t2;
+      return t3;
     }
     var Position = class {
       constructor(line, col, index) {
@@ -35475,10 +35475,10 @@ var require_lib = __commonJS({
         this.parsePropertyNamePrefixOperator(member);
         if (this.eat(55)) {
           method.kind = "method";
-          const isPrivateName = this.match(140);
+          const isPrivateName2 = this.match(140);
           this.parseClassElementName(method);
           this.parsePostMemberNameModifiers(method);
-          if (isPrivateName) {
+          if (isPrivateName2) {
             this.pushClassPrivateMethod(classBody, privateMethod, true, false);
             return;
           }
@@ -37342,7 +37342,7 @@ var require_lib = __commonJS({
       }
       tsParseTypeOrTypePredicateAnnotation(returnToken) {
         return this.tsInType(() => {
-          const t2 = this.startNode();
+          const t3 = this.startNode();
           this.expect(returnToken);
           const node = this.startNode();
           const asserts = !!this.tsTryParse(this.tsParseTypePredicateAsserts.bind(this));
@@ -37357,26 +37357,26 @@ var require_lib = __commonJS({
               this.resetStartLocationFromNode(thisTypePredicate, node);
               thisTypePredicate.asserts = true;
             }
-            t2.typeAnnotation = thisTypePredicate;
-            return this.finishNode(t2, "TSTypeAnnotation");
+            t3.typeAnnotation = thisTypePredicate;
+            return this.finishNode(t3, "TSTypeAnnotation");
           }
           const typePredicateVariable = this.tsIsIdentifier() && this.tsTryParse(this.tsParseTypePredicatePrefix.bind(this));
           if (!typePredicateVariable) {
             if (!asserts) {
-              return this.tsParseTypeAnnotation(false, t2);
+              return this.tsParseTypeAnnotation(false, t3);
             }
             node.parameterName = this.parseIdentifier();
             node.asserts = asserts;
             node.typeAnnotation = null;
-            t2.typeAnnotation = this.finishNode(node, "TSTypePredicate");
-            return this.finishNode(t2, "TSTypeAnnotation");
+            t3.typeAnnotation = this.finishNode(node, "TSTypePredicate");
+            return this.finishNode(t3, "TSTypeAnnotation");
           }
           const type = this.tsParseTypeAnnotation(false);
           node.parameterName = typePredicateVariable;
           node.typeAnnotation = type;
           node.asserts = asserts;
-          t2.typeAnnotation = this.finishNode(node, "TSTypePredicate");
-          return this.finishNode(t2, "TSTypeAnnotation");
+          t3.typeAnnotation = this.finishNode(node, "TSTypePredicate");
+          return this.finishNode(t3, "TSTypeAnnotation");
         });
       }
       tsTryParseTypeOrTypePredicateAnnotation() {
@@ -37415,12 +37415,12 @@ var require_lib = __commonJS({
         }
         return true;
       }
-      tsParseTypeAnnotation(eatColon = true, t2 = this.startNode()) {
+      tsParseTypeAnnotation(eatColon = true, t3 = this.startNode()) {
         this.tsInType(() => {
           if (eatColon) this.expect(14);
-          t2.typeAnnotation = this.tsParseType();
+          t3.typeAnnotation = this.tsParseType();
         });
-        return this.finishNode(t2, "TSTypeAnnotation");
+        return this.finishNode(t3, "TSTypeAnnotation");
       }
       tsParseType() {
         assert(this.state.inType);
@@ -38358,8 +38358,8 @@ var require_lib = __commonJS({
         if (isDeclare && (this.isContextual(126) || !this.shouldParseExportDeclaration())) {
           throw this.raise(TSErrors.ExpectedAmbientAfterExportDeclare, this.state.startLoc);
         }
-        const isIdentifier2 = tokenIsIdentifier(this.state.type);
-        const declaration = isIdentifier2 && this.tsTryParseExportDeclaration() || super.parseExportDeclaration(node);
+        const isIdentifier3 = tokenIsIdentifier(this.state.type);
+        const declaration = isIdentifier3 && this.tsTryParseExportDeclaration() || super.parseExportDeclaration(node);
         if (!declaration) return null;
         if (declaration.type === "TSInterfaceDeclaration" || declaration.type === "TSTypeAliasDeclaration" || isDeclare) {
           node.exportKind = "type";
@@ -39404,7 +39404,7 @@ var require_lib = __commonJS({
           }
           const topicToken = pluginsMap.get("pipelineOperator").topicToken;
           if (!TOPIC_TOKENS.includes(topicToken)) {
-            const tokenList = TOPIC_TOKENS.map((t2) => `"${t2}"`).join(", ");
+            const tokenList = TOPIC_TOKENS.map((t3) => `"${t3}"`).join(", ");
             throw new Error(`"pipelineOperator" in "proposal": "hack" mode also requires a "topicToken" option whose value must be one of: ${tokenList}.`);
           }
           if (topicToken === "#" && ((_pluginsMap$get = pluginsMap.get("recordAndTuple")) == null ? void 0 : _pluginsMap$get.syntaxType) === "hash") {
@@ -40497,17 +40497,17 @@ var require_generated = __commonJS({
     exports.isArrayExpression = isArrayExpression;
     exports.isArrayPattern = isArrayPattern;
     exports.isArrayTypeAnnotation = isArrayTypeAnnotation;
-    exports.isArrowFunctionExpression = isArrowFunctionExpression2;
+    exports.isArrowFunctionExpression = isArrowFunctionExpression3;
     exports.isAssignmentExpression = isAssignmentExpression;
     exports.isAssignmentPattern = isAssignmentPattern;
-    exports.isAwaitExpression = isAwaitExpression;
+    exports.isAwaitExpression = isAwaitExpression2;
     exports.isBigIntLiteral = isBigIntLiteral;
     exports.isBinary = isBinary;
-    exports.isBinaryExpression = isBinaryExpression;
+    exports.isBinaryExpression = isBinaryExpression2;
     exports.isBindExpression = isBindExpression;
     exports.isBlock = isBlock;
     exports.isBlockParent = isBlockParent;
-    exports.isBlockStatement = isBlockStatement2;
+    exports.isBlockStatement = isBlockStatement3;
     exports.isBooleanLiteral = isBooleanLiteral;
     exports.isBooleanLiteralTypeAnnotation = isBooleanLiteralTypeAnnotation;
     exports.isBooleanTypeAnnotation = isBooleanTypeAnnotation;
@@ -40526,7 +40526,7 @@ var require_generated = __commonJS({
     exports.isClassProperty = isClassProperty;
     exports.isCompletionStatement = isCompletionStatement;
     exports.isConditional = isConditional;
-    exports.isConditionalExpression = isConditionalExpression;
+    exports.isConditionalExpression = isConditionalExpression2;
     exports.isContinueStatement = isContinueStatement;
     exports.isDebuggerStatement = isDebuggerStatement;
     exports.isDecimalLiteral = isDecimalLiteral;
@@ -40583,14 +40583,14 @@ var require_generated = __commonJS({
     exports.isForStatement = isForStatement;
     exports.isForXStatement = isForXStatement;
     exports.isFunction = isFunction;
-    exports.isFunctionDeclaration = isFunctionDeclaration2;
-    exports.isFunctionExpression = isFunctionExpression2;
+    exports.isFunctionDeclaration = isFunctionDeclaration3;
+    exports.isFunctionExpression = isFunctionExpression3;
     exports.isFunctionParameter = isFunctionParameter;
     exports.isFunctionParent = isFunctionParent;
     exports.isFunctionTypeAnnotation = isFunctionTypeAnnotation;
     exports.isFunctionTypeParam = isFunctionTypeParam;
     exports.isGenericTypeAnnotation = isGenericTypeAnnotation;
-    exports.isIdentifier = isIdentifier2;
+    exports.isIdentifier = isIdentifier3;
     exports.isIfStatement = isIfStatement;
     exports.isImmutable = isImmutable;
     exports.isImport = isImport;
@@ -40609,19 +40609,19 @@ var require_generated = __commonJS({
     exports.isInterpreterDirective = isInterpreterDirective;
     exports.isIntersectionTypeAnnotation = isIntersectionTypeAnnotation;
     exports.isJSX = isJSX;
-    exports.isJSXAttribute = isJSXAttribute2;
+    exports.isJSXAttribute = isJSXAttribute3;
     exports.isJSXClosingElement = isJSXClosingElement;
     exports.isJSXClosingFragment = isJSXClosingFragment;
     exports.isJSXElement = isJSXElement2;
-    exports.isJSXEmptyExpression = isJSXEmptyExpression;
-    exports.isJSXExpressionContainer = isJSXExpressionContainer2;
+    exports.isJSXEmptyExpression = isJSXEmptyExpression2;
+    exports.isJSXExpressionContainer = isJSXExpressionContainer3;
     exports.isJSXFragment = isJSXFragment2;
-    exports.isJSXIdentifier = isJSXIdentifier2;
+    exports.isJSXIdentifier = isJSXIdentifier3;
     exports.isJSXMemberExpression = isJSXMemberExpression2;
     exports.isJSXNamespacedName = isJSXNamespacedName2;
-    exports.isJSXOpeningElement = isJSXOpeningElement;
+    exports.isJSXOpeningElement = isJSXOpeningElement2;
     exports.isJSXOpeningFragment = isJSXOpeningFragment;
-    exports.isJSXSpreadAttribute = isJSXSpreadAttribute;
+    exports.isJSXSpreadAttribute = isJSXSpreadAttribute2;
     exports.isJSXSpreadChild = isJSXSpreadChild;
     exports.isJSXText = isJSXText2;
     exports.isLVal = isLVal;
@@ -40645,12 +40645,12 @@ var require_generated = __commonJS({
     exports.isNumberLiteral = isNumberLiteral;
     exports.isNumberLiteralTypeAnnotation = isNumberLiteralTypeAnnotation;
     exports.isNumberTypeAnnotation = isNumberTypeAnnotation;
-    exports.isNumericLiteral = isNumericLiteral;
+    exports.isNumericLiteral = isNumericLiteral2;
     exports.isObjectExpression = isObjectExpression;
     exports.isObjectMember = isObjectMember;
     exports.isObjectMethod = isObjectMethod;
-    exports.isObjectPattern = isObjectPattern;
-    exports.isObjectProperty = isObjectProperty;
+    exports.isObjectPattern = isObjectPattern2;
+    exports.isObjectProperty = isObjectProperty2;
     exports.isObjectTypeAnnotation = isObjectTypeAnnotation;
     exports.isObjectTypeCallProperty = isObjectTypeCallProperty;
     exports.isObjectTypeIndexer = isObjectTypeIndexer;
@@ -40669,7 +40669,7 @@ var require_generated = __commonJS({
     exports.isPipelineTopicExpression = isPipelineTopicExpression;
     exports.isPlaceholder = isPlaceholder;
     exports.isPrivate = isPrivate;
-    exports.isPrivateName = isPrivateName;
+    exports.isPrivateName = isPrivateName2;
     exports.isProgram = isProgram;
     exports.isProperty = isProperty;
     exports.isPureish = isPureish;
@@ -40687,7 +40687,7 @@ var require_generated = __commonJS({
     exports.isStandardized = isStandardized;
     exports.isStatement = isStatement;
     exports.isStaticBlock = isStaticBlock;
-    exports.isStringLiteral = isStringLiteral2;
+    exports.isStringLiteral = isStringLiteral3;
     exports.isStringLiteralTypeAnnotation = isStringLiteralTypeAnnotation;
     exports.isStringTypeAnnotation = isStringTypeAnnotation;
     exports.isSuper = isSuper;
@@ -40767,7 +40767,7 @@ var require_generated = __commonJS({
     exports.isTSVoidKeyword = isTSVoidKeyword;
     exports.isTaggedTemplateExpression = isTaggedTemplateExpression2;
     exports.isTemplateElement = isTemplateElement;
-    exports.isTemplateLiteral = isTemplateLiteral;
+    exports.isTemplateLiteral = isTemplateLiteral2;
     exports.isTerminatorless = isTerminatorless;
     exports.isThisExpression = isThisExpression;
     exports.isThisTypeAnnotation = isThisTypeAnnotation;
@@ -40790,7 +40790,7 @@ var require_generated = __commonJS({
     exports.isUpdateExpression = isUpdateExpression;
     exports.isUserWhitespacable = isUserWhitespacable;
     exports.isV8IntrinsicIdentifier = isV8IntrinsicIdentifier;
-    exports.isVariableDeclaration = isVariableDeclaration;
+    exports.isVariableDeclaration = isVariableDeclaration2;
     exports.isVariableDeclarator = isVariableDeclarator;
     exports.isVariance = isVariance;
     exports.isVoidPattern = isVoidPattern;
@@ -40811,7 +40811,7 @@ var require_generated = __commonJS({
       if (node.type !== "AssignmentExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isBinaryExpression(node, opts) {
+    function isBinaryExpression2(node, opts) {
       if (!node) return false;
       if (node.type !== "BinaryExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -40831,7 +40831,7 @@ var require_generated = __commonJS({
       if (node.type !== "DirectiveLiteral") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isBlockStatement2(node, opts) {
+    function isBlockStatement3(node, opts) {
       if (!node) return false;
       if (node.type !== "BlockStatement") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -40851,7 +40851,7 @@ var require_generated = __commonJS({
       if (node.type !== "CatchClause") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isConditionalExpression(node, opts) {
+    function isConditionalExpression2(node, opts) {
       if (!node) return false;
       if (node.type !== "ConditionalExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -40896,17 +40896,17 @@ var require_generated = __commonJS({
       if (node.type !== "ForStatement") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isFunctionDeclaration2(node, opts) {
+    function isFunctionDeclaration3(node, opts) {
       if (!node) return false;
       if (node.type !== "FunctionDeclaration") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isFunctionExpression2(node, opts) {
+    function isFunctionExpression3(node, opts) {
       if (!node) return false;
       if (node.type !== "FunctionExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isIdentifier2(node, opts) {
+    function isIdentifier3(node, opts) {
       if (!node) return false;
       if (node.type !== "Identifier") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -40921,12 +40921,12 @@ var require_generated = __commonJS({
       if (node.type !== "LabeledStatement") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isStringLiteral2(node, opts) {
+    function isStringLiteral3(node, opts) {
       if (!node) return false;
       if (node.type !== "StringLiteral") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isNumericLiteral(node, opts) {
+    function isNumericLiteral2(node, opts) {
       if (!node) return false;
       if (node.type !== "NumericLiteral") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -40976,7 +40976,7 @@ var require_generated = __commonJS({
       if (node.type !== "ObjectMethod") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isObjectProperty(node, opts) {
+    function isObjectProperty2(node, opts) {
       if (!node) return false;
       if (node.type !== "ObjectProperty") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41036,7 +41036,7 @@ var require_generated = __commonJS({
       if (node.type !== "UpdateExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isVariableDeclaration(node, opts) {
+    function isVariableDeclaration2(node, opts) {
       if (!node) return false;
       if (node.type !== "VariableDeclaration") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41066,7 +41066,7 @@ var require_generated = __commonJS({
       if (node.type !== "ArrayPattern") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isArrowFunctionExpression2(node, opts) {
+    function isArrowFunctionExpression3(node, opts) {
       if (!node) return false;
       if (node.type !== "ArrowFunctionExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41146,7 +41146,7 @@ var require_generated = __commonJS({
       if (node.type !== "ClassMethod") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isObjectPattern(node, opts) {
+    function isObjectPattern2(node, opts) {
       if (!node) return false;
       if (node.type !== "ObjectPattern") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41171,7 +41171,7 @@ var require_generated = __commonJS({
       if (node.type !== "TemplateElement") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isTemplateLiteral(node, opts) {
+    function isTemplateLiteral2(node, opts) {
       if (!node) return false;
       if (node.type !== "TemplateLiteral") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41181,7 +41181,7 @@ var require_generated = __commonJS({
       if (node.type !== "YieldExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isAwaitExpression(node, opts) {
+    function isAwaitExpression2(node, opts) {
       if (!node) return false;
       if (node.type !== "AwaitExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41231,7 +41231,7 @@ var require_generated = __commonJS({
       if (node.type !== "ClassPrivateMethod") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isPrivateName(node, opts) {
+    function isPrivateName2(node, opts) {
       if (!node) return false;
       if (node.type !== "PrivateName") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41571,7 +41571,7 @@ var require_generated = __commonJS({
       if (node.type !== "OptionalIndexedAccessType") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isJSXAttribute2(node, opts) {
+    function isJSXAttribute3(node, opts) {
       if (!node) return false;
       if (node.type !== "JSXAttribute") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41586,12 +41586,12 @@ var require_generated = __commonJS({
       if (node.type !== "JSXElement") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isJSXEmptyExpression(node, opts) {
+    function isJSXEmptyExpression2(node, opts) {
       if (!node) return false;
       if (node.type !== "JSXEmptyExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isJSXExpressionContainer2(node, opts) {
+    function isJSXExpressionContainer3(node, opts) {
       if (!node) return false;
       if (node.type !== "JSXExpressionContainer") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41601,7 +41601,7 @@ var require_generated = __commonJS({
       if (node.type !== "JSXSpreadChild") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isJSXIdentifier2(node, opts) {
+    function isJSXIdentifier3(node, opts) {
       if (!node) return false;
       if (node.type !== "JSXIdentifier") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -41616,12 +41616,12 @@ var require_generated = __commonJS({
       if (node.type !== "JSXNamespacedName") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isJSXOpeningElement(node, opts) {
+    function isJSXOpeningElement2(node, opts) {
       if (!node) return false;
       if (node.type !== "JSXOpeningElement") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
     }
-    function isJSXSpreadAttribute(node, opts) {
+    function isJSXSpreadAttribute2(node, opts) {
       if (!node) return false;
       if (node.type !== "JSXSpreadAttribute") return false;
       return opts == null || (0, _shallowEqual.default)(node, opts);
@@ -43992,7 +43992,7 @@ var require_utils6 = __commonJS({
     exports.validateType = validateType;
     var _is = require_is();
     var _validate = require_validate();
-    var VISITOR_KEYS = exports.VISITOR_KEYS = {};
+    var VISITOR_KEYS2 = exports.VISITOR_KEYS = {};
     var ALIAS_KEYS = exports.ALIAS_KEYS = {};
     var FLIPPED_ALIAS_KEYS = exports.FLIPPED_ALIAS_KEYS = {};
     var NODE_FIELDS = exports.NODE_FIELDS = {};
@@ -44247,7 +44247,7 @@ ${errors.join("\n")}`);
           }
         }
       }
-      VISITOR_KEYS[type] = opts.visitor = visitor;
+      VISITOR_KEYS2[type] = opts.visitor = visitor;
       BUILDER_KEYS[type] = opts.builder = builder;
       NODE_FIELDS[type] = opts.fields = fields;
       ALIAS_KEYS[type] = opts.aliases = aliases;
@@ -54525,10 +54525,10 @@ var require_virtual_types_validator = __commonJS({
       isFlow: nodeIsFlow,
       isForStatement,
       isForXStatement,
-      isIdentifier: isIdentifier2,
+      isIdentifier: isIdentifier3,
       isImportDeclaration: isImportDeclaration2,
       isImportSpecifier: isImportSpecifier2,
-      isJSXIdentifier: isJSXIdentifier2,
+      isJSXIdentifier: isJSXIdentifier3,
       isJSXMemberExpression: isJSXMemberExpression2,
       isMemberExpression: isMemberExpression2,
       isRestElement: nodeIsRestElement,
@@ -54536,7 +54536,7 @@ var require_virtual_types_validator = __commonJS({
       isScope: nodeIsScope,
       isStatement: nodeIsStatement,
       isVar: nodeIsVar,
-      isVariableDeclaration,
+      isVariableDeclaration: isVariableDeclaration2,
       react,
       isForOfStatement
     } = _t;
@@ -54548,9 +54548,9 @@ var require_virtual_types_validator = __commonJS({
         node,
         parent
       } = this;
-      if (isIdentifier2(node, opts)) {
+      if (isIdentifier3(node, opts)) {
         return nodeIsReferenced(node, parent, this.parentPath.parent);
-      } else if (isJSXIdentifier2(node, opts)) {
+      } else if (isJSXIdentifier3(node, opts)) {
         if (!isJSXMemberExpression2(parent) && isCompatTag(node.name)) return false;
         return nodeIsReferenced(node, parent, this.parentPath.parent);
       } else {
@@ -54570,7 +54570,7 @@ var require_virtual_types_validator = __commonJS({
         parent
       } = this;
       const grandparent = this.parentPath.parent;
-      return isIdentifier2(node) && isBinding(node, parent, grandparent);
+      return isIdentifier3(node) && isBinding(node, parent, grandparent);
     }
     function isStatement() {
       const {
@@ -54578,7 +54578,7 @@ var require_virtual_types_validator = __commonJS({
         parent
       } = this;
       if (nodeIsStatement(node)) {
-        if (isVariableDeclaration(node)) {
+        if (isVariableDeclaration2(node)) {
           if (isForXStatement(parent, {
             left: node
           })) return false;
@@ -54921,8 +54921,8 @@ var require_renamer = __commonJS({
       value: true
     });
     exports.default = void 0;
-    var t2 = require_lib4();
-    var _t = t2;
+    var t3 = require_lib4();
+    var _t = t3;
     var _traverseNode = require_traverse_node();
     var _visitors = require_visitors();
     var _context = require_context2();
@@ -54988,7 +54988,7 @@ var require_renamer = __commonJS({
           const {
             declaration
           } = maybeExportDeclar.node;
-          if (t2.isDeclaration(declaration) && !declaration.id) {
+          if (t3.isDeclaration(declaration) && !declaration.id) {
             return;
           }
         }
@@ -55024,11 +55024,11 @@ var require_renamer = __commonJS({
         const skipKeys = {
           discriminant: true
         };
-        if (t2.isMethod(blockToTraverse)) {
+        if (t3.isMethod(blockToTraverse)) {
           if (blockToTraverse.computed) {
             skipKeys.key = true;
           }
-          if (!t2.isObjectMethod(blockToTraverse)) {
+          if (!t3.isObjectMethod(blockToTraverse)) {
             skipKeys.decorators = true;
           }
         }
@@ -55061,7 +55061,7 @@ var require_traverseForScope = __commonJS({
     var _visitors = require_visitors();
     var _context = require_context2();
     var {
-      VISITOR_KEYS
+      VISITOR_KEYS: VISITOR_KEYS2
     } = _t;
     function traverseForScope(path5, visitors, state) {
       const exploded = (0, _visitors.explode)(visitors);
@@ -55091,7 +55091,7 @@ var require_traverseForScope = __commonJS({
         if (path6.shouldSkip) {
           return;
         }
-        const keys = VISITOR_KEYS[node.type];
+        const keys = VISITOR_KEYS2[node.type];
         if (!(keys != null && keys.length)) {
           return;
         }
@@ -55335,7 +55335,7 @@ var require_scope = __commonJS({
     var _traverseForScope = require_traverseForScope();
     var _binding = require_binding();
     var _t = require_lib4();
-    var t2 = _t;
+    var t3 = _t;
     var _cache = require_cache2();
     var globalsBuiltinLower = require_builtin_lower();
     var globalsBuiltinUpper = require_builtin_upper();
@@ -55354,8 +55354,8 @@ var require_scope = __commonJS({
       isExportAllDeclaration,
       isExportDefaultDeclaration: isExportDefaultDeclaration2,
       isExportNamedDeclaration,
-      isFunctionDeclaration: isFunctionDeclaration2,
-      isIdentifier: isIdentifier2,
+      isFunctionDeclaration: isFunctionDeclaration3,
+      isIdentifier: isIdentifier3,
       isImportDeclaration: isImportDeclaration2,
       isLiteral,
       isMemberExpression: isMemberExpression2,
@@ -55368,10 +55368,10 @@ var require_scope = __commonJS({
       isRegExpLiteral,
       isSuper,
       isTaggedTemplateExpression: isTaggedTemplateExpression2,
-      isTemplateLiteral,
+      isTemplateLiteral: isTemplateLiteral2,
       isThisExpression,
       isUnaryExpression,
-      isVariableDeclaration,
+      isVariableDeclaration: isVariableDeclaration2,
       expressionStatement,
       matchesPattern,
       memberExpression,
@@ -55379,10 +55379,10 @@ var require_scope = __commonJS({
       toIdentifier,
       variableDeclaration,
       variableDeclarator,
-      isObjectProperty,
+      isObjectProperty: isObjectProperty2,
       isTopicReference,
       isMetaProperty,
-      isPrivateName,
+      isPrivateName: isPrivateName2,
       isExportDeclaration,
       buildUndefinedNode,
       sequenceExpression
@@ -55401,7 +55401,7 @@ var require_scope = __commonJS({
             }
           } else if (isModuleSpecifier(node)) {
             gatherNodeParts(node.local, parts);
-          } else if (isLiteral(node) && !isNullLiteral(node) && !isRegExpLiteral(node) && !isTemplateLiteral(node)) {
+          } else if (isLiteral(node) && !isNullLiteral(node) && !isRegExpLiteral(node) && !isTemplateLiteral2(node)) {
             parts.push(node.value);
           }
           break;
@@ -55540,7 +55540,7 @@ var require_scope = __commonJS({
         parent.registerDeclaration(path5);
       },
       ReferencedIdentifier(path5, state) {
-        if (t2.isTSQualifiedName(path5.parent) && path5.parent.right === path5.node) {
+        if (t3.isTSQualifiedName(path5.parent) && path5.parent.right === path5.node) {
           return;
         }
         if (path5.parentPath.isTSImportEqualsDeclaration()) return;
@@ -55566,12 +55566,12 @@ var require_scope = __commonJS({
           } = path5;
           if (isExportAllDeclaration(node)) return;
           const declar = node.declaration;
-          if (isClassDeclaration(declar) || isFunctionDeclaration2(declar)) {
+          if (isClassDeclaration(declar) || isFunctionDeclaration3(declar)) {
             const id = declar.id;
             if (!id) return;
             const binding = scope.getBinding(id.name);
             binding == null || binding.reference(path5);
-          } else if (isVariableDeclaration(declar)) {
+          } else if (isVariableDeclaration2(declar)) {
             for (const decl of declar.declarations) {
               for (const name of Object.keys(getBindingIdentifiers(decl))) {
                 const binding = scope.getBinding(name);
@@ -55728,7 +55728,7 @@ var require_scope = __commonJS({
         if (isThisExpression(node) || isSuper(node) || isTopicReference(node)) {
           return true;
         }
-        if (isIdentifier2(node)) {
+        if (isIdentifier3(node)) {
           const binding = this.getBinding(node.name);
           if (binding) {
             return binding.constant;
@@ -55890,12 +55890,12 @@ var require_scope = __commonJS({
         return !!this.getProgramParent().references[name];
       }
       isPure(node, constantsOnly) {
-        if (isIdentifier2(node)) {
+        if (isIdentifier3(node)) {
           const binding = this.getBinding(node.name);
           if (!binding) return false;
           if (constantsOnly) return binding.constant;
           return true;
-        } else if (isThisExpression(node) || isMetaProperty(node) || isTopicReference(node) || isPrivateName(node)) {
+        } else if (isThisExpression(node) || isMetaProperty(node) || isTopicReference(node) || isPrivateName2(node)) {
           return true;
         } else if (isClass(node)) {
           var _node$decorators;
@@ -55936,7 +55936,7 @@ var require_scope = __commonJS({
           if (((_node$decorators3 = node.decorators) == null ? void 0 : _node$decorators3.length) > 0) {
             return false;
           }
-          if (isObjectProperty(node) || node.static) {
+          if (isObjectProperty2(node) || node.static) {
             if (node.value !== null && !this.isPure(node.value, constantsOnly)) {
               return false;
             }
@@ -55944,7 +55944,7 @@ var require_scope = __commonJS({
           return true;
         } else if (isUnaryExpression(node)) {
           return this.isPure(node.argument, constantsOnly);
-        } else if (isTemplateLiteral(node)) {
+        } else if (isTemplateLiteral2(node)) {
           for (const expression of node.expressions) {
             if (!this.isPure(expression, constantsOnly)) return false;
           }
@@ -55954,13 +55954,13 @@ var require_scope = __commonJS({
             noGlobals: true
           }) && this.isPure(node.quasi, constantsOnly);
         } else if (isMemberExpression2(node)) {
-          return !node.computed && isIdentifier2(node.object) && node.object.name === "Symbol" && isIdentifier2(node.property) && node.property.name !== "for" && !this.hasBinding("Symbol", {
+          return !node.computed && isIdentifier3(node.object) && node.object.name === "Symbol" && isIdentifier3(node.property) && node.property.name !== "for" && !this.hasBinding("Symbol", {
             noGlobals: true
           });
         } else if (isCallExpression2(node)) {
           return matchesPattern(node.callee, "Symbol.for") && !this.hasBinding("Symbol", {
             noGlobals: true
-          }) && node.arguments.length === 1 && t2.isStringLiteral(node.arguments[0]);
+          }) && node.arguments.length === 1 && t3.isStringLiteral(node.arguments[0]);
         } else {
           return isPureish(node);
         }
@@ -56059,7 +56059,7 @@ var require_scope = __commonJS({
         } = opts;
         if (!init && !unique && (kind === "var" || kind === "let") && isAnonymousFunctionExpression(path5) && isCallExpression2(path5.parent, {
           callee: path5.node
-        }) && path5.parent.arguments.length <= path5.node.params.length && isIdentifier2(id)) {
+        }) && path5.parent.arguments.length <= path5.node.params.length && isIdentifier3(id)) {
           path5.pushContainer("params", id);
           path5.scope.registerBinding("param", path5.get("params")[path5.node.params.length - 1]);
           return;
@@ -56282,7 +56282,7 @@ var require_scope = __commonJS({
       return `_${id}`;
     };
     Scope.prototype.toArray = function toArray(node, i, arrayLikeIsIterable) {
-      if (isIdentifier2(node)) {
+      if (isIdentifier3(node)) {
         const binding = this.getBinding(node.name);
         if (binding != null && binding.constant && binding.path.isGenericType("Array")) {
           return node;
@@ -56291,7 +56291,7 @@ var require_scope = __commonJS({
       if (isArrayExpression(node)) {
         return node;
       }
-      if (isIdentifier2(node, {
+      if (isIdentifier3(node, {
         name: "arguments"
       })) {
         return callExpression(memberExpression(memberExpression(memberExpression(identifier("Array"), identifier("prototype")), identifier("slice")), identifier("call")), [node]);
@@ -59230,7 +59230,7 @@ var require_methods = __commonJS({
     var _t = require_lib4();
     var _index = require_node2();
     var {
-      isIdentifier: isIdentifier2
+      isIdentifier: isIdentifier3
     } = _t;
     function _params(node, noLineTerminator, idNode, parentNode) {
       this.print(node.typeParameters);
@@ -59366,7 +59366,7 @@ var require_methods = __commonJS({
         return true;
       }
       const firstParam = node.params[0];
-      if (!isIdentifier2(firstParam) || firstParam.typeAnnotation || firstParam.optional || (_firstParam$leadingCo = firstParam.leadingComments) != null && _firstParam$leadingCo.length || (_firstParam$trailingC = firstParam.trailingComments) != null && _firstParam$trailingC.length) {
+      if (!isIdentifier3(firstParam) || firstParam.typeAnnotation || firstParam.optional || (_firstParam$leadingCo = firstParam.leadingComments) != null && _firstParam$leadingCo.length || (_firstParam$trailingC = firstParam.trailingComments) != null && _firstParam$trailingC.length) {
         return true;
       }
       if (this.tokenMap) {
@@ -59508,7 +59508,7 @@ var require_typescript2 = __commonJS({
       this.tokenChar(60);
       let printTrailingSeparator = parent.type === "ArrowFunctionExpression" && node.params.length === 1;
       if (this.tokenMap && node.start != null && node.end != null) {
-        printTrailingSeparator && (printTrailingSeparator = !!this.tokenMap.find(node, (t2) => this.tokenMap.matchesOriginal(t2, ",")));
+        printTrailingSeparator && (printTrailingSeparator = !!this.tokenMap.find(node, (t3) => this.tokenMap.matchesOriginal(t3, ",")));
         printTrailingSeparator || (printTrailingSeparator = this.shouldPrintTrailingComma(">"));
       }
       this.printList(node.params, printTrailingSeparator);
@@ -60749,7 +60749,7 @@ var require_types = __commonJS({
     var _methods = require_methods();
     var {
       isAssignmentPattern,
-      isIdentifier: isIdentifier2
+      isIdentifier: isIdentifier3
     } = _t;
     var lastRawIdentResult = "";
     function _getRawIdentifier(node) {
@@ -60802,12 +60802,12 @@ var require_types = __commonJS({
         this.print(node.key);
         this.tokenChar(93);
       } else {
-        if (isAssignmentPattern(node.value) && isIdentifier2(node.key) && node.key.name === node.value.left.name) {
+        if (isAssignmentPattern(node.value) && isIdentifier3(node.key) && node.key.name === node.value.left.name) {
           this.print(node.value);
           return;
         }
         this.print(node.key);
-        if (node.shorthand && isIdentifier2(node.key) && isIdentifier2(node.value) && node.key.name === node.value.name) {
+        if (node.shorthand && isIdentifier3(node.key) && isIdentifier3(node.value) && node.key.name === node.value.name) {
           return;
         }
       }
@@ -62243,7 +62243,7 @@ var require_node2 = __commonJS({
     var _t = require_lib4();
     var _nodes = require_nodes();
     var {
-      VISITOR_KEYS
+      VISITOR_KEYS: VISITOR_KEYS2
     } = _t;
     var TokenContext = exports.TokenContext = {
       normal: 0,
@@ -62309,7 +62309,7 @@ var require_node2 = __commonJS({
       }
     }
     function isLastChild(parent, child) {
-      const visitorKeys = VISITOR_KEYS[parent.type];
+      const visitorKeys = VISITOR_KEYS2[parent.type];
       for (let i = visitorKeys.length - 1; i >= 0; i--) {
         const val = parent[visitorKeys[i]];
         if (val === child) {
@@ -62338,7 +62338,7 @@ var require_token_map = __commonJS({
     var _t = require_lib4();
     var {
       traverseFast,
-      VISITOR_KEYS
+      VISITOR_KEYS: VISITOR_KEYS2
     } = _t;
     var TokenMap = class {
       constructor(ast, tokens, source) {
@@ -62511,7 +62511,7 @@ var require_token_map = __commonJS({
         }
         return;
       }
-      const keys = VISITOR_KEYS[node.type];
+      const keys = VISITOR_KEYS2[node.type];
       for (const key of keys) {
         const child = node[key];
         if (!child) continue;
@@ -63444,7 +63444,7 @@ var require_ancestry = __commonJS({
     exports.isDescendant = isDescendant;
     var _t = require_lib4();
     var {
-      VISITOR_KEYS
+      VISITOR_KEYS: VISITOR_KEYS2
     } = _t;
     function findParent(callback) {
       let path5 = this;
@@ -63480,7 +63480,7 @@ var require_ancestry = __commonJS({
     function getEarliestCommonAncestorFrom(paths) {
       return this.getDeepestCommonAncestorFrom(paths, function(deepest, i, ancestries) {
         let earliest;
-        const keys = VISITOR_KEYS[deepest.type];
+        const keys = VISITOR_KEYS2[deepest.type];
         for (const ancestry of ancestries) {
           const path5 = ancestry[i + 1];
           if (!earliest) {
@@ -63812,7 +63812,7 @@ var require_inferers = __commonJS({
       tupleTypeAnnotation,
       unionTypeAnnotation,
       voidTypeAnnotation,
-      isIdentifier: isIdentifier2
+      isIdentifier: isIdentifier3
     } = _t;
     function VariableDeclarator() {
       if (!this.get("id").isIdentifier()) return;
@@ -63927,7 +63927,7 @@ var require_inferers = __commonJS({
       } = this.node;
       if (isObjectKeys(callee)) {
         return arrayTypeAnnotation(stringTypeAnnotation());
-      } else if (isArrayFrom(callee) || isObjectValues(callee) || isIdentifier2(callee, {
+      } else if (isArrayFrom(callee) || isObjectValues(callee) || isIdentifier3(callee, {
         name: "Array"
       })) {
         return arrayTypeAnnotation(anyTypeAnnotation());
@@ -63987,7 +63987,7 @@ var require_inference = __commonJS({
       isEmptyTypeAnnotation,
       isFlowBaseAnnotation,
       isGenericTypeAnnotation,
-      isIdentifier: isIdentifier2,
+      isIdentifier: isIdentifier3,
       isMixedTypeAnnotation,
       isNumberTypeAnnotation,
       isStringTypeAnnotation,
@@ -64107,9 +64107,9 @@ var require_inference = __commonJS({
           return true;
         }
       }
-      return isGenericTypeAnnotation(type) && isIdentifier2(type.id, {
+      return isGenericTypeAnnotation(type) && isIdentifier3(type.id, {
         name: genericName
-      }) || isTSTypeReference(type) && isIdentifier2(type.typeName, {
+      }) || isTSTypeReference(type) && isIdentifier3(type.typeName, {
         name: genericName
       });
     }
@@ -64484,7 +64484,7 @@ var require_removal = __commonJS({
     var _cache = require_cache2();
     var _replacement = require_replacement();
     var _index = require_path2();
-    var t2 = require_lib4();
+    var t3 = require_lib4();
     var _modification = require_modification();
     var _context = require_context2();
     function remove() {
@@ -64503,7 +64503,7 @@ var require_removal = __commonJS({
       _markRemoved.call(this);
     }
     function _removeFromScope() {
-      const bindings = t2.getBindingIdentifiers(this.node, false, false, true);
+      const bindings = t3.getBindingIdentifiers(this.node, false, false, true);
       Object.keys(bindings).forEach((name) => this.scope.removeBinding(name));
     }
     function _callRemovalHooks() {
@@ -64746,7 +64746,7 @@ var require_modification = __commonJS({
       isCallExpression: isCallExpression2,
       isExportNamedDeclaration,
       isExpression,
-      isIdentifier: isIdentifier2,
+      isIdentifier: isIdentifier3,
       isSequenceExpression,
       isSuper,
       thisExpression
@@ -64808,7 +64808,7 @@ var require_modification = __commonJS({
       return isSequenceExpression(path5.parent) && (last(path5.parent.expressions) !== path5.node || isHiddenInSequenceExpression(path5.parentPath));
     }
     function isAlmostConstantAssignment(node, scope) {
-      if (!isAssignmentExpression(node) || !isIdentifier2(node.left)) {
+      if (!isAssignmentExpression(node) || !isIdentifier3(node.left)) {
         return false;
       }
       const blockScope = scope.getBlockParent();
@@ -64981,14 +64981,14 @@ var require_replacement = __commonJS({
       inheritLeadingComments,
       inheritTrailingComments,
       inheritsComments,
-      isBlockStatement: isBlockStatement2,
+      isBlockStatement: isBlockStatement3,
       isEmptyStatement,
       isExpression,
       isExpressionStatement,
       isIfStatement,
       isProgram,
       isStatement,
-      isVariableDeclaration,
+      isVariableDeclaration: isVariableDeclaration2,
       removeComments,
       returnStatement,
       sequenceExpression,
@@ -65157,7 +65157,7 @@ var require_replacement = __commonJS({
           exprs.push(node);
         } else if (isExpressionStatement(node)) {
           exprs.push(node.expression);
-        } else if (isVariableDeclaration(node)) {
+        } else if (isVariableDeclaration2(node)) {
           if (node.kind !== "var") return;
           for (const declar of node.declarations) {
             const bindings = getBindingIdentifiers(declar);
@@ -65174,7 +65174,7 @@ var require_replacement = __commonJS({
           const alternate = node.alternate ? gatherSequenceExpressions([node.alternate], declars) : buildUndefinedNode();
           if (!consequent || !alternate) return;
           exprs.push(conditionalExpression(node.test, consequent, alternate));
-        } else if (isBlockStatement2(node)) {
+        } else if (isBlockStatement3(node)) {
           const body = gatherSequenceExpressions(node.body, declars);
           if (!body) return;
           exprs.push(body);
@@ -65674,12 +65674,12 @@ var require_options = __commonJS({
     var _excluded = ["placeholderWhitelist", "placeholderPattern", "preserveComments", "syntacticPlaceholders"];
     function _objectWithoutPropertiesLoose(r, e) {
       if (null == r) return {};
-      var t2 = {};
+      var t3 = {};
       for (var n2 in r) if ({}.hasOwnProperty.call(r, n2)) {
         if (-1 !== e.indexOf(n2)) continue;
-        t2[n2] = r[n2];
+        t3[n2] = r[n2];
       }
-      return t2;
+      return t3;
     }
     function merge2(a, b) {
       const {
@@ -65758,12 +65758,12 @@ var require_parse4 = __commonJS({
       isCallExpression: isCallExpression2,
       isExpressionStatement,
       isFunction,
-      isIdentifier: isIdentifier2,
-      isJSXIdentifier: isJSXIdentifier2,
+      isIdentifier: isIdentifier3,
+      isJSXIdentifier: isJSXIdentifier3,
       isNewExpression,
       isPlaceholder,
       isStatement,
-      isStringLiteral: isStringLiteral2,
+      isStringLiteral: isStringLiteral3,
       removePropertiesDeep,
       traverse: traverse2
     } = _t;
@@ -65810,9 +65810,9 @@ var require_parse4 = __commonJS({
         hasSyntacticPlaceholders = true;
       } else if (hasSyntacticPlaceholders || state.syntacticPlaceholders) {
         return;
-      } else if (isIdentifier2(node) || isJSXIdentifier2(node)) {
+      } else if (isIdentifier3(node) || isJSXIdentifier3(node)) {
         name = node.name;
-      } else if (isStringLiteral2(node)) {
+      } else if (isStringLiteral3(node)) {
         name = node.value;
       } else {
         return;
@@ -65829,7 +65829,7 @@ var require_parse4 = __commonJS({
         key
       } = ancestors[ancestors.length - 1];
       let type;
-      if (isStringLiteral2(node) || isPlaceholder(node, {
+      if (isStringLiteral3(node) || isPlaceholder(node, {
         expectedNode: "StringLiteral"
       })) {
         type = "string";
@@ -65925,7 +65925,7 @@ var require_populate = __commonJS({
       expressionStatement,
       identifier,
       isStatement,
-      isStringLiteral: isStringLiteral2,
+      isStringLiteral: isStringLiteral3,
       stringLiteral,
       validate
     } = _t;
@@ -65975,7 +65975,7 @@ var require_populate = __commonJS({
         if (typeof replacement === "string") {
           replacement = stringLiteral(replacement);
         }
-        if (!replacement || !isStringLiteral2(replacement)) {
+        if (!replacement || !isStringLiteral3(replacement)) {
           throw new Error("Expected string substitution");
         }
       } else if (placeholder.type === "statement") {
@@ -66271,7 +66271,7 @@ var require_conversion = __commonJS({
       conditionalExpression,
       expressionStatement,
       identifier,
-      isIdentifier: isIdentifier2,
+      isIdentifier: isIdentifier3,
       jsxIdentifier,
       logicalExpression,
       LOGICAL_OPERATORS,
@@ -66310,7 +66310,7 @@ var require_conversion = __commonJS({
         throw new ReferenceError("todo");
       }
       if (!this.node.computed) {
-        if (isIdentifier2(key)) key = stringLiteral(key.name);
+        if (isIdentifier3(key)) key = stringLiteral(key.name);
       }
       return key;
     }
@@ -66882,12 +66882,12 @@ var require_introspection = __commonJS({
     var _t = require_lib4();
     var {
       STATEMENT_OR_BLOCK_KEYS,
-      VISITOR_KEYS,
-      isBlockStatement: isBlockStatement2,
+      VISITOR_KEYS: VISITOR_KEYS2,
+      isBlockStatement: isBlockStatement3,
       isExpression,
-      isIdentifier: isIdentifier2,
+      isIdentifier: isIdentifier3,
       isLiteral,
-      isStringLiteral: isStringLiteral2,
+      isStringLiteral: isStringLiteral3,
       isType,
       matchesPattern: _matchesPattern
     } = _t;
@@ -66924,7 +66924,7 @@ var require_introspection = __commonJS({
         return false;
       }
       if (this.isExpression()) {
-        return isBlockStatement2(replacement);
+        return isBlockStatement3(replacement);
       } else if (this.isBlockStatement()) {
         return isExpression(replacement);
       }
@@ -66949,7 +66949,7 @@ var require_introspection = __commonJS({
       return true;
     }
     function isStatementOrBlock() {
-      if (this.parentPath.isLabeledStatement() || isBlockStatement2(this.container)) {
+      if (this.parentPath.isLabeledStatement() || isBlockStatement3(this.container)) {
         return false;
       } else {
         return STATEMENT_OR_BLOCK_KEYS.includes(this.key);
@@ -66957,7 +66957,7 @@ var require_introspection = __commonJS({
     }
     function referencesImport(moduleSource, importName) {
       if (!this.isReferencedIdentifier()) {
-        if (this.isJSXMemberExpression() && this.node.property.name === importName || (this.isMemberExpression() || this.isOptionalMemberExpression()) && (this.node.computed ? isStringLiteral2(this.node.property, {
+        if (this.isJSXMemberExpression() && this.node.property.name === importName || (this.isMemberExpression() || this.isOptionalMemberExpression()) && (this.node.computed ? isStringLiteral3(this.node.property, {
           value: importName
         }) : this.node.property.name === importName)) {
           const object = this.get("object");
@@ -66981,7 +66981,7 @@ var require_introspection = __commonJS({
       if (path5.isImportNamespaceSpecifier() && importName === "*") {
         return true;
       }
-      if (path5.isImportSpecifier() && isIdentifier2(path5.node.imported, {
+      if (path5.isImportSpecifier() && isIdentifier3(path5.node.imported, {
         name: importName
       })) {
         return true;
@@ -67084,7 +67084,7 @@ var require_introspection = __commonJS({
       if (divergence.target.listKey && divergence.this.listKey && divergence.target.container === divergence.this.container) {
         return divergence.target.key > divergence.this.key ? "before" : "after";
       }
-      const keys = VISITOR_KEYS[commonPath.type];
+      const keys = VISITOR_KEYS2[commonPath.type];
       const keyPosition = {
         this: keys.indexOf(divergence.this.parentKey),
         target: keys.indexOf(divergence.target.parentKey)
@@ -67673,7 +67673,7 @@ var require_path2 = __commonJS({
     var _index = require_lib8();
     var _index2 = require_scope();
     var _t = require_lib4();
-    var t2 = _t;
+    var t3 = _t;
     var cache = require_cache2();
     var _generator = require_lib5();
     var NodePath_ancestry = require_ancestry();
@@ -67934,9 +67934,9 @@ var require_path2 = __commonJS({
       _getKey: NodePath_family._getKey,
       _getPattern: NodePath_family._getPattern
     });
-    for (const type of t2.TYPES) {
+    for (const type of t3.TYPES) {
       const typeKey = `is${type}`;
-      const fn = t2[typeKey];
+      const fn = t3[typeKey];
       NodePath_Final.prototype[typeKey] = function(opts) {
         return fn(this.node, opts);
       };
@@ -67949,7 +67949,7 @@ var require_path2 = __commonJS({
     Object.assign(NodePath_Final.prototype, NodePath_virtual_types_validator);
     for (const type of Object.keys(virtualTypes)) {
       if (type.startsWith("_")) continue;
-      if (!t2.TYPES.includes(type)) t2.TYPES.push(type);
+      if (!t3.TYPES.includes(type)) t3.TYPES.push(type);
     }
   }
 });
@@ -67991,7 +67991,7 @@ var require_context = __commonJS({
     var _context = require_context2();
     var _hub = require_hub();
     var {
-      VISITOR_KEYS
+      VISITOR_KEYS: VISITOR_KEYS2
     } = _t;
     var TraversalContext = class {
       constructor(scope, opts, state, parentPath) {
@@ -68006,7 +68006,7 @@ var require_context = __commonJS({
         const opts = this.opts;
         if (opts.enter || opts.exit) return true;
         if (opts[node.type]) return true;
-        const keys = VISITOR_KEYS[node.type];
+        const keys = VISITOR_KEYS2[node.type];
         if (!(keys != null && keys.length)) return false;
         for (const key of keys) {
           if (node[key]) {
@@ -68119,10 +68119,10 @@ var require_traverse_node = __commonJS({
     var _t = require_lib4();
     var _context2 = require_context2();
     var {
-      VISITOR_KEYS
+      VISITOR_KEYS: VISITOR_KEYS2
     } = _t;
     function traverseNode(node, opts, scope, state, path5, skipKeys, visitSelf) {
-      const keys = VISITOR_KEYS[node.type];
+      const keys = VISITOR_KEYS2[node.type];
       if (!keys) return false;
       const context = new _context.default(scope, opts, state, path5);
       if (visitSelf) {
@@ -68172,7 +68172,7 @@ var require_context2 = __commonJS({
     var _traverseNode = require_traverse_node();
     var _index = require_path2();
     var _removal = require_removal();
-    var t2 = require_lib4();
+    var t3 = require_lib4();
     function call(key) {
       const opts = this.opts;
       this.debug(key);
@@ -68375,7 +68375,7 @@ var require_context2 = __commonJS({
         context,
         node
       } = this;
-      if (!t2.isPrivate(node) && node.computed) {
+      if (!t3.isPrivate(node) && node.computed) {
         context.maybeQueue(this.get("key"));
       }
       if (node.decorators) {
@@ -68433,7 +68433,7 @@ var require_lib8 = __commonJS({
     var _index2 = require_scope();
     var _hub = require_hub();
     var {
-      VISITOR_KEYS,
+      VISITOR_KEYS: VISITOR_KEYS2,
       removeProperties,
       traverseFast
     } = _t;
@@ -68447,7 +68447,7 @@ var require_lib8 = __commonJS({
       if (!parentPath && visitSelf) {
         throw new Error("visitSelf can only be used when providing a NodePath.");
       }
-      if (!VISITOR_KEYS[parent.type]) {
+      if (!VISITOR_KEYS2[parent.type]) {
         return;
       }
       visitors.explode(opts);
@@ -68998,6 +68998,69 @@ function info(message) {
 
 // src/dictionary.ts
 import * as fs3 from "node:fs";
+
+// src/plural.ts
+var PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"];
+var SUFFIX = new RegExp(`^(.+)_(${PLURAL_CATEGORIES.join("|")})$`);
+function splitPluralKey(key) {
+  const m = SUFFIX.exec(key);
+  return m ? { base: m[1], category: m[2] } : null;
+}
+function toIcuPlural(forms) {
+  const parts = PLURAL_CATEGORIES.filter((c) => forms[c] !== void 0).map((c) => `${c} {${forms[c]}}`);
+  return `{count, plural, ${parts.join(" ")}}`;
+}
+function fromIcuPlural(message) {
+  const m = /^\{count, plural, (.*)\}$/s.exec(message.trim());
+  if (!m) return null;
+  const forms = {};
+  let rest = m[1];
+  while (rest.trim()) {
+    const head = /^\s*(zero|one|two|few|many|other) \{/.exec(rest);
+    if (!head) return null;
+    let depth = 1;
+    let i = head[0].length;
+    for (; i < rest.length && depth; i++) {
+      if (rest[i] === "{") depth++;
+      else if (rest[i] === "}") depth--;
+    }
+    if (depth) return null;
+    forms[head[1]] = rest.slice(head[0].length, i - 1);
+    rest = rest.slice(i);
+  }
+  return forms.other === void 0 ? null : forms;
+}
+function writePlural(dict, key, forms, style) {
+  if (style === "icu") {
+    setNested(dict, key, toIcuPlural(forms));
+    return;
+  }
+  for (const c of PLURAL_CATEGORIES) {
+    const form = forms[c];
+    if (form !== void 0) setNested(dict, `${key}_${c}`, toDictFormat(form, style));
+  }
+}
+function hasPlural(dict, key, style) {
+  return getNested(dict, style === "icu" ? key : `${key}_other`) !== void 0;
+}
+function messageId(text, plural) {
+  return plural ? `plural${JSON.stringify(PLURAL_CATEGORIES.map((c) => plural[c] ?? null))}` : text;
+}
+function pluralsIn(flat) {
+  const out = /* @__PURE__ */ new Map();
+  for (const [key, value] of flat) {
+    const split = splitPluralKey(key);
+    if (split) {
+      out.set(split.base, { ...out.get(split.base), [split.category]: fromDictFormat(value) });
+      continue;
+    }
+    const icu = fromIcuPlural(value);
+    if (icu) out.set(key, icu);
+  }
+  return new Map([...out].filter((e) => e[1].other !== void 0));
+}
+
+// src/dictionary.ts
 function localePath(pattern, locale) {
   return pattern.replace(/\{locale\}/g, locale);
 }
@@ -69051,10 +69114,18 @@ var KeyRegistry = class {
   byText = /* @__PURE__ */ new Map();
   keys = /* @__PURE__ */ new Set();
   constructor(existing) {
+    const plurals = pluralsIn(existing);
     for (const [key, value] of existing) {
       this.keys.add(key);
+      const split = splitPluralKey(key);
+      if (plurals.has(key) || split && plurals.has(split.base)) continue;
       const text = fromDictFormat(value);
       if (!this.byText.has(text)) this.byText.set(text, key);
+    }
+    for (const [base, forms] of plurals) {
+      this.keys.add(base);
+      const id = messageId(forms.other, { one: forms.one ?? forms.other, other: forms.other });
+      if (!this.byText.has(id)) this.byText.set(id, base);
     }
   }
   keyForText(text) {
@@ -69174,7 +69245,11 @@ var CloudTranslator = class {
     const byId = new Map(mappings.map((m) => [m.id, m]));
     return req.strings.flatMap((s) => {
       const m = byId.get(s.id);
-      return m ? [{ id: s.id, key: sanitizeKey(m.key), en: s.text, translations: m.translations ?? {} }] : [];
+      if (!m) return [];
+      const plurals = s.plural && m.plurals ? Object.fromEntries(
+        Object.entries(m.plurals).filter(([l, f]) => req.targetLocales.includes(l) && f && typeof f.other === "string").map(([l, f]) => [l, Object.fromEntries(Object.entries(f).filter(([, v]) => typeof v === "string"))])
+      ) : void 0;
+      return [{ id: s.id, key: sanitizeKey(m.key), en: s.text, translations: m.translations ?? {}, ...plurals ? { plurals } : {} }];
     });
   }
 };
@@ -72814,7 +72889,7 @@ function namespaceFromPath(filePath) {
   return sanitizeKey(name.replace(/[[\]()]/g, "")) || "common";
 }
 function fallbackKey(filePath, text) {
-  const words = text.replace(/\{\w+\}/g, " ").toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean).slice(0, 5);
+  const words = text.replace(/<\/?[A-Za-z][\w-]*\s*\/?>/g, " ").replace(/\{\w+\}/g, " ").toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean).slice(0, 5);
   return `${namespaceFromPath(filePath)}.${words.join("_") || "text"}`;
 }
 var OfflineTranslator = class {
@@ -72909,6 +72984,8 @@ function parseAndScanComponent(code, filePath, options = {}) {
   const sites = /* @__PURE__ */ new Map();
   const warnings = [];
   let hasUseTranslation = false;
+  let hasTrans = false;
+  let hasGetTranslation = false;
   let lastImportEnd = null;
   for (const node of ast.program.body) {
     if (!t.isImportDeclaration(node)) continue;
@@ -72916,12 +72993,14 @@ function parseAndScanComponent(code, filePath, options = {}) {
     if (node.specifiers.some((s) => t.isImportSpecifier(s) && s.local.name === "useTranslation")) {
       hasUseTranslation = true;
     }
+    if (node.specifiers.some((s) => t.isImportSpecifier(s) && s.local.name === "Trans")) hasTrans = true;
+    if (node.specifiers.some((s) => t.isImportSpecifier(s) && s.local.name === "getTranslation")) hasGetTranslation = true;
   }
   const directives = ast.program.directives;
   const directivesEnd = directives.length ? directives[directives.length - 1].end : null;
-  const record = (path5, nodeType, text, range, kind, params = [], attributeName) => {
+  const record = (path5, nodeType, text, range, kind, params = [], attributeName, plural, components) => {
     const loc = path5.node.loc?.start ?? { line: 0, column: 0 };
-    const hook2 = resolveHookTarget(path5, code);
+    const hook2 = resolveHookTarget(path5, code, !!options.server, !!options.server && kind === "trans");
     if ("reason" in hook2) {
       warnings.push({ filePath, loc: { line: loc.line, column: loc.column }, text, reason: hook2.reason });
       return;
@@ -72935,18 +73014,29 @@ function parseAndScanComponent(code, filePath, options = {}) {
       filePath,
       loc: { line: loc.line, column: loc.column },
       ...params.length ? { params: params.map((p) => p.name) } : {},
-      component: hook2.componentName
+      component: hook2.componentName,
+      ...plural ? { plural } : {}
     });
-    sites.set(id, { id, ...range, kind, params, hook: hook2 });
+    sites.set(id, { id, ...range, kind, params, hook: hook2, ...components ? { components } : {} });
   };
   const consumed = /* @__PURE__ */ new Set();
   const visitChildren = (path5) => {
+    if (consumed.has(path5.node)) return;
+    const rich = !mergeTextRun(path5.node.children, code) && !isIgnored(path5, true) ? mergeRichText(path5.node.children, code, attributes) : null;
+    if (rich && isTranslatable(rich.text.replace(/<[^>]+>/g, " "))) {
+      const first2 = path5.node.children.find((c) => !isBlankText(c));
+      const firstPath2 = path5.get("children").find((c) => c.node === first2);
+      for (const n2 of rich.consumed) consumed.add(n2);
+      record(firstPath2, "TemplateLiteral", rich.text, rich.range, "trans", rich.params, void 0, void 0, rich.components);
+      return;
+    }
     const merged = mergeTextRun(path5.node.children, code);
     if (!merged || !isTranslatable(merged.text) || isIgnored(path5, true)) return;
     const first = path5.node.children.find((c) => !isBlankText(c));
     const firstPath = path5.get("children").find((c) => c.node === first);
     for (const c of path5.node.children) if (t.isJSXText(c)) consumed.add(c);
-    record(firstPath, "TemplateLiteral", merged.text, merged.range, "jsxChild", merged.params);
+    for (const n2 of merged.consumed) consumed.add(n2);
+    record(firstPath, "TemplateLiteral", merged.text, merged.range, "jsxChild", merged.params, void 0, merged.plural);
   };
   traverse(ast, {
     JSXElement: visitChildren,
@@ -72974,6 +73064,7 @@ function parseAndScanComponent(code, filePath, options = {}) {
       record(path5, "JSXAttribute", text, { start: value.start, end: value.end }, "attrValue", [], name);
     },
     StringLiteral(path5) {
+      if (consumed.has(path5.node)) return;
       const slot = expressionSlot(path5, attributes);
       if (!slot || isIgnored(path5)) return;
       const text = normalizeWhitespace(path5.node.value);
@@ -72993,7 +73084,11 @@ function parseAndScanComponent(code, filePath, options = {}) {
       const slot = expressionSlot(path5, attributes);
       if (!slot || isIgnored(path5)) return;
       const params = [];
-      const placeholders = path5.node.expressions.map((expr) => {
+      const plurals = path5.node.expressions.map((e) => pluralTernary(e));
+      const plural = plurals.filter(Boolean).length === 1 ? plurals.find(Boolean) : null;
+      if (plural) params.push({ name: "count", source: code.slice(plural.count.start, plural.count.end) });
+      const placeholders = path5.node.expressions.map((expr, i) => {
+        if (plural && plurals[i] === plural) return null;
         const source = code.slice(expr.start, expr.end);
         const existing = params.find((p) => p.source === source);
         if (existing) return existing.name;
@@ -73001,12 +73096,15 @@ function parseAndScanComponent(code, filePath, options = {}) {
         params.push({ name, source });
         return name;
       });
-      let template = "";
-      path5.node.quasis.forEach((q, idx) => {
-        template += q.value.cooked ?? q.value.raw;
-        if (idx < placeholders.length) template += `{${placeholders[idx]}}`;
-      });
-      const text = normalizeWhitespace(template);
+      const build = (form) => {
+        let template = "";
+        path5.node.quasis.forEach((q, idx) => {
+          template += q.value.cooked ?? q.value.raw;
+          if (idx < placeholders.length) template += placeholders[idx] === null ? plural[form] : `{${placeholders[idx]}}`;
+        });
+        return normalizeWhitespace(template);
+      };
+      const text = build("other");
       if (!isTranslatable(text)) return;
       record(
         path5,
@@ -73015,7 +73113,8 @@ function parseAndScanComponent(code, filePath, options = {}) {
         { start: path5.node.start, end: path5.node.end },
         "expression",
         params,
-        slot.attributeName
+        slot.attributeName,
+        plural ? { one: build("one"), other: text } : void 0
       );
     }
   });
@@ -73024,7 +73123,7 @@ function parseAndScanComponent(code, filePath, options = {}) {
     extractedStrings,
     sites,
     warnings,
-    imports: { lastImportEnd, directivesEnd, hasUseTranslation }
+    imports: { lastImportEnd, directivesEnd, hasUseTranslation, hasTrans, hasGetTranslation }
   };
 }
 function attributeNameOf(attr) {
@@ -73046,29 +73145,130 @@ function isSimpleExpression(expr) {
   }
   return false;
 }
+function pluralTernary(expr) {
+  if (!t.isConditionalExpression(expr) || !t.isBinaryExpression(expr.test)) return null;
+  const { operator, left, right } = expr.test;
+  if (!["===", "==", "!==", "!="].includes(operator)) return null;
+  const isOne = (n2) => t.isNumericLiteral(n2) && n2.value === 1;
+  const count = isOne(right) ? left : isOne(left) ? right : null;
+  if (!count || t.isPrivateName(count) || !isSimpleExpression(count)) return null;
+  const literal = (n2) => t.isStringLiteral(n2) ? n2.value : t.isTemplateLiteral(n2) && !n2.expressions.length ? n2.quasis[0].value.cooked ?? null : null;
+  const yes = literal(expr.consequent);
+  const no = literal(expr.alternate);
+  if (yes === null || no === null) return null;
+  const equals = operator === "===" || operator === "==";
+  return { count, one: equals ? yes : no, other: equals ? no : yes, node: expr };
+}
 function mergeTextRun(children, code) {
   const significant = children.filter((c) => !isBlankText(c));
+  const expressions = significant.filter((c) => t.isJSXExpressionContainer(c));
+  const plurals = expressions.map((c) => pluralTernary(c.expression)).filter((p) => p !== null);
+  const plural = plurals.length === 1 ? plurals[0] : null;
   const hasText = significant.some((c) => t.isJSXText(c));
-  const hasExpr = significant.some((c) => t.isJSXExpressionContainer(c));
-  if (!hasText || !hasExpr) return null;
-  if (!significant.every((c) => t.isJSXText(c) || t.isJSXExpressionContainer(c) && isSimpleExpression(c.expression))) {
+  if (!(hasText && expressions.length) && !plural) return null;
+  if (!significant.every(
+    (c) => t.isJSXText(c) || t.isJSXExpressionContainer(c) && (!!plural && c.expression === plural.node || isSimpleExpression(c.expression))
+  )) {
     return null;
   }
   const params = [];
-  let template = "";
-  for (const c of children) {
-    if (t.isJSXText(c)) {
-      template += decodeEntities(code.slice(c.start, c.end));
-    } else {
-      const expr = c.expression;
-      const source = code.slice(expr.start, expr.end);
-      let param = params.find((p) => p.source === source);
-      if (!param) {
-        param = { name: uniqueName(paramNameFor(expr), params), source };
-        params.push(param);
+  if (plural) params.push({ name: "count", source: code.slice(plural.count.start, plural.count.end) });
+  const build = (form) => {
+    let template = "";
+    for (const c of children) {
+      if (t.isJSXText(c)) {
+        template += decodeEntities(code.slice(c.start, c.end));
+      } else if (plural && c.expression === plural.node) {
+        template += plural[form];
+      } else if (t.isJSXExpressionContainer(c)) {
+        const expr = c.expression;
+        const source = code.slice(expr.start, expr.end);
+        let param = params.find((p) => p.source === source);
+        if (!param) {
+          param = { name: uniqueName(paramNameFor(expr), params), source };
+          params.push(param);
+        }
+        template += `{${param.name}}`;
       }
-      template += `{${param.name}}`;
     }
+    return normalizeWhitespace(template);
+  };
+  const other = build("other");
+  const one = plural ? build("one") : other;
+  const first = significant[0];
+  const last = significant[significant.length - 1];
+  let start = first.start;
+  let end = last.end;
+  if (t.isJSXText(first)) start += first.value.length - first.value.trimStart().length;
+  if (t.isJSXText(last)) end -= last.value.length - last.value.trimEnd().length;
+  return {
+    text: other,
+    params,
+    range: { start, end },
+    ...plural ? { plural: { one, other } } : {},
+    consumed: plural ? [plural.node.consequent, plural.node.alternate] : []
+  };
+}
+var TAG_NAMES = { a: "a", Link: "a", NavLink: "a", strong: "bold", b: "bold", em: "em", i: "em" };
+var VOID_TAGS = /* @__PURE__ */ new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+function mergeRichText(children, code, attributes) {
+  const significant = children.filter((c) => !isBlankText(c));
+  const elements = significant.filter((c) => t.isJSXElement(c));
+  if (!elements.length || !significant.some((c) => t.isJSXText(c) && c.value.trim())) return null;
+  const params = [];
+  const components = [];
+  const consumed = [];
+  const paramFor = (expr) => {
+    const source = code.slice(expr.start, expr.end);
+    let param = params.find((p) => p.source === source);
+    if (!param) {
+      param = { name: uniqueName(paramNameFor(expr), params), source };
+      params.push(param);
+    }
+    return `{${param.name}}`;
+  };
+  const inline = (nodes) => {
+    let out = "";
+    for (const n2 of nodes) {
+      if (t.isJSXText(n2)) {
+        out += decodeEntities(code.slice(n2.start, n2.end));
+        consumed.push(n2);
+      } else if (t.isJSXExpressionContainer(n2) && isSimpleExpression(n2.expression)) {
+        out += paramFor(n2.expression);
+      } else if (!(t.isJSXExpressionContainer(n2) && t.isJSXEmptyExpression(n2.expression))) {
+        return null;
+      }
+    }
+    return out;
+  };
+  let text = "";
+  for (const c of children) {
+    if (t.isJSXText(c) || t.isJSXExpressionContainer(c)) {
+      const part = inline([c]);
+      if (part === null) return null;
+      text += part;
+      continue;
+    }
+    if (!t.isJSXElement(c)) return null;
+    const open2 = c.openingElement;
+    const name = elementName(c);
+    if (IGNORED_ELEMENTS.has(name)) return null;
+    for (const a of open2.attributes) {
+      if (t.isJSXSpreadAttribute(a)) continue;
+      const attr = attributeNameOf(a);
+      if (IGNORE_ATTRIBUTES.has(attr) || attr === "translate" && t.isStringLiteral(a.value) && a.value.value === "no") return null;
+      if (attributes.has(attr) && (t.isStringLiteral(a.value) || t.isJSXExpressionContainer(a.value))) return null;
+    }
+    const inner = inline(c.children);
+    if (inner === null) return null;
+    const hasContent = !!c.closingElement && !!inner.trim();
+    let base = TAG_NAMES[name] ?? (name.replace(/[^A-Za-z0-9]/g, "").toLowerCase() || "tag");
+    if (hasContent && VOID_TAGS.has(base)) base = `${base}_text`;
+    const tag = uniqueName(base, components.map((x) => ({ name: x.name, source: "" })));
+    const openSource = code.slice(open2.start, open2.end);
+    components.push({ name: tag, source: open2.selfClosing ? openSource : `${openSource.slice(0, -1).trimEnd()} />` });
+    consumed.push(c);
+    text += hasContent ? `<${tag}>${inner}</${tag}>` : `<${tag}/>`;
   }
   const first = significant[0];
   const last = significant[significant.length - 1];
@@ -73076,7 +73276,7 @@ function mergeTextRun(children, code) {
   let end = last.end;
   if (t.isJSXText(first)) start += first.value.length - first.value.trimStart().length;
   if (t.isJSXText(last)) end -= last.value.length - last.value.trimEnd().length;
-  return { text: normalizeWhitespace(template), params, range: { start, end } };
+  return { text: normalizeWhitespace(text), params, range: { start, end }, components, consumed };
 }
 function isIgnored(path5, includeSelf = false) {
   const test = (p) => {
@@ -73158,7 +73358,7 @@ function componentNameOf(fn) {
   if (holder.isExportDefaultDeclaration()) return "default";
   return null;
 }
-function resolveHookTarget(path5, code) {
+function resolveHookTarget(path5, code, server = false, needsI18n = false) {
   let fn = path5.getFunctionParent();
   let name = null;
   while (fn) {
@@ -73170,15 +73370,31 @@ function resolveHookTarget(path5, code) {
     fn = fn.parentPath.getFunctionParent();
   }
   if (!fn || !name) return { reason: "not inside a function component or hook" };
-  if (fn.node.async) return { reason: `component ${name} is async (server component?)` };
+  if (fn.node.async && !server) return { reason: `component ${name} is async (server component?)` };
+  if (server && fn.node.generator) return { reason: `component ${name} is a generator` };
   const binding = path5.scope.getBinding("t");
-  const base = { fnStart: fn.node.start, componentName: name };
+  const base = {
+    fnStart: fn.node.start,
+    componentName: name,
+    ...server ? { isAsync: fn.node.async, asyncAt: fn.node.start } : {}
+  };
   if (binding) {
     const decl = binding.path;
-    const isHook = decl.isVariableDeclarator() && t.isCallExpression(decl.node.init) && t.isIdentifier(decl.node.init.callee, { name: "useTranslation" }) && binding.scope.getFunctionParent() === fn.scope;
+    const init = decl.isVariableDeclarator() ? decl.node.init : null;
+    const call = server && t.isAwaitExpression(init) ? init.argument : init;
+    const isHook = t.isCallExpression(call) && t.isIdentifier(call.callee, { name: server ? "getTranslation" : "useTranslation" }) && binding.scope.getFunctionParent() === fn.scope;
     if (!isHook) return { reason: `identifier "t" is already bound in ${name}` };
-    return { ...base, mode: "reuse", insertAt: -1, bodyEnd: -1, indent: "" };
+    let addI18nAt;
+    if (needsI18n && decl.isVariableDeclarator() && t.isObjectPattern(decl.node.id)) {
+      const props = decl.node.id.properties;
+      if (!props.some((p) => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: "i18n" }))) {
+        if (path5.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
+        addI18nAt = props[props.length - 1].end;
+      }
+    }
+    return { ...base, mode: "reuse", insertAt: -1, bodyEnd: -1, indent: "", ...addI18nAt !== void 0 ? { addI18nAt } : {} };
   }
+  if (needsI18n && path5.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
   const body = fn.node.body;
   if (t.isBlockStatement(body)) {
     const first = body.body[0];
@@ -74741,30 +74957,50 @@ var MagicString = class MagicString2 {
 };
 
 // src/ast/transformer.ts
+var paramList = (site) => site.params.map((p) => p.name === p.source ? p.name : `${p.name}: ${p.source}`).join(", ");
 function buildCall(key, site) {
   if (!site.params.length) return `t('${key}')`;
-  const args = site.params.map((p) => p.name === p.source ? p.name : `${p.name}: ${p.source}`);
-  return `t('${key}', { ${args.join(", ")} })`;
+  return `t('${key}', { ${paramList(site)} })`;
+}
+function buildTrans(key, site, server = false) {
+  const components = (site.components ?? []).map((c) => `${/^[A-Za-z_$][\w$]*$/.test(c.name) ? c.name : `'${c.name}'`}: ${c.source}`).join(", ");
+  const values = site.params.length ? ` values={{ ${paramList(site)} }}` : "";
+  return `<Trans${server ? " t={t} i18n={i18n}" : ""} i18nKey="${key}" components={{ ${components} }}${values} />`;
 }
 function transformComponent(code, filePath, keys, options = {}) {
   const importSource = options.importSource ?? "react-i18next";
+  const server = !!options.server;
   const scan = parseAndScanComponent(code, filePath, options);
   const s = new MagicString(code);
   const replacements = [];
   const hooks = /* @__PURE__ */ new Map();
+  let usesTrans = false;
+  const withI18n = /* @__PURE__ */ new Set();
   for (const str of scan.extractedStrings) {
     const key = keys.get(str.id);
     if (!key) continue;
     const site = scan.sites.get(str.id);
-    const call = buildCall(key, site);
-    const text = site.kind === "expression" ? call : `{${call}}`;
+    let text;
+    if (site.kind === "trans") {
+      text = buildTrans(key, site, server);
+      usesTrans = true;
+      if (server) {
+        hooks.set(site.hook.fnStart, site.hook);
+        withI18n.add(site.hook.fnStart);
+      }
+    } else {
+      const call = buildCall(key, site);
+      text = site.kind === "expression" ? call : `{${call}}`;
+      hooks.set(site.hook.fnStart, site.hook);
+    }
     s.overwrite(site.start, site.end, text);
     replacements.push({ id: str.id, key, line: str.loc.line, before: code.slice(site.start, site.end), after: text });
-    hooks.set(site.hook.fnStart, site.hook);
   }
   if (!replacements.length) return { code, changed: false, replacements };
-  const hookLine = "const { t } = useTranslation();";
   for (const hook2 of hooks.values()) {
+    const hookLine = !server ? "const { t } = useTranslation();" : withI18n.has(hook2.fnStart) ? "const { t, i18n } = await getTranslation();" : "const { t } = await getTranslation();";
+    if (server && hook2.mode === "reuse" && hook2.addI18nAt !== void 0 && withI18n.has(hook2.fnStart)) s.appendLeft(hook2.addI18nAt, ", i18n");
+    if (server && hook2.mode !== "reuse" && hook2.isAsync === false && hook2.asyncAt !== void 0) s.appendLeft(hook2.asyncAt, "async ");
     if (hook2.mode === "insertBlock") {
       s.appendLeft(hook2.insertAt, `${hookLine}
 ${hook2.indent}`);
@@ -74783,8 +75019,18 @@ ${inner}return `);
 ${hook2.indent}}`);
     }
   }
-  if (!scan.imports.hasUseTranslation) {
-    const importLine = `import { useTranslation } from '${importSource}';`;
+  const lines = [];
+  if (server) {
+    if (hooks.size && !scan.imports.hasGetTranslation) lines.push(`import { getTranslation } from '${options.serverModule ?? "./i18n.server"}';`);
+    if (usesTrans && !scan.imports.hasTrans) {
+      lines.push(`import { Trans } from '${importSource === "react-i18next" ? "react-i18next/TransWithoutContext" : importSource}';`);
+    }
+  } else {
+    const names = [...hooks.size && !scan.imports.hasUseTranslation ? ["useTranslation"] : [], ...usesTrans && !scan.imports.hasTrans ? ["Trans"] : []];
+    if (names.length) lines.push(`import { ${names.join(", ")} } from '${importSource}';`);
+  }
+  if (lines.length) {
+    const importLine = lines.join("\n");
     if (scan.imports.lastImportEnd !== null) {
       s.appendLeft(scan.imports.lastImportEnd, `
 ${importLine}`);
@@ -74803,6 +75049,7 @@ ${importLine}`);
 
 // src/setup.ts
 var import_fast_glob = __toESM(require_out4(), 1);
+var t2 = __toESM(require_lib4(), 1);
 import { spawnSync } from "node:child_process";
 import * as fs5 from "node:fs";
 import * as path3 from "node:path";
@@ -74814,6 +75061,31 @@ var ICU_PACKAGES = {
   "i18next-icu": "^2.6.0",
   "intl-messageformat": "^12.1.0"
 };
+function nextAppRouter(cwd, config) {
+  let deps = {};
+  try {
+    const pkg = JSON.parse(fs5.readFileSync(path3.join(cwd, "package.json"), "utf8"));
+    deps = { ...pkg.devDependencies, ...pkg.dependencies };
+  } catch {
+    return null;
+  }
+  if (!deps.next) return null;
+  const appDir = toPosix(path3.posix.join(config.srcDir, "app"));
+  return fs5.existsSync(path3.join(cwd, appDir)) ? { appDir } : null;
+}
+var USE_CLIENT = /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*(['"])use client\1/;
+function isServerComponentFile(file, code, appDir) {
+  return file.startsWith(`${appDir.replace(/^\.\//, "")}/`) && !USE_CLIENT.test(code);
+}
+function serverModulePath(cwd, config) {
+  const ts = fs5.existsSync(path3.join(cwd, "tsconfig.json"));
+  return toPosix(path3.posix.join(config.srcDir, `i18n.server.${ts ? "ts" : "js"}`));
+}
+function relativeImport(fromFile, target) {
+  let spec = path3.posix.relative(path3.posix.dirname(fromFile), target.replace(/\.[jt]sx?$/, ""));
+  if (!spec.startsWith(".")) spec = `./${spec}`;
+  return spec;
+}
 var toPosix = (p) => p.split(path3.sep).join("/");
 function readText(cwd, file, changed) {
   if (changed.has(file)) return changed.get(file);
@@ -74856,6 +75128,11 @@ async function planI18nSetup(opts) {
   } else {
     result.notes.push(`No package.json found; install ${Object.keys(I18N_PACKAGES).join(" and ")}.`);
   }
+  const next = deps.next ? nextAppRouter(cwd, config) : null;
+  if (next) {
+    await planNextAppRouter({ cwd, config, changed, out, result, appDir: next.appDir, files: opts.files });
+    return result;
+  }
   const sources = await (0, import_fast_glob.default)(`${config.srcDir}/**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
   const initRe = /initReactI18next|i18next\s*\.\s*init\s*\(|from\s+['"]i18next['"]/;
   const existing = sources.find((f) => initRe.test(readText(cwd, f, changed) ?? ""));
@@ -74879,7 +75156,7 @@ async function planI18nSetup(opts) {
     entries.push(`  ${/^[A-Za-z_$][\w$]*$/.test(locale) ? locale : `'${locale}'`}: { translation: ${id} },`);
   }
   const icu = config.interpolation === "icu";
-  const entry = deps.next ? void 0 : findEntry(cwd, config, changed);
+  const entry = findEntry(cwd, config, changed);
   const quote = prefersDoubleQuotes(entry ? readText(cwd, entry, changed) : opts.files[0]?.content ?? "") ? (code2) => code2.replace(/'/g, '"') : (code2) => code2;
   out(
     i18nFile,
@@ -74913,25 +75190,7 @@ async function planI18nSetup(opts) {
     ].join("\n"))
   );
   result.i18nFile = i18nFile;
-  if (typescript) {
-    for (const name of ["tsconfig.app.json", "tsconfig.json"]) {
-      const text = readText(cwd, name, changed);
-      if (!text || !/"compilerOptions"\s*:\s*\{/.test(text)) continue;
-      if (!/"resolveJsonModule"\s*:\s*true/.test(text)) {
-        out(
-          name,
-          text.replace(/("compilerOptions"\s*:\s*\{)(\s*)/, (_m, open2, ws) => `${open2}${ws}"resolveJsonModule": true,${ws}`)
-        );
-      }
-      break;
-    }
-  }
-  if (deps.next) {
-    result.notes.push(
-      `Next.js has no single client entry: import \`${i18nFile}\` from a \`'use client'\` component that wraps your app (e.g. in the root layout). Components that call \`useTranslation\` must be client components.`
-    );
-    return result;
-  }
+  if (typescript) enableJsonImports(cwd, changed, out);
   if (!entry) {
     result.notes.push(`Couldn't find the app's entry file; add \`import './i18n';\` to it so i18next starts before the app renders.`);
     return result;
@@ -74948,11 +75207,227 @@ ${line}${code.slice(insertAt)}`);
   return result;
 }
 var ENTRY_NAMES = ["main", "index"].flatMap((n2) => ["tsx", "jsx", "ts", "js"].map((e) => `${n2}.${e}`));
+var EXTS = ["tsx", "jsx", "ts", "js"];
 function findEntry(cwd, config, changed) {
+  for (const dir of [`${config.srcDir}/pages`, "pages"]) {
+    const app = EXTS.map((e) => `${dir}/_app.${e}`).find((f) => readText(cwd, f, changed) !== void 0);
+    if (app) return app.replace(/^\.\//, "");
+  }
   const html = readText(cwd, "index.html", changed);
   const src = html && /<script[^>]+type=["']module["'][^>]+src=["']\/?([^"']+)["']/.exec(html)?.[1];
   if (src && readText(cwd, src, changed) !== void 0) return src;
   return ENTRY_NAMES.map((n2) => `${config.srcDir}/${n2}`).find((f) => readText(cwd, f, changed) !== void 0);
+}
+function enableJsonImports(cwd, changed, out) {
+  for (const name of ["tsconfig.app.json", "tsconfig.json"]) {
+    const text = readText(cwd, name, changed);
+    if (!text || !/"compilerOptions"\s*:\s*\{/.test(text)) continue;
+    if (!/"resolveJsonModule"\s*:\s*true/.test(text)) {
+      out(name, text.replace(/("compilerOptions"\s*:\s*\{)(\s*)/, (_m, open2, ws) => `${open2}${ws}"resolveJsonModule": true,${ws}`));
+    }
+    return;
+  }
+}
+function localeBundles(cwd, config, fromFile, changed, out) {
+  const locales = [config.sourceLocale, ...config.targetLocales.filter((l) => l !== config.sourceLocale)];
+  const imports = [];
+  const entries = [];
+  for (const locale of locales) {
+    const file = toPosix(localePath(config.localesPath, locale));
+    if (readText(cwd, file, changed) === void 0) out(file, "{}\n");
+    let rel = path3.posix.relative(path3.posix.dirname(fromFile), file);
+    if (!rel.startsWith(".")) rel = `./${rel}`;
+    const id = locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
+    imports.push(`import ${id} from '${rel}';`);
+    entries.push(`  ${/^[A-Za-z_$][\w$]*$/.test(locale) ? locale : `'${locale}'`}: { translation: ${id} },`);
+  }
+  return { imports, entries };
+}
+async function planNextAppRouter(ctx) {
+  const { cwd, config, changed, out, result, appDir } = ctx;
+  const typescript = fs5.existsSync(path3.join(cwd, "tsconfig.json"));
+  const ext = typescript ? "ts" : "js";
+  const dir = config.srcDir === "." ? "" : `${config.srcDir}/`;
+  const resourcesFile = `${dir}i18n.resources.${ext}`;
+  const clientFile = `${dir}i18n.${ext}`;
+  const serverFile = serverModulePath(cwd, config);
+  const providerFile = `${dir}i18n-provider.${typescript ? "tsx" : "jsx"}`;
+  const layout = EXTS.map((e) => `${appDir}/layout.${e}`).find((f) => readText(cwd, f, changed) !== void 0);
+  const sample = layout && readText(cwd, layout, changed) || ctx.files[0]?.content || "";
+  const quote = prefersDoubleQuotes(sample) ? (code) => code.replace(/'/g, '"') : (code) => code;
+  const icu = config.interpolation === "icu";
+  const write = (file, lines) => {
+    if (readText(cwd, file, changed) === void 0) out(file, quote(lines.join("\n")));
+  };
+  const sources = await (0, import_fast_glob.default)(`${config.srcDir}/**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
+  const own = /* @__PURE__ */ new Set([resourcesFile, clientFile, serverFile, providerFile]);
+  const initRe = /initReactI18next|i18next\s*\.\s*init\s*\(/;
+  const existing = sources.find((f) => !own.has(f) && initRe.test(readText(cwd, f, changed) ?? ""));
+  const { imports, entries } = localeBundles(cwd, config, resourcesFile, changed, out);
+  write(resourcesFile, [
+    ...imports,
+    "",
+    "// Generated by Localize.dev: every locale bundle, shared by the server and client setup.",
+    "export const resources = {",
+    ...entries,
+    "};",
+    "",
+    "export const supported = Object.keys(resources);",
+    `export const fallbackLng = '${config.sourceLocale}';`,
+    ""
+  ]);
+  const types = typescript;
+  write(serverFile, [
+    "import { createInstance } from 'i18next';",
+    ...icu ? ["import ICU from 'i18next-icu';"] : [],
+    "import { cookies, headers } from 'next/headers';",
+    `import { fallbackLng, resources, supported } from '${relativeImport(serverFile, resourcesFile)}';`,
+    "",
+    '/** The language for this request: the "lang" cookie, then Accept-Language, then the source language. */',
+    `export async function getLanguage()${types ? ": Promise<string>" : ""} {`,
+    "  const saved = (await cookies()).get('lang')?.value;",
+    "  if (saved && supported.includes(saved)) return saved;",
+    "  for (const part of ((await headers()).get('accept-language') ?? '').split(',')) {",
+    "    const code = part.split(';')[0].trim();",
+    "    const match = supported.find((l) => l === code) ?? supported.find((l) => l === code.split('-')[0]);",
+    "    if (match) return match;",
+    "  }",
+    "  return fallbackLng;",
+    "}",
+    "",
+    "/** Translations for server components: `const { t } = await getTranslation();` */",
+    "export async function getTranslation() {",
+    "  const lng = await getLanguage();",
+    "  const i18n = createInstance();",
+    `  await i18n${icu ? ".use(ICU)" : ""}.init({ resources, lng, fallbackLng, interpolation: { escapeValue: false } });`,
+    "  return { t: i18n.getFixedT(lng), i18n, lng };",
+    "}",
+    ""
+  ]);
+  result.serverFile = serverFile;
+  if (existing) {
+    result.notes.push(
+      `i18next is already initialized in \`${existing}\`, so the client setup was left alone. Server components now use \`${serverFile}\`; make sure client components get the same language.`
+    );
+    if (typescript) enableJsonImports(cwd, changed, out);
+    return;
+  }
+  write(clientFile, [
+    "import i18n from 'i18next';",
+    ...icu ? ["import ICU from 'i18next-icu';"] : [],
+    "import { initReactI18next } from 'react-i18next';",
+    `import { fallbackLng, resources } from '${relativeImport(clientFile, resourcesFile)}';`,
+    "",
+    "// Generated by Localize.dev. Client components get the request language from <I18nProvider lng>",
+    "// in the root layout; this instance is only the template it clones.",
+    `i18n${icu ? ".use(ICU)" : ""}.use(initReactI18next).init({`,
+    "  resources,",
+    "  lng: fallbackLng,",
+    "  fallbackLng,",
+    "  initAsync: false,",
+    "  interpolation: { escapeValue: false }, // React already escapes",
+    "});",
+    "",
+    "export default i18n;",
+    ""
+  ]);
+  write(providerFile, [
+    "'use client';",
+    "",
+    `import { useState${types ? ", type ReactNode" : ""} } from 'react';`,
+    "import { I18nextProvider } from 'react-i18next';",
+    `import i18n from '${relativeImport(providerFile, clientFile)}';`,
+    "",
+    "/** Gives client components the language the server chose. One instance per render tree, so",
+    " * concurrent requests in different languages never share one. */",
+    `export function I18nProvider({ lng, children }${types ? ": { lng: string; children: ReactNode }" : ""}) {`,
+    "  const [instance] = useState(() => i18n.cloneInstance({ lng, initAsync: false }));",
+    "  if (instance.language !== lng) instance.changeLanguage(lng);",
+    "  return <I18nextProvider i18n={instance}>{children}</I18nextProvider>;",
+    "}",
+    ""
+  ]);
+  result.i18nFile = clientFile;
+  if (typescript) enableJsonImports(cwd, changed, out);
+  if (!layout) {
+    result.notes.push(`No \`${appDir}/layout\` found: wrap your app in \`<I18nProvider lng={await getLanguage()}>\` from \`${providerFile}\`.`);
+    return;
+  }
+  const edited = wrapLayout(readText(cwd, layout, changed), {
+    provider: relativeImport(layout, providerFile),
+    server: relativeImport(layout, serverFile),
+    quote
+  });
+  if (!edited) {
+    result.notes.push(`Couldn't find \`{children}\` in \`${layout}\`: wrap it in \`<I18nProvider lng={await getLanguage()}>\` yourself.`);
+    return;
+  }
+  out(layout, edited);
+  result.entryFile = layout;
+}
+function wrapLayout(code, opts) {
+  if (/\bI18nProvider\b/.test(code)) return code;
+  const ast = parseCode(code);
+  const def = ast.program.body.find((n2) => n2.type === "ExportDefaultDeclaration");
+  if (!def) return null;
+  let fn = def.declaration;
+  if (t2.isIdentifier(fn)) {
+    const name = fn.name;
+    for (const n2 of ast.program.body) {
+      if (t2.isFunctionDeclaration(n2) && n2.id?.name === name) fn = n2;
+      if (t2.isVariableDeclaration(n2)) {
+        for (const d of n2.declarations) if (t2.isIdentifier(d.id, { name })) fn = d.init ?? null;
+      }
+    }
+  }
+  if (!t2.isFunctionDeclaration(fn) && !t2.isArrowFunctionExpression(fn) && !t2.isFunctionExpression(fn)) return null;
+  let childrenAt = null;
+  let htmlLang = null;
+  const visit = (node) => {
+    if (!node || typeof node !== "object") return;
+    if (t2.isJSXExpressionContainer(node) && t2.isIdentifier(node.expression, { name: "children" }) && !childrenAt) childrenAt = node;
+    if (t2.isJSXOpeningElement(node) && t2.isJSXIdentifier(node.name, { name: "html" })) {
+      htmlLang = node.attributes.find((a) => t2.isJSXAttribute(a) && t2.isJSXIdentifier(a.name, { name: "lang" })) ?? null;
+    }
+    for (const key of t2.VISITOR_KEYS[node.type] ?? []) {
+      const child = node[key];
+      if (Array.isArray(child)) child.forEach((c) => visit(c));
+      else visit(child);
+    }
+  };
+  visit(fn.body);
+  if (!childrenAt) return null;
+  const at = childrenAt;
+  const s = new MagicString(code);
+  s.overwrite(at.start, at.end, "<I18nProvider lng={lng}>{children}</I18nProvider>");
+  const lang = htmlLang;
+  if (lang?.value && t2.isStringLiteral(lang.value)) s.overwrite(lang.value.start, lang.value.end, "{lng}");
+  if (!fn.async) s.appendLeft(fn.start, "async ");
+  if (t2.isBlockStatement(fn.body)) {
+    const first = fn.body.body[0];
+    const lineStart = first ? code.lastIndexOf("\n", first.start - 1) + 1 : 0;
+    const indent = first ? /^[ \t]*/.exec(code.slice(lineStart))[0] : "  ";
+    s.appendLeft(first ? first.start : fn.body.end - 1, `const lng = await getLanguage();
+${first ? indent : ""}`);
+  } else {
+    const body = fn.body;
+    const parenStart = body.extra?.parenStart;
+    const start = typeof parenStart === "number" ? parenStart : body.start;
+    let end = body.end;
+    const m = typeof parenStart === "number" ? /^\s*\)/.exec(code.slice(end)) : null;
+    if (m) end += m[0].length;
+    s.appendLeft(start, "{\n  const lng = await getLanguage();\n  return ");
+    s.appendRight(end, ";\n}");
+  }
+  const importAt = afterLastImport(code);
+  const lines = opts.quote(`import { I18nProvider } from '${opts.provider}';
+import { getLanguage } from '${opts.server}';`);
+  if (importAt === 0) s.prepend(`${lines}
+
+`);
+  else s.appendLeft(importAt, `
+${lines}`);
+  return s.toString();
 }
 function prefersDoubleQuotes(code) {
   return (code.match(/\bfrom\s+"/g)?.length ?? 0) > (code.match(/\bfrom\s+'/g)?.length ?? 0);
@@ -75011,13 +75486,15 @@ async function scanProject(cwd, config, log) {
   const files = (await (0, import_fast_glob2.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
   const scanned = [];
   const warnings = [];
+  const next = nextAppRouter(cwd, config);
   for (const rel of files) {
     const file = toPosix2(path4.join(config.srcDir, rel));
     const code = fs6.readFileSync(path4.join(cwd, file), "utf8");
+    const server = !!next && isServerComponentFile(file, code, next.appDir);
     try {
-      const result = parseAndScanComponent(code, file, { attributes: config.attributes });
+      const result = parseAndScanComponent(code, file, { attributes: config.attributes, server });
       warnings.push(...result.warnings);
-      if (result.extractedStrings.length) scanned.push({ file, code, strings: result.extractedStrings });
+      if (result.extractedStrings.length) scanned.push({ file, code, strings: result.extractedStrings, server });
     } catch (err) {
       log.warn(`Skipping ${file}: ${err.message}`);
     }
@@ -75048,7 +75525,7 @@ async function runPipeline(opts) {
   );
   const originals = new Map([
     [sourcePath, serializeDict(sourceDict)],
-    ...[...targets.values()].map((t2) => [t2.path, serializeDict(t2.dict)])
+    ...[...targets.values()].map((t3) => [t3.path, serializeDict(t3.dict)])
   ]);
   const registry = new KeyRegistry(flatten(sourceDict));
   const queued = /* @__PURE__ */ new Set();
@@ -75056,12 +75533,14 @@ async function runPipeline(opts) {
   for (const { file, strings } of scanned) {
     const batch = [];
     for (const s of strings) {
-      if (queued.has(s.originalText)) continue;
-      const existing = registry.keyForText(s.originalText);
-      const missing = existing ? [...targets.values()].some((t2) => getNested(t2.dict, existing) === void 0) : true;
+      const mid = messageId(s.originalText, s.plural);
+      if (queued.has(mid)) continue;
+      const existing = registry.keyForText(mid);
+      const has = (dict, key) => s.plural ? hasPlural(dict, key, config.interpolation) : getNested(dict, key) !== void 0;
+      const missing = existing ? [...targets.values()].some((t3) => !has(t3.dict, existing)) : true;
       if (!missing) continue;
-      queued.add(s.originalText);
-      batch.push({ id: s.id, text: s.originalText, context: contextOf(s) });
+      queued.add(mid);
+      batch.push({ id: s.id, text: s.originalText, context: contextOf(s), ...s.plural ? { plural: s.plural } : {} });
     }
     for (let i = 0; i < batch.length; i += BATCH_SIZE) {
       jobs.push({ file, strings: batch.slice(i, i + BATCH_SIZE) });
@@ -75078,50 +75557,57 @@ async function runPipeline(opts) {
       targetLocales: config.targetLocales,
       strings: job.strings
     });
-    const texts = new Map(job.strings.map((s) => [s.id, s.text]));
-    for (const m of mappings) byText.set(texts.get(m.id), m);
+    const ids = new Map(job.strings.map((s) => [s.id, messageId(s.text, s.plural)]));
+    for (const m of mappings) byText.set(ids.get(m.id), m);
   });
   const stats = { filesScanned, stringsReplaced: 0, newKeys: 0, reusedKeys: 0, translations: {} };
   const files = [];
   const replacements = /* @__PURE__ */ new Map();
-  const set = (dict, key, value, where) => {
+  const guard = (fn, where) => {
     try {
-      setNested(dict, key, value);
+      fn();
       return true;
     } catch (err) {
       log.warn(`${where}: ${err.message}`);
       return false;
     }
   };
-  for (const { file, code, strings } of scanned) {
+  const set = (dict, key, value, where) => guard(() => setNested(dict, key, value), where);
+  for (const { file, code, strings, server } of scanned) {
     const keys = /* @__PURE__ */ new Map();
     for (const s of strings) {
-      const mapping = byText.get(s.originalText);
-      const { key, isNew } = registry.register(mapping?.key ?? fallbackKey(file, s.originalText), s.originalText);
+      const mid = messageId(s.originalText, s.plural);
+      const mapping = byText.get(mid);
+      const { key, isNew } = registry.register(mapping?.key ?? fallbackKey(file, s.originalText), mid);
+      const write = (dict, value, where) => typeof value === "string" ? set(dict, key, toDictFormat(value, config.interpolation), where) : guard(() => writePlural(dict, key, value, config.interpolation), where);
       if (isNew) {
-        if (!set(sourceDict, key, toDictFormat(s.originalText, config.interpolation), sourcePath)) continue;
+        if (!write(sourceDict, s.plural ?? s.originalText, sourcePath)) continue;
         stats.newKeys++;
       } else {
         stats.reusedKeys++;
       }
       keys.set(s.id, key);
       for (const [locale, target] of targets) {
-        const value = mapping?.translations[locale];
-        if (value && getNested(target.dict, key) === void 0) {
-          if (set(target.dict, key, toDictFormat(value, config.interpolation), target.path)) {
-            stats.translations[locale] = (stats.translations[locale] ?? 0) + 1;
-          }
+        const value = s.plural ? mapping?.plurals?.[locale] : mapping?.translations[locale];
+        const present = s.plural ? hasPlural(target.dict, key, config.interpolation) : getNested(target.dict, key) !== void 0;
+        if (value && (typeof value === "string" || value.other) && !present && write(target.dict, value, target.path)) {
+          stats.translations[locale] = (stats.translations[locale] ?? 0) + 1;
         }
       }
     }
-    const result = transformComponent(code, file, keys, { attributes: config.attributes, importSource: config.importSource });
+    const result = transformComponent(code, file, keys, {
+      attributes: config.attributes,
+      importSource: config.importSource,
+      server,
+      serverModule: server ? relativeImport(file, serverModulePath(cwd, config)) : void 0
+    });
     if (result.changed) {
       files.push({ path: file, content: result.code });
       replacements.set(file, result.replacements);
       stats.stringsReplaced += result.replacements.length;
     }
   }
-  const dicts = [[sourcePath, sourceDict], ...[...targets.values()].map((t2) => [t2.path, t2.dict])];
+  const dicts = [[sourcePath, sourceDict], ...[...targets.values()].map((t3) => [t3.path, t3.dict])];
   for (const [p, dict] of dicts) {
     const content = serializeDict(dict);
     if (content !== originals.get(p)) files.push({ path: toPosix2(p), content });
