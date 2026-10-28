@@ -1086,14 +1086,14 @@ var require_util = __commonJS({
         }
         const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
         let origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`;
-        let path15 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
+        let path16 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
         if (origin[origin.length - 1] === "/") {
           origin = origin.slice(0, origin.length - 1);
         }
-        if (path15 && path15[0] !== "/") {
-          path15 = `/${path15}`;
+        if (path16 && path16[0] !== "/") {
+          path16 = `/${path16}`;
         }
-        return new URL(`${origin}${path15}`);
+        return new URL(`${origin}${path16}`);
       }
       if (!isHttpOrHttpsPrefixed(url.origin || url.protocol)) {
         throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
@@ -1544,39 +1544,39 @@ var require_diagnostics = __commonJS({
       });
       diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
         const {
-          request: { method: method2, path: path15, origin }
+          request: { method: method2, path: path16, origin }
         } = evt;
-        debuglog("sending request to %s %s/%s", method2, origin, path15);
+        debuglog("sending request to %s %s/%s", method2, origin, path16);
       });
       diagnosticsChannel.channel("undici:request:headers").subscribe((evt) => {
         const {
-          request: { method: method2, path: path15, origin },
+          request: { method: method2, path: path16, origin },
           response: { statusCode }
         } = evt;
         debuglog(
           "received response to %s %s/%s - HTTP %d",
           method2,
           origin,
-          path15,
+          path16,
           statusCode
         );
       });
       diagnosticsChannel.channel("undici:request:trailers").subscribe((evt) => {
         const {
-          request: { method: method2, path: path15, origin }
+          request: { method: method2, path: path16, origin }
         } = evt;
-        debuglog("trailers received from %s %s/%s", method2, origin, path15);
+        debuglog("trailers received from %s %s/%s", method2, origin, path16);
       });
       diagnosticsChannel.channel("undici:request:error").subscribe((evt) => {
         const {
-          request: { method: method2, path: path15, origin },
+          request: { method: method2, path: path16, origin },
           error: error2
         } = evt;
         debuglog(
           "request to %s %s/%s errored - %s",
           method2,
           origin,
-          path15,
+          path16,
           error2.message
         );
       });
@@ -1625,9 +1625,9 @@ var require_diagnostics = __commonJS({
         });
         diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
           const {
-            request: { method: method2, path: path15, origin }
+            request: { method: method2, path: path16, origin }
           } = evt;
-          debuglog("sending request to %s %s/%s", method2, origin, path15);
+          debuglog("sending request to %s %s/%s", method2, origin, path16);
         });
       }
       diagnosticsChannel.channel("undici:websocket:open").subscribe((evt) => {
@@ -1690,7 +1690,7 @@ var require_request = __commonJS({
     var kHandler = /* @__PURE__ */ Symbol("handler");
     var Request = class {
       constructor(origin, {
-        path: path15,
+        path: path16,
         method: method2,
         body,
         headers,
@@ -1705,11 +1705,11 @@ var require_request = __commonJS({
         expectContinue,
         servername
       }, handler2) {
-        if (typeof path15 !== "string") {
+        if (typeof path16 !== "string") {
           throw new InvalidArgumentError("path must be a string");
-        } else if (path15[0] !== "/" && !(path15.startsWith("http://") || path15.startsWith("https://")) && method2 !== "CONNECT") {
+        } else if (path16[0] !== "/" && !(path16.startsWith("http://") || path16.startsWith("https://")) && method2 !== "CONNECT") {
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        } else if (invalidPathRegex.test(path15)) {
+        } else if (invalidPathRegex.test(path16)) {
           throw new InvalidArgumentError("invalid request path");
         }
         if (typeof method2 !== "string") {
@@ -1775,7 +1775,7 @@ var require_request = __commonJS({
         this.completed = false;
         this.aborted = false;
         this.upgrade = upgrade || null;
-        this.path = query ? buildURL(path15, query) : path15;
+        this.path = query ? buildURL(path16, query) : path16;
         this.origin = origin;
         this.idempotent = idempotent == null ? method2 === "HEAD" || method2 === "GET" : idempotent;
         this.blocking = blocking == null ? false : blocking;
@@ -6468,7 +6468,7 @@ var require_client_h1 = __commonJS({
       return method2 !== "GET" && method2 !== "HEAD" && method2 !== "OPTIONS" && method2 !== "TRACE" && method2 !== "CONNECT";
     }
     function writeH1(client, request2) {
-      const { method: method2, path: path15, host, upgrade, blocking, reset: reset3 } = request2;
+      const { method: method2, path: path16, host, upgrade, blocking, reset: reset3 } = request2;
       let { body, headers, contentLength } = request2;
       const expectsPayload = method2 === "PUT" || method2 === "POST" || method2 === "PATCH" || method2 === "QUERY" || method2 === "PROPFIND" || method2 === "PROPPATCH";
       if (util.isFormDataLike(body)) {
@@ -6549,7 +6549,7 @@ var require_client_h1 = __commonJS({
       if (blocking) {
         socket[kBlocking] = true;
       }
-      let header = `${method2} ${path15} HTTP/1.1\r
+      let header = `${method2} ${path16} HTTP/1.1\r
 `;
       if (typeof host === "string") {
         header += `host: ${host}\r
@@ -7078,7 +7078,7 @@ var require_client_h2 = __commonJS({
     }
     function writeH2(client, request2) {
       const session = client[kHTTP2Session];
-      const { method: method2, path: path15, host, upgrade, expectContinue, signal, headers: reqHeaders } = request2;
+      const { method: method2, path: path16, host, upgrade, expectContinue, signal, headers: reqHeaders } = request2;
       let { body } = request2;
       if (upgrade) {
         util.errorRequest(client, request2, new Error("Upgrade not supported for H2"));
@@ -7175,7 +7175,7 @@ var require_client_h2 = __commonJS({
         });
         return true;
       }
-      headers[HTTP2_HEADER_PATH] = path15;
+      headers[HTTP2_HEADER_PATH] = path16;
       headers[HTTP2_HEADER_SCHEME] = "https";
       const expectsPayload = method2 === "PUT" || method2 === "POST" || method2 === "PATCH";
       if (body && typeof body.read === "function") {
@@ -7528,9 +7528,9 @@ var require_redirect_handler = __commonJS({
           return this.handler.onHeaders(statusCode, headers, resume, statusText);
         }
         const { origin, pathname, search } = util.parseURL(new URL(this.location, this.opts.origin && new URL(this.opts.path, this.opts.origin)));
-        const path15 = search ? `${pathname}${search}` : pathname;
+        const path16 = search ? `${pathname}${search}` : pathname;
         this.opts.headers = cleanRequestHeaders(this.opts.headers, statusCode === 303, this.opts.origin !== origin);
-        this.opts.path = path15;
+        this.opts.path = path16;
         this.opts.origin = origin;
         this.opts.maxRedirections = 0;
         this.opts.query = null;
@@ -8769,10 +8769,10 @@ var require_proxy_agent = __commonJS({
         };
         const {
           origin,
-          path: path15 = "/",
+          path: path16 = "/",
           headers = {}
         } = opts;
-        opts.path = origin + path15;
+        opts.path = origin + path16;
         if (!("host" in headers) && !("Host" in headers)) {
           const { host } = new URL2(origin);
           headers.host = host;
@@ -10744,20 +10744,20 @@ var require_mock_utils = __commonJS({
       }
       return true;
     }
-    function safeUrl(path15) {
-      if (typeof path15 !== "string") {
-        return path15;
+    function safeUrl(path16) {
+      if (typeof path16 !== "string") {
+        return path16;
       }
-      const pathSegments = path15.split("?");
+      const pathSegments = path16.split("?");
       if (pathSegments.length !== 2) {
-        return path15;
+        return path16;
       }
       const qp = new URLSearchParams(pathSegments.pop());
       qp.sort();
       return [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path15, method: method2, body, headers }) {
-      const pathMatch = matchValue(mockDispatch2.path, path15);
+    function matchKey(mockDispatch2, { path: path16, method: method2, body, headers }) {
+      const pathMatch = matchValue(mockDispatch2.path, path16);
       const methodMatch = matchValue(mockDispatch2.method, method2);
       const bodyMatch = typeof mockDispatch2.body !== "undefined" ? matchValue(mockDispatch2.body, body) : true;
       const headersMatch = matchHeaders(mockDispatch2, headers);
@@ -10779,7 +10779,7 @@ var require_mock_utils = __commonJS({
     function getMockDispatch(mockDispatches, key2) {
       const basePath = key2.query ? buildURL(key2.path, key2.query) : key2.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
-      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path15 }) => matchValue(safeUrl(path15), resolvedPath));
+      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path16 }) => matchValue(safeUrl(path16), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
@@ -10817,9 +10817,9 @@ var require_mock_utils = __commonJS({
       }
     }
     function buildKey(opts) {
-      const { path: path15, method: method2, body, headers, query } = opts;
+      const { path: path16, method: method2, body, headers, query } = opts;
       return {
-        path: path15,
+        path: path16,
         method: method2,
         body,
         headers,
@@ -11282,10 +11282,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         const withPrettyHeaders = pendingInterceptors.map(
-          ({ method: method2, path: path15, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method: method2, path: path16, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method2,
             Origin: origin,
-            Path: path15,
+            Path: path16,
             "Status code": statusCode,
             Persistent: persist ? PERSISTENT : NOT_PERSISTENT,
             Invocations: timesInvoked,
@@ -16164,9 +16164,9 @@ var require_util6 = __commonJS({
         }
       }
     }
-    function validateCookiePath(path15) {
-      for (let i3 = 0; i3 < path15.length; ++i3) {
-        const code = path15.charCodeAt(i3);
+    function validateCookiePath(path16) {
+      for (let i3 = 0; i3 < path16.length; ++i3) {
+        const code = path16.charCodeAt(i3);
         if (code < 32 || // exclude CTLs (0-31)
         code > 126 || // exclude DEL and non-ascii
         code === 59) {
@@ -19086,11 +19086,11 @@ var require_undici = __commonJS({
           if (typeof opts.path !== "string") {
             throw new InvalidArgumentError("invalid opts.path");
           }
-          let path15 = opts.path;
+          let path16 = opts.path;
           if (!opts.path.startsWith("/")) {
-            path15 = `/${path15}`;
+            path16 = `/${path16}`;
           }
-          url = new URL(util.parseOrigin(url).origin + path15);
+          url = new URL(util.parseOrigin(url).origin + path16);
         } else {
           if (!opts) {
             opts = typeof url === "object" ? url : {};
@@ -19489,7 +19489,7 @@ var require_path = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
     var os6 = __require("os");
-    var path15 = __require("path");
+    var path16 = __require("path");
     var IS_WINDOWS_PLATFORM = os6.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
@@ -19501,7 +19501,7 @@ var require_path = __commonJS({
     }
     exports.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path15.resolve(cwd, filepath);
+      return path16.resolve(cwd, filepath);
     }
     exports.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -20798,7 +20798,7 @@ var require_braces = __commonJS({
 var require_constants7 = __commonJS({
   "../../node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
-    var path15 = __require("path");
+    var path16 = __require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DEFAULT_MAX_EXTGLOB_RECURSION = 0;
@@ -20972,7 +20972,7 @@ var require_constants7 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path15.sep,
+      SEP: path16.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -20999,7 +20999,7 @@ var require_constants7 = __commonJS({
 var require_utils3 = __commonJS({
   "../../node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
-    var path15 = __require("path");
+    var path16 = __require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -21028,7 +21028,7 @@ var require_utils3 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path15.sep === "\\";
+      return win32 === true || path16.sep === "\\";
     };
     exports.escapeLast = (input, char, lastIdx) => {
       const idx = input.lastIndexOf(char, lastIdx);
@@ -22392,7 +22392,7 @@ var require_parse3 = __commonJS({
 var require_picomatch = __commonJS({
   "../../node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
-    var path15 = __require("path");
+    var path16 = __require("path");
     var scan = require_scan();
     var parse21 = require_parse3();
     var utils = require_utils3();
@@ -22477,7 +22477,7 @@ var require_picomatch = __commonJS({
     };
     picomatch.matchBase = (input, glob, options, posix8 = utils.isWindows(options)) => {
       const regex = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
-      return regex.test(path15.basename(input));
+      return regex.test(path16.basename(input));
     };
     picomatch.isMatch = (str, patterns, options) => picomatch(patterns, options)(str);
     picomatch.parse = (pattern, options) => {
@@ -22704,7 +22704,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
-    var path15 = __require("path");
+    var path16 = __require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -22799,7 +22799,7 @@ var require_pattern = __commonJS({
     }
     exports.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename2 = path15.basename(pattern);
+      const basename2 = path16.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename2);
     }
     exports.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -22845,19 +22845,19 @@ var require_pattern = __commonJS({
     exports.removeDuplicateSlashes = removeDuplicateSlashes;
     function partitionAbsoluteAndRelative(patterns) {
       const absolute = [];
-      const relative = [];
+      const relative2 = [];
       for (const pattern of patterns) {
         if (isAbsolute(pattern)) {
           absolute.push(pattern);
         } else {
-          relative.push(pattern);
+          relative2.push(pattern);
         }
       }
-      return [absolute, relative];
+      return [absolute, relative2];
     }
     exports.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute(pattern) {
-      return path15.isAbsolute(pattern);
+      return path16.isAbsolute(pattern);
     }
     exports.isAbsolute = isAbsolute;
   }
@@ -23032,10 +23032,10 @@ var require_utils4 = __commonJS({
     exports.array = array2;
     var errno = require_errno();
     exports.errno = errno;
-    var fs16 = require_fs();
-    exports.fs = fs16;
-    var path15 = require_path();
-    exports.path = path15;
+    var fs17 = require_fs();
+    exports.fs = fs17;
+    var path16 = require_path();
+    exports.path = path16;
     var pattern = require_pattern();
     exports.pattern = pattern;
     var stream = require_stream();
@@ -23147,8 +23147,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read2(path15, settings, callback) {
-      settings.fs.lstat(path15, (lstatError, lstat2) => {
+    function read2(path16, settings, callback) {
+      settings.fs.lstat(path16, (lstatError, lstat2) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -23157,7 +23157,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat2);
           return;
         }
-        settings.fs.stat(path15, (statError, stat2) => {
+        settings.fs.stat(path16, (statError, stat2) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -23189,13 +23189,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read2(path15, settings) {
-      const lstat2 = settings.fs.lstatSync(path15);
+    function read2(path16, settings) {
+      const lstat2 = settings.fs.lstatSync(path16);
       if (!lstat2.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat2;
       }
       try {
-        const stat2 = settings.fs.statSync(path15);
+        const stat2 = settings.fs.statSync(path16);
         if (settings.markSymbolicLink) {
           stat2.isSymbolicLink = () => true;
         }
@@ -23217,12 +23217,12 @@ var require_fs2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs16 = __require("fs");
+    var fs17 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs16.lstat,
-      stat: fs16.stat,
-      lstatSync: fs16.lstatSync,
-      statSync: fs16.statSync
+      lstat: fs17.lstat,
+      stat: fs17.stat,
+      lstatSync: fs17.lstatSync,
+      statSync: fs17.statSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -23239,12 +23239,12 @@ var require_settings = __commonJS({
   "../../node_modules/@nodelib/fs.stat/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var fs16 = require_fs2();
+    var fs17 = require_fs2();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLink = this._getValue(this._options.followSymbolicLink, true);
-        this.fs = fs16.createFileSystemAdapter(this._options.fs);
+        this.fs = fs17.createFileSystemAdapter(this._options.fs);
         this.markSymbolicLink = this._getValue(this._options.markSymbolicLink, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
       }
@@ -23266,19 +23266,19 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports.Settings = settings_1.default;
-    function stat2(path15, optionsOrSettingsOrCallback, callback) {
+    function stat2(path16, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path15, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path16, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path15, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path16, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat2;
-    function statSync(path15, optionsOrSettings) {
+    function statSync2(path16, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path15, settings);
+      return sync.read(path16, settings);
     }
-    exports.statSync = statSync;
+    exports.statSync = statSync2;
     function getSettings(settingsOrOptions = {}) {
       if (settingsOrOptions instanceof settings_1.default) {
         return settingsOrOptions;
@@ -23399,8 +23399,8 @@ var require_utils5 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.fs = void 0;
-    var fs16 = require_fs3();
-    exports.fs = fs16;
+    var fs17 = require_fs3();
+    exports.fs = fs17;
   }
 });
 
@@ -23492,16 +23492,16 @@ var require_async2 = __commonJS({
           return;
         }
         const tasks = names.map((name) => {
-          const path15 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path16 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done2) => {
-            fsStat.stat(path15, settings.fsStatSettings, (error2, stats) => {
+            fsStat.stat(path16, settings.fsStatSettings, (error2, stats) => {
               if (error2 !== null) {
                 done2(error2);
                 return;
               }
               const entry = {
                 name,
-                path: path15,
+                path: path16,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -23595,14 +23595,14 @@ var require_fs4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs16 = __require("fs");
+    var fs17 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs16.lstat,
-      stat: fs16.stat,
-      lstatSync: fs16.lstatSync,
-      statSync: fs16.statSync,
-      readdir: fs16.readdir,
-      readdirSync: fs16.readdirSync
+      lstat: fs17.lstat,
+      stat: fs17.stat,
+      lstatSync: fs17.lstatSync,
+      statSync: fs17.statSync,
+      readdir: fs17.readdir,
+      readdirSync: fs17.readdirSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -23619,15 +23619,15 @@ var require_settings2 = __commonJS({
   "../../node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path15 = __require("path");
+    var path16 = __require("path");
     var fsStat = require_out();
-    var fs16 = require_fs4();
+    var fs17 = require_fs4();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
-        this.fs = fs16.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path15.sep);
+        this.fs = fs17.createFileSystemAdapter(this._options.fs);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path16.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -23654,17 +23654,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports.Settings = settings_1.default;
-    function scandir(path15, optionsOrSettingsOrCallback, callback) {
+    function scandir(path16, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path15, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path16, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path15, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path16, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.scandir = scandir;
-    function scandirSync(path15, optionsOrSettings) {
+    function scandirSync(path16, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path15, settings);
+      return sync.read(path16, settings);
     }
     exports.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -24312,7 +24312,7 @@ var require_settings3 = __commonJS({
   "../../node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path15 = __require("path");
+    var path16 = __require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -24322,7 +24322,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path15.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path16.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -24384,7 +24384,7 @@ var require_reader2 = __commonJS({
   "../../node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path15 = __require("path");
+    var path16 = __require("path");
     var fsStat = require_out();
     var utils = require_utils4();
     var Reader = class {
@@ -24397,7 +24397,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path15.resolve(this._settings.cwd, filepath);
+        return path16.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -24813,7 +24813,7 @@ var require_provider = __commonJS({
   "../../node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path15 = __require("path");
+    var path16 = __require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error();
@@ -24827,7 +24827,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path15.resolve(this._settings.cwd, task.base);
+        return path16.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -25008,16 +25008,16 @@ var require_settings4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = void 0;
-    var fs16 = __require("fs");
+    var fs17 = __require("fs");
     var os6 = __require("os");
     var CPU_COUNT = Math.max(os6.cpus().length, 1);
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = {
-      lstat: fs16.lstat,
-      lstatSync: fs16.lstatSync,
-      stat: fs16.stat,
-      statSync: fs16.statSync,
-      readdir: fs16.readdir,
-      readdirSync: fs16.readdirSync
+      lstat: fs17.lstat,
+      lstatSync: fs17.lstatSync,
+      stat: fs17.stat,
+      statSync: fs17.statSync,
+      readdir: fs17.readdir,
+      readdirSync: fs17.readdirSync
     };
     var Settings = class {
       constructor(_options = {}) {
@@ -25501,6 +25501,1639 @@ var init_translator = __esm({
     OfflineTranslator = class {
       async translate(req) {
         return req.strings.map((s) => ({ id: s.id, key: fallbackKey(req.filePath, s.text), en: s.text, translations: {} }));
+      }
+    };
+  }
+});
+
+// ../../node_modules/@jridgewell/sourcemap-codec/dist/sourcemap-codec.mjs
+function decodeInteger(reader) {
+  let value = 0;
+  let shift = 0;
+  let integer = 0;
+  do {
+    const c = reader.next();
+    integer = charToInt[c];
+    value |= (integer & 31) << shift;
+    shift += 5;
+  } while (integer & 32);
+  return value;
+}
+function decodeSign(num) {
+  return num & 1 ? -2147483648 | -(num >>> 1) : num >>> 1;
+}
+function encodeInteger(builder, num) {
+  do {
+    let clamped = num & 31;
+    num >>>= 5;
+    if (num > 0) clamped |= 32;
+    builder.write(intToChar[clamped]);
+  } while (num > 0);
+}
+function encodeSign(num) {
+  return num < 0 ? -num << 1 | 1 : num << 1;
+}
+function hasMoreVlq(reader, max) {
+  if (reader.pos >= max) return false;
+  return reader.peek() !== comma;
+}
+function encodeRangeMappings(decoded) {
+  if (decoded.length === 0) return "";
+  const writer = new StringWriter();
+  for (let i3 = 0; i3 < decoded.length; i3++) {
+    const indices = decoded[i3];
+    if (i3 > 0) writer.write(semicolon);
+    let index = 0;
+    for (let j = 0; j < indices.length; j++) {
+      const offset2 = indices[j];
+      encodeInteger(writer, offset2 - index);
+      index = offset2;
+    }
+  }
+  return writer.flush();
+}
+function decode(mappings) {
+  const { length } = mappings;
+  const reader = new StringReader(mappings);
+  const decoded = [];
+  let genColumn = 0;
+  let sourcesIndex = 0;
+  let sourceLine = 0;
+  let sourceColumn = 0;
+  let namesIndex = 0;
+  do {
+    const semi = reader.indexOf(";");
+    const line = [];
+    let sorted = true;
+    let lastCol = 0;
+    genColumn = 0;
+    while (reader.pos < semi) {
+      let seg;
+      genColumn += decodeSign(decodeInteger(reader));
+      if (genColumn < lastCol) sorted = false;
+      lastCol = genColumn;
+      if (hasMoreVlq(reader, semi)) {
+        sourcesIndex += decodeSign(decodeInteger(reader));
+        sourceLine += decodeSign(decodeInteger(reader));
+        sourceColumn += decodeSign(decodeInteger(reader));
+        if (hasMoreVlq(reader, semi)) {
+          namesIndex += decodeSign(decodeInteger(reader));
+          seg = [genColumn, sourcesIndex, sourceLine, sourceColumn, namesIndex];
+        } else {
+          seg = [genColumn, sourcesIndex, sourceLine, sourceColumn];
+        }
+      } else {
+        seg = [genColumn];
+      }
+      line.push(seg);
+      reader.pos++;
+    }
+    if (!sorted) sort(line);
+    decoded.push(line);
+    reader.pos = semi + 1;
+  } while (reader.pos <= length);
+  return decoded;
+}
+function sort(line) {
+  line.sort(sortComparator);
+}
+function sortComparator(a, b4) {
+  return a[0] - b4[0];
+}
+function encode(decoded) {
+  const writer = new StringWriter();
+  let sourcesIndex = 0;
+  let sourceLine = 0;
+  let sourceColumn = 0;
+  let namesIndex = 0;
+  for (let i3 = 0; i3 < decoded.length; i3++) {
+    const line = decoded[i3];
+    if (i3 > 0) writer.write(semicolon);
+    if (line.length === 0) continue;
+    let genColumn = 0;
+    for (let j = 0; j < line.length; j++) {
+      const segment = line[j];
+      if (j > 0) writer.write(comma);
+      encodeInteger(writer, encodeSign(segment[0] - genColumn));
+      genColumn = segment[0];
+      if (segment.length === 1) continue;
+      encodeInteger(writer, encodeSign(segment[1] - sourcesIndex));
+      encodeInteger(writer, encodeSign(segment[2] - sourceLine));
+      encodeInteger(writer, encodeSign(segment[3] - sourceColumn));
+      sourcesIndex = segment[1];
+      sourceLine = segment[2];
+      sourceColumn = segment[3];
+      if (segment.length === 4) continue;
+      encodeInteger(writer, encodeSign(segment[4] - namesIndex));
+      namesIndex = segment[4];
+    }
+  }
+  return writer.flush();
+}
+var comma, semicolon, chars, intToChar, charToInt, bufLength, td, StringWriter, StringReader;
+var init_sourcemap_codec = __esm({
+  "../../node_modules/@jridgewell/sourcemap-codec/dist/sourcemap-codec.mjs"() {
+    comma = ",".charCodeAt(0);
+    semicolon = ";".charCodeAt(0);
+    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    intToChar = new Uint8Array(64);
+    charToInt = new Uint8Array(128);
+    for (let i3 = 0; i3 < chars.length; i3++) {
+      const c = chars.charCodeAt(i3);
+      intToChar[i3] = c;
+      charToInt[c] = i3;
+    }
+    bufLength = 1024 * 16;
+    td = typeof TextDecoder !== "undefined" ? /* @__PURE__ */ new TextDecoder() : typeof Buffer !== "undefined" ? {
+      decode(buf) {
+        const out = Buffer.from(buf.buffer, buf.byteOffset, buf.byteLength);
+        return out.toString();
+      }
+    } : {
+      decode(buf) {
+        let out = "";
+        for (let i3 = 0; i3 < buf.length; i3++) {
+          out += String.fromCharCode(buf[i3]);
+        }
+        return out;
+      }
+    };
+    StringWriter = class {
+      constructor() {
+        this.pos = 0;
+        this.out = "";
+        this.buffer = new Uint8Array(bufLength);
+      }
+      write(v2) {
+        const { buffer } = this;
+        buffer[this.pos++] = v2;
+        if (this.pos === bufLength) {
+          this.out += td.decode(buffer);
+          this.pos = 0;
+        }
+      }
+      flush() {
+        const { buffer, out, pos } = this;
+        return pos > 0 ? out + td.decode(buffer.subarray(0, pos)) : out;
+      }
+    };
+    StringReader = class {
+      constructor(buffer) {
+        this.pos = 0;
+        this.buffer = buffer;
+      }
+      next() {
+        return this.buffer.charCodeAt(this.pos++);
+      }
+      peek() {
+        return this.buffer.charCodeAt(this.pos);
+      }
+      indexOf(char) {
+        const { buffer, pos } = this;
+        const idx = buffer.indexOf(char, pos);
+        return idx === -1 ? buffer.length : idx;
+      }
+    };
+  }
+});
+
+// ../../node_modules/magic-string/dist/index.mjs
+function getBtoa() {
+  if (typeof globalThis !== "undefined" && typeof globalThis.btoa === "function") return (str) => globalThis.btoa(unescape(encodeURIComponent(str)));
+  const buffer = globalThis["Buffer"];
+  if (buffer) return (str) => buffer.from(str, "utf-8").toString("base64");
+  return () => {
+    throw new MagicStringError("unsupported environment: `btoa` or `Buffer` is required");
+  };
+}
+function getLocator(source2) {
+  const lineOffsets = [0];
+  for (let i3 = source2.indexOf("\n"); i3 !== -1; i3 = source2.indexOf("\n", i3 + 1)) lineOffsets.push(i3 + 1);
+  return function locate(index) {
+    let i3 = 0;
+    let j = lineOffsets.length;
+    while (i3 < j) {
+      const m2 = i3 + j >> 1;
+      if (index < lineOffsets[m2]) j = m2;
+      else i3 = m2 + 1;
+    }
+    const line = i3 - 1;
+    return {
+      line,
+      column: index - lineOffsets[line]
+    };
+  };
+}
+function getRelativePath(from, to) {
+  const fromParts = from.split(/[/\\]/);
+  const toParts = to.split(/[/\\]/);
+  fromParts.pop();
+  while (fromParts[0] === toParts[0]) {
+    fromParts.shift();
+    toParts.shift();
+  }
+  if (fromParts.length) {
+    let i3 = fromParts.length;
+    while (i3--) fromParts[i3] = "..";
+  }
+  return fromParts.concat(toParts).join("/");
+}
+function guessIndent(code) {
+  const lines = code.split("\n");
+  const tabbed = lines.filter((line) => /^\t+/.test(line));
+  const spaced = lines.filter((line) => /^ {2,}/.test(line));
+  if (tabbed.length === 0 && spaced.length === 0) return null;
+  if (tabbed.length >= spaced.length) return "	";
+  const min = spaced.reduce((previous, current2) => {
+    const numSpaces = /^ +/.exec(current2)[0].length;
+    return Math.min(numSpaces, previous);
+  }, Infinity);
+  return " ".repeat(min);
+}
+function isObject(thing) {
+  return toString.call(thing) === "[object Object]";
+}
+function writeVlq(pos, num) {
+  num = num < 0 ? -num << 1 | 1 : num << 1;
+  do {
+    let clamped = num & 31;
+    num >>>= 5;
+    if (num > 0) clamped |= 32;
+    scratch[pos++] = intToChar2[clamped];
+  } while (num > 0);
+  return pos;
+}
+function isWordCode(code) {
+  return code >= 97 && code <= 122 || code >= 65 && code <= 90 || code >= 48 && code <= 57 || code === 95;
+}
+function expandReplacement(replacement, matched, position2, str, captures, namedCaptures) {
+  if (!replacement.includes("$")) return replacement;
+  let result = "";
+  let index = 0;
+  while (index < replacement.length) {
+    const dollar = replacement.indexOf("$", index);
+    if (dollar === -1) {
+      result += replacement.slice(index);
+      break;
+    }
+    result += replacement.slice(index, dollar);
+    const char = replacement[dollar + 1];
+    let expansion = "$";
+    let consumed = 1;
+    if (char === "$") consumed = 2;
+    else if (char === "&") {
+      expansion = matched;
+      consumed = 2;
+    } else if (char === "`") {
+      expansion = str.slice(0, position2);
+      consumed = 2;
+    } else if (char === "'") {
+      expansion = str.slice(position2 + matched.length);
+      consumed = 2;
+    } else if (char === "<" && namedCaptures !== void 0) {
+      const close2 = replacement.indexOf(">", dollar + 2);
+      if (close2 !== -1) {
+        expansion = namedCaptures[replacement.slice(dollar + 2, close2)] ?? "";
+        consumed = close2 + 1 - dollar;
+      }
+    } else if (char >= "0" && char <= "9") {
+      const second = replacement[dollar + 2];
+      const double = second >= "0" && second <= "9" ? Number(char + second) : NaN;
+      const single = Number(char);
+      if (double >= 1 && double <= captures.length) {
+        expansion = captures[double - 1] ?? "";
+        consumed = 3;
+      } else if (single >= 1 && single <= captures.length) {
+        expansion = captures[single - 1] ?? "";
+        consumed = 2;
+      }
+    }
+    result += expansion;
+    index = dollar + consumed;
+  }
+  return result;
+}
+var BitSet, Chunk, MagicStringError, btoa2, SourceMap, toString, BASE64_CHARS, intToChar2, COMMA, SEMICOLON, BUFFER_SIZE, FLUSH_THRESHOLD, scratch, decoder, MappingsEncoder, NEWLINE_CHAR$1, Mappings, n, NEWLINE_CHAR, CR_CHAR, warned, MagicString;
+var init_dist = __esm({
+  "../../node_modules/magic-string/dist/index.mjs"() {
+    init_sourcemap_codec();
+    BitSet = class BitSet2 {
+      constructor(arg) {
+        this.bits = arg instanceof BitSet2 ? arg.bits.slice() : [];
+      }
+      add(n4) {
+        this.bits[n4 >> 5] |= 1 << (n4 & 31);
+      }
+      has(n4) {
+        return !!(this.bits[n4 >> 5] & 1 << (n4 & 31));
+      }
+    };
+    Chunk = class Chunk2 {
+      constructor(start2, end2, content) {
+        this.start = start2;
+        this.end = end2;
+        this.original = content;
+        this.intro = "";
+        this.outro = "";
+        this.content = content;
+        this.storeName = false;
+        this.edited = false;
+        this.replacesUntil = -1;
+        this.replacedFrom = -1;
+        this.previous = null;
+        this.next = null;
+      }
+      appendLeft(content) {
+        this.outro += content;
+      }
+      appendRight(content) {
+        this.intro = this.intro + content;
+      }
+      clone() {
+        const chunk = new Chunk2(this.start, this.end, this.original);
+        chunk.intro = this.intro;
+        chunk.outro = this.outro;
+        chunk.content = this.content;
+        chunk.storeName = this.storeName;
+        chunk.edited = this.edited;
+        chunk.replacesUntil = this.replacesUntil;
+        chunk.replacedFrom = this.replacedFrom;
+        return chunk;
+      }
+      contains(index) {
+        return this.start < index && index < this.end;
+      }
+      eachNext(fn2) {
+        fn2(this);
+        let chunk = this.next;
+        while (chunk) {
+          fn2(chunk);
+          chunk = chunk.next;
+        }
+      }
+      eachPrevious(fn2) {
+        fn2(this);
+        let chunk = this.previous;
+        while (chunk) {
+          fn2(chunk);
+          chunk = chunk.previous;
+        }
+      }
+      edit(content, storeName, contentOnly) {
+        this.content = content;
+        if (!contentOnly) {
+          this.intro = "";
+          this.outro = "";
+        }
+        this.storeName = storeName;
+        this.edited = true;
+        return this;
+      }
+      prependLeft(content) {
+        this.outro = content + this.outro;
+      }
+      prependRight(content) {
+        this.intro = content + this.intro;
+      }
+      reset() {
+        this.intro = "";
+        this.outro = "";
+        this.replacesUntil = -1;
+        this.replacedFrom = -1;
+        if (this.edited) {
+          this.content = this.original;
+          this.storeName = false;
+          this.edited = false;
+        }
+      }
+      split(index) {
+        const sliceIndex = index - this.start;
+        const originalBefore = this.original.slice(0, sliceIndex);
+        const originalAfter = this.original.slice(sliceIndex);
+        this.original = originalBefore;
+        const newChunk = new Chunk2(index, this.end, originalAfter);
+        newChunk.outro = this.outro;
+        this.outro = "";
+        this.end = index;
+        if (this.edited) {
+          newChunk.edit("", false, true);
+          newChunk.replacedFrom = this.replacedFrom;
+          this.content = "";
+        } else this.content = originalBefore;
+        newChunk.next = this.next;
+        if (newChunk.next) newChunk.next.previous = newChunk;
+        newChunk.previous = this;
+        this.next = newChunk;
+        return newChunk;
+      }
+      toString() {
+        return this.intro + this.content + this.outro;
+      }
+      trimEnd(rx) {
+        this.outro = this.outro.replace(rx, "");
+        if (this.outro.length) return true;
+        const trimmed = this.content.replace(rx, "");
+        if (trimmed.length) {
+          if (trimmed !== this.content) {
+            if (this.edited) this.edit(trimmed, this.storeName, true);
+            else this.split(this.start + trimmed.length).edit("", void 0, true);
+          }
+          return true;
+        } else {
+          this.edit("", void 0, true);
+          this.intro = this.intro.replace(rx, "");
+          if (this.intro.length) return true;
+        }
+      }
+      trimStart(rx) {
+        this.intro = this.intro.replace(rx, "");
+        if (this.intro.length) return true;
+        const trimmed = this.content.replace(rx, "");
+        if (trimmed.length) {
+          if (trimmed !== this.content) {
+            if (this.edited) this.edit(trimmed, this.storeName, true);
+            else {
+              this.split(this.end - trimmed.length);
+              this.edit("", void 0, true);
+            }
+          }
+          return true;
+        } else {
+          this.edit("", void 0, true);
+          this.outro = this.outro.replace(rx, "");
+          if (this.outro.length) return true;
+        }
+      }
+    };
+    MagicStringError = class extends Error {
+      name = "MagicStringError";
+      constructor(message, options) {
+        super(`[MagicString] ${message}`, options);
+      }
+    };
+    btoa2 = /* @__PURE__ */ getBtoa();
+    SourceMap = class {
+      constructor(properties) {
+        this.version = 3;
+        this.file = properties.file;
+        this.sources = properties.sources;
+        this.sourcesContent = properties.sourcesContent;
+        this.names = properties.names;
+        this.mappings = typeof properties.mappings === "string" ? properties.mappings : encode(properties.mappings);
+        if (typeof properties.x_google_ignoreList !== "undefined") this.x_google_ignoreList = properties.x_google_ignoreList;
+        if (typeof properties.debugId !== "undefined") this.debugId = properties.debugId;
+        if (typeof properties.rangeMappings !== "undefined") {
+          let shouldOutputRangeMapping = false;
+          for (const line of properties.rangeMappings) if (line.length !== 0) {
+            shouldOutputRangeMapping = true;
+            break;
+          }
+          if (shouldOutputRangeMapping) this.rangeMappings = encodeRangeMappings(properties.rangeMappings);
+        }
+      }
+      /**
+      * Returns the equivalent of `JSON.stringify(map)`
+      */
+      toString() {
+        return JSON.stringify(this);
+      }
+      /**
+      * Returns a DataURI containing the sourcemap. Useful for doing this sort of thing:
+      * `generateMap(options?: SourceMapOptions): SourceMap;`
+      */
+      toUrl() {
+        return `data:application/json;charset=utf-8;base64,${btoa2(this.toString())}`;
+      }
+    };
+    toString = Object.prototype.toString;
+    BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    intToChar2 = /* @__PURE__ */ (() => {
+      const chars2 = /* @__PURE__ */ new Uint8Array(64);
+      for (let i3 = 0; i3 < 64; i3++) chars2[i3] = BASE64_CHARS.charCodeAt(i3);
+      return chars2;
+    })();
+    COMMA = 44;
+    SEMICOLON = 59;
+    BUFFER_SIZE = 16384;
+    FLUSH_THRESHOLD = 16348;
+    scratch = /* @__PURE__ */ new Uint8Array(BUFFER_SIZE);
+    decoder = /* @__PURE__ */ new TextDecoder();
+    MappingsEncoder = class {
+      constructor() {
+        this.out = "";
+        this.pos = 0;
+        this.lines = [];
+        this.buffered = 0;
+        this.needsComma = false;
+        this.prevGenColumn = 0;
+        this.prevSourceIndex = 0;
+        this.prevSourceLine = 0;
+        this.prevSourceColumn = 0;
+        this.prevNameIndex = 0;
+      }
+      endLine(segments) {
+        this.lines.push(segments);
+        this.buffered += segments.length + 1;
+        if (this.buffered >= 4096) this.drain(null);
+      }
+      segments(segments) {
+        this.drain(segments);
+      }
+      finish(segments) {
+        this.drain(segments);
+        this.flush();
+        return this.out;
+      }
+      drain(trailing) {
+        const lines = this.lines;
+        const lineCount = lines.length;
+        for (let l2 = 0; l2 <= lineCount; l2++) {
+          const line = l2 < lineCount ? lines[l2] : trailing;
+          if (line === null) break;
+          for (let i3 = 0; i3 < line.length; i3++) {
+            if (this.pos > FLUSH_THRESHOLD) this.flush();
+            const segment = line[i3];
+            if (this.needsComma) scratch[this.pos++] = COMMA;
+            this.needsComma = true;
+            this.pos = writeVlq(this.pos, segment[0] - this.prevGenColumn);
+            this.prevGenColumn = segment[0];
+            this.pos = writeVlq(this.pos, segment[1] - this.prevSourceIndex);
+            this.prevSourceIndex = segment[1];
+            this.pos = writeVlq(this.pos, segment[2] - this.prevSourceLine);
+            this.prevSourceLine = segment[2];
+            this.pos = writeVlq(this.pos, segment[3] - this.prevSourceColumn);
+            this.prevSourceColumn = segment[3];
+            if (segment.length === 5) {
+              this.pos = writeVlq(this.pos, segment[4] - this.prevNameIndex);
+              this.prevNameIndex = segment[4];
+            }
+          }
+          if (l2 < lineCount) {
+            if (this.pos > FLUSH_THRESHOLD) this.flush();
+            scratch[this.pos++] = SEMICOLON;
+            this.needsComma = false;
+            this.prevGenColumn = 0;
+          }
+        }
+        lines.length = 0;
+        this.buffered = 0;
+        this.flush();
+      }
+      flush() {
+        this.out += decoder.decode(scratch.subarray(0, this.pos));
+        this.pos = 0;
+      }
+    };
+    NEWLINE_CHAR$1 = 10;
+    Mappings = class {
+      constructor(hires, encoder = null) {
+        this.hires = hires;
+        this.generatedCodeLine = 0;
+        this.generatedCodeColumn = 0;
+        this.raw = [];
+        this.rawSegments = this.raw[this.generatedCodeLine] = [];
+        this.rawRangeMappings = [];
+        this.rawRangeMappingsIndices = this.rawRangeMappings[this.generatedCodeLine] = [];
+        this.encoder = encoder;
+      }
+      nextLine() {
+        if (this.encoder === null) {
+          this.generatedCodeLine += 1;
+          this.raw[this.generatedCodeLine] = this.rawSegments = [];
+        } else {
+          this.encoder.endLine(this.rawSegments);
+          this.rawSegments = [];
+          this.generatedCodeLine += 1;
+        }
+        this.generatedCodeColumn = 0;
+        this.rawRangeMappings[this.generatedCodeLine] = this.rawRangeMappingsIndices = [];
+      }
+      addEdit(sourceIndex, content, loc2, nameIndex) {
+        if (content.length) {
+          const contentLengthMinusOne = content.length - 1;
+          let contentLineEnd = content.indexOf("\n", 0);
+          let previousContentLineEnd = -1;
+          while (contentLineEnd >= 0 && contentLengthMinusOne > contentLineEnd) {
+            const segment2 = [
+              this.generatedCodeColumn,
+              sourceIndex,
+              loc2.line,
+              loc2.column
+            ];
+            if (nameIndex >= 0) segment2.push(nameIndex);
+            this.rawSegments.push(segment2);
+            this.nextLine();
+            previousContentLineEnd = contentLineEnd;
+            contentLineEnd = content.indexOf("\n", contentLineEnd + 1);
+          }
+          const segment = [
+            this.generatedCodeColumn,
+            sourceIndex,
+            loc2.line,
+            loc2.column
+          ];
+          if (nameIndex >= 0) segment.push(nameIndex);
+          this.rawSegments.push(segment);
+          this.advance(content.slice(previousContentLineEnd + 1));
+        }
+      }
+      addUneditedChunk(sourceIndex, chunk, original, loc2, sourcemapLocations) {
+        const end2 = chunk.end;
+        let i3 = chunk.start;
+        if (this.hires) {
+          const boundary2 = this.hires === "boundary";
+          const experimentalRange = this.hires === "experimental-range";
+          const encoder = experimentalRange ? null : this.encoder;
+          let charInHiresBoundary = false;
+          while (i3 < end2) {
+            if (encoder !== null && this.rawSegments.length >= 4096) {
+              encoder.segments(this.rawSegments);
+              this.rawSegments.length = 0;
+            }
+            if (experimentalRange && i3 + 1 >= end2) this.rawSegments.push([
+              this.generatedCodeColumn,
+              sourceIndex,
+              loc2.line,
+              loc2.column
+            ]);
+            const code = original.charCodeAt(i3);
+            if (code === NEWLINE_CHAR$1) {
+              loc2.line += 1;
+              loc2.column = 0;
+              this.nextLine();
+              charInHiresBoundary = false;
+            } else {
+              if (boundary2) {
+                if (isWordCode(code)) {
+                  if (!charInHiresBoundary) {
+                    this.rawSegments.push([
+                      this.generatedCodeColumn,
+                      sourceIndex,
+                      loc2.line,
+                      loc2.column
+                    ]);
+                    charInHiresBoundary = true;
+                  }
+                } else {
+                  this.rawSegments.push([
+                    this.generatedCodeColumn,
+                    sourceIndex,
+                    loc2.line,
+                    loc2.column
+                  ]);
+                  charInHiresBoundary = false;
+                }
+              } else if (experimentalRange) {
+                if (i3 === chunk.start) {
+                  this.rawRangeMappingsIndices.push(this.rawSegments.length);
+                  this.rawSegments.push([
+                    this.generatedCodeColumn,
+                    sourceIndex,
+                    loc2.line,
+                    loc2.column
+                  ]);
+                }
+              } else this.rawSegments.push([
+                this.generatedCodeColumn,
+                sourceIndex,
+                loc2.line,
+                loc2.column
+              ]);
+              loc2.column += 1;
+              this.generatedCodeColumn += 1;
+            }
+            i3 += 1;
+          }
+        } else {
+          const bits = sourcemapLocations.bits;
+          while (i3 < end2) {
+            let newline2 = original.indexOf("\n", i3);
+            if (newline2 === -1 || newline2 > end2) newline2 = end2;
+            if (newline2 > i3) {
+              this.rawSegments.push([
+                this.generatedCodeColumn,
+                sourceIndex,
+                loc2.line,
+                loc2.column
+              ]);
+              for (let w4 = i3 + 1 >> 5, last = newline2 - 1 >> 5; w4 <= last; w4++) {
+                let word = bits[w4];
+                if (!word) continue;
+                const base = w4 << 5;
+                while (word) {
+                  const lowest = word & -word;
+                  const index = base + 31 - Math.clz32(lowest);
+                  if (index > i3 && index < newline2) {
+                    const offset2 = index - i3;
+                    this.rawSegments.push([
+                      this.generatedCodeColumn + offset2,
+                      sourceIndex,
+                      loc2.line,
+                      loc2.column + offset2
+                    ]);
+                  }
+                  word ^= lowest;
+                }
+              }
+              loc2.column += newline2 - i3;
+              this.generatedCodeColumn += newline2 - i3;
+            }
+            if (newline2 === end2) break;
+            loc2.line += 1;
+            loc2.column = 0;
+            this.nextLine();
+            i3 = newline2 + 1;
+          }
+        }
+      }
+      advance(str) {
+        if (!str) return;
+        const lastNewline = str.lastIndexOf("\n");
+        for (let i3 = str.indexOf("\n"); i3 !== -1; i3 = str.indexOf("\n", i3 + 1)) this.nextLine();
+        this.generatedCodeColumn += str.length - lastNewline - 1;
+      }
+    };
+    n = "\n";
+    NEWLINE_CHAR = "\n".charCodeAt(0);
+    CR_CHAR = "\r".charCodeAt(0);
+    warned = {
+      insertLeft: false,
+      insertRight: false,
+      storeName: false
+    };
+    MagicString = class MagicString2 {
+      constructor(string2, options = {}) {
+        const chunk = new Chunk(0, string2.length, string2);
+        Object.defineProperties(this, {
+          original: {
+            writable: true,
+            value: string2
+          },
+          outro: {
+            writable: true,
+            value: ""
+          },
+          intro: {
+            writable: true,
+            value: ""
+          },
+          firstChunk: {
+            writable: true,
+            value: chunk
+          },
+          lastChunk: {
+            writable: true,
+            value: chunk
+          },
+          lastSearchedChunk: {
+            writable: true,
+            value: chunk
+          },
+          byStart: {
+            writable: true,
+            value: /* @__PURE__ */ new Map([[0, chunk]])
+          },
+          byEnd: {
+            writable: true,
+            value: /* @__PURE__ */ new Map([[string2.length, chunk]])
+          },
+          filename: {
+            writable: true,
+            value: options.filename
+          },
+          indentExclusionRanges: {
+            writable: true,
+            value: options.indentExclusionRanges
+          },
+          sourcemapLocations: {
+            writable: true,
+            value: new BitSet()
+          },
+          storedNames: {
+            writable: true,
+            value: {}
+          },
+          indentStr: {
+            writable: true,
+            value: void 0
+          },
+          ignoreList: {
+            writable: true,
+            value: options.ignoreList
+          },
+          offset: {
+            writable: true,
+            value: options.offset || 0
+          },
+          hasMovedChunks: {
+            writable: true,
+            value: false
+          }
+        });
+      }
+      /**
+      * Adds the specified character index (with respect to the original string) to sourcemap mappings, if `hires` is false.
+      */
+      addSourcemapLocation(char) {
+        this.sourcemapLocations.add(char);
+      }
+      /**
+      * Appends the specified content to the end of the string.
+      */
+      append(content) {
+        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
+        this.outro += content;
+        return this;
+      }
+      /**
+      * Appends the specified content at the index in the original string.
+      * If a range *ending* with index is subsequently moved, the insert will be moved with it.
+      * See also `s.prependLeft(...)`.
+      */
+      appendLeft(index, content) {
+        index = index + this.offset;
+        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
+        this._split(index);
+        const chunk = this.byEnd.get(index);
+        if (chunk) chunk.appendLeft(content);
+        else this.intro += content;
+        return this;
+      }
+      /**
+      * Appends the specified content at the index in the original string.
+      * If a range *starting* with index is subsequently moved, the insert will be moved with it.
+      * See also `s.prependRight(...)`.
+      */
+      appendRight(index, content) {
+        index = index + this.offset;
+        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
+        this._split(index);
+        const chunk = this.byStart.get(index);
+        if (chunk) chunk.appendRight(content);
+        else this.outro += content;
+        return this;
+      }
+      /**
+      * Does what you'd expect.
+      */
+      clone() {
+        const cloned = new MagicString2(this.original, {
+          filename: this.filename,
+          ignoreList: this.ignoreList,
+          offset: this.offset
+        });
+        let originalChunk = this.firstChunk;
+        let clonedChunk = cloned.firstChunk = cloned.lastSearchedChunk = originalChunk.clone();
+        while (originalChunk) {
+          cloned.byStart.set(clonedChunk.start, clonedChunk);
+          cloned.byEnd.set(clonedChunk.end, clonedChunk);
+          const nextOriginalChunk = originalChunk.next;
+          const nextClonedChunk = nextOriginalChunk && nextOriginalChunk.clone();
+          if (nextClonedChunk) {
+            clonedChunk.next = nextClonedChunk;
+            nextClonedChunk.previous = clonedChunk;
+            clonedChunk = nextClonedChunk;
+          }
+          originalChunk = nextOriginalChunk;
+        }
+        cloned.lastChunk = clonedChunk;
+        if (this.indentExclusionRanges) cloned.indentExclusionRanges = this.indentExclusionRanges.slice();
+        cloned.sourcemapLocations = new BitSet(this.sourcemapLocations);
+        cloned.storedNames = { ...this.storedNames };
+        cloned.intro = this.intro;
+        cloned.outro = this.outro;
+        cloned.hasMovedChunks = this.hasMovedChunks;
+        return cloned;
+      }
+      /**
+      * Generates a sourcemap object with raw mappings in array form, rather than encoded as a string.
+      * Useful if you need to manipulate the sourcemap further, but most of the time you will use `generateMap` instead.
+      */
+      generateDecodedMap(options) {
+        options = options || {};
+        const mappings = new Mappings(options.hires);
+        const names = this._generateMappings(mappings);
+        return {
+          ...this._mapProperties(options, names),
+          mappings: mappings.raw,
+          rangeMappings: mappings.rawRangeMappings
+        };
+      }
+      /**
+      * Generates a version 3 sourcemap.
+      */
+      generateMap(options) {
+        options = options || {};
+        const encoder = new MappingsEncoder();
+        const mappings = new Mappings(options.hires, encoder);
+        const names = this._generateMappings(mappings);
+        return new SourceMap({
+          ...this._mapProperties(options, names),
+          mappings: encoder.finish(mappings.rawSegments),
+          rangeMappings: mappings.rawRangeMappings
+        });
+      }
+      /** @internal */
+      _generateMappings(mappings) {
+        const sourceIndex = 0;
+        const names = Object.keys(this.storedNames);
+        const locate = getLocator(this.original);
+        if (this.intro) mappings.advance(this.intro);
+        this.firstChunk.eachNext((chunk) => {
+          const loc2 = locate(chunk.start);
+          if (chunk.intro.length) mappings.advance(chunk.intro);
+          if (chunk.edited) mappings.addEdit(sourceIndex, chunk.content, loc2, chunk.storeName ? names.indexOf(chunk.original) : -1);
+          else mappings.addUneditedChunk(sourceIndex, chunk, this.original, loc2, this.sourcemapLocations);
+          if (chunk.outro.length) mappings.advance(chunk.outro);
+        });
+        if (this.outro) mappings.advance(this.outro);
+        return names;
+      }
+      /** @internal */
+      _mapProperties(options, names) {
+        return {
+          file: options.file ? options.file.split(/[/\\]/).pop() : void 0,
+          sources: [options.source ? getRelativePath(options.file || "", options.source) : options.file || ""],
+          sourcesContent: options.includeContent ? [this.original] : void 0,
+          names,
+          x_google_ignoreList: this.ignoreList ? [0] : void 0
+        };
+      }
+      /** @internal */
+      _ensureindentStr() {
+        if (this.indentStr === void 0) this.indentStr = guessIndent(this.original);
+      }
+      /** @internal */
+      _getRawIndentString() {
+        this._ensureindentStr();
+        return this.indentStr;
+      }
+      getIndentString() {
+        this._ensureindentStr();
+        return this.indentStr === null ? "	" : this.indentStr;
+      }
+      indent(indentStr, options) {
+        const pattern = /^[^\r\n]/gm;
+        if (isObject(indentStr)) {
+          options = indentStr;
+          indentStr = void 0;
+        }
+        if (indentStr === void 0) {
+          this._ensureindentStr();
+          indentStr = this.indentStr || "	";
+        }
+        if (indentStr === "") return this;
+        const resolvedIndentStr = indentStr;
+        options = options || {};
+        const isExcluded = {};
+        if (options.exclude) (typeof options.exclude[0] === "number" ? [options.exclude] : options.exclude).forEach((exclusion) => {
+          for (let i3 = exclusion[0]; i3 < exclusion[1]; i3 += 1) isExcluded[i3] = true;
+        });
+        let shouldIndentNextCharacter = options.indentStart !== false;
+        const indentPiece = (str) => {
+          if (str === "") return str;
+          const indented = str.replace(pattern, (match2, offset2) => offset2 > 0 || shouldIndentNextCharacter ? `${resolvedIndentStr}${match2}` : match2);
+          shouldIndentNextCharacter = str[str.length - 1] === "\n";
+          return indented;
+        };
+        this.intro = indentPiece(this.intro);
+        let charIndex = 0;
+        let chunk = this.firstChunk;
+        const indentAt = (index) => {
+          shouldIndentNextCharacter = false;
+          if (index === chunk.start) chunk.appendRight(resolvedIndentStr);
+          else {
+            this._splitChunk(chunk, index);
+            chunk = chunk.next;
+            chunk.prependRight(resolvedIndentStr);
+          }
+        };
+        while (chunk) {
+          const end2 = chunk.end;
+          if (!isExcluded[chunk.start]) chunk.intro = indentPiece(chunk.intro);
+          if (chunk.edited) {
+            if (!isExcluded[charIndex]) chunk.content = indentPiece(chunk.content);
+          } else if (options.exclude) {
+            charIndex = chunk.start;
+            while (charIndex < end2) {
+              if (!isExcluded[charIndex]) {
+                const char = this.original.charCodeAt(charIndex);
+                if (char === NEWLINE_CHAR) shouldIndentNextCharacter = true;
+                else if (char !== CR_CHAR && shouldIndentNextCharacter) indentAt(charIndex);
+              }
+              charIndex += 1;
+            }
+          } else {
+            charIndex = chunk.start;
+            while (charIndex < end2) {
+              if (!shouldIndentNextCharacter) {
+                const nextLine = this.original.indexOf(n, charIndex);
+                if (nextLine === -1 || nextLine >= end2) break;
+                shouldIndentNextCharacter = true;
+                charIndex = nextLine + 1;
+                continue;
+              }
+              const char = this.original.charCodeAt(charIndex);
+              if (char === NEWLINE_CHAR || char === CR_CHAR) {
+                charIndex += 1;
+                continue;
+              }
+              indentAt(charIndex);
+              charIndex += 1;
+            }
+          }
+          if (!isExcluded[chunk.end - 1]) chunk.outro = indentPiece(chunk.outro);
+          charIndex = chunk.end;
+          chunk = chunk.next;
+        }
+        this.outro = indentPiece(this.outro);
+        return this;
+      }
+      /** @internal */
+      insert() {
+        throw new MagicStringError("insert() is deprecated, use appendLeft() or prependRight()");
+      }
+      /** @internal */
+      insertLeft(index, content) {
+        if (!warned.insertLeft) {
+          console.warn("magicString.insertLeft(...) is deprecated. Use magicString.appendLeft(...) instead");
+          warned.insertLeft = true;
+        }
+        return this.appendLeft(index, content);
+      }
+      /** @internal */
+      insertRight(index, content) {
+        if (!warned.insertRight) {
+          console.warn("magicString.insertRight(...) is deprecated. Use magicString.prependRight(...) instead");
+          warned.insertRight = true;
+        }
+        return this.prependRight(index, content);
+      }
+      /**
+      * Moves the characters from `start` and `end` to `index`.
+      *
+      * `affinity` controls where the range is anchored at `index`. With the
+      * default `'right'`, it is inserted before the content that starts at `index`;
+      * with `'left'`, it is inserted after the content that ends at `index`. The
+      * two differ only when other content has already been moved to that boundary,
+      * mirroring the `appendLeft`/`appendRight` distinction.
+      */
+      move(start2, end2, index, affinity = "right") {
+        start2 = start2 + this.offset;
+        end2 = end2 + this.offset;
+        index = index + this.offset;
+        if (start2 === end2) return this;
+        if (index >= start2 && index <= end2) throw new MagicStringError("cannot move a selection inside itself");
+        this._split(start2);
+        this._split(end2);
+        this._split(index);
+        const first = this.byStart.get(start2);
+        const last = this.byEnd.get(end2);
+        if (this.hasMovedChunks) {
+          let cursor = first;
+          while (cursor !== last) {
+            cursor = cursor.next;
+            if (!cursor || cursor.start < start2 || cursor.end > end2) throw new MagicStringError(`cannot move ${start2} to ${end2} because an earlier move split that range`);
+          }
+        }
+        const oldLeft = first.previous;
+        const oldRight = last.next;
+        let newLeft;
+        let newRight;
+        if (affinity === "left") {
+          newLeft = this.byEnd.get(index) ?? null;
+          if (!newLeft) {
+            if (first === this.firstChunk) return this;
+            newRight = this.firstChunk;
+          } else {
+            if (newLeft.next === first) return this;
+            newRight = newLeft.next;
+          }
+        } else {
+          newRight = this.byStart.get(index) ?? null;
+          if (!newRight) {
+            if (last === this.lastChunk) return this;
+            newLeft = this.lastChunk;
+          } else {
+            if (newRight.previous === last) return this;
+            newLeft = newRight.previous;
+          }
+        }
+        if (oldLeft) oldLeft.next = oldRight;
+        if (oldRight) oldRight.previous = oldLeft;
+        if (newLeft) newLeft.next = first;
+        if (newRight) newRight.previous = last;
+        if (!first.previous) this.firstChunk = last.next;
+        if (!last.next) {
+          this.lastChunk = first.previous;
+          this.lastChunk.next = null;
+        }
+        first.previous = newLeft;
+        last.next = newRight || null;
+        if (!newLeft) this.firstChunk = first;
+        if (!newRight) this.lastChunk = last;
+        this.hasMovedChunks = true;
+        return this;
+      }
+      /**
+      * Replaces the characters from `start` to `end` with `content`, along with the appended/prepended content in
+      * that range. The same restrictions as `s.remove()` apply.
+      *
+      * The fourth argument is optional. It can have a storeName property - if true, the original name will be stored
+      * for later inclusion in a sourcemap's names array - and a contentOnly property which determines whether only
+      * the content is overwritten, or anything that was appended/prepended to the range as well.
+      *
+      * It may be preferred to use `s.update(...)` instead if you wish to avoid overwriting the appended/prepended content.
+      */
+      overwrite(start2, end2, content, options) {
+        const optionObject = typeof options === "object" && options ? options : {};
+        return this.update(start2, end2, content, {
+          ...optionObject,
+          overwrite: !optionObject.contentOnly
+        });
+      }
+      /**
+      * Replaces the characters from `start` to `end` with `content`. The same restrictions as `s.remove()` apply.
+      *
+      * The fourth argument is optional. It can have a storeName property - if true, the original name will be stored
+      * for later inclusion in a sourcemap's names array - and an overwrite property which determines whether only
+      * the content is overwritten, or anything that was appended/prepended to the range as well.
+      */
+      update(start2, end2, content, options) {
+        start2 = start2 + this.offset;
+        end2 = end2 + this.offset;
+        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
+        if (this.original.length !== 0) {
+          if (start2 < 0) start2 = Math.max(0, start2 + this.original.length);
+          if (end2 < 0) end2 = Math.max(0, end2 + this.original.length);
+        }
+        if (start2 < 0) throw new MagicStringError(`start ${start2} is out of bounds`);
+        if (end2 > this.original.length) throw new MagicStringError(`end ${end2} is out of bounds`);
+        if (start2 === end2) throw new MagicStringError(`cannot overwrite a zero-length range at ${start2}, use appendLeft() or prependRight()`);
+        if (start2 > end2) throw new MagicStringError(`end must be greater than start (start: ${start2}, end: ${end2})`);
+        this._split(start2);
+        this._split(end2);
+        if (options === true) {
+          if (!warned.storeName) {
+            console.warn("The final argument to magicString.overwrite(...) should be an options object. See https://github.com/rich-harris/magic-string");
+            warned.storeName = true;
+          }
+          options = { storeName: true };
+        }
+        const optionObject = typeof options === "object" && options ? options : {};
+        const storeName = optionObject.storeName || false;
+        const overwrite = optionObject.overwrite || false;
+        if (storeName) {
+          const original = this.original.slice(start2, end2);
+          Object.defineProperty(this.storedNames, original, {
+            writable: true,
+            value: true,
+            enumerable: true
+          });
+        }
+        const first = this.byStart.get(start2);
+        const last = this.byEnd.get(end2);
+        if (first) {
+          let chunk = first;
+          while (chunk !== last) {
+            if (chunk.next !== this.byStart.get(chunk.end)) throw new MagicStringError("cannot overwrite across a split point");
+            chunk = chunk.next;
+          }
+          chunk = first;
+          while (chunk !== last) {
+            chunk = chunk.next;
+            chunk.edit("", false, !overwrite);
+            chunk.replacesUntil = -1;
+            chunk.replacedFrom = start2;
+          }
+          first.edit(content, storeName, !overwrite);
+          first.replacesUntil = end2;
+          first.replacedFrom = -1;
+        } else {
+          const newChunk = new Chunk(start2, end2, "").edit(content, storeName);
+          last.next = newChunk;
+          newChunk.previous = last;
+        }
+        return this;
+      }
+      /**
+      * Prepends the string with the specified content.
+      */
+      prepend(content) {
+        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
+        this.intro = content + this.intro;
+        return this;
+      }
+      /**
+      * Same as `s.appendLeft(...)`, except that the inserted content will go *before* any previous appends or prepends at index
+      */
+      prependLeft(index, content) {
+        index = index + this.offset;
+        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
+        this._split(index);
+        const chunk = this.byEnd.get(index);
+        if (chunk) chunk.prependLeft(content);
+        else this.intro = content + this.intro;
+        return this;
+      }
+      /**
+      * Same as `s.appendRight(...)`, except that the inserted content will go *before* any previous appends or prepends at `index`
+      */
+      prependRight(index, content) {
+        index = index + this.offset;
+        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
+        this._split(index);
+        const chunk = this.byStart.get(index);
+        if (chunk) chunk.prependRight(content);
+        else this.outro = content + this.outro;
+        return this;
+      }
+      /**
+      * Removes the characters from `start` to `end` (of the original string, **not** the generated string).
+      * Content appended or prepended at positions strictly inside the range is removed with it, while
+      * content attached at `start` or `end` is preserved — use `s.overwrite(start, end, '')` to remove
+      * the range including its edge inserts.
+      * Repeated removals and removals with partially overlapping ranges are allowed.
+      */
+      remove(start2, end2) {
+        start2 = start2 + this.offset;
+        end2 = end2 + this.offset;
+        if (this.original.length !== 0) {
+          if (start2 < 0) start2 = Math.max(0, start2 + this.original.length);
+          if (end2 < 0) end2 = Math.max(0, end2 + this.original.length);
+        }
+        if (start2 === end2) return this;
+        if (start2 < 0 || end2 > this.original.length) throw new MagicStringError(`range ${start2}\u2013${end2} is out of bounds`);
+        if (start2 > end2) throw new MagicStringError(`end must be greater than start (start: ${start2}, end: ${end2})`);
+        this._split(start2);
+        this._split(end2);
+        let chunk = this.byStart.get(start2);
+        while (chunk) {
+          if (chunk.start > start2) chunk.intro = "";
+          if (chunk.end < end2) chunk.outro = "";
+          chunk.edit("", false, true);
+          chunk.replacesUntil = -1;
+          chunk.replacedFrom = -1;
+          chunk = end2 > chunk.end ? this.byStart.get(chunk.end) : null;
+        }
+        return this;
+      }
+      /**
+      * Reset the modified characters from `start` to `end` (of the original string, **not** the generated string).
+      */
+      reset(start2, end2) {
+        start2 = start2 + this.offset;
+        end2 = end2 + this.offset;
+        if (this.original.length !== 0) {
+          if (start2 < 0) start2 = Math.max(0, start2 + this.original.length);
+          if (end2 < 0) end2 = Math.max(0, end2 + this.original.length);
+        }
+        if (start2 === end2) return this;
+        if (start2 < 0 || end2 > this.original.length) throw new MagicStringError(`range ${start2}\u2013${end2} is out of bounds`);
+        if (start2 > end2) throw new MagicStringError(`end must be greater than start (start: ${start2}, end: ${end2})`);
+        this._split(start2);
+        this._split(end2);
+        let chunk = this.byStart.get(start2);
+        while (chunk) {
+          chunk.reset();
+          chunk = end2 > chunk.end ? this.byStart.get(chunk.end) : null;
+        }
+        return this;
+      }
+      lastChar() {
+        if (this.outro.length) return this.outro[this.outro.length - 1];
+        let chunk = this.lastChunk;
+        while (chunk) {
+          if (chunk.outro.length) return chunk.outro[chunk.outro.length - 1];
+          if (chunk.content.length) return chunk.content[chunk.content.length - 1];
+          if (chunk.intro.length) return chunk.intro[chunk.intro.length - 1];
+          chunk = chunk.previous;
+        }
+        if (this.intro.length) return this.intro[this.intro.length - 1];
+        return "";
+      }
+      lastLine() {
+        let lineIndex = this.outro.lastIndexOf(n);
+        if (lineIndex !== -1) return this.outro.substr(lineIndex + 1);
+        let lineStr = this.outro;
+        let chunk = this.lastChunk;
+        while (chunk) {
+          if (chunk.outro.length > 0) {
+            lineIndex = chunk.outro.lastIndexOf(n);
+            if (lineIndex !== -1) return chunk.outro.substr(lineIndex + 1) + lineStr;
+            lineStr = chunk.outro + lineStr;
+          }
+          if (chunk.content.length > 0) {
+            lineIndex = chunk.content.lastIndexOf(n);
+            if (lineIndex !== -1) return chunk.content.substr(lineIndex + 1) + lineStr;
+            lineStr = chunk.content + lineStr;
+          }
+          if (chunk.intro.length > 0) {
+            lineIndex = chunk.intro.lastIndexOf(n);
+            if (lineIndex !== -1) return chunk.intro.substr(lineIndex + 1) + lineStr;
+            lineStr = chunk.intro + lineStr;
+          }
+          chunk = chunk.previous;
+        }
+        lineIndex = this.intro.lastIndexOf(n);
+        if (lineIndex !== -1) return this.intro.substr(lineIndex + 1) + lineStr;
+        return this.intro + lineStr;
+      }
+      /**
+      * Returns the content of the generated string that corresponds to the slice between `start` and `end` of the original string.
+      * Throws error if the indices are for characters that were already removed.
+      */
+      slice(start2 = 0, end2 = this.original.length - this.offset) {
+        start2 = start2 + this.offset;
+        end2 = end2 + this.offset;
+        if (this.original.length !== 0) {
+          if (start2 < 0) start2 = Math.max(0, start2 + this.original.length);
+          if (end2 < 0) end2 = Math.max(0, end2 + this.original.length);
+        }
+        let result = "";
+        let chunk = this.firstChunk;
+        while (chunk && (chunk.start > start2 || chunk.end <= start2)) {
+          if (chunk.start < end2 && chunk.end >= end2 || end2 === 0 && chunk.start === 0) return result;
+          chunk = chunk.next;
+        }
+        if (chunk && chunk.edited && chunk.start !== start2) throw new MagicStringError(`cannot use edited character ${start2} as slice start anchor`);
+        const startChunk = chunk;
+        while (chunk) {
+          if (end2 === 0 && chunk.start === 0) break;
+          if (chunk.intro && (startChunk !== chunk || chunk.start === start2)) result += chunk.intro;
+          const containsEnd = chunk.start < end2 && chunk.end >= end2;
+          if (containsEnd && chunk.edited && chunk.end !== end2) throw new MagicStringError(`cannot use edited character ${end2} as slice end anchor`);
+          const sliceStart = startChunk === chunk ? start2 - chunk.start : 0;
+          const sliceEnd = containsEnd ? chunk.content.length + end2 - chunk.end : chunk.content.length;
+          result += chunk.content.slice(sliceStart, sliceEnd);
+          if (chunk.outro && (!containsEnd || chunk.end === end2)) result += chunk.outro;
+          if (containsEnd) break;
+          chunk = chunk.next;
+        }
+        return result;
+      }
+      /**
+      * Returns a clone of `s`, with all content before the `start` and `end` characters of the original string removed.
+      */
+      snip(start2, end2) {
+        const clone = this.clone();
+        clone.remove(-clone.offset, start2);
+        clone.remove(end2, clone.original.length - clone.offset);
+        return clone;
+      }
+      /** @internal */
+      _split(index) {
+        if (this.byStart.get(index) || this.byEnd.get(index)) return;
+        let chunk = this.lastSearchedChunk;
+        let previousChunk = chunk;
+        const searchForward = index > chunk.end;
+        while (chunk) {
+          if (chunk.contains(index)) return this._splitChunk(chunk, index);
+          chunk = searchForward ? this.byStart.get(chunk.end) : this.byEnd.get(chunk.start);
+          if (chunk === previousChunk) return;
+          previousChunk = chunk;
+        }
+      }
+      /** @internal */
+      _splitChunk(chunk, index) {
+        if (chunk.edited && chunk.content.length) {
+          const loc2 = getLocator(this.original)(index);
+          throw new MagicStringError(`cannot split a chunk that has already been edited (${loc2.line}:${loc2.column} \u2013 "${chunk.original}")`);
+        }
+        const newChunk = chunk.split(index);
+        this.byEnd.set(index, chunk);
+        this.byStart.set(index, newChunk);
+        this.byEnd.set(newChunk.end, newChunk);
+        if (chunk === this.lastChunk) this.lastChunk = newChunk;
+        this.lastSearchedChunk = chunk;
+        return true;
+      }
+      /**
+      * Returns the generated string.
+      */
+      toString() {
+        let str = this.intro;
+        let chunk = this.firstChunk;
+        while (chunk) {
+          str += chunk.toString();
+          chunk = chunk.next;
+        }
+        return str + this.outro;
+      }
+      /**
+      * Returns true if the resulting source is empty (disregarding white space).
+      */
+      isEmpty() {
+        if (this.intro.length && this.intro.trim()) return false;
+        let chunk = this.firstChunk;
+        while (chunk) {
+          if (chunk.intro.length && chunk.intro.trim() || chunk.content.length && chunk.content.trim() || chunk.outro.length && chunk.outro.trim()) return false;
+          chunk = chunk.next;
+        }
+        if (this.outro.length && this.outro.trim()) return false;
+        return true;
+      }
+      length() {
+        let chunk = this.firstChunk;
+        let length = 0;
+        while (chunk) {
+          length += chunk.intro.length + chunk.content.length + chunk.outro.length;
+          chunk = chunk.next;
+        }
+        return length;
+      }
+      /**
+      * Removes empty lines from the start and end.
+      */
+      trimLines() {
+        return this.trim("[\\r\\n]");
+      }
+      /**
+      * Trims content matching `charType` (defaults to `\s`, i.e. whitespace) from the start and end.
+      */
+      trim(charType) {
+        return this.trimStart(charType).trimEnd(charType);
+      }
+      /** @internal */
+      trimEndAborted(charType) {
+        const rx = new RegExp(`${charType || "\\s"}+$`);
+        this.outro = this.outro.replace(rx, "");
+        if (this.outro.length) return true;
+        let chunk = this.lastChunk;
+        do {
+          const end2 = chunk.end;
+          const aborted = chunk.trimEnd(rx);
+          if (chunk.end !== end2) {
+            if (this.lastChunk === chunk) this.lastChunk = chunk.next;
+            this.byEnd.set(chunk.end, chunk);
+            this.byStart.set(chunk.next.start, chunk.next);
+            this.byEnd.set(chunk.next.end, chunk.next);
+          }
+          if (aborted) return true;
+          chunk = chunk.previous;
+        } while (chunk);
+        this.intro = this.intro.replace(rx, "");
+        return this.intro.length > 0;
+      }
+      /**
+      * Trims content matching `charType` (defaults to `\s`, i.e. whitespace) from the end.
+      */
+      trimEnd(charType) {
+        this.trimEndAborted(charType);
+        return this;
+      }
+      /** @internal */
+      trimStartAborted(charType) {
+        const rx = new RegExp(`^${charType || "\\s"}+`);
+        this.intro = this.intro.replace(rx, "");
+        if (this.intro.length) return true;
+        let chunk = this.firstChunk;
+        do {
+          const end2 = chunk.end;
+          const aborted = chunk.trimStart(rx);
+          if (chunk.end !== end2) {
+            if (chunk === this.lastChunk) this.lastChunk = chunk.next;
+            this.byEnd.set(chunk.end, chunk);
+            this.byStart.set(chunk.next.start, chunk.next);
+            this.byEnd.set(chunk.next.end, chunk.next);
+          }
+          if (aborted) return true;
+          chunk = chunk.next;
+        } while (chunk);
+        this.outro = this.outro.replace(rx, "");
+        return this.outro.length > 0;
+      }
+      /**
+      * Trims content matching `charType` (defaults to `\s`, i.e. whitespace) from the start.
+      */
+      trimStart(charType) {
+        this.trimStartAborted(charType);
+        return this;
+      }
+      /**
+      * Indicates if the string has been changed.
+      */
+      hasChanged() {
+        if (this.intro || this.outro) return true;
+        let outputIndex = 0;
+        let chunk = this.firstChunk;
+        while (chunk) {
+          if (chunk.intro || chunk.outro) return true;
+          if (!chunk.edited && chunk.start === outputIndex) outputIndex = chunk.end;
+          else {
+            if (!this.original.startsWith(chunk.content, outputIndex)) return true;
+            outputIndex += chunk.content.length;
+          }
+          chunk = chunk.next;
+        }
+        return outputIndex !== this.original.length;
+      }
+      /**
+      * Whether the original range [start, end) has had any of its characters
+      * removed. `replace`/`replaceAll` search `original`, so a match can land on
+      * text that is no longer in the output - overwriting it would resurrect the
+      * removed characters, so such matches are skipped instead.
+      *
+      * @internal
+      */
+      _hasRemovedContent(start2, end2) {
+        let chunk = this.byStart.get(start2);
+        if (chunk && start2 === end2) {
+          const previous = this.byEnd.get(start2);
+          return !!previous && previous.content === "" && chunk.content === "";
+        }
+        if (!chunk) {
+          chunk = this.lastSearchedChunk;
+          const searchForward = start2 >= chunk.end;
+          while (chunk && !chunk.contains(start2)) chunk = searchForward ? this.byStart.get(chunk.end) : this.byEnd.get(chunk.start);
+          if (chunk) this.lastSearchedChunk = chunk;
+        }
+        while (chunk && chunk.start < end2) {
+          if (chunk.content === "" && (chunk.replacedFrom < start2 || this.byStart.get(chunk.replacedFrom).replacesUntil < chunk.end)) return true;
+          chunk = this.byStart.get(chunk.end);
+        }
+        return false;
+      }
+      /** @internal */
+      _replaceRegexp(searchValue, replacement) {
+        function getReplacement(match2, str) {
+          if (typeof replacement === "string") return expandReplacement(replacement, match2[0], match2.index, str, match2.slice(1), match2.groups);
+          else return match2.groups === void 0 ? replacement(match2[0], ...match2.slice(1), match2.index, str) : replacement(match2[0], ...match2.slice(1), match2.index, str, match2.groups);
+        }
+        const replaceMatch = (match2) => {
+          if (match2.index == null) return false;
+          if (this._hasRemovedContent(match2.index, match2.index + match2[0].length)) return false;
+          const replacement2 = getReplacement(match2, this.original);
+          if (replacement2 === match2[0]) return true;
+          if (match2[0].length === 0) this.appendRight(match2.index - this.offset, replacement2);
+          else this.overwrite(match2.index - this.offset, match2.index + match2[0].length - this.offset, replacement2);
+          return true;
+        };
+        if (searchValue.global) {
+          searchValue.lastIndex = 0;
+          for (const match2 of this.original.matchAll(searchValue)) replaceMatch(match2);
+        } else {
+          const match2 = this.original.match(searchValue);
+          if (match2 && !replaceMatch(match2)) {
+            const global2 = new RegExp(searchValue.source, `${searchValue.flags}g`);
+            for (const next2 of this.original.matchAll(global2)) if (replaceMatch(next2)) break;
+          }
+        }
+        return this;
+      }
+      /** @internal */
+      _replaceString(string2, replacement) {
+        const { original } = this;
+        let index = original.indexOf(string2);
+        while (index !== -1) {
+          if (this._hasRemovedContent(index, index + string2.length)) {
+            index = original.indexOf(string2, index + string2.length);
+            continue;
+          }
+          if (typeof replacement === "function") replacement = replacement(string2, index, original);
+          else replacement = expandReplacement(replacement, string2, index, original, [], void 0);
+          if (string2 !== replacement) {
+            if (string2.length === 0) this.appendRight(index - this.offset, replacement);
+            else this.overwrite(index - this.offset, index + string2.length - this.offset, replacement);
+          }
+          break;
+        }
+        return this;
+      }
+      /**
+      * String replacement with RegExp or string.
+      */
+      replace(searchValue, replacement) {
+        if (typeof searchValue === "string") return this._replaceString(searchValue, replacement);
+        return this._replaceRegexp(searchValue, replacement);
+      }
+      /** @internal */
+      _replaceAllString(string2, replacement) {
+        const { original } = this;
+        const stringLength = string2.length;
+        if (stringLength === 0) {
+          for (let index = 0; index <= original.length; index += 1) {
+            if (this._hasRemovedContent(index, index)) continue;
+            const _replacement = typeof replacement === "function" ? replacement("", index, original) : expandReplacement(replacement, "", index, original, [], void 0);
+            if (_replacement !== "") this.appendRight(index - this.offset, _replacement);
+          }
+          return this;
+        }
+        for (let index = original.indexOf(string2); index !== -1; index = original.indexOf(string2, index + stringLength)) {
+          if (this._hasRemovedContent(index, index + stringLength)) continue;
+          const previous = original.slice(index, index + stringLength);
+          const _replacement = typeof replacement === "function" ? replacement(previous, index, original) : expandReplacement(replacement, previous, index, original, [], void 0);
+          if (previous !== _replacement) this.overwrite(index - this.offset, index + stringLength - this.offset, _replacement);
+        }
+        return this;
+      }
+      /**
+      * Same as `s.replace`, but replace all matched strings instead of just one.
+      */
+      replaceAll(searchValue, replacement) {
+        if (typeof searchValue === "string") return this._replaceAllString(searchValue, replacement);
+        if (!searchValue.global) throw new MagicStringError("replaceAll() requires a global RegExp");
+        return this._replaceRegexp(searchValue, replacement);
       }
     };
   }
@@ -41080,7 +42713,7 @@ var require_generated = __commonJS({
     exports.isExportDeclaration = isExportDeclaration;
     exports.isExportDefaultDeclaration = isExportDefaultDeclaration2;
     exports.isExportDefaultSpecifier = isExportDefaultSpecifier;
-    exports.isExportNamedDeclaration = isExportNamedDeclaration2;
+    exports.isExportNamedDeclaration = isExportNamedDeclaration3;
     exports.isExportNamespaceSpecifier = isExportNamespaceSpecifier;
     exports.isExportSpecifier = isExportSpecifier;
     exports.isExpression = isExpression2;
@@ -41111,11 +42744,11 @@ var require_generated = __commonJS({
     exports.isImport = isImport;
     exports.isImportAttribute = isImportAttribute;
     exports.isImportDeclaration = isImportDeclaration3;
-    exports.isImportDefaultSpecifier = isImportDefaultSpecifier;
+    exports.isImportDefaultSpecifier = isImportDefaultSpecifier2;
     exports.isImportExpression = isImportExpression;
-    exports.isImportNamespaceSpecifier = isImportNamespaceSpecifier;
+    exports.isImportNamespaceSpecifier = isImportNamespaceSpecifier2;
     exports.isImportOrExportDeclaration = isImportOrExportDeclaration;
-    exports.isImportSpecifier = isImportSpecifier2;
+    exports.isImportSpecifier = isImportSpecifier3;
     exports.isIndexedAccessType = isIndexedAccessType;
     exports.isInferredPredicate = isInferredPredicate;
     exports.isInterfaceDeclaration = isInterfaceDeclaration;
@@ -41142,7 +42775,7 @@ var require_generated = __commonJS({
     exports.isLVal = isLVal;
     exports.isLabeledStatement = isLabeledStatement2;
     exports.isLiteral = isLiteral2;
-    exports.isLogicalExpression = isLogicalExpression2;
+    exports.isLogicalExpression = isLogicalExpression3;
     exports.isLoop = isLoop;
     exports.isMemberExpression = isMemberExpression5;
     exports.isMetaProperty = isMetaProperty;
@@ -41211,7 +42844,7 @@ var require_generated = __commonJS({
     exports.isSymbolTypeAnnotation = isSymbolTypeAnnotation;
     exports.isTSAnyKeyword = isTSAnyKeyword;
     exports.isTSArrayType = isTSArrayType;
-    exports.isTSAsExpression = isTSAsExpression3;
+    exports.isTSAsExpression = isTSAsExpression4;
     exports.isTSBaseType = isTSBaseType;
     exports.isTSBigIntKeyword = isTSBigIntKeyword;
     exports.isTSBooleanKeyword = isTSBooleanKeyword;
@@ -41257,7 +42890,7 @@ var require_generated = __commonJS({
     exports.isTSPropertySignature = isTSPropertySignature;
     exports.isTSQualifiedName = isTSQualifiedName;
     exports.isTSRestType = isTSRestType;
-    exports.isTSSatisfiesExpression = isTSSatisfiesExpression2;
+    exports.isTSSatisfiesExpression = isTSSatisfiesExpression3;
     exports.isTSStringKeyword = isTSStringKeyword;
     exports.isTSSymbolKeyword = isTSSymbolKeyword;
     exports.isTSTemplateLiteralType = isTSTemplateLiteralType;
@@ -41461,7 +43094,7 @@ var require_generated = __commonJS({
       if (node2.type !== "RegExpLiteral") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isLogicalExpression2(node2, opts) {
+    function isLogicalExpression3(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "LogicalExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
@@ -41611,7 +43244,7 @@ var require_generated = __commonJS({
       if (node2.type !== "ExportDefaultDeclaration") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isExportNamedDeclaration2(node2, opts) {
+    function isExportNamedDeclaration3(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "ExportNamedDeclaration") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
@@ -41631,17 +43264,17 @@ var require_generated = __commonJS({
       if (node2.type !== "ImportDeclaration") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isImportDefaultSpecifier(node2, opts) {
+    function isImportDefaultSpecifier2(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "ImportDefaultSpecifier") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isImportNamespaceSpecifier(node2, opts) {
+    function isImportNamespaceSpecifier2(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "ImportNamespaceSpecifier") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isImportSpecifier2(node2, opts) {
+    function isImportSpecifier3(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "ImportSpecifier") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
@@ -42491,12 +44124,12 @@ var require_generated = __commonJS({
       if (node2.type !== "TSInstantiationExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isTSAsExpression3(node2, opts) {
+    function isTSAsExpression4(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "TSAsExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isTSSatisfiesExpression2(node2, opts) {
+    function isTSSatisfiesExpression3(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "TSSatisfiesExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
@@ -55042,7 +56675,7 @@ var require_virtual_types_validator = __commonJS({
       isForXStatement,
       isIdentifier: isIdentifier7,
       isImportDeclaration: isImportDeclaration3,
-      isImportSpecifier: isImportSpecifier2,
+      isImportSpecifier: isImportSpecifier3,
       isJSXIdentifier: isJSXIdentifier3,
       isJSXMemberExpression: isJSXMemberExpression2,
       isMemberExpression: isMemberExpression5,
@@ -55145,7 +56778,7 @@ var require_virtual_types_validator = __commonJS({
         return node2.importKind === "type" || node2.importKind === "typeof";
       } else if (isExportDeclaration(node2)) {
         return node2.exportKind === "type";
-      } else if (isImportSpecifier2(node2)) {
+      } else if (isImportSpecifier3(node2)) {
         return node2.importKind === "type" || node2.importKind === "typeof";
       } else {
         return false;
@@ -55294,11 +56927,11 @@ var require_visitors = __commonJS({
       }
       visitor._verified = true;
     }
-    function validateVisitorMethods(path15, val) {
+    function validateVisitorMethods(path16, val) {
       const fns = [].concat(val);
       for (const fn2 of fns) {
         if (typeof fn2 !== "function") {
-          throw new TypeError(`Non-function found defined in ${path15} with type ${typeof fn2}`);
+          throw new TypeError(`Non-function found defined in ${path16} with type ${typeof fn2}`);
         }
       }
     }
@@ -55341,8 +56974,8 @@ var require_visitors = __commonJS({
         fns = fns.map(function(fn2) {
           let newFn = fn2;
           if (state) {
-            newFn = function(path15) {
-              fn2.call(state, path15, state);
+            newFn = function(path16) {
+              fn2.call(state, path16, state);
             };
           }
           if (wrapper) {
@@ -55375,8 +57008,8 @@ var require_visitors = __commonJS({
     function wrapCheck(nodeType, fn2) {
       const fnKey = `is${nodeType}`;
       const validator2 = virtualTypesValidators[fnKey];
-      const newFn = function(path15) {
-        if (validator2.call(path15)) {
+      const newFn = function(path16) {
+        if (validator2.call(path16)) {
           return fn2.apply(this, arguments);
         }
       };
@@ -55401,24 +57034,24 @@ var require_visitors = __commonJS({
       }
     }
     var _environmentVisitor = {
-      FunctionParent(path15) {
-        if (path15.isArrowFunctionExpression()) return;
-        path15.skip();
-        if (path15.isMethod()) {
-          if (!path15.requeueComputedKeyAndDecorators) {
-            _context.requeueComputedKeyAndDecorators.call(path15);
+      FunctionParent(path16) {
+        if (path16.isArrowFunctionExpression()) return;
+        path16.skip();
+        if (path16.isMethod()) {
+          if (!path16.requeueComputedKeyAndDecorators) {
+            _context.requeueComputedKeyAndDecorators.call(path16);
           } else {
-            path15.requeueComputedKeyAndDecorators();
+            path16.requeueComputedKeyAndDecorators();
           }
         }
       },
-      Property(path15) {
-        if (path15.isObjectProperty()) return;
-        path15.skip();
-        if (!path15.requeueComputedKeyAndDecorators) {
-          _context.requeueComputedKeyAndDecorators.call(path15);
+      Property(path16) {
+        if (path16.isObjectProperty()) return;
+        path16.skip();
+        if (!path16.requeueComputedKeyAndDecorators) {
+          _context.requeueComputedKeyAndDecorators.call(path16);
         } else {
-          path15.requeueComputedKeyAndDecorators();
+          path16.requeueComputedKeyAndDecorators();
         }
       }
     };
@@ -55452,18 +57085,18 @@ var require_renamer = __commonJS({
           node2.name = state.newName;
         }
       },
-      Scope(path15, state) {
-        if (!path15.scope.bindingIdentifierEquals(state.oldName, state.binding.identifier)) {
-          path15.skip();
-          if (path15.isMethod()) {
-            if (!path15.requeueComputedKeyAndDecorators) {
-              _context.requeueComputedKeyAndDecorators.call(path15);
+      Scope(path16, state) {
+        if (!path16.scope.bindingIdentifierEquals(state.oldName, state.binding.identifier)) {
+          path16.skip();
+          if (path16.isMethod()) {
+            if (!path16.requeueComputedKeyAndDecorators) {
+              _context.requeueComputedKeyAndDecorators.call(path16);
             } else {
-              path15.requeueComputedKeyAndDecorators();
+              path16.requeueComputedKeyAndDecorators();
             }
           }
-          if (path15.isSwitchStatement()) {
-            path15.context.maybeQueue(path15.get("discriminant"));
+          if (path16.isSwitchStatement()) {
+            path16.context.maybeQueue(path16.get("discriminant"));
           }
         }
       },
@@ -55480,9 +57113,9 @@ var require_renamer = __commonJS({
           if ((_node$extra = node2.extra) != null && _node$extra.shorthand) node2.extra.shorthand = false;
         }
       },
-      "AssignmentExpression|Declaration|VariableDeclarator"(path15, state) {
-        if (path15.isVariableDeclaration()) return;
-        const ids = path15.isAssignmentExpression() ? getAssignmentIdentifiers(path15.node) : path15.getOuterBindingIdentifiers();
+      "AssignmentExpression|Declaration|VariableDeclarator"(path16, state) {
+        if (path16.isVariableDeclaration()) return;
+        const ids = path16.isAssignmentExpression() ? getAssignmentIdentifiers(path16.node) : path16.getOuterBindingIdentifiers();
         for (const name in ids) {
           if (name === state.oldName) ids[name].name = state.newName;
         }
@@ -55512,11 +57145,11 @@ var require_renamer = __commonJS({
         }
         maybeExportDeclar.splitExportDeclaration();
       }
-      maybeConvertFromClassFunctionDeclaration(path15) {
-        return path15;
+      maybeConvertFromClassFunctionDeclaration(path16) {
+        return path16;
       }
-      maybeConvertFromClassFunctionExpression(path15) {
-        return path15;
+      maybeConvertFromClassFunctionExpression(path16) {
+        return path16;
       }
       rename() {
         const {
@@ -55526,9 +57159,9 @@ var require_renamer = __commonJS({
         } = this;
         const {
           scope,
-          path: path15
+          path: path16
         } = binding2;
-        const parentDeclar = path15.find((path16) => path16.isDeclaration() || path16.isFunctionExpression() || path16.isClassExpression());
+        const parentDeclar = path16.find((path17) => path17.isDeclaration() || path17.isFunctionExpression() || path17.isClassExpression());
         if (parentDeclar) {
           const bindingIds = parentDeclar.getOuterBindingIdentifiers();
           if (bindingIds[oldName] === binding2.identifier) {
@@ -55554,8 +57187,8 @@ var require_renamer = __commonJS({
           this.binding.identifier.name = newName;
         }
         if (parentDeclar) {
-          this.maybeConvertFromClassFunctionDeclaration(path15);
-          this.maybeConvertFromClassFunctionExpression(path15);
+          this.maybeConvertFromClassFunctionDeclaration(path16);
+          this.maybeConvertFromClassFunctionExpression(path16);
         }
       }
     };
@@ -55578,17 +57211,17 @@ var require_traverseForScope = __commonJS({
     var {
       VISITOR_KEYS: VISITOR_KEYS4
     } = _t;
-    function traverseForScope(path15, visitors6, state) {
+    function traverseForScope(path16, visitors6, state) {
       const exploded = (0, _visitors.explode)(visitors6);
       if (exploded.enter || exploded.exit) {
         throw new Error("Should not be used with enter/exit visitors.");
       }
-      _traverse6(path15.parentPath, path15.parent, path15.node, path15.container, path15.key, path15.listKey, path15.hub, path15);
+      _traverse6(path16.parentPath, path16.parent, path16.node, path16.container, path16.key, path16.listKey, path16.hub, path16);
       function _traverse6(parentPath, parent, node2, container, key2, listKey, hub, inPath) {
         if (!node2) {
           return;
         }
-        const path16 = inPath || _index.NodePath.get({
+        const path17 = inPath || _index.NodePath.get({
           hub,
           parentPath,
           parent,
@@ -55596,14 +57229,14 @@ var require_traverseForScope = __commonJS({
           listKey,
           key: key2
         });
-        _context._forceSetScope.call(path16);
+        _context._forceSetScope.call(path17);
         const visitor = exploded[node2.type];
         if (visitor != null && visitor.enter) {
           for (const visit of visitor.enter) {
-            visit.call(state, path16, state);
+            visit.call(state, path17, state);
           }
         }
-        if (path16.shouldSkip) {
+        if (path17.shouldSkip) {
           return;
         }
         const keys = VISITOR_KEYS4[node2.type];
@@ -55616,15 +57249,15 @@ var require_traverseForScope = __commonJS({
           if (Array.isArray(prop2)) {
             for (let i3 = 0; i3 < prop2.length; i3++) {
               const value = prop2[i3];
-              _traverse6(path16, node2, value, prop2, i3, key3);
+              _traverse6(path17, node2, value, prop2, i3, key3);
             }
           } else {
-            _traverse6(path16, node2, prop2, node2, key3, null);
+            _traverse6(path17, node2, prop2, node2, key3, null);
           }
         }
         if (visitor != null && visitor.exit) {
           for (const visit of visitor.exit) {
-            visit.call(state, path16, state);
+            visit.call(state, path17, state);
           }
         }
       }
@@ -55644,7 +57277,7 @@ var require_binding = __commonJS({
       constructor({
         identifier: identifier2,
         scope,
-        path: path15,
+        path: path16,
         kind
       }) {
         this.identifier = void 0;
@@ -55658,10 +57291,10 @@ var require_binding = __commonJS({
         this.references = 0;
         this.identifier = identifier2;
         this.scope = scope;
-        this.path = path15;
+        this.path = path16;
         this.kind = kind;
-        if ((kind === "var" || kind === "hoisted") && isInitInLoop(path15)) {
-          this.reassign(path15);
+        if ((kind === "var" || kind === "hoisted") && isInitInLoop(path16)) {
+          this.reassign(path16);
         }
         this.clearValue();
       }
@@ -55679,20 +57312,20 @@ var require_binding = __commonJS({
         this.hasValue = false;
         this.value = null;
       }
-      reassign(path15) {
+      reassign(path16) {
         this.constant = false;
-        if (this.constantViolations.includes(path15)) {
+        if (this.constantViolations.includes(path16)) {
           return;
         }
-        this.constantViolations.push(path15);
+        this.constantViolations.push(path16);
       }
-      reference(path15) {
-        if (this.referencePaths.includes(path15)) {
+      reference(path16) {
+        if (this.referencePaths.includes(path16)) {
           return;
         }
         this.referenced = true;
         this.references++;
-        this.referencePaths.push(path15);
+        this.referencePaths.push(path16);
       }
       dereference() {
         this.references--;
@@ -55700,12 +57333,12 @@ var require_binding = __commonJS({
       }
     };
     exports.default = Binding2;
-    function isInitInLoop(path15) {
-      const isFunctionDeclarationOrHasInit = !path15.isVariableDeclarator() || path15.node.init;
+    function isInitInLoop(path16) {
+      const isFunctionDeclarationOrHasInit = !path16.isVariableDeclarator() || path16.node.init;
       for (let {
         parentPath,
         key: key2
-      } = path15; parentPath; {
+      } = path16; parentPath; {
         parentPath,
         key: key2
       } = parentPath) {
@@ -55744,11 +57377,11 @@ var require_cache2 = __commonJS({
     function clearScope() {
       exports.scope = scope = /* @__PURE__ */ new WeakMap();
     }
-    function getCachedPaths(path15) {
+    function getCachedPaths(path16) {
       const {
         parent,
         parentPath
-      } = path15;
+      } = path16;
       return pathsCache.get(parent);
     }
     function getOrCreateCachedPaths(node2, parentPath) {
@@ -55868,7 +57501,7 @@ var require_scope = __commonJS({
       isClassDeclaration,
       isExportAllDeclaration,
       isExportDefaultDeclaration: isExportDefaultDeclaration2,
-      isExportNamedDeclaration: isExportNamedDeclaration2,
+      isExportNamedDeclaration: isExportNamedDeclaration3,
       isFunctionDeclaration: isFunctionDeclaration4,
       isIdentifier: isIdentifier7,
       isImportDeclaration: isImportDeclaration3,
@@ -55907,11 +57540,11 @@ var require_scope = __commonJS({
         default:
           if (isImportDeclaration3(node2) || isExportDeclaration(node2)) {
             var _node$specifiers;
-            if ((isExportAllDeclaration(node2) || isExportNamedDeclaration2(node2) || isImportDeclaration3(node2)) && node2.source) {
+            if ((isExportAllDeclaration(node2) || isExportNamedDeclaration3(node2) || isImportDeclaration3(node2)) && node2.source) {
               gatherNodeParts(node2.source, parts);
-            } else if ((isExportNamedDeclaration2(node2) || isImportDeclaration3(node2)) && (_node$specifiers = node2.specifiers) != null && _node$specifiers.length) {
+            } else if ((isExportNamedDeclaration3(node2) || isImportDeclaration3(node2)) && (_node$specifiers = node2.specifiers) != null && _node$specifiers.length) {
               for (const e2 of node2.specifiers) gatherNodeParts(e2, parts);
-            } else if ((isExportDefaultDeclaration2(node2) || isExportNamedDeclaration2(node2)) && node2.declaration) {
+            } else if ((isExportDefaultDeclaration2(node2) || isExportNamedDeclaration3(node2)) && node2.declaration) {
               gatherNodeParts(node2.declaration, parts);
             }
           } else if (isModuleSpecifier(node2)) {
@@ -56024,128 +57657,128 @@ var require_scope = __commonJS({
       scope.bindings = /* @__PURE__ */ Object.create(null);
       scope.globals = /* @__PURE__ */ Object.create(null);
     }
-    function isAnonymousFunctionExpression(path15) {
-      return path15.isFunctionExpression() && !path15.node.id || path15.isArrowFunctionExpression();
+    function isAnonymousFunctionExpression(path16) {
+      return path16.isFunctionExpression() && !path16.node.id || path16.isArrowFunctionExpression();
     }
     var NOT_LOCAL_BINDING = /* @__PURE__ */ Symbol.for("should not be considered a local binding");
     var collectorVisitor = {
-      ForStatement(path15) {
-        const declar = path15.get("init");
+      ForStatement(path16) {
+        const declar = path16.get("init");
         if (declar.isVar()) {
           const {
             scope
-          } = path15;
+          } = path16;
           const parentScope = scope.getFunctionParent() || scope.getProgramParent();
           parentScope.registerBinding("var", declar);
         }
       },
-      Declaration(path15) {
-        if (path15.isBlockScoped()) return;
-        if (path15.isImportDeclaration()) return;
-        if (path15.isExportDeclaration()) return;
-        const parent = path15.scope.getFunctionParent() || path15.scope.getProgramParent();
-        parent.registerDeclaration(path15);
+      Declaration(path16) {
+        if (path16.isBlockScoped()) return;
+        if (path16.isImportDeclaration()) return;
+        if (path16.isExportDeclaration()) return;
+        const parent = path16.scope.getFunctionParent() || path16.scope.getProgramParent();
+        parent.registerDeclaration(path16);
       },
-      ImportDeclaration(path15) {
-        const parent = path15.scope.getBlockParent();
-        parent.registerDeclaration(path15);
+      ImportDeclaration(path16) {
+        const parent = path16.scope.getBlockParent();
+        parent.registerDeclaration(path16);
       },
-      TSImportEqualsDeclaration(path15) {
-        const parent = path15.scope.getBlockParent();
-        parent.registerDeclaration(path15);
+      TSImportEqualsDeclaration(path16) {
+        const parent = path16.scope.getBlockParent();
+        parent.registerDeclaration(path16);
       },
-      ReferencedIdentifier(path15, state) {
-        if (t7.isTSQualifiedName(path15.parent) && path15.parent.right === path15.node) {
+      ReferencedIdentifier(path16, state) {
+        if (t7.isTSQualifiedName(path16.parent) && path16.parent.right === path16.node) {
           return;
         }
-        if (path15.parentPath.isTSImportEqualsDeclaration()) return;
-        state.references.push(path15);
+        if (path16.parentPath.isTSImportEqualsDeclaration()) return;
+        state.references.push(path16);
       },
-      ForXStatement(path15, state) {
-        const left = path15.get("left");
+      ForXStatement(path16, state) {
+        const left = path16.get("left");
         if (left.isPattern() || left.isIdentifier()) {
-          state.constantViolations.push(path15);
+          state.constantViolations.push(path16);
         } else if (left.isVar()) {
           const {
             scope
-          } = path15;
+          } = path16;
           const parentScope = scope.getFunctionParent() || scope.getProgramParent();
           parentScope.registerBinding("var", left);
         }
       },
       ExportDeclaration: {
-        exit(path15) {
+        exit(path16) {
           const {
             node: node2,
             scope
-          } = path15;
+          } = path16;
           if (isExportAllDeclaration(node2)) return;
           const declar = node2.declaration;
           if (isClassDeclaration(declar) || isFunctionDeclaration4(declar)) {
             const id3 = declar.id;
             if (!id3) return;
             const binding2 = scope.getBinding(id3.name);
-            binding2 == null || binding2.reference(path15);
+            binding2 == null || binding2.reference(path16);
           } else if (isVariableDeclaration4(declar)) {
             for (const decl of declar.declarations) {
               for (const name of Object.keys(getBindingIdentifiers(decl))) {
                 const binding2 = scope.getBinding(name);
-                binding2 == null || binding2.reference(path15);
+                binding2 == null || binding2.reference(path16);
               }
             }
           }
         }
       },
-      LabeledStatement(path15) {
-        path15.scope.getBlockParent().registerDeclaration(path15);
+      LabeledStatement(path16) {
+        path16.scope.getBlockParent().registerDeclaration(path16);
       },
-      AssignmentExpression(path15, state) {
-        state.assignments.push(path15);
+      AssignmentExpression(path16, state) {
+        state.assignments.push(path16);
       },
-      UpdateExpression(path15, state) {
-        state.constantViolations.push(path15);
+      UpdateExpression(path16, state) {
+        state.constantViolations.push(path16);
       },
-      UnaryExpression(path15, state) {
-        if (path15.node.operator === "delete") {
-          state.constantViolations.push(path15);
+      UnaryExpression(path16, state) {
+        if (path16.node.operator === "delete") {
+          state.constantViolations.push(path16);
         }
       },
-      BlockScoped(path15) {
-        let scope = path15.scope;
-        if (scope.path === path15) scope = scope.parent;
+      BlockScoped(path16) {
+        let scope = path16.scope;
+        if (scope.path === path16) scope = scope.parent;
         const parent = scope.getBlockParent();
-        parent.registerDeclaration(path15);
-        if (path15.isClassDeclaration() && path15.node.id) {
-          const id3 = path15.node.id;
+        parent.registerDeclaration(path16);
+        if (path16.isClassDeclaration() && path16.node.id) {
+          const id3 = path16.node.id;
           const name = id3.name;
-          path15.scope.bindings[name] = path15.scope.parent.getBinding(name);
+          path16.scope.bindings[name] = path16.scope.parent.getBinding(name);
         }
       },
-      CatchClause(path15) {
-        path15.scope.registerBinding("let", path15);
+      CatchClause(path16) {
+        path16.scope.registerBinding("let", path16);
       },
-      Function(path15) {
-        const params = path15.get("params");
+      Function(path16) {
+        const params = path16.get("params");
         for (const param of params) {
-          path15.scope.registerBinding("param", param);
+          path16.scope.registerBinding("param", param);
         }
-        if (path15.isFunctionExpression() && path15.node.id && !path15.node.id[NOT_LOCAL_BINDING]) {
-          path15.scope.registerBinding("local", path15.get("id"), path15);
-        }
-      },
-      ClassExpression(path15) {
-        if (path15.node.id && !path15.node.id[NOT_LOCAL_BINDING]) {
-          path15.scope.registerBinding("local", path15.get("id"), path15);
+        if (path16.isFunctionExpression() && path16.node.id && !path16.node.id[NOT_LOCAL_BINDING]) {
+          path16.scope.registerBinding("local", path16.get("id"), path16);
         }
       },
-      TSTypeAnnotation(path15) {
-        path15.skip();
+      ClassExpression(path16) {
+        if (path16.node.id && !path16.node.id[NOT_LOCAL_BINDING]) {
+          path16.scope.registerBinding("local", path16.get("id"), path16);
+        }
+      },
+      TSTypeAnnotation(path16) {
+        path16.skip();
       }
     };
     var scopeVisitor;
     var uid = 0;
     var Scope7 = class _Scope {
-      constructor(path15) {
+      constructor(path16) {
         this.uid = void 0;
         this.path = void 0;
         this.block = void 0;
@@ -56159,15 +57792,15 @@ var require_scope = __commonJS({
         this.crawling = void 0;
         const {
           node: node2
-        } = path15;
+        } = path16;
         const cached = _cache.scope.get(node2);
-        if ((cached == null ? void 0 : cached.path) === path15) {
+        if ((cached == null ? void 0 : cached.path) === path16) {
           return cached;
         }
         _cache.scope.set(node2, this);
         this.uid = uid++;
         this.block = node2;
-        this.path = path15;
+        this.path = path16;
         this.labels = /* @__PURE__ */ new Map();
         this.inited = false;
         Object.defineProperties(this, {
@@ -56187,14 +57820,14 @@ var require_scope = __commonJS({
       }
       get parent() {
         var _parent;
-        let parent, path15 = this.path;
+        let parent, path16 = this.path;
         do {
           var _path;
-          const shouldSkip = path15.key === "key" || path15.listKey === "decorators";
-          path15 = path15.parentPath;
-          if (shouldSkip && path15.isMethod()) path15 = path15.parentPath;
-          if ((_path = path15) != null && _path.isScope()) parent = path15;
-        } while (path15 && !parent);
+          const shouldSkip = path16.key === "key" || path16.listKey === "decorators";
+          path16 = path16.parentPath;
+          if (shouldSkip && path16.isMethod()) path16 = path16.parentPath;
+          if ((_path = path16) != null && _path.isScope()) parent = path16;
+        } while (path16 && !parent);
         return (_parent = parent) == null ? void 0 : _parent.scope;
       }
       get references() {
@@ -56307,62 +57940,62 @@ var require_scope = __commonJS({
       getLabel(name) {
         return this.labels.get(name);
       }
-      registerLabel(path15) {
-        this.labels.set(path15.node.label.name, path15);
+      registerLabel(path16) {
+        this.labels.set(path16.node.label.name, path16);
       }
-      registerDeclaration(path15) {
-        if (path15.isLabeledStatement()) {
-          this.registerLabel(path15);
-        } else if (path15.isFunctionDeclaration()) {
-          this.registerBinding("hoisted", path15.get("id"), path15);
-        } else if (path15.isVariableDeclaration()) {
-          const declarations = path15.get("declarations");
+      registerDeclaration(path16) {
+        if (path16.isLabeledStatement()) {
+          this.registerLabel(path16);
+        } else if (path16.isFunctionDeclaration()) {
+          this.registerBinding("hoisted", path16.get("id"), path16);
+        } else if (path16.isVariableDeclaration()) {
+          const declarations = path16.get("declarations");
           const {
             kind
-          } = path15.node;
+          } = path16.node;
           for (const declar of declarations) {
             this.registerBinding(kind === "using" || kind === "await using" ? "const" : kind, declar);
           }
-        } else if (path15.isClassDeclaration()) {
-          if (path15.node.declare) return;
-          this.registerBinding("let", path15);
-        } else if (path15.isImportDeclaration()) {
-          const isTypeDeclaration = path15.node.importKind === "type" || path15.node.importKind === "typeof";
-          const specifiers = path15.get("specifiers");
+        } else if (path16.isClassDeclaration()) {
+          if (path16.node.declare) return;
+          this.registerBinding("let", path16);
+        } else if (path16.isImportDeclaration()) {
+          const isTypeDeclaration = path16.node.importKind === "type" || path16.node.importKind === "typeof";
+          const specifiers = path16.get("specifiers");
           for (const specifier of specifiers) {
             const isTypeSpecifier = isTypeDeclaration || specifier.isImportSpecifier() && (specifier.node.importKind === "type" || specifier.node.importKind === "typeof");
             this.registerBinding(isTypeSpecifier ? "unknown" : "module", specifier);
           }
-        } else if (path15.isExportDeclaration()) {
-          const declar = path15.get("declaration");
+        } else if (path16.isExportDeclaration()) {
+          const declar = path16.get("declaration");
           if (declar.isClassDeclaration() || declar.isFunctionDeclaration() || declar.isVariableDeclaration()) {
             this.registerDeclaration(declar);
           }
         } else {
-          this.registerBinding("unknown", path15);
+          this.registerBinding("unknown", path16);
         }
       }
       buildUndefinedNode() {
         return buildUndefinedNode();
       }
-      registerConstantViolation(path15) {
-        const ids = path15.getAssignmentIdentifiers();
+      registerConstantViolation(path16) {
+        const ids = path16.getAssignmentIdentifiers();
         for (const name of Object.keys(ids)) {
           var _this$getBinding;
-          (_this$getBinding = this.getBinding(name)) == null || _this$getBinding.reassign(path15);
+          (_this$getBinding = this.getBinding(name)) == null || _this$getBinding.reassign(path16);
         }
       }
-      registerBinding(kind, path15, bindingPath = path15) {
+      registerBinding(kind, path16, bindingPath = path16) {
         if (!kind) throw new ReferenceError("no `kind`");
-        if (path15.isVariableDeclaration()) {
-          const declarators = path15.get("declarations");
+        if (path16.isVariableDeclaration()) {
+          const declarators = path16.get("declarations");
           for (const declar of declarators) {
             this.registerBinding(kind, declar);
           }
           return;
         }
         const parent = this.getProgramParent();
-        const ids = path15.getOuterBindingIdentifiers(true);
+        const ids = path16.getOuterBindingIdentifiers(true);
         for (const name of Object.keys(ids)) {
           parent.references[name] = true;
           for (const id3 of ids[name]) {
@@ -56504,7 +58137,7 @@ var require_scope = __commonJS({
         }
       }
       crawl() {
-        const path15 = this.path;
+        const path16 = this.path;
         resetScope(this);
         this.data = /* @__PURE__ */ Object.create(null);
         let scope = this;
@@ -56522,27 +58155,27 @@ var require_scope = __commonJS({
         };
         this.crawling = true;
         scopeVisitor || (scopeVisitor = _index.default.visitors.merge([{
-          Scope(path16) {
-            resetScope(path16.scope);
+          Scope(path17) {
+            resetScope(path17.scope);
           }
         }, collectorVisitor]));
-        if (path15.type !== "Program") {
-          const typeVisitors = scopeVisitor[path15.type];
+        if (path16.type !== "Program") {
+          const typeVisitors = scopeVisitor[path16.type];
           if (typeVisitors) {
             for (const visit of typeVisitors.enter) {
-              visit.call(state, path15, state);
+              visit.call(state, path16, state);
             }
           }
         }
-        path15.traverse(scopeVisitor, state);
+        path16.traverse(scopeVisitor, state);
         this.crawling = false;
-        for (const path16 of state.assignments) {
-          const ids = path16.getAssignmentIdentifiers();
+        for (const path17 of state.assignments) {
+          const ids = path17.getAssignmentIdentifiers();
           for (const name of Object.keys(ids)) {
-            if (path16.scope.getBinding(name)) continue;
+            if (path17.scope.getBinding(name)) continue;
             programParent.addGlobal(ids[name]);
           }
-          path16.scope.registerConstantViolation(path16);
+          path17.scope.registerConstantViolation(path17);
         }
         for (const ref2 of state.references) {
           const binding2 = ref2.scope.getBinding(ref2.node.name);
@@ -56552,19 +58185,19 @@ var require_scope = __commonJS({
             programParent.addGlobal(ref2.node);
           }
         }
-        for (const path16 of state.constantViolations) {
-          path16.scope.registerConstantViolation(path16);
+        for (const path17 of state.constantViolations) {
+          path17.scope.registerConstantViolation(path17);
         }
       }
       push(opts) {
-        let path15 = this.path;
-        if (path15.isPattern()) {
-          path15 = this.getPatternParent().path;
-        } else if (!path15.isBlockStatement() && !path15.isProgram()) {
-          path15 = this.getBlockParent().path;
+        let path16 = this.path;
+        if (path16.isPattern()) {
+          path16 = this.getPatternParent().path;
+        } else if (!path16.isBlockStatement() && !path16.isProgram()) {
+          path16 = this.getBlockParent().path;
         }
-        if (path15.isSwitchStatement()) {
-          path15 = (this.getFunctionParent() || this.getProgramParent()).path;
+        if (path16.isSwitchStatement()) {
+          path16 = (this.getFunctionParent() || this.getProgramParent()).path;
         }
         const {
           init: init2,
@@ -56572,29 +58205,29 @@ var require_scope = __commonJS({
           kind = "var",
           id: id3
         } = opts;
-        if (!init2 && !unique && (kind === "var" || kind === "let") && isAnonymousFunctionExpression(path15) && isCallExpression4(path15.parent, {
-          callee: path15.node
-        }) && path15.parent.arguments.length <= path15.node.params.length && isIdentifier7(id3)) {
-          path15.pushContainer("params", id3);
-          path15.scope.registerBinding("param", path15.get("params")[path15.node.params.length - 1]);
+        if (!init2 && !unique && (kind === "var" || kind === "let") && isAnonymousFunctionExpression(path16) && isCallExpression4(path16.parent, {
+          callee: path16.node
+        }) && path16.parent.arguments.length <= path16.node.params.length && isIdentifier7(id3)) {
+          path16.pushContainer("params", id3);
+          path16.scope.registerBinding("param", path16.get("params")[path16.node.params.length - 1]);
           return;
         }
-        if (path15.isLoop() || path15.isCatchClause() || path15.isFunction()) {
-          path15.ensureBlock();
-          path15 = path15.get("body");
+        if (path16.isLoop() || path16.isCatchClause() || path16.isFunction()) {
+          path16.ensureBlock();
+          path16 = path16.get("body");
         }
         const blockHoist = opts._blockHoist == null ? 2 : opts._blockHoist;
         const dataKey = `declaration:${kind}:${blockHoist}`;
-        let declarPath = !unique && path15.getData(dataKey);
+        let declarPath = !unique && path16.getData(dataKey);
         if (!declarPath) {
           const declar = variableDeclaration(kind, []);
           declar._blockHoist = blockHoist;
-          [declarPath] = path15.unshiftContainer("body", [declar]);
-          if (!unique) path15.setData(dataKey, declarPath);
+          [declarPath] = path16.unshiftContainer("body", [declar]);
+          if (!unique) path16.setData(dataKey, declarPath);
         }
         const declarator2 = variableDeclarator(id3, init2);
         const len = declarPath.node.declarations.push(declarator2);
-        path15.scope.registerBinding(kind, declarPath.get("declarations")[len - 1]);
+        path16.scope.registerBinding(kind, declarPath.get("declarations")[len - 1]);
       }
       getProgramParent() {
         let scope = this;
@@ -56739,15 +58372,15 @@ var require_scope = __commonJS({
           const binding2 = this.bindings[name];
           if (!binding2) continue;
           const {
-            path: path15
+            path: path16
           } = binding2;
-          if (!path15.isVariableDeclarator()) continue;
+          if (!path16.isVariableDeclarator()) continue;
           const {
             parent,
             parentPath
-          } = path15;
+          } = path16;
           if (parent.kind !== "var" || seen2.has(parent)) continue;
-          seen2.add(path15.parent);
+          seen2.add(path16.parent);
           let firstId;
           const init2 = [];
           for (const decl of parent.declarations) {
@@ -57394,16 +59027,16 @@ var require_resolve_uri_umd = __commonJS({
       }
       function parseFileUrl2(input) {
         const match2 = fileRegex2.exec(input);
-        const path15 = match2[2];
-        return makeUrl2("file:", "", match2[1] || "", "", isAbsolutePath2(path15) ? path15 : "/" + path15, match2[3] || "", match2[4] || "");
+        const path16 = match2[2];
+        return makeUrl2("file:", "", match2[1] || "", "", isAbsolutePath2(path16) ? path16 : "/" + path16, match2[3] || "", match2[4] || "");
       }
-      function makeUrl2(scheme, user, host, port, path15, query, hash2) {
+      function makeUrl2(scheme, user, host, port, path16, query, hash2) {
         return {
           scheme,
           user,
           host,
           port,
-          path: path15,
+          path: path16,
           query,
           hash: hash2,
           type: 7
@@ -57433,11 +59066,11 @@ var require_resolve_uri_umd = __commonJS({
         url.type = input ? input.startsWith("?") ? 3 : input.startsWith("#") ? 2 : 4 : 1;
         return url;
       }
-      function stripPathFilename2(path15) {
-        if (path15.endsWith("/.."))
-          return path15;
-        const index = path15.lastIndexOf("/");
-        return path15.slice(0, index + 1);
+      function stripPathFilename2(path16) {
+        if (path16.endsWith("/.."))
+          return path16;
+        const index = path16.lastIndexOf("/");
+        return path16.slice(0, index + 1);
       }
       function mergePaths2(url, base) {
         normalizePath2(base, base.type);
@@ -57475,14 +59108,14 @@ var require_resolve_uri_umd = __commonJS({
           pieces[pointer++] = piece;
           positive++;
         }
-        let path15 = "";
+        let path16 = "";
         for (let i3 = 1; i3 < pointer; i3++) {
-          path15 += "/" + pieces[i3];
+          path16 += "/" + pieces[i3];
         }
-        if (!path15 || addTrailingSlash && !path15.endsWith("/..")) {
-          path15 += "/";
+        if (!path16 || addTrailingSlash && !path16.endsWith("/..")) {
+          path16 += "/";
         }
-        url.path = path15;
+        url.path = path16;
       }
       function resolve2(input, base) {
         if (!input && !base)
@@ -57523,13 +59156,13 @@ var require_resolve_uri_umd = __commonJS({
           case 3:
             return queryHash;
           case 4: {
-            const path15 = url.path.slice(1);
-            if (!path15)
+            const path16 = url.path.slice(1);
+            if (!path16)
               return queryHash || ".";
-            if (isRelative2(base || input) && !isRelative2(path15)) {
-              return "./" + path15 + queryHash;
+            if (isRelative2(base || input) && !isRelative2(path16)) {
+              return "./" + path16 + queryHash;
             }
-            return path15 + queryHash;
+            return path16 + queryHash;
           }
           case 5:
             return url.path + queryHash;
@@ -57628,10 +59261,10 @@ var require_trace_mapping_umd = __commonJS({
       module2.exports = __toCommonJS(trace_mapping_exports);
       var import_sourcemap_codec7 = __toESM2(require_sourcemap_codec());
       var import_resolve_uri2 = __toESM2(require_resolve_uri());
-      function stripFilename2(path15) {
-        if (!path15) return "";
-        const index = path15.lastIndexOf("/");
-        return path15.slice(0, index + 1);
+      function stripFilename2(path16) {
+        if (!path16) return "";
+        const index = path16.lastIndexOf("/");
+        return path16.slice(0, index + 1);
       }
       function resolver2(mapUrl, sourceRoot) {
         const from = stripFilename2(mapUrl);
@@ -60692,8 +62325,8 @@ var require_modules = __commonJS({
       isClassDeclaration,
       isExportDefaultSpecifier,
       isExportNamespaceSpecifier,
-      isImportDefaultSpecifier,
-      isImportNamespaceSpecifier,
+      isImportDefaultSpecifier: isImportDefaultSpecifier2,
+      isImportNamespaceSpecifier: isImportNamespaceSpecifier2,
       isStatement
     } = _t;
     function ImportSpecifier(node2) {
@@ -60885,7 +62518,7 @@ Please specify the "importAttributesKeyword" generator option, whose value can b
       const hasSpecifiers = !!specifiers.length;
       while (hasSpecifiers) {
         const first = specifiers[0];
-        if (isImportDefaultSpecifier(first) || isImportNamespaceSpecifier(first)) {
+        if (isImportDefaultSpecifier2(first) || isImportNamespaceSpecifier2(first)) {
           this.print(specifiers.shift());
           if (specifiers.length) {
             this.tokenChar(44);
@@ -62103,10 +63736,10 @@ var require_classes = __commonJS({
     var _methods = require_methods();
     var {
       isExportDefaultDeclaration: isExportDefaultDeclaration2,
-      isExportNamedDeclaration: isExportNamedDeclaration2
+      isExportNamedDeclaration: isExportNamedDeclaration3
     } = _t;
     function ClassDeclaration2(node2, parent) {
-      const inExport = isExportDefaultDeclaration2(parent) || isExportNamedDeclaration2(parent);
+      const inExport = isExportDefaultDeclaration2(parent) || isExportNamedDeclaration3(parent);
       if (!inExport || !_expressions._shouldPrintDecoratorsBeforeExport.call(this, parent)) {
         this.printJoin(node2.decorators);
       }
@@ -63962,56 +65595,56 @@ var require_ancestry = __commonJS({
       VISITOR_KEYS: VISITOR_KEYS4
     } = _t;
     function findParent(callback) {
-      let path15 = this;
-      while (path15 = path15.parentPath) {
-        if (callback(path15)) return path15;
+      let path16 = this;
+      while (path16 = path16.parentPath) {
+        if (callback(path16)) return path16;
       }
       return null;
     }
     function find(callback) {
-      let path15 = this;
+      let path16 = this;
       do {
-        if (callback(path15)) return path15;
-      } while (path15 = path15.parentPath);
+        if (callback(path16)) return path16;
+      } while (path16 = path16.parentPath);
       return null;
     }
     function getFunctionParent() {
       return this.findParent((p) => p.isFunction());
     }
     function getStatementParent() {
-      let path15 = this;
+      let path16 = this;
       do {
-        if (!path15.parentPath || Array.isArray(path15.container) && path15.isStatement()) {
+        if (!path16.parentPath || Array.isArray(path16.container) && path16.isStatement()) {
           break;
         } else {
-          path15 = path15.parentPath;
+          path16 = path16.parentPath;
         }
-      } while (path15);
-      if (path15 && (path15.isProgram() || path15.isFile())) {
+      } while (path16);
+      if (path16 && (path16.isProgram() || path16.isFile())) {
         throw new Error("File/Program node, we can't possibly find a statement parent to this");
       }
-      return path15;
+      return path16;
     }
     function getEarliestCommonAncestorFrom(paths) {
       return this.getDeepestCommonAncestorFrom(paths, function(deepest, i3, ancestries) {
         let earliest;
         const keys = VISITOR_KEYS4[deepest.type];
         for (const ancestry of ancestries) {
-          const path15 = ancestry[i3 + 1];
+          const path16 = ancestry[i3 + 1];
           if (!earliest) {
-            earliest = path15;
+            earliest = path16;
             continue;
           }
-          if (path15.listKey && earliest.listKey === path15.listKey) {
-            if (path15.key < earliest.key) {
-              earliest = path15;
+          if (path16.listKey && earliest.listKey === path16.listKey) {
+            if (path16.key < earliest.key) {
+              earliest = path16;
               continue;
             }
           }
           const earliestKeyIndex = keys.indexOf(earliest.parentKey);
-          const currentKeyIndex = keys.indexOf(path15.parentKey);
+          const currentKeyIndex = keys.indexOf(path16.parentKey);
           if (earliestKeyIndex > currentKeyIndex) {
-            earliest = path15;
+            earliest = path16;
           }
         }
         return earliest;
@@ -64026,11 +65659,11 @@ var require_ancestry = __commonJS({
       }
       let minDepth = Infinity;
       let lastCommonIndex, lastCommon;
-      const ancestries = paths.map((path15) => {
+      const ancestries = paths.map((path16) => {
         const ancestry = [];
         do {
-          ancestry.unshift(path15);
-        } while ((path15 = path15.parentPath) && path15 !== this);
+          ancestry.unshift(path16);
+        } while ((path16 = path16.parentPath) && path16 !== this);
         if (ancestry.length < minDepth) {
           minDepth = ancestry.length;
         }
@@ -64058,11 +65691,11 @@ var require_ancestry = __commonJS({
       }
     }
     function getAncestry() {
-      let path15 = this;
+      let path16 = this;
       const paths = [];
       do {
-        paths.push(path15);
-      } while (path15 = path15.parentPath);
+        paths.push(path16);
+      } while (path16 = path16.parentPath);
       return paths;
     }
     function isAncestor(maybeDescendant) {
@@ -64072,10 +65705,10 @@ var require_ancestry = __commonJS({
       return !!this.findParent((parent) => parent === maybeAncestor);
     }
     function inType(...candidateTypes) {
-      let path15 = this;
-      while (path15) {
-        if (candidateTypes.includes(path15.node.type)) return true;
-        path15 = path15.parentPath;
+      let path16 = this;
+      while (path16) {
+        if (candidateTypes.includes(path16.node.type)) return true;
+        path16 = path16.parentPath;
       }
       return false;
     }
@@ -64146,14 +65779,14 @@ var require_inferer_reference = __commonJS({
       } else if (node2.name === "arguments") {
       }
     }
-    function getTypeAnnotationBindingConstantViolations(binding2, path15, name) {
+    function getTypeAnnotationBindingConstantViolations(binding2, path16, name) {
       const types2 = [];
       const functionConstantViolations = [];
-      let constantViolations = getConstantViolationsBefore(binding2, path15, functionConstantViolations);
-      const testType = getConditionalAnnotation(binding2, path15, name);
+      let constantViolations = getConstantViolationsBefore(binding2, path16, functionConstantViolations);
+      const testType = getConditionalAnnotation(binding2, path16, name);
       if (testType) {
         const testConstantViolations = getConstantViolationsBefore(binding2, testType.ifStatement);
-        constantViolations = constantViolations.filter((path16) => !testConstantViolations.includes(path16));
+        constantViolations = constantViolations.filter((path17) => !testConstantViolations.includes(path17));
         types2.push(testType.typeAnnotation);
       }
       if (constantViolations.length) {
@@ -64167,20 +65800,20 @@ var require_inferer_reference = __commonJS({
       }
       return (0, _util.createUnionType)(types2);
     }
-    function getConstantViolationsBefore(binding2, path15, functions) {
+    function getConstantViolationsBefore(binding2, path16, functions) {
       const violations = binding2.constantViolations.slice();
       violations.unshift(binding2.path);
       return violations.filter((violation) => {
         violation = violation.resolve();
-        const status = violation._guessExecutionStatusRelativeTo(path15);
+        const status = violation._guessExecutionStatusRelativeTo(path16);
         if (functions && status === "unknown") functions.push(violation);
         return status === "before";
       });
     }
-    function inferAnnotationFromBinaryExpression(name, path15) {
-      const operator = path15.node.operator;
-      const right = path15.get("right").resolve();
-      const left = path15.get("left").resolve();
+    function inferAnnotationFromBinaryExpression(name, path16) {
+      const operator = path16.node.operator;
+      const right = path16.get("right").resolve();
+      const left = path16.get("left").resolve();
       let target;
       if (left.isIdentifier({
         name
@@ -64224,11 +65857,11 @@ var require_inferer_reference = __commonJS({
       if (typeof typeValue !== "string") return;
       return createTypeAnnotationBasedOnTypeof(typeValue);
     }
-    function getParentConditionalPath(binding2, path15, name) {
+    function getParentConditionalPath(binding2, path16, name) {
       let parentPath;
-      while (parentPath = path15.parentPath) {
+      while (parentPath = path16.parentPath) {
         if (parentPath.isIfStatement() || parentPath.isConditionalExpression()) {
-          if (path15.key === "test") {
+          if (path16.key === "test") {
             return;
           }
           return parentPath;
@@ -64236,24 +65869,24 @@ var require_inferer_reference = __commonJS({
         if (parentPath.isFunction()) {
           if (name == null || parentPath.parentPath.scope.getBinding(name) !== binding2) return;
         }
-        path15 = parentPath;
+        path16 = parentPath;
       }
     }
-    function getConditionalAnnotation(binding2, path15, name) {
-      const ifStatement = getParentConditionalPath(binding2, path15, name);
+    function getConditionalAnnotation(binding2, path16, name) {
+      const ifStatement = getParentConditionalPath(binding2, path16, name);
       if (!ifStatement) return;
       const test = ifStatement.get("test");
       const paths = [test];
       const types2 = [];
       for (let i3 = 0; i3 < paths.length; i3++) {
-        const path16 = paths[i3];
-        if (path16.isLogicalExpression()) {
-          if (path16.node.operator === "&&") {
-            paths.push(path16.get("left"));
-            paths.push(path16.get("right"));
+        const path17 = paths[i3];
+        if (path17.isLogicalExpression()) {
+          if (path17.node.operator === "&&") {
+            paths.push(path17.get("left"));
+            paths.push(path17.get("right"));
           }
-        } else if (path16.isBinaryExpression()) {
-          const type = inferAnnotationFromBinaryExpression(name, path16);
+        } else if (path17.isBinaryExpression()) {
+          const type = inferAnnotationFromBinaryExpression(name, path17);
           if (type) types2.push(type);
         }
       }
@@ -65072,12 +66705,12 @@ var require_hoister = __commonJS({
       variableDeclarator
     } = _t2;
     var referenceVisitor = {
-      ReferencedIdentifier(path15, state) {
-        if (path15.isJSXIdentifier() && react.isCompatTag(path15.node.name) && !path15.parentPath.isJSXMemberExpression()) {
+      ReferencedIdentifier(path16, state) {
+        if (path16.isJSXIdentifier() && react.isCompatTag(path16.node.name) && !path16.parentPath.isJSXMemberExpression()) {
           return;
         }
-        if (path15.node.name === "this") {
-          let scope = path15.scope;
+        if (path16.node.name === "this") {
+          let scope = path16.scope;
           do {
             if (scope.path.isFunction() && !scope.path.isArrowFunctionExpression()) {
               break;
@@ -65085,21 +66718,21 @@ var require_hoister = __commonJS({
           } while (scope = scope.parent);
           if (scope) state.breakOnScopePaths.push(scope.path);
         }
-        const binding2 = path15.scope.getBinding(path15.node.name);
+        const binding2 = path16.scope.getBinding(path16.node.name);
         if (!binding2) return;
         for (const violation of binding2.constantViolations) {
           if (violation.scope !== binding2.path.scope) {
             state.mutableBinding = true;
-            path15.stop();
+            path16.stop();
             return;
           }
         }
-        if (binding2 !== state.scope.getBinding(path15.node.name)) return;
-        state.bindings[path15.node.name] = binding2;
+        if (binding2 !== state.scope.getBinding(path16.node.name)) return;
+        state.bindings[path16.node.name] = binding2;
       }
     };
     var PathHoister = class {
-      constructor(path15, scope) {
+      constructor(path16, scope) {
         this.breakOnScopePaths = void 0;
         this.bindings = void 0;
         this.mutableBinding = void 0;
@@ -65112,7 +66745,7 @@ var require_hoister = __commonJS({
         this.mutableBinding = false;
         this.scopes = [];
         this.scope = scope;
-        this.path = path15;
+        this.path = path16;
         this.attachAfter = false;
       }
       isCompatibleScope(scope) {
@@ -65138,11 +66771,11 @@ var require_hoister = __commonJS({
         } while (scope = scope.parent);
       }
       getAttachmentPath() {
-        let path15 = this._getAttachmentPath();
-        if (!path15) return;
-        let targetScope = path15.scope;
-        if (targetScope.path === path15) {
-          targetScope = path15.scope.parent;
+        let path16 = this._getAttachmentPath();
+        if (!path16) return;
+        let targetScope = path16.scope;
+        if (targetScope.path === path16) {
+          targetScope = path16.scope.parent;
         }
         if (targetScope.path.isProgram() || targetScope.path.isFunction()) {
           for (const name of Object.keys(this.bindings)) {
@@ -65152,18 +66785,18 @@ var require_hoister = __commonJS({
               continue;
             }
             const bindingParentPath = this.getAttachmentParentForPath(binding2.path);
-            if (bindingParentPath.key >= path15.key) {
+            if (bindingParentPath.key >= path16.key) {
               this.attachAfter = true;
-              path15 = binding2.path;
+              path16 = binding2.path;
               for (const violationPath of binding2.constantViolations) {
-                if (this.getAttachmentParentForPath(violationPath).key > path15.key) {
-                  path15 = violationPath;
+                if (this.getAttachmentParentForPath(violationPath).key > path16.key) {
+                  path16 = violationPath;
                 }
               }
             }
           }
         }
-        return path15;
+        return path16;
       }
       _getAttachmentPath() {
         const scopes = this.scopes;
@@ -65188,13 +66821,13 @@ var require_hoister = __commonJS({
         const scope = this.scopes.pop();
         if (scope) return this.getAttachmentParentForPath(scope.path);
       }
-      getAttachmentParentForPath(path15) {
+      getAttachmentParentForPath(path16) {
         do {
-          if (!path15.parentPath || Array.isArray(path15.container) && path15.isStatement()) {
-            return path15;
+          if (!path16.parentPath || Array.isArray(path16.container) && path16.isStatement()) {
+            return path16;
           }
-        } while (path15 = path15.parentPath);
-        return path15;
+        } while (path16 = path16.parentPath);
+        return path16;
       }
       hasOwnParamBindings(scope) {
         for (const name of Object.keys(this.bindings)) {
@@ -65259,7 +66892,7 @@ var require_modification = __commonJS({
       expressionStatement: expressionStatement2,
       isAssignmentExpression: isAssignmentExpression2,
       isCallExpression: isCallExpression4,
-      isExportNamedDeclaration: isExportNamedDeclaration2,
+      isExportNamedDeclaration: isExportNamedDeclaration3,
       isExpression: isExpression2,
       isIdentifier: isIdentifier7,
       isSequenceExpression,
@@ -65273,7 +66906,7 @@ var require_modification = __commonJS({
         parentPath,
         parent
       } = this;
-      if (parentPath.isExpressionStatement() || parentPath.isLabeledStatement() || isExportNamedDeclaration2(parent) || parentPath.isExportDefaultDeclaration() && this.isDeclaration()) {
+      if (parentPath.isExpressionStatement() || parentPath.isLabeledStatement() || isExportNamedDeclaration3(parent) || parentPath.isExportDefaultDeclaration() && this.isDeclaration()) {
         return parentPath.insertBefore(nodes);
       } else if (this.isNodeType("Expression") && !this.isJSXElement() || parentPath.isForStatement() && this.key === "init") {
         if (this.node) nodes.push(this.node);
@@ -65296,18 +66929,18 @@ var require_modification = __commonJS({
       for (let i3 = 0; i3 < nodes.length; i3++) {
         var _this$context;
         const to = from + i3;
-        const path15 = this.getSibling(to);
-        paths.push(path15);
+        const path16 = this.getSibling(to);
+        paths.push(path16);
         if ((_this$context = this.context) != null && _this$context.queue) {
-          _context.pushContext.call(path15, this.context);
+          _context.pushContext.call(path16, this.context);
         }
       }
       const contexts = _context._getQueueContexts.call(this);
-      for (const path15 of paths) {
-        _context.setScope.call(path15);
-        path15.debug("Inserted.");
+      for (const path16 of paths) {
+        _context.setScope.call(path16);
+        path16.debug("Inserted.");
         for (const context of contexts) {
-          context.maybeQueue(path15, true);
+          context.maybeQueue(path16, true);
         }
       }
       return paths;
@@ -65319,8 +66952,8 @@ var require_modification = __commonJS({
       return _containerInsert.call(this, this.key + 1, nodes);
     }
     var last = (arr) => arr[arr.length - 1];
-    function isHiddenInSequenceExpression(path15) {
-      return isSequenceExpression(path15.parent) && (last(path15.parent.expressions) !== path15.node || isHiddenInSequenceExpression(path15.parentPath));
+    function isHiddenInSequenceExpression(path16) {
+      return isSequenceExpression(path16.parent) && (last(path16.parent.expressions) !== path16.node || isHiddenInSequenceExpression(path16.parentPath));
     }
     function isAlmostConstantAssignment(node2, scope) {
       if (!isAssignmentExpression2(node2) || !isIdentifier7(node2.left)) {
@@ -65339,7 +66972,7 @@ var require_modification = __commonJS({
         parentPath,
         parent
       } = this;
-      if (parentPath.isExpressionStatement() || parentPath.isLabeledStatement() || isExportNamedDeclaration2(parent) || parentPath.isExportDefaultDeclaration() && this.isDeclaration()) {
+      if (parentPath.isExpressionStatement() || parentPath.isLabeledStatement() || isExportNamedDeclaration3(parent) || parentPath.isExportDefaultDeclaration() && this.isDeclaration()) {
         return parentPath.insertAfter(nodes.map((node2) => {
           return isExpression2(node2) ? expressionStatement2(node2) : node2;
         }));
@@ -65394,9 +67027,9 @@ var require_modification = __commonJS({
       if (!this.parent) return;
       const paths = (0, _cache.getCachedPaths)(this);
       if (!paths) return;
-      for (const [, path15] of paths) {
-        if (typeof path15.key === "number" && path15.container === this.container && path15.key >= fromIndex) {
-          path15.key += incrementBy;
+      for (const [, path16] of paths) {
+        if (typeof path16.key === "number" && path16.container === this.container && path16.key >= fromIndex) {
+          path16.key += incrementBy;
         }
       }
     }
@@ -65430,27 +67063,27 @@ var require_modification = __commonJS({
       _removal._assertUnremoved.call(this);
       const verifiedNodes = _verifyNodeList.call(this, nodes);
       const container = this.node[listKey];
-      const path15 = _index.default.get({
+      const path16 = _index.default.get({
         parentPath: this,
         parent: this.node,
         container,
         listKey,
         key: 0
       }).setContext(this.context);
-      return _containerInsertBefore.call(path15, verifiedNodes);
+      return _containerInsertBefore.call(path16, verifiedNodes);
     }
     function pushContainer(listKey, nodes) {
       _removal._assertUnremoved.call(this);
       const verifiedNodes = _verifyNodeList.call(this, nodes);
       const container = this.node[listKey];
-      const path15 = _index.default.get({
+      const path16 = _index.default.get({
         parentPath: this,
         parent: this.node,
         container,
         listKey,
         key: container.length
       }).setContext(this.context);
-      return path15.replaceWithMultiple(verifiedNodes);
+      return path16.replaceWithMultiple(verifiedNodes);
     }
     exports.hoist = function hoist(scope = this.scope) {
       const hoister = new _hoister.default(this, scope);
@@ -65628,9 +67261,9 @@ var require_replacement = __commonJS({
         id: id3
       }));
       const completionRecords = callee.getCompletionRecords();
-      for (const path15 of completionRecords) {
-        if (!path15.isExpressionStatement()) continue;
-        const loop = path15.findParent((path16) => path16.isLoop());
+      for (const path16 of completionRecords) {
+        if (!path16.isExpressionStatement()) continue;
+        const loop = path16.findParent((path17) => path17.isLoop());
         if (loop) {
           let uid = loop.getData("expressionReplacementReturnUid");
           if (!uid) {
@@ -65640,9 +67273,9 @@ var require_replacement = __commonJS({
           } else {
             uid = identifier2(uid.name);
           }
-          path15.get("expression").replaceWith(assignmentExpression("=", cloneNode(uid), path15.node.expression));
+          path16.get("expression").replaceWith(assignmentExpression("=", cloneNode(uid), path16.node.expression));
         } else {
-          path15.replaceWith(returnStatement(path15.node.expression));
+          path16.replaceWith(returnStatement(path16.node.expression));
         }
       }
       callee.arrowFunctionToExpression();
@@ -65751,16 +67384,16 @@ var require_evaluation = __commonJS({
       const res = this.evaluate();
       if (res.confident) return !!res.value;
     }
-    function deopt(path15, state) {
+    function deopt(path16, state) {
       if (!state.confident) return;
-      state.deoptPath = path15;
+      state.deoptPath = path16;
       state.confident = false;
     }
     var Globals = /* @__PURE__ */ new Map([["undefined", void 0], ["Infinity", Infinity], ["NaN", NaN]]);
-    function evaluateCached(path15, state) {
+    function evaluateCached(path16, state) {
       const {
         node: node2
-      } = path15;
+      } = path16;
       const {
         seen: seen2
       } = state;
@@ -65769,7 +67402,7 @@ var require_evaluation = __commonJS({
         if (existing.resolved) {
           return existing.value;
         } else {
-          deopt(path15, state);
+          deopt(path16, state);
           return;
         }
       } else {
@@ -65777,7 +67410,7 @@ var require_evaluation = __commonJS({
           resolved: false
         };
         seen2.set(node2, item);
-        const val = _evaluate(path15, state);
+        const val = _evaluate(path16, state);
         if (state.confident) {
           item.resolved = true;
           item.value = val;
@@ -65785,55 +67418,55 @@ var require_evaluation = __commonJS({
         return val;
       }
     }
-    function _evaluate(path15, state) {
+    function _evaluate(path16, state) {
       if (!state.confident) return;
-      if (path15.isSequenceExpression()) {
-        const exprs = path15.get("expressions");
+      if (path16.isSequenceExpression()) {
+        const exprs = path16.get("expressions");
         return evaluateCached(exprs[exprs.length - 1], state);
       }
-      if (path15.isStringLiteral() || path15.isNumericLiteral() || path15.isBooleanLiteral()) {
-        return path15.node.value;
+      if (path16.isStringLiteral() || path16.isNumericLiteral() || path16.isBooleanLiteral()) {
+        return path16.node.value;
       }
-      if (path15.isNullLiteral()) {
+      if (path16.isNullLiteral()) {
         return null;
       }
-      if (path15.isTemplateLiteral()) {
-        return evaluateQuasis(path15, path15.node.quasis, state);
+      if (path16.isTemplateLiteral()) {
+        return evaluateQuasis(path16, path16.node.quasis, state);
       }
-      if (path15.isTaggedTemplateExpression() && path15.get("tag").isMemberExpression()) {
-        const object4 = path15.get("tag.object");
+      if (path16.isTaggedTemplateExpression() && path16.get("tag").isMemberExpression()) {
+        const object4 = path16.get("tag.object");
         const {
           node: {
             name
           }
         } = object4;
-        const property2 = path15.get("tag.property");
-        if (object4.isIdentifier() && name === "String" && !path15.scope.getBinding(name) && property2.isIdentifier() && property2.node.name === "raw") {
-          return evaluateQuasis(path15, path15.node.quasi.quasis, state, true);
+        const property2 = path16.get("tag.property");
+        if (object4.isIdentifier() && name === "String" && !path16.scope.getBinding(name) && property2.isIdentifier() && property2.node.name === "raw") {
+          return evaluateQuasis(path16, path16.node.quasi.quasis, state, true);
         }
       }
-      if (path15.isConditionalExpression()) {
-        const testResult = evaluateCached(path15.get("test"), state);
+      if (path16.isConditionalExpression()) {
+        const testResult = evaluateCached(path16.get("test"), state);
         if (!state.confident) return;
         if (testResult) {
-          return evaluateCached(path15.get("consequent"), state);
+          return evaluateCached(path16.get("consequent"), state);
         } else {
-          return evaluateCached(path15.get("alternate"), state);
+          return evaluateCached(path16.get("alternate"), state);
         }
       }
-      if (path15.isExpressionWrapper()) {
-        return evaluateCached(path15.get("expression"), state);
+      if (path16.isExpressionWrapper()) {
+        return evaluateCached(path16.get("expression"), state);
       }
-      if (path15.isMemberExpression() && !path15.parentPath.isCallExpression({
-        callee: path15.node
+      if (path16.isMemberExpression() && !path16.parentPath.isCallExpression({
+        callee: path16.node
       })) {
-        const property2 = path15.get("property");
-        const object4 = path15.get("object");
+        const property2 = path16.get("property");
+        const object4 = path16.get("object");
         if (object4.isLiteral()) {
           const value = object4.node.value;
           const type = typeof value;
           let key2 = null;
-          if (path15.node.computed) {
+          if (path16.node.computed) {
             key2 = evaluateCached(property2, state);
             if (!state.confident) return;
           } else if (property2.isIdentifier()) {
@@ -65844,10 +67477,10 @@ var require_evaluation = __commonJS({
           }
         }
       }
-      if (path15.isReferencedIdentifier()) {
-        const binding2 = path15.scope.getBinding(path15.node.name);
+      if (path16.isReferencedIdentifier()) {
+        const binding2 = path16.scope.getBinding(path16.node.name);
         if (binding2) {
-          if (binding2.constantViolations.length > 0 || path15.node.start < binding2.path.node.end) {
+          if (binding2.constantViolations.length > 0 || path16.node.start < binding2.path.node.end) {
             deopt(binding2.path, state);
             return;
           }
@@ -65856,7 +67489,7 @@ var require_evaluation = __commonJS({
             let hasUnsafeBlock = !bindingPathScope.path.parentPath.isBlockStatement();
             for (let scope = bindingPathScope.parent; scope; scope = scope.parent) {
               var _scope$path$parentPat;
-              if (scope === path15.scope) {
+              if (scope === path16.scope) {
                 if (hasUnsafeBlock) {
                   deopt(binding2.path, state);
                   return;
@@ -65872,7 +67505,7 @@ var require_evaluation = __commonJS({
             return binding2.value;
           }
         }
-        const name = path15.node.name;
+        const name = path16.node.name;
         if (Globals.has(name)) {
           if (!binding2) {
             return Globals.get(name);
@@ -65881,7 +67514,7 @@ var require_evaluation = __commonJS({
           return;
         }
         if (!binding2) {
-          deopt(path15, state);
+          deopt(path16, state);
           return;
         }
         const bindingPath = binding2.path;
@@ -65902,19 +67535,19 @@ var require_evaluation = __commonJS({
         }
         return value;
       }
-      if (path15.isUnaryExpression({
+      if (path16.isUnaryExpression({
         prefix: true
       })) {
-        if (path15.node.operator === "void") {
+        if (path16.node.operator === "void") {
           return void 0;
         }
-        const argument = path15.get("argument");
-        if (path15.node.operator === "typeof" && (argument.isFunction() || argument.isClass())) {
+        const argument = path16.get("argument");
+        if (path16.node.operator === "typeof" && (argument.isFunction() || argument.isClass())) {
           return "function";
         }
         const arg = evaluateCached(argument, state);
         if (!state.confident) return;
-        switch (path15.node.operator) {
+        switch (path16.node.operator) {
           case "!":
             return !arg;
           case "+":
@@ -65927,9 +67560,9 @@ var require_evaluation = __commonJS({
             return typeof arg;
         }
       }
-      if (path15.isArrayExpression()) {
+      if (path16.isArrayExpression()) {
         const arr = [];
-        const elems = path15.get("elements");
+        const elems = path16.get("elements");
         for (const elem of elems) {
           const elemValue = elem.evaluate();
           if (elemValue.confident) {
@@ -65941,9 +67574,9 @@ var require_evaluation = __commonJS({
         }
         return arr;
       }
-      if (path15.isObjectExpression()) {
+      if (path16.isObjectExpression()) {
         const obj = {};
-        const props = path15.get("properties");
+        const props = path16.get("properties");
         for (const prop2 of props) {
           if (prop2.isObjectMethod() || prop2.isSpreadElement()) {
             deopt(prop2, state);
@@ -65974,14 +67607,14 @@ var require_evaluation = __commonJS({
         }
         return obj;
       }
-      if (path15.isLogicalExpression()) {
+      if (path16.isLogicalExpression()) {
         const wasConfident = state.confident;
-        const left = evaluateCached(path15.get("left"), state);
+        const left = evaluateCached(path16.get("left"), state);
         const leftConfident = state.confident;
         state.confident = wasConfident;
-        const right = evaluateCached(path15.get("right"), state);
+        const right = evaluateCached(path16.get("right"), state);
         const rightConfident = state.confident;
-        switch (path15.node.operator) {
+        switch (path16.node.operator) {
           case "||":
             state.confident = leftConfident && (!!left || rightConfident);
             if (!state.confident) return;
@@ -65996,12 +67629,12 @@ var require_evaluation = __commonJS({
             return left != null ? left : right;
         }
       }
-      if (path15.isBinaryExpression()) {
-        const left = evaluateCached(path15.get("left"), state);
+      if (path16.isBinaryExpression()) {
+        const left = evaluateCached(path16.get("left"), state);
         if (!state.confident) return;
-        const right = evaluateCached(path15.get("right"), state);
+        const right = evaluateCached(path16.get("right"), state);
         if (!state.confident) return;
-        switch (path15.node.operator) {
+        switch (path16.node.operator) {
           case "-":
             return left - right;
           case "+":
@@ -66044,11 +67677,11 @@ var require_evaluation = __commonJS({
             return left >>> right;
         }
       }
-      if (path15.isCallExpression()) {
-        const callee = path15.get("callee");
+      if (path16.isCallExpression()) {
+        const callee = path16.get("callee");
         let context;
         let func;
-        if (callee.isIdentifier() && !path15.scope.getBinding(callee.node.name) && (isValidObjectCallee(callee.node.name) || isValidIdentifierCallee(callee.node.name))) {
+        if (callee.isIdentifier() && !path16.scope.getBinding(callee.node.name) && (isValidObjectCallee(callee.node.name) || isValidIdentifierCallee(callee.node.name))) {
           func = global[callee.node.name];
         }
         if (callee.isMemberExpression()) {
@@ -66070,17 +67703,17 @@ var require_evaluation = __commonJS({
           }
         }
         if (func) {
-          const args = path15.get("arguments").map((arg) => evaluateCached(arg, state));
+          const args = path16.get("arguments").map((arg) => evaluateCached(arg, state));
           if (!state.confident) return;
           return func.apply(context, args);
         }
       }
-      deopt(path15, state);
+      deopt(path16, state);
     }
-    function evaluateQuasis(path15, quasis, state, raw = false) {
+    function evaluateQuasis(path16, quasis, state, raw = false) {
       let str = "";
       let i3 = 0;
-      const exprs = path15.isTemplateLiteral() ? path15.get("expressions") : path15.get("quasi.expressions");
+      const exprs = path16.isTemplateLiteral() ? path16.get("expressions") : path16.get("quasi.expressions");
       for (const elem of quasis) {
         if (!state.confident) break;
         str += raw ? elem.value.raw : elem.value.cooked;
@@ -66874,8 +68507,8 @@ var require_conversion = __commonJS({
       }
       hoistFunctionEnvironment(this);
     }
-    function setType(path15, type) {
-      path15.node.type = type;
+    function setType(path16, type) {
+      path16.node.type = type;
     }
     function arrowFunctionToExpression({
       allowInsertArrow = true,
@@ -67290,14 +68923,14 @@ var require_conversion = __commonJS({
       return this;
     }
     var refersOuterBindingVisitor = {
-      "ReferencedIdentifier|BindingIdentifier"(path15, state) {
-        if (path15.node.name !== state.name) return;
+      "ReferencedIdentifier|BindingIdentifier"(path16, state) {
+        if (path16.node.name !== state.name) return;
         state.needsRename = true;
-        path15.stop();
+        path16.stop();
       },
-      Scope(path15, state) {
-        if (path15.scope.hasOwnBinding(state.name)) {
-          path15.skip();
+      Scope(path16, state) {
+        if (path16.scope.hasOwnBinding(state.name)) {
+          path16.skip();
         }
       }
     };
@@ -67446,21 +69079,21 @@ var require_introspection = __commonJS({
       return false;
     }
     function isCompletionRecord(allowInsideFunction) {
-      let path15 = this;
+      let path16 = this;
       let first = true;
       do {
         const {
           type,
           container
-        } = path15;
-        if (!first && (path15.isFunction() || type === "StaticBlock")) {
+        } = path16;
+        if (!first && (path16.isFunction() || type === "StaticBlock")) {
           return !!allowInsideFunction;
         }
         first = false;
-        if (Array.isArray(container) && path15.key !== container.length - 1) {
+        if (Array.isArray(container) && path16.key !== container.length - 1) {
           return false;
         }
-      } while ((path15 = path15.parentPath) && !path15.isProgram() && !path15.isDoExpression());
+      } while ((path16 = path16.parentPath) && !path16.isProgram() && !path16.isDoExpression());
       return true;
     }
     function isStatementOrBlock() {
@@ -67482,21 +69115,21 @@ var require_introspection = __commonJS({
       }
       const binding2 = this.scope.getBinding(this.node.name);
       if ((binding2 == null ? void 0 : binding2.kind) !== "module") return false;
-      const path15 = binding2.path;
-      const parent = path15.parentPath;
+      const path16 = binding2.path;
+      const parent = path16.parentPath;
       if (!parent.isImportDeclaration()) return false;
       if (parent.node.source.value === moduleSource) {
         if (!importName) return true;
       } else {
         return false;
       }
-      if (path15.isImportDefaultSpecifier() && importName === "default") {
+      if (path16.isImportDefaultSpecifier() && importName === "default") {
         return true;
       }
-      if (path15.isImportNamespaceSpecifier() && importName === "*") {
+      if (path16.isImportNamespaceSpecifier() && importName === "*") {
         return true;
       }
-      if (path15.isImportSpecifier() && isIdentifier7(path15.node.imported, {
+      if (path16.isImportSpecifier() && isIdentifier7(path16.node.imported, {
         name: importName
       })) {
         return true;
@@ -67514,8 +69147,8 @@ var require_introspection = __commonJS({
     function willIMaybeExecuteBefore(target) {
       return this._guessExecutionStatusRelativeTo(target) !== "after";
     }
-    function getOuterFunction(path15) {
-      return path15.isProgram() ? path15 : (path15.parentPath.scope.getFunctionParent() || path15.parentPath.scope.getProgramParent()).path;
+    function getOuterFunction(path16) {
+      return path16.isProgram() ? path16 : (path16.parentPath.scope.getFunctionParent() || path16.parentPath.scope.getProgramParent()).path;
     }
     function isExecutionUncertain(type, key2) {
       switch (type) {
@@ -67547,8 +69180,8 @@ var require_introspection = __commonJS({
     }
     function isExecutionUncertainInList(paths, maxIndex) {
       for (let i3 = 0; i3 < maxIndex; i3++) {
-        const path15 = paths[i3];
-        if (isExecutionUncertain(path15.parent.type, path15.parentKey)) {
+        const path16 = paths[i3];
+        if (isExecutionUncertain(path16.parent.type, path16.parentKey)) {
           return true;
         }
       }
@@ -67578,10 +69211,10 @@ var require_introspection = __commonJS({
         this: 0
       };
       while (!commonPath && commonIndex.this < paths.this.length) {
-        const path15 = paths.this[commonIndex.this];
-        commonIndex.target = paths.target.indexOf(path15);
+        const path16 = paths.this[commonIndex.this];
+        commonIndex.target = paths.target.indexOf(path16);
         if (commonIndex.target >= 0) {
-          commonPath = path15;
+          commonPath = path16;
         } else {
           commonIndex.this++;
         }
@@ -67619,13 +69252,13 @@ var require_introspection = __commonJS({
       if (!binding2.references) return "before";
       const referencePaths = binding2.referencePaths;
       let allStatus;
-      for (const path15 of referencePaths) {
-        const childOfFunction = !!path15.find((path16) => path16.node === target.node);
+      for (const path16 of referencePaths) {
+        const childOfFunction = !!path16.find((path17) => path17.node === target.node);
         if (childOfFunction) continue;
-        if (path15.key !== "callee" || !path15.parentPath.isCallExpression()) {
+        if (path16.key !== "callee" || !path16.parentPath.isCallExpression()) {
           return "unknown";
         }
-        const status = _guessExecutionStatusRelativeToCached(base, path15, cache);
+        const status = _guessExecutionStatusRelativeToCached(base, path16, cache);
         if (allStatus && allStatus !== status) {
           return "unknown";
         } else {
@@ -67743,19 +69376,19 @@ var require_introspection = __commonJS({
     }
     function isInStrictMode() {
       const start2 = this.isProgram() ? this : this.parentPath;
-      const strictParent = start2.find((path15) => {
-        if (path15.isProgram({
+      const strictParent = start2.find((path16) => {
+        if (path16.isProgram({
           sourceType: "module"
         })) return true;
-        if (path15.isClass()) return true;
-        if (path15.isArrowFunctionExpression() && !path15.get("body").isBlockStatement()) {
+        if (path16.isClass()) return true;
+        if (path16.isArrowFunctionExpression() && !path16.get("body").isBlockStatement()) {
           return false;
         }
         let body;
-        if (path15.isFunction()) {
-          body = path15.node.body;
-        } else if (path15.isProgram()) {
-          body = path15.node;
+        if (path16.isFunction()) {
+          body = path16.node.body;
+        } else if (path16.isProgram()) {
+          body = path16.node;
         } else {
           return false;
         }
@@ -67804,16 +69437,16 @@ var require_family = __commonJS({
     } = _t;
     var NORMAL_COMPLETION = 0;
     var BREAK_COMPLETION = 1;
-    function NormalCompletion(path15) {
+    function NormalCompletion(path16) {
       return {
         type: NORMAL_COMPLETION,
-        path: path15
+        path: path16
       };
     }
-    function BreakCompletion(path15) {
+    function BreakCompletion(path16) {
       return {
         type: BREAK_COMPLETION,
-        path: path15
+        path: path16
       };
     }
     function getOpposite() {
@@ -67824,9 +69457,9 @@ var require_family = __commonJS({
       }
       return null;
     }
-    function addCompletionRecords(path15, records, context) {
-      if (path15) {
-        records.push(..._getCompletionRecords(path15, context));
+    function addCompletionRecords(path16, records, context) {
+      if (path16) {
+        records.push(..._getCompletionRecords(path16, context));
       }
       return records;
     }
@@ -67876,16 +69509,16 @@ var require_family = __commonJS({
       if (context.canHaveBreak) {
         let lastNormalCompletions = [];
         for (let i3 = 0; i3 < paths.length; i3++) {
-          const path15 = paths[i3];
+          const path16 = paths[i3];
           const newContext = Object.assign({}, context, {
             inCaseClause: false
           });
-          if (path15.isBlockStatement() && (context.inCaseClause || context.shouldPopulateBreak)) {
+          if (path16.isBlockStatement() && (context.inCaseClause || context.shouldPopulateBreak)) {
             newContext.shouldPopulateBreak = true;
           } else {
             newContext.shouldPopulateBreak = false;
           }
-          const statementCompletions = _getCompletionRecords(path15, newContext);
+          const statementCompletions = _getCompletionRecords(path16, newContext);
           if (statementCompletions.length > 0 && statementCompletions.every((c) => c.type === BREAK_COMPLETION)) {
             if (lastNormalCompletions.length > 0 && statementCompletions.every((c) => c.path.isBreakStatement({
               label: null
@@ -67935,35 +69568,35 @@ var require_family = __commonJS({
       }
       return completions;
     }
-    function _getCompletionRecords(path15, context) {
+    function _getCompletionRecords(path16, context) {
       let records = [];
-      if (path15.isIfStatement()) {
-        records = addCompletionRecords(path15.get("consequent"), records, context);
-        records = addCompletionRecords(path15.get("alternate"), records, context);
-      } else if (path15.isDoExpression() || path15.isFor() || path15.isWhile() || path15.isLabeledStatement()) {
-        return addCompletionRecords(path15.get("body"), records, context);
-      } else if (path15.isProgram() || path15.isBlockStatement()) {
-        return getStatementListCompletion(path15.get("body"), context);
-      } else if (path15.isFunction()) {
-        return _getCompletionRecords(path15.get("body"), context);
-      } else if (path15.isTryStatement()) {
-        records = addCompletionRecords(path15.get("block"), records, context);
-        records = addCompletionRecords(path15.get("handler"), records, context);
-      } else if (path15.isCatchClause()) {
-        return addCompletionRecords(path15.get("body"), records, context);
-      } else if (path15.isSwitchStatement()) {
-        return completionRecordForSwitch(path15.get("cases"), records, context);
-      } else if (path15.isSwitchCase()) {
-        return getStatementListCompletion(path15.get("consequent"), {
+      if (path16.isIfStatement()) {
+        records = addCompletionRecords(path16.get("consequent"), records, context);
+        records = addCompletionRecords(path16.get("alternate"), records, context);
+      } else if (path16.isDoExpression() || path16.isFor() || path16.isWhile() || path16.isLabeledStatement()) {
+        return addCompletionRecords(path16.get("body"), records, context);
+      } else if (path16.isProgram() || path16.isBlockStatement()) {
+        return getStatementListCompletion(path16.get("body"), context);
+      } else if (path16.isFunction()) {
+        return _getCompletionRecords(path16.get("body"), context);
+      } else if (path16.isTryStatement()) {
+        records = addCompletionRecords(path16.get("block"), records, context);
+        records = addCompletionRecords(path16.get("handler"), records, context);
+      } else if (path16.isCatchClause()) {
+        return addCompletionRecords(path16.get("body"), records, context);
+      } else if (path16.isSwitchStatement()) {
+        return completionRecordForSwitch(path16.get("cases"), records, context);
+      } else if (path16.isSwitchCase()) {
+        return getStatementListCompletion(path16.get("consequent"), {
           canHaveBreak: true,
           shouldPopulateBreak: false,
           inCaseClause: true,
           shouldPreserveBreak: context.shouldPreserveBreak
         });
-      } else if (path15.isBreakStatement()) {
-        records.push(BreakCompletion(path15));
+      } else if (path16.isBreakStatement()) {
+        records.push(BreakCompletion(path16));
       } else {
-        records.push(NormalCompletion(path15));
+        records.push(NormalCompletion(path16));
       }
       return records;
     }
@@ -68043,19 +69676,19 @@ var require_family = __commonJS({
       }
     }
     function _getPattern(parts, context) {
-      let path15 = this;
+      let path16 = this;
       for (const part of parts) {
         if (part === ".") {
-          path15 = path15.parentPath;
+          path16 = path16.parentPath;
         } else {
-          if (Array.isArray(path15)) {
-            path15 = path15[part];
+          if (Array.isArray(path16)) {
+            path16 = path16[part];
           } else {
-            path15 = path15.get(part, context);
+            path16 = path16.get(part, context);
           }
         }
       }
-      return path15;
+      return path16;
     }
     function getAssignmentIdentifiers() {
       return _getAssignmentIdentifiers(this.node);
@@ -68067,8 +69700,8 @@ var require_family = __commonJS({
       return _getOuterBindingIdentifiers(this.node, duplicates);
     }
     function getBindingIdentifierPaths(duplicates = false, outerOnly = false) {
-      const path15 = this;
-      const search = [path15];
+      const path16 = this;
+      const search = [path16];
       const ids = /* @__PURE__ */ Object.create(null);
       while (search.length) {
         const id3 = search.shift();
@@ -68267,13 +69900,13 @@ var require_path2 = __commonJS({
         }
         const targetNode = container[key2];
         const paths = cache.getOrCreateCachedPaths(parent, parentPath);
-        let path15 = paths.get(targetNode);
-        if (!path15) {
-          path15 = new NodePath(hub, parent);
-          if (targetNode) paths.set(targetNode, path15);
+        let path16 = paths.get(targetNode);
+        if (!path16) {
+          path16 = new NodePath(hub, parent);
+          if (targetNode) paths.set(targetNode, path16);
         }
-        _context.setup.call(path15, parentPath, container, listKey, key2);
-        return path15;
+        _context.setup.call(path16, parentPath, container, listKey, key2);
+        return path16;
       }
       getScope(scope) {
         return this.isScope() ? new _index2.default(this) : scope;
@@ -68307,12 +69940,12 @@ var require_path2 = __commonJS({
       }
       getPathLocation() {
         const parts = [];
-        let path15 = this;
+        let path16 = this;
         do {
-          let key2 = path15.key;
-          if (path15.inList) key2 = `${path15.listKey}[${key2}]`;
+          let key2 = path16.key;
+          if (path16.inList) key2 = `${path16.listKey}[${key2}]`;
           parts.unshift(key2);
-        } while (path15 = path15.parentPath);
+        } while (path16 = path16.parentPath);
         return parts.join(".");
       }
       debug(message) {
@@ -68544,12 +70177,12 @@ var require_context = __commonJS({
           hub
         });
       }
-      maybeQueue(path15, notPriority) {
+      maybeQueue(path16, notPriority) {
         if (this.queue) {
           if (notPriority) {
-            this.queue.push(path15);
+            this.queue.push(path16);
           } else {
-            this.priorityQueue.push(path15);
+            this.priorityQueue.push(path16);
           }
         }
       }
@@ -68578,19 +70211,19 @@ var require_context = __commonJS({
         let stop = false;
         let visitIndex = 0;
         for (; visitIndex < queue.length; ) {
-          const path15 = queue[visitIndex];
+          const path16 = queue[visitIndex];
           visitIndex++;
-          _context.resync.call(path15);
-          if (path15.contexts.length === 0 || path15.contexts[path15.contexts.length - 1] !== this) {
-            _context.pushContext.call(path15, this);
+          _context.resync.call(path16);
+          if (path16.contexts.length === 0 || path16.contexts[path16.contexts.length - 1] !== this) {
+            _context.pushContext.call(path16, this);
           }
-          if (path15.key === null) continue;
+          if (path16.key === null) continue;
           const {
             node: node2
-          } = path15;
+          } = path16;
           if (visited.has(node2)) continue;
           if (node2) visited.add(node2);
-          if (path15.visit()) {
+          if (path16.visit()) {
             stop = true;
             break;
           }
@@ -68636,13 +70269,13 @@ var require_traverse_node = __commonJS({
     var {
       VISITOR_KEYS: VISITOR_KEYS4
     } = _t;
-    function traverseNode(node2, opts, scope, state, path15, skipKeys, visitSelf) {
+    function traverseNode(node2, opts, scope, state, path16, skipKeys, visitSelf) {
       const keys = VISITOR_KEYS4[node2.type];
       if (!keys) return false;
-      const context = new _context.default(scope, opts, state, path15);
+      const context = new _context.default(scope, opts, state, path16);
       if (visitSelf) {
-        if (skipKeys != null && skipKeys[path15.parentKey]) return false;
-        return context.visitQueue([path15]);
+        if (skipKeys != null && skipKeys[path16.parentKey]) return false;
+        return context.visitQueue([path16]);
       }
       for (const key2 of keys) {
         if (skipKeys != null && skipKeys[key2]) continue;
@@ -68724,11 +70357,11 @@ var require_context2 = __commonJS({
       return denylist == null ? void 0 : denylist.includes(this.node.type);
     }
     exports.isBlacklisted = isDenylisted;
-    function restoreContext(path15, context) {
-      if (path15.context !== context) {
-        path15.context = context;
-        path15.state = context.state;
-        path15.opts = context.opts;
+    function restoreContext(path16, context) {
+      if (path16.context !== context) {
+        path16.context = context;
+        path16.state = context.state;
+        path16.opts = context.opts;
       }
     }
     function visit() {
@@ -68768,14 +70401,14 @@ var require_context2 = __commonJS({
     }
     function _forceSetScope() {
       var _this$scope;
-      let path15 = this.parentPath;
-      if ((this.key === "key" || this.listKey === "decorators") && path15.isMethod() || this.key === "discriminant" && path15.isSwitchStatement()) {
-        path15 = path15.parentPath;
+      let path16 = this.parentPath;
+      if ((this.key === "key" || this.listKey === "decorators") && path16.isMethod() || this.key === "discriminant" && path16.isSwitchStatement()) {
+        path16 = path16.parentPath;
       }
       let target;
-      while (path15 && !target) {
-        target = path15.scope;
-        path15 = path15.parentPath;
+      while (path16 && !target) {
+        target = path16.scope;
+        path16 = path16.parentPath;
       }
       this.scope = this.getScope(target);
       (_this$scope = this.scope) == null || _this$scope.init();
@@ -68783,16 +70416,16 @@ var require_context2 = __commonJS({
     function setScope() {
       var _this$opts2, _this$scope2;
       if ((_this$opts2 = this.opts) != null && _this$opts2.noScope) return;
-      let path15 = this.parentPath;
-      if ((this.key === "key" || this.listKey === "decorators") && path15.isMethod() || this.key === "discriminant" && path15.isSwitchStatement()) {
-        path15 = path15.parentPath;
+      let path16 = this.parentPath;
+      if ((this.key === "key" || this.listKey === "decorators") && path16.isMethod() || this.key === "discriminant" && path16.isSwitchStatement()) {
+        path16 = path16.parentPath;
       }
       let target;
-      while (path15 && !target) {
+      while (path16 && !target) {
         var _path$opts;
-        if ((_path$opts = path15.opts) != null && _path$opts.noScope) return;
-        target = path15.scope;
-        path15 = path15.parentPath;
+        if ((_path$opts = path16.opts) != null && _path$opts.noScope) return;
+        target = path16.scope;
+        path16 = path16.parentPath;
       }
       this.scope = this.getScope(target);
       (_this$scope2 = this.scope) == null || _this$scope2.init();
@@ -68900,12 +70533,12 @@ var require_context2 = __commonJS({
       }
     }
     function _getQueueContexts() {
-      let path15 = this;
+      let path16 = this;
       let contexts = this.contexts;
       while (!contexts.length) {
-        path15 = path15.parentPath;
-        if (!path15) break;
-        contexts = path15.contexts;
+        path16 = path16.parentPath;
+        if (!path16) break;
+        contexts = path16.contexts;
       }
       return contexts;
     }
@@ -68976,8 +70609,8 @@ var require_lib8 = __commonJS({
       traverseFast(node2, enter);
       return;
     };
-    traverse7.node = function(node2, opts, scope, state, path15, skipKeys) {
-      (0, _traverseNode.traverseNode)(node2, opts, scope, state, path15, skipKeys);
+    traverse7.node = function(node2, opts, scope, state, path16, skipKeys) {
+      (0, _traverseNode.traverseNode)(node2, opts, scope, state, path16, skipKeys);
     };
     traverse7.clearNode = function(node2, opts) {
       removeProperties(node2, opts);
@@ -69097,15 +70730,15 @@ function parseAndScanComponent(code, filePath, options = {}) {
   }
   const directives = ast.program.directives;
   const directivesEnd = directives.length ? directives[directives.length - 1].end : null;
-  const record = (path15, nodeType, text4, range, kind, params = [], attributeName, plural, components) => {
-    const loc2 = path15.node.loc?.start ?? { line: 0, column: 0 };
-    const hook2 = resolveHookTarget(path15, code, !!options.server, !!options.server && kind === "trans");
+  const record = (path16, nodeType, text4, range, kind, params = [], attributeName, plural, components) => {
+    const loc2 = path16.node.loc?.start ?? { line: 0, column: 0 };
+    const hook2 = resolveHookTarget(path16, code, !!options.server, !!options.server && kind === "trans");
     if ("reason" in hook2) {
       warnings2.push({ filePath, loc: { line: loc2.line, column: loc2.column }, text: text4, reason: hook2.reason });
       return null;
     }
     const id3 = `str_${extractedStrings.length + 1}`;
-    const owner = path15.findParent((p) => p.isJSXElement());
+    const owner = path16.findParent((p) => p.isJSXElement());
     const element3 = owner ? elementName(owner.node) : void 0;
     extractedStrings.push({
       id: id3,
@@ -69123,21 +70756,21 @@ function parseAndScanComponent(code, filePath, options = {}) {
     return id3;
   };
   const consumed = /* @__PURE__ */ new Set();
-  const visitChildren = (path15) => {
-    if (consumed.has(path15.node)) return;
-    const rich = options.richText !== false && !mergeTextRun(path15.node.children, code) && !isIgnored(path15, true) ? mergeRichText(path15.node.children, code, attributes2) : null;
+  const visitChildren = (path16) => {
+    if (consumed.has(path16.node)) return;
+    const rich = options.richText !== false && !mergeTextRun(path16.node.children, code) && !isIgnored(path16, true) ? mergeRichText(path16.node.children, code, attributes2) : null;
     if (rich && isTranslatable(rich.text.replace(/<[^>]+>/g, " "))) {
-      const first2 = path15.node.children.find((c) => !isBlankText(c));
-      const firstPath2 = path15.get("children").find((c) => c.node === first2);
+      const first2 = path16.node.children.find((c) => !isBlankText(c));
+      const firstPath2 = path16.get("children").find((c) => c.node === first2);
       for (const n4 of rich.consumed) consumed.add(n4);
       record(firstPath2, "TemplateLiteral", rich.text, rich.range, "trans", rich.params, void 0, void 0, rich.components);
       return;
     }
-    const merged = mergeTextRun(path15.node.children, code, options.ordinals !== false);
-    if (!merged || !isTranslatable(merged.text) || isIgnored(path15, true)) return;
-    const first = path15.node.children.find((c) => !isBlankText(c));
-    const firstPath = path15.get("children").find((c) => c.node === first);
-    for (const c of path15.node.children) if (t.isJSXText(c)) consumed.add(c);
+    const merged = mergeTextRun(path16.node.children, code, options.ordinals !== false);
+    if (!merged || !isTranslatable(merged.text) || isIgnored(path16, true)) return;
+    const first = path16.node.children.find((c) => !isBlankText(c));
+    const firstPath = path16.get("children").find((c) => c.node === first);
+    for (const c of path16.node.children) if (t.isJSXText(c)) consumed.add(c);
     for (const n4 of merged.consumed) consumed.add(n4);
     for (const sub of merged.subs) {
       const id3 = record(firstPath, "TemplateLiteral", sub.plural.other, { start: 0, end: 0 }, "pluralPart", [{ name: "count", source: sub.param.source }], void 0, sub.plural);
@@ -69147,6 +70780,7 @@ function parseAndScanComponent(code, filePath, options = {}) {
     record(firstPath, "TemplateLiteral", merged.text, merged.range, "jsxChild", merged.params, void 0, merged.plural);
   };
   const keyUsages = [];
+  const externalCopy = [];
   const constantStrings = /* @__PURE__ */ new Set();
   if (options.server) {
     scanMetadata(ast, code, (literal5, text4, params, hook2) => {
@@ -69174,45 +70808,72 @@ function parseAndScanComponent(code, filePath, options = {}) {
     (literal5, text4, reason) => {
       const loc2 = literal5.loc?.start ?? { line: 0, column: 0 };
       warnings2.push({ filePath, loc: { line: loc2.line, column: loc2.column }, text: text4, reason });
+    },
+    options.importedCopy,
+    (specifier, name, reads) => {
+      externalCopy.push({ specifier, name, followed: !!reads });
+      for (const r of reads ?? []) {
+        keyUsages.push({ start: r.path.node.start, end: r.path.node.end, source: code.slice(r.path.node.start, r.path.node.end), hook: r.hook, ids: [], external: true });
+      }
     }
   );
+  const subscriptions = [];
+  if (!options.server) {
+    scanHelpers(
+      ast,
+      code,
+      (literal5, text4, owner) => {
+        const id3 = `str_${extractedStrings.length + 1}`;
+        const loc2 = literal5.loc?.start ?? { line: 0, column: 0 };
+        extractedStrings.push({ id: id3, originalText: text4, nodeType: "StringLiteral", filePath, loc: { line: loc2.line, column: loc2.column }, component: owner });
+        sites.set(id3, { id: id3, start: literal5.start, end: literal5.end, kind: "expression", params: [], callee: "i18next", hook: { fnStart: -1, componentName: owner, mode: "reuse", insertAt: -1, bodyEnd: -1, indent: "" } });
+        constantStrings.add(literal5);
+      },
+      (call7) => {
+        const hook2 = resolveHookTarget(call7, code, false);
+        return "reason" in hook2 ? null : hook2;
+      },
+      (hook2) => subscriptions.push(hook2)
+    );
+  }
   traverse(ast, {
     JSXElement: visitChildren,
     JSXFragment: visitChildren,
-    JSXText(path15) {
-      if (!t.isJSXElement(path15.parent) && !t.isJSXFragment(path15.parent)) return;
-      if (consumed.has(path15.node)) return;
-      if (isIgnored(path15)) return;
-      const { start: start2, end: end2 } = path15.node;
+    JSXText(path16) {
+      if (!t.isJSXElement(path16.parent) && !t.isJSXFragment(path16.parent)) return;
+      if (consumed.has(path16.node)) return;
+      if (isIgnored(path16)) return;
+      const { start: start2, end: end2 } = path16.node;
       const raw = code.slice(start2, end2);
       const lead = raw.length - raw.trimStart().length;
       const trimmed = raw.trim();
       const text4 = normalizeWhitespace(decodeEntities(trimmed));
       if (!isTranslatable(text4)) return;
-      record(path15, "JSXText", text4, { start: start2 + lead, end: start2 + lead + trimmed.length }, "jsxChild");
+      record(path16, "JSXText", text4, { start: start2 + lead, end: start2 + lead + trimmed.length }, "jsxChild");
     },
-    JSXAttribute(path15) {
-      const name = attributeNameOf(path15.node);
-      if (!attributes2.has(name)) return;
-      const value = path15.node.value;
+    JSXAttribute(path16) {
+      const name = attributeNameOf(path16.node);
+      const value = path16.node.value;
+      const copyProp = !attributes2.has(name) && t.isStringLiteral(value) && componentCopyProp(path16, name) && new RegExp("\\p{L}", "u").test(value.value) && (/\s/.test(value.value.trim()) || new RegExp("^\\p{Lu}", "u").test(value.value.trim()));
+      if (!attributes2.has(name) && !copyProp) return;
       if (!t.isStringLiteral(value)) return;
-      if (isIgnored(path15)) return;
+      if (isIgnored(path16)) return;
       const text4 = normalizeWhitespace(value.value);
       if (!isTranslatable(text4)) return;
-      record(path15, "JSXAttribute", text4, { start: value.start, end: value.end }, "attrValue", [], name);
+      record(path16, "JSXAttribute", text4, { start: value.start, end: value.end }, "attrValue", [], name);
     },
     // gender === 'female' ? 'She liked your post' : 'He liked your post': one message with a
     // variant per gender (i18next context), so every language can word each one.
-    ConditionalExpression(path15) {
-      if (t.isConditionalExpression(path15.parent) && path15.parent.alternate === path15.node) return;
-      const select = genderSelect(path15.node, code);
-      if (!select || !expressionSlot(path15, attributes2) || isIgnored(path15)) return;
+    ConditionalExpression(path16) {
+      if (t.isConditionalExpression(path16.parent) && path16.parent.alternate === path16.node) return;
+      const select = genderSelect(path16.node, code);
+      if (!select || !expressionSlot(path16, attributes2) || isIgnored(path16)) return;
       const texts = select.branches.map((b4) => normalizeWhitespace(b4.literal.value));
       if (!texts.every(isTranslatable)) return;
-      const group = `select_${path15.node.start}`;
+      const group = `select_${path16.node.start}`;
       const before2 = extractedStrings.length;
       const base = select.branches.find((b4) => b4.value === null);
-      record(path15, "StringLiteral", normalizeWhitespace(base.literal.value), { start: path15.node.start, end: path15.node.end }, "select");
+      record(path16, "StringLiteral", normalizeWhitespace(base.literal.value), { start: path16.node.start, end: path16.node.end }, "select");
       if (extractedStrings.length === before2) return;
       extractedStrings[extractedStrings.length - 1].select = { group, value: null };
       sites.get(extractedStrings[extractedStrings.length - 1].id).selectOn = select.on;
@@ -69227,10 +70888,10 @@ function parseAndScanComponent(code, filePath, options = {}) {
       }
     },
     // 'Hello ' + name + ', welcome' in JSX: one message, `Hello {name}, welcome`.
-    BinaryExpression(path15) {
-      if (path15.node.operator !== "+" || t.isBinaryExpression(path15.parent) && path15.parent.operator === "+") return;
-      const slot = expressionSlot(path15, attributes2);
-      if (!slot || isIgnored(path15)) return;
+    BinaryExpression(path16) {
+      if (path16.node.operator !== "+" || t.isBinaryExpression(path16.parent) && path16.parent.operator === "+") return;
+      const slot = expressionSlot(path16, attributes2);
+      if (!slot || isIgnored(path16)) return;
       const parts = [];
       const flatten2 = (n4) => {
         if (t.isBinaryExpression(n4) && n4.operator === "+") {
@@ -69238,7 +70899,7 @@ function parseAndScanComponent(code, filePath, options = {}) {
           flatten2(n4.right);
         } else parts.push(n4);
       };
-      flatten2(path15.node);
+      flatten2(path16.node);
       if (!parts.some((p) => t.isStringLiteral(p) && new RegExp("\\p{L}", "u").test(p.value))) return;
       const params = [];
       let text4 = "";
@@ -69258,13 +70919,13 @@ function parseAndScanComponent(code, filePath, options = {}) {
       text4 = normalizeWhitespace(text4);
       if (!isTranslatable(text4)) return;
       for (const part of parts) consumed.add(part);
-      record(path15, slot.attributeName ? "JSXAttribute" : "TemplateLiteral", text4, { start: path15.node.start, end: path15.node.end }, "expression", params, slot.attributeName);
+      record(path16, slot.attributeName ? "JSXAttribute" : "TemplateLiteral", text4, { start: path16.node.start, end: path16.node.end }, "expression", params, slot.attributeName);
     },
     // Messages shown through code: setError('…'), toast.error('…'), alert('…'), and zod/yup messages.
-    CallExpression(path15) {
-      const shown = messageCall(path15.node);
+    CallExpression(path16) {
+      const shown = messageCall(path16.node);
       if (!shown) return;
-      path15.traverse({
+      path16.traverse({
         StringLiteral(literalPath) {
           const literal5 = literalPath.node;
           if (!shown.literals.includes(literal5) || consumed.has(literal5) || constantStrings.has(literal5)) return;
@@ -69280,32 +70941,32 @@ function parseAndScanComponent(code, filePath, options = {}) {
         }
       });
     },
-    StringLiteral(path15) {
-      if (consumed.has(path15.node)) return;
-      if (constantStrings.has(path15.node)) return;
-      const slot = expressionSlot(path15, attributes2);
-      if (!slot || isIgnored(path15)) return;
-      const text4 = normalizeWhitespace(path15.node.value);
+    StringLiteral(path16) {
+      if (consumed.has(path16.node)) return;
+      if (constantStrings.has(path16.node)) return;
+      const slot = expressionSlot(path16, attributes2);
+      if (!slot || isIgnored(path16)) return;
+      const text4 = normalizeWhitespace(path16.node.value);
       if (!isTranslatable(text4)) return;
       record(
-        path15,
+        path16,
         slot.attributeName ? "JSXAttribute" : "StringLiteral",
         text4,
-        { start: path15.node.start, end: path15.node.end },
+        { start: path16.node.start, end: path16.node.end },
         "expression",
         [],
         slot.attributeName
       );
     },
-    TemplateLiteral(path15) {
-      if (t.isTaggedTemplateExpression(path15.parent)) return;
-      const slot = expressionSlot(path15, attributes2);
-      if (!slot || isIgnored(path15)) return;
+    TemplateLiteral(path16) {
+      if (t.isTaggedTemplateExpression(path16.parent)) return;
+      const slot = expressionSlot(path16, attributes2);
+      if (!slot || isIgnored(path16)) return;
       const params = [];
-      const plurals = path15.node.expressions.map((e2) => pluralTernary(e2));
+      const plurals = path16.node.expressions.map((e2) => pluralTernary(e2));
       const plural = plurals.filter(Boolean).length === 1 ? plurals.find(Boolean) : null;
       if (plural) params.push({ name: "count", source: code.slice(plural.count.start, plural.count.end) });
-      const placeholders = path15.node.expressions.map((expr, i3) => {
+      const placeholders = path16.node.expressions.map((expr, i3) => {
         if (plural && plurals[i3] === plural) return null;
         const source2 = code.slice(expr.start, expr.end);
         const existing = params.find((p) => p.source === source2);
@@ -69316,7 +70977,7 @@ function parseAndScanComponent(code, filePath, options = {}) {
       });
       const build3 = (form) => {
         let template4 = "";
-        path15.node.quasis.forEach((q, idx) => {
+        path16.node.quasis.forEach((q, idx) => {
           template4 += q.value.cooked ?? q.value.raw;
           if (idx < placeholders.length) template4 += placeholders[idx] === null ? plural[form] : `{${placeholders[idx]}}`;
         });
@@ -69325,10 +70986,10 @@ function parseAndScanComponent(code, filePath, options = {}) {
       const text4 = build3("other");
       if (!isTranslatable(text4)) return;
       record(
-        path15,
+        path16,
         slot.attributeName ? "JSXAttribute" : "TemplateLiteral",
         text4,
-        { start: path15.node.start, end: path15.node.end },
+        { start: path16.node.start, end: path16.node.end },
         "expression",
         params,
         slot.attributeName,
@@ -69342,11 +71003,20 @@ function parseAndScanComponent(code, filePath, options = {}) {
     sites,
     warnings: warnings2,
     keyUsages,
+    externalCopy,
+    subscriptions,
     imports: { lastImportEnd, directivesEnd, hasUseTranslation, hasTrans, hasGetTranslation }
   };
 }
 function attributeNameOf(attr2) {
   return t.isJSXNamespacedName(attr2.name) ? `${attr2.name.namespace.name}:${attr2.name.name.name}` : attr2.name.name;
+}
+function componentCopyProp(attr2, name) {
+  if (!COPY_PROPS.has(name)) return false;
+  const opening = attr2.parentPath;
+  if (!opening?.isJSXOpeningElement()) return false;
+  const tag2 = opening.node.name;
+  return t.isJSXMemberExpression(tag2) || t.isJSXIdentifier(tag2) && /^[A-Z]/.test(tag2.name);
 }
 function elementName(el) {
   const name = el.openingElement.name;
@@ -69571,7 +71241,7 @@ function mergeRichText(children, code, attributes2) {
   if (t.isJSXText(last)) end2 -= last.value.length - last.value.trimEnd().length;
   return { text: normalizeWhitespace(text4), params, range: { start: start2, end: end2 }, components, consumed };
 }
-function isIgnored(path15, includeSelf = false) {
+function isIgnored(path16, includeSelf = false) {
   const test = (p) => {
     if (!p.isJSXElement()) return false;
     if (IGNORED_ELEMENTS.has(elementName(p.node))) return true;
@@ -69582,7 +71252,7 @@ function isIgnored(path15, includeSelf = false) {
       return name === "translate" && t.isStringLiteral(a.value) && a.value.value === "no";
     });
   };
-  return includeSelf && test(path15) || !!path15.findParent(test);
+  return includeSelf && test(path16) || !!path16.findParent(test);
 }
 function genderSelect(node2, code) {
   const branches2 = [];
@@ -69642,14 +71312,59 @@ function messageCall(call7) {
   }
   return null;
 }
-function scanConstants(ast, add, hookFor, use, report) {
+function scanConstants(ast, add, hookFor, use, report, imported, external) {
   const unwrap2 = (n4) => t.isTSAsExpression(n4) || t.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
+  const follow = (binding2, fields, isList, isLookup) => {
+    const reads = [];
+    let followed = true;
+    for (const ref2 of binding2.referencePaths) {
+      const parent = ref2.parentPath;
+      if (isList && parent?.isMemberExpression() && t.isIdentifier(parent.node.property, { name: "map" }) && parent.parentPath?.isCallExpression()) {
+        const fn2 = parent.parentPath.get("arguments")[0];
+        const param = fn2 && (fn2.isArrowFunctionExpression() || fn2.isFunctionExpression()) ? fn2.node.params[0] : null;
+        if (!param || !t.isIdentifier(param)) {
+          followed = false;
+          continue;
+        }
+        const item = fn2.scope.getBinding(param.name);
+        for (const r of item?.referencePaths ?? []) {
+          const m2 = r.parentPath;
+          if (m2?.isMemberExpression() && !m2.node.computed && t.isIdentifier(m2.node.property) && fields.has(m2.node.property.name)) {
+            if (expressionSlot(m2, /* @__PURE__ */ new Set()) === null && !m2.parentPath?.isJSXExpressionContainer()) followed = false;
+            else reads.push({ path: m2, key: m2.node.property.name });
+          }
+        }
+      } else if (!isList && parent?.isMemberExpression() && !parent.node.computed && t.isIdentifier(parent.node.property) && fields.has(parent.node.property.name)) {
+        if (!parent.parentPath?.isJSXExpressionContainer() && expressionSlot(parent, /* @__PURE__ */ new Set()) === null) followed = false;
+        else reads.push({ path: parent, key: parent.node.property.name });
+      } else if (isLookup && parent?.isMemberExpression() && parent.node.computed && parent.node.object === ref2.node) {
+        if (!parent.parentPath?.isJSXExpressionContainer() && expressionSlot(parent, /* @__PURE__ */ new Set()) === null) followed = false;
+        else reads.push({ path: parent, key: "*" });
+      } else followed = false;
+    }
+    return { reads, followed };
+  };
   traverse(ast, {
-    VariableDeclarator(path15) {
-      if (!path15.parentPath.parentPath?.isProgram() && !path15.parentPath.parentPath?.isExportNamedDeclaration()) return;
-      if (!t.isIdentifier(path15.node.id)) return;
-      const name = path15.node.id.name;
-      const init2 = unwrap2(path15.node.init);
+    ImportDeclaration(path16) {
+      if (!imported || !external) return;
+      const copy = imported(path16.node.source.value);
+      if (!copy) return;
+      for (const spec of path16.node.specifiers) {
+        if (!t.isImportSpecifier(spec)) continue;
+        const name = t.isIdentifier(spec.imported) ? spec.imported.name : spec.imported.value;
+        const info2 = copy.get(name);
+        const binding2 = info2 && path16.scope.getBinding(spec.local.name);
+        if (!info2 || !binding2?.referencePaths.length) continue;
+        const { reads, followed } = follow(binding2, new Set(info2.fields), info2.kind === "list", info2.kind === "lookup");
+        const hooks = reads.map((r) => hookFor(r.path));
+        external(path16.node.source.value, name, followed && reads.length && hooks.every(Boolean) ? reads.map((r, i3) => ({ path: r.path, hook: hooks[i3] })) : null);
+      }
+    },
+    VariableDeclarator(path16) {
+      if (!path16.parentPath.parentPath?.isProgram() && !path16.parentPath.parentPath?.isExportNamedDeclaration()) return;
+      if (!t.isIdentifier(path16.node.id)) return;
+      const name = path16.node.id.name;
+      const init2 = unwrap2(path16.node.init);
       const copy = /* @__PURE__ */ new Map();
       const collect = (obj) => {
         if (!t.isObjectExpression(obj)) return;
@@ -69660,35 +71375,20 @@ function scanConstants(ast, add, hookFor, use, report) {
         }
       };
       const isList = t.isArrayExpression(init2);
-      if (isList) init2.elements.forEach((e2) => collect(unwrap2(e2)));
+      const isLookup = t.isObjectExpression(init2) && init2.properties.length > 1 && init2.properties.every((p) => t.isObjectProperty(p) && !p.computed && t.isStringLiteral(p.value)) && init2.properties.some((p) => new RegExp("\\s|^\\p{Lu}", "u").test(p.value.value.trim()));
+      if (isLookup) {
+        for (const p of init2.properties) {
+          const key2 = t.isIdentifier(p.key) ? p.key.name : t.isStringLiteral(p.key) ? p.key.value : null;
+          const value = p.value;
+          if (key2 !== null && isTranslatable(normalizeWhitespace(value.value))) copy.set(key2, [value]);
+        }
+      } else if (isList) init2.elements.forEach((e2) => collect(unwrap2(e2)));
       else collect(init2);
       if (!copy.size) return;
-      const binding2 = path15.scope.getBinding(name);
+      const binding2 = path16.scope.getBinding(name);
       if (!binding2) return;
-      const reads = [];
-      let followed = true;
-      for (const ref2 of binding2.referencePaths) {
-        const parent = ref2.parentPath;
-        if (isList && parent?.isMemberExpression() && t.isIdentifier(parent.node.property, { name: "map" }) && parent.parentPath?.isCallExpression()) {
-          const fn2 = parent.parentPath.get("arguments")[0];
-          const param = fn2 && (fn2.isArrowFunctionExpression() || fn2.isFunctionExpression()) ? fn2.node.params[0] : null;
-          if (!param || !t.isIdentifier(param)) {
-            followed = false;
-            continue;
-          }
-          const item = fn2.scope.getBinding(param.name);
-          for (const r of item?.referencePaths ?? []) {
-            const m2 = r.parentPath;
-            if (m2?.isMemberExpression() && !m2.node.computed && t.isIdentifier(m2.node.property) && copy.has(m2.node.property.name)) {
-              if (expressionSlot(m2, /* @__PURE__ */ new Set()) === null && !m2.parentPath?.isJSXExpressionContainer()) followed = false;
-              else reads.push({ path: m2, key: m2.node.property.name });
-            }
-          }
-        } else if (!isList && parent?.isMemberExpression() && !parent.node.computed && t.isIdentifier(parent.node.property) && copy.has(parent.node.property.name)) {
-          if (!parent.parentPath?.isJSXExpressionContainer() && expressionSlot(parent, /* @__PURE__ */ new Set()) === null) followed = false;
-          else reads.push({ path: parent, key: parent.node.property.name });
-        } else followed = false;
-      }
+      if (path16.parentPath.parentPath?.isExportNamedDeclaration() && !binding2.referencePaths.length) return;
+      const { reads, followed } = follow(binding2, new Set(copy.keys()), isList, isLookup);
       const hooks = reads.map((r) => hookFor(r.path));
       if (!followed || !reads.length || hooks.some((h) => !h)) {
         for (const literals of copy.values()) for (const l2 of literals) report(l2, normalizeWhitespace(l2.value), `copy in the constant ${name}, used where it can't be followed: render it with t() in a component`);
@@ -69696,12 +71396,83 @@ function scanConstants(ast, add, hookFor, use, report) {
       }
       const ids = /* @__PURE__ */ new Map();
       for (const [key2, literals] of copy) ids.set(key2, literals.map((l2) => add(l2, normalizeWhitespace(l2.value), name)));
-      reads.forEach((r, i3) => use(r.path, hooks[i3], ids.get(r.key)));
+      reads.forEach((r, i3) => use(r.path, hooks[i3], r.key === "*" ? [...ids.values()].flat() : ids.get(r.key)));
     }
   });
 }
-function expressionSlot(path15, attributes2) {
-  let current2 = path15;
+function scanHelpers(ast, code, add, hookFor, subscribe) {
+  const unwrap2 = (n4) => t.isTSAsExpression(n4) || t.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
+  const outputs = (n4, out) => {
+    n4 = unwrap2(n4);
+    if (!n4) return;
+    if (t.isConditionalExpression(n4)) {
+      outputs(n4.consequent, out);
+      outputs(n4.alternate, out);
+      return;
+    }
+    if (t.isLogicalExpression(n4)) {
+      if (n4.operator !== "&&") outputs(n4.left, out);
+      outputs(n4.right, out);
+      return;
+    }
+    if (t.isStringLiteral(n4) && isTranslatable(normalizeWhitespace(n4.value)) && new RegExp("\\s|^\\p{Lu}", "u").test(n4.value.trim())) out.push(n4);
+  };
+  traverse(ast, {
+    Program(program2) {
+      for (const statement of program2.get("body")) {
+        const decl = statement.isExportNamedDeclaration() ? statement.get("declaration") : statement;
+        const fns = [];
+        if (decl.isFunctionDeclaration() && decl.node.id) fns.push({ name: decl.node.id.name, fn: decl });
+        if (decl.isVariableDeclaration()) {
+          for (const d3 of decl.get("declarations")) {
+            const init2 = d3.get("init");
+            if (t.isIdentifier(d3.node.id) && (init2.isArrowFunctionExpression() || init2.isFunctionExpression())) fns.push({ name: d3.node.id.name, fn: init2 });
+          }
+        }
+        for (const { name, fn: fn2 } of fns) {
+          if (/^[A-Z]|^use[A-Z0-9]/.test(name)) continue;
+          const binding2 = program2.scope.getBinding(name);
+          if (!binding2?.referencePaths.length) continue;
+          const hooks = [];
+          let rendered = true;
+          for (const ref2 of binding2.referencePaths) {
+            const call7 = ref2.parentPath;
+            if (!call7?.isCallExpression() || call7.node.callee !== ref2.node || expressionSlot(call7, /* @__PURE__ */ new Set()) === null) {
+              rendered = false;
+              break;
+            }
+            const hook2 = hookFor(call7);
+            if (!hook2) {
+              rendered = false;
+              break;
+            }
+            hooks.push(hook2);
+          }
+          if (!rendered) continue;
+          const literals = [];
+          const body = fn2.node.body;
+          if (!t.isBlockStatement(body)) outputs(body, literals);
+          else {
+            fn2.traverse({
+              Function(inner) {
+                inner.skip();
+              },
+              ReturnStatement(ret) {
+                outputs(ret.node.argument, literals);
+              }
+            });
+          }
+          if (!literals.length) continue;
+          for (const l2 of literals) add(l2, normalizeWhitespace(l2.value), name);
+          hooks.forEach(subscribe);
+        }
+      }
+      program2.stop();
+    }
+  });
+}
+function expressionSlot(path16, attributes2) {
+  let current2 = path16;
   for (; ; ) {
     const parent = current2.parentPath;
     if (!parent) return null;
@@ -69716,7 +71487,7 @@ function expressionSlot(path15, attributes2) {
       if (holder.isJSXElement() || holder.isJSXFragment()) return {};
       if (holder.isJSXAttribute()) {
         const name = attributeNameOf(holder.node);
-        return attributes2.has(name) ? { attributeName: name } : null;
+        return attributes2.has(name) || componentCopyProp(holder, name) ? { attributeName: name } : null;
       }
       return null;
     } else {
@@ -69766,12 +71537,12 @@ function componentNameOf(fn2) {
   if (holder.isExportDefaultDeclaration()) return "default";
   return null;
 }
-function resolveHookTarget(path15, code, server = false, needsI18n = false) {
-  let fn2 = path15.getFunctionParent();
+function resolveHookTarget(path16, code, server = false, needsI18n = false) {
+  let fn2 = path16.getFunctionParent();
   let name = null;
   while (fn2) {
-    if (fn2.isClassMethod() || fn2.isClassPrivateMethod()) return classTarget(fn2, fn2, path15, code, server);
-    if (fn2.parentPath.isClassProperty() || fn2.parentPath.isClassPrivateProperty()) return classTarget(fn2, fn2.parentPath, path15, code, server);
+    if (fn2.isClassMethod() || fn2.isClassPrivateMethod()) return classTarget(fn2, fn2, path16, code, server);
+    if (fn2.parentPath.isClassProperty() || fn2.parentPath.isClassPrivateProperty()) return classTarget(fn2, fn2.parentPath, path16, code, server);
     name = componentNameOf(fn2);
     if (name) break;
     fn2 = fn2.parentPath.getFunctionParent();
@@ -69779,7 +71550,7 @@ function resolveHookTarget(path15, code, server = false, needsI18n = false) {
   if (!fn2 || !name) return { reason: "not inside a function component or hook" };
   if (fn2.node.async && !server) return { reason: `component ${name} is async (server component?)` };
   if (server && fn2.node.generator) return { reason: `component ${name} is a generator` };
-  const binding2 = path15.scope.getBinding("t");
+  const binding2 = path16.scope.getBinding("t");
   const base = {
     fnStart: fn2.node.start,
     componentName: name,
@@ -69795,13 +71566,13 @@ function resolveHookTarget(path15, code, server = false, needsI18n = false) {
     if (needsI18n && decl.isVariableDeclarator() && t.isObjectPattern(decl.node.id)) {
       const props = decl.node.id.properties;
       if (!props.some((p) => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: "i18n" }))) {
-        if (path15.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
+        if (path16.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
         addI18nAt = props[props.length - 1].end;
       }
     }
     return { ...base, mode: "reuse", insertAt: -1, bodyEnd: -1, indent: "", ...addI18nAt !== void 0 ? { addI18nAt } : {} };
   }
-  if (needsI18n && path15.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
+  if (needsI18n && path16.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
   const body = fn2.node.body;
   if (t.isBlockStatement(body)) {
     const first = body.body[0];
@@ -69824,11 +71595,11 @@ function resolveHookTarget(path15, code, server = false, needsI18n = false) {
   const indent2 = /^[ \t]*/.exec(code.slice(lineStart))[0];
   return { ...base, mode: "wrapExpression", insertAt: start2, bodyEnd: end2, indent: indent2 };
 }
-function classTarget(fn2, member2, path15, code, server) {
+function classTarget(fn2, member2, path16, code, server) {
   const cls = member2.parentPath?.parentPath;
   if (server || !cls?.isClassDeclaration() || !cls.node.id || !isComponentClass(cls.node.superClass)) return { reason: "inside a class (not a React component)" };
   const name = cls.node.id.name;
-  if (member2.node.static || fn2.isClassMethod() && fn2.node.kind !== "method") return globalClassTarget(fn2, path15, code, name);
+  if (member2.node.static || fn2.isClassMethod() && fn2.node.kind !== "method") return globalClassTarget(fn2, path16, code, name);
   const program2 = cls.parentPath.isProgram() ? cls.parentPath.node : cls.parentPath.parentPath?.node;
   if (!program2 || !t.isProgram(program2)) return { reason: `class component ${name} isn't declared at the top of the file` };
   const typeParams = cls.node.superTypeParameters?.params;
@@ -69839,10 +71610,10 @@ function classTarget(fn2, member2, path15, code, server) {
   } else {
     const ref2 = program2.body.find((n4) => t.isExportDefaultDeclaration(n4) && t.isIdentifier(n4.declaration, { name }));
     if (ref2) wrap = { className: name, refStart: ref2.declaration.start, refEnd: ref2.declaration.end, ...typed };
-    else if (!new RegExp(`withTranslation\\([^)]*\\)\\(\\s*${name}\\s*\\)`).test(code)) return unwrappedClassTarget(fn2, path15, code, name);
+    else if (!new RegExp(`withTranslation\\([^)]*\\)\\(\\s*${name}\\s*\\)`).test(code)) return unwrappedClassTarget(fn2, path16, code, name);
   }
   const base = { fnStart: fn2.node.start, componentName: name, bodyEnd: -1, ...wrap ? { wrap } : {} };
-  const binding2 = path15.scope.getBinding("t");
+  const binding2 = path16.scope.getBinding("t");
   if (binding2) {
     const init2 = binding2.path.isVariableDeclarator() ? binding2.path.node.init : null;
     const fromProps = t.isMemberExpression(init2) && t.isThisExpression(init2.object) && t.isIdentifier(init2.property, { name: "props" });
@@ -69855,8 +71626,8 @@ function classTarget(fn2, member2, path15, code, server) {
   const lineStart = code.lastIndexOf("\n", first.start - 1) + 1;
   return { ...base, mode: "classMethod", insertAt: first.start, indent: /^[ \t]*/.exec(code.slice(lineStart))[0] };
 }
-function unwrappedClassTarget(fn2, path15, code, name) {
-  if (path15.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
+function unwrappedClassTarget(fn2, path16, code, name) {
+  if (path16.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
   if (fn2.isClassMethod() && t.isIdentifier(fn2.node.key, { name: "render" })) {
     const body = fn2.node.body.body;
     if (!body.length) return { reason: `${name}'s render() is empty` };
@@ -69864,10 +71635,10 @@ function unwrappedClassTarget(fn2, path15, code, name) {
     const lineStart = code.lastIndexOf("\n", first.start - 1) + 1;
     return { fnStart: fn2.node.start, componentName: name, mode: "classRender", insertAt: first.start, bodyEnd: body[body.length - 1].end, indent: /^[ \t]*/.exec(code.slice(lineStart))[0] };
   }
-  return globalClassTarget(fn2, path15, code, name);
+  return globalClassTarget(fn2, path16, code, name);
 }
-function globalClassTarget(fn2, path15, code, name) {
-  if (path15.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
+function globalClassTarget(fn2, path16, code, name) {
+  if (path16.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
   const body = fn2.node.body;
   if (!t.isBlockStatement(body) || !body.body.length) return { reason: `in a one-line arrow in ${name}: give it a block body` };
   const superAt = body.body.findIndex((s) => t.isExpressionStatement(s) && t.isCallExpression(s.expression) && t.isSuper(s.expression.callee));
@@ -69964,7 +71735,7 @@ function pluralFromSource(source2) {
   const found2 = pluralTernary(expr);
   return found2 ? { count: source2.slice(found2.count.start, found2.count.end), one: found2.one, other: found2.other } : null;
 }
-var import_parser, import_traverse, t, traverse, IGNORED_ELEMENTS, IGNORE_ATTRIBUTES, literalText, IRREGULAR, UNCOUNTABLE, PLURAL_HELPER, ORDINAL_SUFFIX, calleeName, TAG_NAMES, VOID_TAGS, GENDER, COPY_KEYS, SETTER, TOAST_FNS, TOAST_OBJECTS, SCHEMA_METHODS, GENERIC_PROPS, isComponentClass, META_TEXT, ENGLISH_ORDINAL_SUFFIX;
+var import_parser, import_traverse, t, traverse, IGNORED_ELEMENTS, IGNORE_ATTRIBUTES, COPY_PROPS, literalText, IRREGULAR, UNCOUNTABLE, PLURAL_HELPER, ORDINAL_SUFFIX, calleeName, TAG_NAMES, VOID_TAGS, GENDER, COPY_KEYS, SETTER, TOAST_FNS, TOAST_OBJECTS, SCHEMA_METHODS, GENERIC_PROPS, isComponentClass, META_TEXT, ENGLISH_ORDINAL_SUFFIX;
 var init_scanner = __esm({
   "src/ast/scanner.ts"() {
     "use strict";
@@ -69976,6 +71747,7 @@ var init_scanner = __esm({
     traverse = import_traverse.default.default ?? import_traverse.default;
     IGNORED_ELEMENTS = /* @__PURE__ */ new Set(["code", "pre", "script", "style", "kbd", "samp", "Trans"]);
     IGNORE_ATTRIBUTES = /* @__PURE__ */ new Set(["data-i18n-ignore", "data-localize-ignore"]);
+    COPY_PROPS = /* @__PURE__ */ new Set(["heading", "subheading", "title", "subtitle", "description", "text", "message", "caption", "cta", "ctaText", "hint", "helperText", "helpText", "emptyText", "emptyMessage", "errorMessage", "successMessage", "buttonText", "confirmText", "cancelText", "okText", "submitText", "loadingText", "summary", "body", "question", "answer", "tagline", "headline", "eyebrow", "badge"]);
     literalText = (n4) => t.isStringLiteral(n4) ? n4.value : t.isTemplateLiteral(n4) && !n4.expressions.length ? n4.quasis[0].value.cooked ?? null : null;
     IRREGULAR = { person: "people", child: "children", man: "men", woman: "women", mouse: "mice", foot: "feet", tooth: "teeth", goose: "geese", ox: "oxen", leaf: "leaves", life: "lives", knife: "knives", wife: "wives", half: "halves" };
     UNCOUNTABLE = /* @__PURE__ */ new Set(["information", "equipment", "feedback", "news", "data", "software", "hardware", "series", "species", "sheep", "fish", "deer", "money", "advice"]);
@@ -69997,1639 +71769,6 @@ var init_scanner = __esm({
   }
 });
 
-// ../../node_modules/@jridgewell/sourcemap-codec/dist/sourcemap-codec.mjs
-function decodeInteger(reader) {
-  let value = 0;
-  let shift = 0;
-  let integer = 0;
-  do {
-    const c = reader.next();
-    integer = charToInt[c];
-    value |= (integer & 31) << shift;
-    shift += 5;
-  } while (integer & 32);
-  return value;
-}
-function decodeSign(num) {
-  return num & 1 ? -2147483648 | -(num >>> 1) : num >>> 1;
-}
-function encodeInteger(builder, num) {
-  do {
-    let clamped = num & 31;
-    num >>>= 5;
-    if (num > 0) clamped |= 32;
-    builder.write(intToChar[clamped]);
-  } while (num > 0);
-}
-function encodeSign(num) {
-  return num < 0 ? -num << 1 | 1 : num << 1;
-}
-function hasMoreVlq(reader, max) {
-  if (reader.pos >= max) return false;
-  return reader.peek() !== comma;
-}
-function encodeRangeMappings(decoded) {
-  if (decoded.length === 0) return "";
-  const writer = new StringWriter();
-  for (let i3 = 0; i3 < decoded.length; i3++) {
-    const indices = decoded[i3];
-    if (i3 > 0) writer.write(semicolon);
-    let index = 0;
-    for (let j = 0; j < indices.length; j++) {
-      const offset2 = indices[j];
-      encodeInteger(writer, offset2 - index);
-      index = offset2;
-    }
-  }
-  return writer.flush();
-}
-function decode(mappings) {
-  const { length } = mappings;
-  const reader = new StringReader(mappings);
-  const decoded = [];
-  let genColumn = 0;
-  let sourcesIndex = 0;
-  let sourceLine = 0;
-  let sourceColumn = 0;
-  let namesIndex = 0;
-  do {
-    const semi = reader.indexOf(";");
-    const line = [];
-    let sorted = true;
-    let lastCol = 0;
-    genColumn = 0;
-    while (reader.pos < semi) {
-      let seg;
-      genColumn += decodeSign(decodeInteger(reader));
-      if (genColumn < lastCol) sorted = false;
-      lastCol = genColumn;
-      if (hasMoreVlq(reader, semi)) {
-        sourcesIndex += decodeSign(decodeInteger(reader));
-        sourceLine += decodeSign(decodeInteger(reader));
-        sourceColumn += decodeSign(decodeInteger(reader));
-        if (hasMoreVlq(reader, semi)) {
-          namesIndex += decodeSign(decodeInteger(reader));
-          seg = [genColumn, sourcesIndex, sourceLine, sourceColumn, namesIndex];
-        } else {
-          seg = [genColumn, sourcesIndex, sourceLine, sourceColumn];
-        }
-      } else {
-        seg = [genColumn];
-      }
-      line.push(seg);
-      reader.pos++;
-    }
-    if (!sorted) sort(line);
-    decoded.push(line);
-    reader.pos = semi + 1;
-  } while (reader.pos <= length);
-  return decoded;
-}
-function sort(line) {
-  line.sort(sortComparator);
-}
-function sortComparator(a, b4) {
-  return a[0] - b4[0];
-}
-function encode(decoded) {
-  const writer = new StringWriter();
-  let sourcesIndex = 0;
-  let sourceLine = 0;
-  let sourceColumn = 0;
-  let namesIndex = 0;
-  for (let i3 = 0; i3 < decoded.length; i3++) {
-    const line = decoded[i3];
-    if (i3 > 0) writer.write(semicolon);
-    if (line.length === 0) continue;
-    let genColumn = 0;
-    for (let j = 0; j < line.length; j++) {
-      const segment = line[j];
-      if (j > 0) writer.write(comma);
-      encodeInteger(writer, encodeSign(segment[0] - genColumn));
-      genColumn = segment[0];
-      if (segment.length === 1) continue;
-      encodeInteger(writer, encodeSign(segment[1] - sourcesIndex));
-      encodeInteger(writer, encodeSign(segment[2] - sourceLine));
-      encodeInteger(writer, encodeSign(segment[3] - sourceColumn));
-      sourcesIndex = segment[1];
-      sourceLine = segment[2];
-      sourceColumn = segment[3];
-      if (segment.length === 4) continue;
-      encodeInteger(writer, encodeSign(segment[4] - namesIndex));
-      namesIndex = segment[4];
-    }
-  }
-  return writer.flush();
-}
-var comma, semicolon, chars, intToChar, charToInt, bufLength, td, StringWriter, StringReader;
-var init_sourcemap_codec = __esm({
-  "../../node_modules/@jridgewell/sourcemap-codec/dist/sourcemap-codec.mjs"() {
-    comma = ",".charCodeAt(0);
-    semicolon = ";".charCodeAt(0);
-    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    intToChar = new Uint8Array(64);
-    charToInt = new Uint8Array(128);
-    for (let i3 = 0; i3 < chars.length; i3++) {
-      const c = chars.charCodeAt(i3);
-      intToChar[i3] = c;
-      charToInt[c] = i3;
-    }
-    bufLength = 1024 * 16;
-    td = typeof TextDecoder !== "undefined" ? /* @__PURE__ */ new TextDecoder() : typeof Buffer !== "undefined" ? {
-      decode(buf) {
-        const out = Buffer.from(buf.buffer, buf.byteOffset, buf.byteLength);
-        return out.toString();
-      }
-    } : {
-      decode(buf) {
-        let out = "";
-        for (let i3 = 0; i3 < buf.length; i3++) {
-          out += String.fromCharCode(buf[i3]);
-        }
-        return out;
-      }
-    };
-    StringWriter = class {
-      constructor() {
-        this.pos = 0;
-        this.out = "";
-        this.buffer = new Uint8Array(bufLength);
-      }
-      write(v2) {
-        const { buffer } = this;
-        buffer[this.pos++] = v2;
-        if (this.pos === bufLength) {
-          this.out += td.decode(buffer);
-          this.pos = 0;
-        }
-      }
-      flush() {
-        const { buffer, out, pos } = this;
-        return pos > 0 ? out + td.decode(buffer.subarray(0, pos)) : out;
-      }
-    };
-    StringReader = class {
-      constructor(buffer) {
-        this.pos = 0;
-        this.buffer = buffer;
-      }
-      next() {
-        return this.buffer.charCodeAt(this.pos++);
-      }
-      peek() {
-        return this.buffer.charCodeAt(this.pos);
-      }
-      indexOf(char) {
-        const { buffer, pos } = this;
-        const idx = buffer.indexOf(char, pos);
-        return idx === -1 ? buffer.length : idx;
-      }
-    };
-  }
-});
-
-// ../../node_modules/magic-string/dist/index.mjs
-function getBtoa() {
-  if (typeof globalThis !== "undefined" && typeof globalThis.btoa === "function") return (str) => globalThis.btoa(unescape(encodeURIComponent(str)));
-  const buffer = globalThis["Buffer"];
-  if (buffer) return (str) => buffer.from(str, "utf-8").toString("base64");
-  return () => {
-    throw new MagicStringError("unsupported environment: `btoa` or `Buffer` is required");
-  };
-}
-function getLocator(source2) {
-  const lineOffsets = [0];
-  for (let i3 = source2.indexOf("\n"); i3 !== -1; i3 = source2.indexOf("\n", i3 + 1)) lineOffsets.push(i3 + 1);
-  return function locate(index) {
-    let i3 = 0;
-    let j = lineOffsets.length;
-    while (i3 < j) {
-      const m2 = i3 + j >> 1;
-      if (index < lineOffsets[m2]) j = m2;
-      else i3 = m2 + 1;
-    }
-    const line = i3 - 1;
-    return {
-      line,
-      column: index - lineOffsets[line]
-    };
-  };
-}
-function getRelativePath(from, to) {
-  const fromParts = from.split(/[/\\]/);
-  const toParts = to.split(/[/\\]/);
-  fromParts.pop();
-  while (fromParts[0] === toParts[0]) {
-    fromParts.shift();
-    toParts.shift();
-  }
-  if (fromParts.length) {
-    let i3 = fromParts.length;
-    while (i3--) fromParts[i3] = "..";
-  }
-  return fromParts.concat(toParts).join("/");
-}
-function guessIndent(code) {
-  const lines = code.split("\n");
-  const tabbed = lines.filter((line) => /^\t+/.test(line));
-  const spaced = lines.filter((line) => /^ {2,}/.test(line));
-  if (tabbed.length === 0 && spaced.length === 0) return null;
-  if (tabbed.length >= spaced.length) return "	";
-  const min = spaced.reduce((previous, current2) => {
-    const numSpaces = /^ +/.exec(current2)[0].length;
-    return Math.min(numSpaces, previous);
-  }, Infinity);
-  return " ".repeat(min);
-}
-function isObject(thing) {
-  return toString.call(thing) === "[object Object]";
-}
-function writeVlq(pos, num) {
-  num = num < 0 ? -num << 1 | 1 : num << 1;
-  do {
-    let clamped = num & 31;
-    num >>>= 5;
-    if (num > 0) clamped |= 32;
-    scratch[pos++] = intToChar2[clamped];
-  } while (num > 0);
-  return pos;
-}
-function isWordCode(code) {
-  return code >= 97 && code <= 122 || code >= 65 && code <= 90 || code >= 48 && code <= 57 || code === 95;
-}
-function expandReplacement(replacement, matched, position2, str, captures, namedCaptures) {
-  if (!replacement.includes("$")) return replacement;
-  let result = "";
-  let index = 0;
-  while (index < replacement.length) {
-    const dollar = replacement.indexOf("$", index);
-    if (dollar === -1) {
-      result += replacement.slice(index);
-      break;
-    }
-    result += replacement.slice(index, dollar);
-    const char = replacement[dollar + 1];
-    let expansion = "$";
-    let consumed = 1;
-    if (char === "$") consumed = 2;
-    else if (char === "&") {
-      expansion = matched;
-      consumed = 2;
-    } else if (char === "`") {
-      expansion = str.slice(0, position2);
-      consumed = 2;
-    } else if (char === "'") {
-      expansion = str.slice(position2 + matched.length);
-      consumed = 2;
-    } else if (char === "<" && namedCaptures !== void 0) {
-      const close2 = replacement.indexOf(">", dollar + 2);
-      if (close2 !== -1) {
-        expansion = namedCaptures[replacement.slice(dollar + 2, close2)] ?? "";
-        consumed = close2 + 1 - dollar;
-      }
-    } else if (char >= "0" && char <= "9") {
-      const second = replacement[dollar + 2];
-      const double = second >= "0" && second <= "9" ? Number(char + second) : NaN;
-      const single = Number(char);
-      if (double >= 1 && double <= captures.length) {
-        expansion = captures[double - 1] ?? "";
-        consumed = 3;
-      } else if (single >= 1 && single <= captures.length) {
-        expansion = captures[single - 1] ?? "";
-        consumed = 2;
-      }
-    }
-    result += expansion;
-    index = dollar + consumed;
-  }
-  return result;
-}
-var BitSet, Chunk, MagicStringError, btoa2, SourceMap, toString, BASE64_CHARS, intToChar2, COMMA, SEMICOLON, BUFFER_SIZE, FLUSH_THRESHOLD, scratch, decoder, MappingsEncoder, NEWLINE_CHAR$1, Mappings, n, NEWLINE_CHAR, CR_CHAR, warned, MagicString;
-var init_dist = __esm({
-  "../../node_modules/magic-string/dist/index.mjs"() {
-    init_sourcemap_codec();
-    BitSet = class BitSet2 {
-      constructor(arg) {
-        this.bits = arg instanceof BitSet2 ? arg.bits.slice() : [];
-      }
-      add(n4) {
-        this.bits[n4 >> 5] |= 1 << (n4 & 31);
-      }
-      has(n4) {
-        return !!(this.bits[n4 >> 5] & 1 << (n4 & 31));
-      }
-    };
-    Chunk = class Chunk2 {
-      constructor(start2, end2, content) {
-        this.start = start2;
-        this.end = end2;
-        this.original = content;
-        this.intro = "";
-        this.outro = "";
-        this.content = content;
-        this.storeName = false;
-        this.edited = false;
-        this.replacesUntil = -1;
-        this.replacedFrom = -1;
-        this.previous = null;
-        this.next = null;
-      }
-      appendLeft(content) {
-        this.outro += content;
-      }
-      appendRight(content) {
-        this.intro = this.intro + content;
-      }
-      clone() {
-        const chunk = new Chunk2(this.start, this.end, this.original);
-        chunk.intro = this.intro;
-        chunk.outro = this.outro;
-        chunk.content = this.content;
-        chunk.storeName = this.storeName;
-        chunk.edited = this.edited;
-        chunk.replacesUntil = this.replacesUntil;
-        chunk.replacedFrom = this.replacedFrom;
-        return chunk;
-      }
-      contains(index) {
-        return this.start < index && index < this.end;
-      }
-      eachNext(fn2) {
-        fn2(this);
-        let chunk = this.next;
-        while (chunk) {
-          fn2(chunk);
-          chunk = chunk.next;
-        }
-      }
-      eachPrevious(fn2) {
-        fn2(this);
-        let chunk = this.previous;
-        while (chunk) {
-          fn2(chunk);
-          chunk = chunk.previous;
-        }
-      }
-      edit(content, storeName, contentOnly) {
-        this.content = content;
-        if (!contentOnly) {
-          this.intro = "";
-          this.outro = "";
-        }
-        this.storeName = storeName;
-        this.edited = true;
-        return this;
-      }
-      prependLeft(content) {
-        this.outro = content + this.outro;
-      }
-      prependRight(content) {
-        this.intro = content + this.intro;
-      }
-      reset() {
-        this.intro = "";
-        this.outro = "";
-        this.replacesUntil = -1;
-        this.replacedFrom = -1;
-        if (this.edited) {
-          this.content = this.original;
-          this.storeName = false;
-          this.edited = false;
-        }
-      }
-      split(index) {
-        const sliceIndex = index - this.start;
-        const originalBefore = this.original.slice(0, sliceIndex);
-        const originalAfter = this.original.slice(sliceIndex);
-        this.original = originalBefore;
-        const newChunk = new Chunk2(index, this.end, originalAfter);
-        newChunk.outro = this.outro;
-        this.outro = "";
-        this.end = index;
-        if (this.edited) {
-          newChunk.edit("", false, true);
-          newChunk.replacedFrom = this.replacedFrom;
-          this.content = "";
-        } else this.content = originalBefore;
-        newChunk.next = this.next;
-        if (newChunk.next) newChunk.next.previous = newChunk;
-        newChunk.previous = this;
-        this.next = newChunk;
-        return newChunk;
-      }
-      toString() {
-        return this.intro + this.content + this.outro;
-      }
-      trimEnd(rx) {
-        this.outro = this.outro.replace(rx, "");
-        if (this.outro.length) return true;
-        const trimmed = this.content.replace(rx, "");
-        if (trimmed.length) {
-          if (trimmed !== this.content) {
-            if (this.edited) this.edit(trimmed, this.storeName, true);
-            else this.split(this.start + trimmed.length).edit("", void 0, true);
-          }
-          return true;
-        } else {
-          this.edit("", void 0, true);
-          this.intro = this.intro.replace(rx, "");
-          if (this.intro.length) return true;
-        }
-      }
-      trimStart(rx) {
-        this.intro = this.intro.replace(rx, "");
-        if (this.intro.length) return true;
-        const trimmed = this.content.replace(rx, "");
-        if (trimmed.length) {
-          if (trimmed !== this.content) {
-            if (this.edited) this.edit(trimmed, this.storeName, true);
-            else {
-              this.split(this.end - trimmed.length);
-              this.edit("", void 0, true);
-            }
-          }
-          return true;
-        } else {
-          this.edit("", void 0, true);
-          this.outro = this.outro.replace(rx, "");
-          if (this.outro.length) return true;
-        }
-      }
-    };
-    MagicStringError = class extends Error {
-      name = "MagicStringError";
-      constructor(message, options) {
-        super(`[MagicString] ${message}`, options);
-      }
-    };
-    btoa2 = /* @__PURE__ */ getBtoa();
-    SourceMap = class {
-      constructor(properties) {
-        this.version = 3;
-        this.file = properties.file;
-        this.sources = properties.sources;
-        this.sourcesContent = properties.sourcesContent;
-        this.names = properties.names;
-        this.mappings = typeof properties.mappings === "string" ? properties.mappings : encode(properties.mappings);
-        if (typeof properties.x_google_ignoreList !== "undefined") this.x_google_ignoreList = properties.x_google_ignoreList;
-        if (typeof properties.debugId !== "undefined") this.debugId = properties.debugId;
-        if (typeof properties.rangeMappings !== "undefined") {
-          let shouldOutputRangeMapping = false;
-          for (const line of properties.rangeMappings) if (line.length !== 0) {
-            shouldOutputRangeMapping = true;
-            break;
-          }
-          if (shouldOutputRangeMapping) this.rangeMappings = encodeRangeMappings(properties.rangeMappings);
-        }
-      }
-      /**
-      * Returns the equivalent of `JSON.stringify(map)`
-      */
-      toString() {
-        return JSON.stringify(this);
-      }
-      /**
-      * Returns a DataURI containing the sourcemap. Useful for doing this sort of thing:
-      * `generateMap(options?: SourceMapOptions): SourceMap;`
-      */
-      toUrl() {
-        return `data:application/json;charset=utf-8;base64,${btoa2(this.toString())}`;
-      }
-    };
-    toString = Object.prototype.toString;
-    BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    intToChar2 = /* @__PURE__ */ (() => {
-      const chars2 = /* @__PURE__ */ new Uint8Array(64);
-      for (let i3 = 0; i3 < 64; i3++) chars2[i3] = BASE64_CHARS.charCodeAt(i3);
-      return chars2;
-    })();
-    COMMA = 44;
-    SEMICOLON = 59;
-    BUFFER_SIZE = 16384;
-    FLUSH_THRESHOLD = 16348;
-    scratch = /* @__PURE__ */ new Uint8Array(BUFFER_SIZE);
-    decoder = /* @__PURE__ */ new TextDecoder();
-    MappingsEncoder = class {
-      constructor() {
-        this.out = "";
-        this.pos = 0;
-        this.lines = [];
-        this.buffered = 0;
-        this.needsComma = false;
-        this.prevGenColumn = 0;
-        this.prevSourceIndex = 0;
-        this.prevSourceLine = 0;
-        this.prevSourceColumn = 0;
-        this.prevNameIndex = 0;
-      }
-      endLine(segments) {
-        this.lines.push(segments);
-        this.buffered += segments.length + 1;
-        if (this.buffered >= 4096) this.drain(null);
-      }
-      segments(segments) {
-        this.drain(segments);
-      }
-      finish(segments) {
-        this.drain(segments);
-        this.flush();
-        return this.out;
-      }
-      drain(trailing) {
-        const lines = this.lines;
-        const lineCount = lines.length;
-        for (let l2 = 0; l2 <= lineCount; l2++) {
-          const line = l2 < lineCount ? lines[l2] : trailing;
-          if (line === null) break;
-          for (let i3 = 0; i3 < line.length; i3++) {
-            if (this.pos > FLUSH_THRESHOLD) this.flush();
-            const segment = line[i3];
-            if (this.needsComma) scratch[this.pos++] = COMMA;
-            this.needsComma = true;
-            this.pos = writeVlq(this.pos, segment[0] - this.prevGenColumn);
-            this.prevGenColumn = segment[0];
-            this.pos = writeVlq(this.pos, segment[1] - this.prevSourceIndex);
-            this.prevSourceIndex = segment[1];
-            this.pos = writeVlq(this.pos, segment[2] - this.prevSourceLine);
-            this.prevSourceLine = segment[2];
-            this.pos = writeVlq(this.pos, segment[3] - this.prevSourceColumn);
-            this.prevSourceColumn = segment[3];
-            if (segment.length === 5) {
-              this.pos = writeVlq(this.pos, segment[4] - this.prevNameIndex);
-              this.prevNameIndex = segment[4];
-            }
-          }
-          if (l2 < lineCount) {
-            if (this.pos > FLUSH_THRESHOLD) this.flush();
-            scratch[this.pos++] = SEMICOLON;
-            this.needsComma = false;
-            this.prevGenColumn = 0;
-          }
-        }
-        lines.length = 0;
-        this.buffered = 0;
-        this.flush();
-      }
-      flush() {
-        this.out += decoder.decode(scratch.subarray(0, this.pos));
-        this.pos = 0;
-      }
-    };
-    NEWLINE_CHAR$1 = 10;
-    Mappings = class {
-      constructor(hires, encoder = null) {
-        this.hires = hires;
-        this.generatedCodeLine = 0;
-        this.generatedCodeColumn = 0;
-        this.raw = [];
-        this.rawSegments = this.raw[this.generatedCodeLine] = [];
-        this.rawRangeMappings = [];
-        this.rawRangeMappingsIndices = this.rawRangeMappings[this.generatedCodeLine] = [];
-        this.encoder = encoder;
-      }
-      nextLine() {
-        if (this.encoder === null) {
-          this.generatedCodeLine += 1;
-          this.raw[this.generatedCodeLine] = this.rawSegments = [];
-        } else {
-          this.encoder.endLine(this.rawSegments);
-          this.rawSegments = [];
-          this.generatedCodeLine += 1;
-        }
-        this.generatedCodeColumn = 0;
-        this.rawRangeMappings[this.generatedCodeLine] = this.rawRangeMappingsIndices = [];
-      }
-      addEdit(sourceIndex, content, loc2, nameIndex) {
-        if (content.length) {
-          const contentLengthMinusOne = content.length - 1;
-          let contentLineEnd = content.indexOf("\n", 0);
-          let previousContentLineEnd = -1;
-          while (contentLineEnd >= 0 && contentLengthMinusOne > contentLineEnd) {
-            const segment2 = [
-              this.generatedCodeColumn,
-              sourceIndex,
-              loc2.line,
-              loc2.column
-            ];
-            if (nameIndex >= 0) segment2.push(nameIndex);
-            this.rawSegments.push(segment2);
-            this.nextLine();
-            previousContentLineEnd = contentLineEnd;
-            contentLineEnd = content.indexOf("\n", contentLineEnd + 1);
-          }
-          const segment = [
-            this.generatedCodeColumn,
-            sourceIndex,
-            loc2.line,
-            loc2.column
-          ];
-          if (nameIndex >= 0) segment.push(nameIndex);
-          this.rawSegments.push(segment);
-          this.advance(content.slice(previousContentLineEnd + 1));
-        }
-      }
-      addUneditedChunk(sourceIndex, chunk, original, loc2, sourcemapLocations) {
-        const end2 = chunk.end;
-        let i3 = chunk.start;
-        if (this.hires) {
-          const boundary2 = this.hires === "boundary";
-          const experimentalRange = this.hires === "experimental-range";
-          const encoder = experimentalRange ? null : this.encoder;
-          let charInHiresBoundary = false;
-          while (i3 < end2) {
-            if (encoder !== null && this.rawSegments.length >= 4096) {
-              encoder.segments(this.rawSegments);
-              this.rawSegments.length = 0;
-            }
-            if (experimentalRange && i3 + 1 >= end2) this.rawSegments.push([
-              this.generatedCodeColumn,
-              sourceIndex,
-              loc2.line,
-              loc2.column
-            ]);
-            const code = original.charCodeAt(i3);
-            if (code === NEWLINE_CHAR$1) {
-              loc2.line += 1;
-              loc2.column = 0;
-              this.nextLine();
-              charInHiresBoundary = false;
-            } else {
-              if (boundary2) {
-                if (isWordCode(code)) {
-                  if (!charInHiresBoundary) {
-                    this.rawSegments.push([
-                      this.generatedCodeColumn,
-                      sourceIndex,
-                      loc2.line,
-                      loc2.column
-                    ]);
-                    charInHiresBoundary = true;
-                  }
-                } else {
-                  this.rawSegments.push([
-                    this.generatedCodeColumn,
-                    sourceIndex,
-                    loc2.line,
-                    loc2.column
-                  ]);
-                  charInHiresBoundary = false;
-                }
-              } else if (experimentalRange) {
-                if (i3 === chunk.start) {
-                  this.rawRangeMappingsIndices.push(this.rawSegments.length);
-                  this.rawSegments.push([
-                    this.generatedCodeColumn,
-                    sourceIndex,
-                    loc2.line,
-                    loc2.column
-                  ]);
-                }
-              } else this.rawSegments.push([
-                this.generatedCodeColumn,
-                sourceIndex,
-                loc2.line,
-                loc2.column
-              ]);
-              loc2.column += 1;
-              this.generatedCodeColumn += 1;
-            }
-            i3 += 1;
-          }
-        } else {
-          const bits = sourcemapLocations.bits;
-          while (i3 < end2) {
-            let newline2 = original.indexOf("\n", i3);
-            if (newline2 === -1 || newline2 > end2) newline2 = end2;
-            if (newline2 > i3) {
-              this.rawSegments.push([
-                this.generatedCodeColumn,
-                sourceIndex,
-                loc2.line,
-                loc2.column
-              ]);
-              for (let w4 = i3 + 1 >> 5, last = newline2 - 1 >> 5; w4 <= last; w4++) {
-                let word = bits[w4];
-                if (!word) continue;
-                const base = w4 << 5;
-                while (word) {
-                  const lowest = word & -word;
-                  const index = base + 31 - Math.clz32(lowest);
-                  if (index > i3 && index < newline2) {
-                    const offset2 = index - i3;
-                    this.rawSegments.push([
-                      this.generatedCodeColumn + offset2,
-                      sourceIndex,
-                      loc2.line,
-                      loc2.column + offset2
-                    ]);
-                  }
-                  word ^= lowest;
-                }
-              }
-              loc2.column += newline2 - i3;
-              this.generatedCodeColumn += newline2 - i3;
-            }
-            if (newline2 === end2) break;
-            loc2.line += 1;
-            loc2.column = 0;
-            this.nextLine();
-            i3 = newline2 + 1;
-          }
-        }
-      }
-      advance(str) {
-        if (!str) return;
-        const lastNewline = str.lastIndexOf("\n");
-        for (let i3 = str.indexOf("\n"); i3 !== -1; i3 = str.indexOf("\n", i3 + 1)) this.nextLine();
-        this.generatedCodeColumn += str.length - lastNewline - 1;
-      }
-    };
-    n = "\n";
-    NEWLINE_CHAR = "\n".charCodeAt(0);
-    CR_CHAR = "\r".charCodeAt(0);
-    warned = {
-      insertLeft: false,
-      insertRight: false,
-      storeName: false
-    };
-    MagicString = class MagicString2 {
-      constructor(string2, options = {}) {
-        const chunk = new Chunk(0, string2.length, string2);
-        Object.defineProperties(this, {
-          original: {
-            writable: true,
-            value: string2
-          },
-          outro: {
-            writable: true,
-            value: ""
-          },
-          intro: {
-            writable: true,
-            value: ""
-          },
-          firstChunk: {
-            writable: true,
-            value: chunk
-          },
-          lastChunk: {
-            writable: true,
-            value: chunk
-          },
-          lastSearchedChunk: {
-            writable: true,
-            value: chunk
-          },
-          byStart: {
-            writable: true,
-            value: /* @__PURE__ */ new Map([[0, chunk]])
-          },
-          byEnd: {
-            writable: true,
-            value: /* @__PURE__ */ new Map([[string2.length, chunk]])
-          },
-          filename: {
-            writable: true,
-            value: options.filename
-          },
-          indentExclusionRanges: {
-            writable: true,
-            value: options.indentExclusionRanges
-          },
-          sourcemapLocations: {
-            writable: true,
-            value: new BitSet()
-          },
-          storedNames: {
-            writable: true,
-            value: {}
-          },
-          indentStr: {
-            writable: true,
-            value: void 0
-          },
-          ignoreList: {
-            writable: true,
-            value: options.ignoreList
-          },
-          offset: {
-            writable: true,
-            value: options.offset || 0
-          },
-          hasMovedChunks: {
-            writable: true,
-            value: false
-          }
-        });
-      }
-      /**
-      * Adds the specified character index (with respect to the original string) to sourcemap mappings, if `hires` is false.
-      */
-      addSourcemapLocation(char) {
-        this.sourcemapLocations.add(char);
-      }
-      /**
-      * Appends the specified content to the end of the string.
-      */
-      append(content) {
-        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
-        this.outro += content;
-        return this;
-      }
-      /**
-      * Appends the specified content at the index in the original string.
-      * If a range *ending* with index is subsequently moved, the insert will be moved with it.
-      * See also `s.prependLeft(...)`.
-      */
-      appendLeft(index, content) {
-        index = index + this.offset;
-        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
-        this._split(index);
-        const chunk = this.byEnd.get(index);
-        if (chunk) chunk.appendLeft(content);
-        else this.intro += content;
-        return this;
-      }
-      /**
-      * Appends the specified content at the index in the original string.
-      * If a range *starting* with index is subsequently moved, the insert will be moved with it.
-      * See also `s.prependRight(...)`.
-      */
-      appendRight(index, content) {
-        index = index + this.offset;
-        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
-        this._split(index);
-        const chunk = this.byStart.get(index);
-        if (chunk) chunk.appendRight(content);
-        else this.outro += content;
-        return this;
-      }
-      /**
-      * Does what you'd expect.
-      */
-      clone() {
-        const cloned = new MagicString2(this.original, {
-          filename: this.filename,
-          ignoreList: this.ignoreList,
-          offset: this.offset
-        });
-        let originalChunk = this.firstChunk;
-        let clonedChunk = cloned.firstChunk = cloned.lastSearchedChunk = originalChunk.clone();
-        while (originalChunk) {
-          cloned.byStart.set(clonedChunk.start, clonedChunk);
-          cloned.byEnd.set(clonedChunk.end, clonedChunk);
-          const nextOriginalChunk = originalChunk.next;
-          const nextClonedChunk = nextOriginalChunk && nextOriginalChunk.clone();
-          if (nextClonedChunk) {
-            clonedChunk.next = nextClonedChunk;
-            nextClonedChunk.previous = clonedChunk;
-            clonedChunk = nextClonedChunk;
-          }
-          originalChunk = nextOriginalChunk;
-        }
-        cloned.lastChunk = clonedChunk;
-        if (this.indentExclusionRanges) cloned.indentExclusionRanges = this.indentExclusionRanges.slice();
-        cloned.sourcemapLocations = new BitSet(this.sourcemapLocations);
-        cloned.storedNames = { ...this.storedNames };
-        cloned.intro = this.intro;
-        cloned.outro = this.outro;
-        cloned.hasMovedChunks = this.hasMovedChunks;
-        return cloned;
-      }
-      /**
-      * Generates a sourcemap object with raw mappings in array form, rather than encoded as a string.
-      * Useful if you need to manipulate the sourcemap further, but most of the time you will use `generateMap` instead.
-      */
-      generateDecodedMap(options) {
-        options = options || {};
-        const mappings = new Mappings(options.hires);
-        const names = this._generateMappings(mappings);
-        return {
-          ...this._mapProperties(options, names),
-          mappings: mappings.raw,
-          rangeMappings: mappings.rawRangeMappings
-        };
-      }
-      /**
-      * Generates a version 3 sourcemap.
-      */
-      generateMap(options) {
-        options = options || {};
-        const encoder = new MappingsEncoder();
-        const mappings = new Mappings(options.hires, encoder);
-        const names = this._generateMappings(mappings);
-        return new SourceMap({
-          ...this._mapProperties(options, names),
-          mappings: encoder.finish(mappings.rawSegments),
-          rangeMappings: mappings.rawRangeMappings
-        });
-      }
-      /** @internal */
-      _generateMappings(mappings) {
-        const sourceIndex = 0;
-        const names = Object.keys(this.storedNames);
-        const locate = getLocator(this.original);
-        if (this.intro) mappings.advance(this.intro);
-        this.firstChunk.eachNext((chunk) => {
-          const loc2 = locate(chunk.start);
-          if (chunk.intro.length) mappings.advance(chunk.intro);
-          if (chunk.edited) mappings.addEdit(sourceIndex, chunk.content, loc2, chunk.storeName ? names.indexOf(chunk.original) : -1);
-          else mappings.addUneditedChunk(sourceIndex, chunk, this.original, loc2, this.sourcemapLocations);
-          if (chunk.outro.length) mappings.advance(chunk.outro);
-        });
-        if (this.outro) mappings.advance(this.outro);
-        return names;
-      }
-      /** @internal */
-      _mapProperties(options, names) {
-        return {
-          file: options.file ? options.file.split(/[/\\]/).pop() : void 0,
-          sources: [options.source ? getRelativePath(options.file || "", options.source) : options.file || ""],
-          sourcesContent: options.includeContent ? [this.original] : void 0,
-          names,
-          x_google_ignoreList: this.ignoreList ? [0] : void 0
-        };
-      }
-      /** @internal */
-      _ensureindentStr() {
-        if (this.indentStr === void 0) this.indentStr = guessIndent(this.original);
-      }
-      /** @internal */
-      _getRawIndentString() {
-        this._ensureindentStr();
-        return this.indentStr;
-      }
-      getIndentString() {
-        this._ensureindentStr();
-        return this.indentStr === null ? "	" : this.indentStr;
-      }
-      indent(indentStr, options) {
-        const pattern = /^[^\r\n]/gm;
-        if (isObject(indentStr)) {
-          options = indentStr;
-          indentStr = void 0;
-        }
-        if (indentStr === void 0) {
-          this._ensureindentStr();
-          indentStr = this.indentStr || "	";
-        }
-        if (indentStr === "") return this;
-        const resolvedIndentStr = indentStr;
-        options = options || {};
-        const isExcluded = {};
-        if (options.exclude) (typeof options.exclude[0] === "number" ? [options.exclude] : options.exclude).forEach((exclusion) => {
-          for (let i3 = exclusion[0]; i3 < exclusion[1]; i3 += 1) isExcluded[i3] = true;
-        });
-        let shouldIndentNextCharacter = options.indentStart !== false;
-        const indentPiece = (str) => {
-          if (str === "") return str;
-          const indented = str.replace(pattern, (match2, offset2) => offset2 > 0 || shouldIndentNextCharacter ? `${resolvedIndentStr}${match2}` : match2);
-          shouldIndentNextCharacter = str[str.length - 1] === "\n";
-          return indented;
-        };
-        this.intro = indentPiece(this.intro);
-        let charIndex = 0;
-        let chunk = this.firstChunk;
-        const indentAt = (index) => {
-          shouldIndentNextCharacter = false;
-          if (index === chunk.start) chunk.appendRight(resolvedIndentStr);
-          else {
-            this._splitChunk(chunk, index);
-            chunk = chunk.next;
-            chunk.prependRight(resolvedIndentStr);
-          }
-        };
-        while (chunk) {
-          const end2 = chunk.end;
-          if (!isExcluded[chunk.start]) chunk.intro = indentPiece(chunk.intro);
-          if (chunk.edited) {
-            if (!isExcluded[charIndex]) chunk.content = indentPiece(chunk.content);
-          } else if (options.exclude) {
-            charIndex = chunk.start;
-            while (charIndex < end2) {
-              if (!isExcluded[charIndex]) {
-                const char = this.original.charCodeAt(charIndex);
-                if (char === NEWLINE_CHAR) shouldIndentNextCharacter = true;
-                else if (char !== CR_CHAR && shouldIndentNextCharacter) indentAt(charIndex);
-              }
-              charIndex += 1;
-            }
-          } else {
-            charIndex = chunk.start;
-            while (charIndex < end2) {
-              if (!shouldIndentNextCharacter) {
-                const nextLine = this.original.indexOf(n, charIndex);
-                if (nextLine === -1 || nextLine >= end2) break;
-                shouldIndentNextCharacter = true;
-                charIndex = nextLine + 1;
-                continue;
-              }
-              const char = this.original.charCodeAt(charIndex);
-              if (char === NEWLINE_CHAR || char === CR_CHAR) {
-                charIndex += 1;
-                continue;
-              }
-              indentAt(charIndex);
-              charIndex += 1;
-            }
-          }
-          if (!isExcluded[chunk.end - 1]) chunk.outro = indentPiece(chunk.outro);
-          charIndex = chunk.end;
-          chunk = chunk.next;
-        }
-        this.outro = indentPiece(this.outro);
-        return this;
-      }
-      /** @internal */
-      insert() {
-        throw new MagicStringError("insert() is deprecated, use appendLeft() or prependRight()");
-      }
-      /** @internal */
-      insertLeft(index, content) {
-        if (!warned.insertLeft) {
-          console.warn("magicString.insertLeft(...) is deprecated. Use magicString.appendLeft(...) instead");
-          warned.insertLeft = true;
-        }
-        return this.appendLeft(index, content);
-      }
-      /** @internal */
-      insertRight(index, content) {
-        if (!warned.insertRight) {
-          console.warn("magicString.insertRight(...) is deprecated. Use magicString.prependRight(...) instead");
-          warned.insertRight = true;
-        }
-        return this.prependRight(index, content);
-      }
-      /**
-      * Moves the characters from `start` and `end` to `index`.
-      *
-      * `affinity` controls where the range is anchored at `index`. With the
-      * default `'right'`, it is inserted before the content that starts at `index`;
-      * with `'left'`, it is inserted after the content that ends at `index`. The
-      * two differ only when other content has already been moved to that boundary,
-      * mirroring the `appendLeft`/`appendRight` distinction.
-      */
-      move(start2, end2, index, affinity = "right") {
-        start2 = start2 + this.offset;
-        end2 = end2 + this.offset;
-        index = index + this.offset;
-        if (start2 === end2) return this;
-        if (index >= start2 && index <= end2) throw new MagicStringError("cannot move a selection inside itself");
-        this._split(start2);
-        this._split(end2);
-        this._split(index);
-        const first = this.byStart.get(start2);
-        const last = this.byEnd.get(end2);
-        if (this.hasMovedChunks) {
-          let cursor = first;
-          while (cursor !== last) {
-            cursor = cursor.next;
-            if (!cursor || cursor.start < start2 || cursor.end > end2) throw new MagicStringError(`cannot move ${start2} to ${end2} because an earlier move split that range`);
-          }
-        }
-        const oldLeft = first.previous;
-        const oldRight = last.next;
-        let newLeft;
-        let newRight;
-        if (affinity === "left") {
-          newLeft = this.byEnd.get(index) ?? null;
-          if (!newLeft) {
-            if (first === this.firstChunk) return this;
-            newRight = this.firstChunk;
-          } else {
-            if (newLeft.next === first) return this;
-            newRight = newLeft.next;
-          }
-        } else {
-          newRight = this.byStart.get(index) ?? null;
-          if (!newRight) {
-            if (last === this.lastChunk) return this;
-            newLeft = this.lastChunk;
-          } else {
-            if (newRight.previous === last) return this;
-            newLeft = newRight.previous;
-          }
-        }
-        if (oldLeft) oldLeft.next = oldRight;
-        if (oldRight) oldRight.previous = oldLeft;
-        if (newLeft) newLeft.next = first;
-        if (newRight) newRight.previous = last;
-        if (!first.previous) this.firstChunk = last.next;
-        if (!last.next) {
-          this.lastChunk = first.previous;
-          this.lastChunk.next = null;
-        }
-        first.previous = newLeft;
-        last.next = newRight || null;
-        if (!newLeft) this.firstChunk = first;
-        if (!newRight) this.lastChunk = last;
-        this.hasMovedChunks = true;
-        return this;
-      }
-      /**
-      * Replaces the characters from `start` to `end` with `content`, along with the appended/prepended content in
-      * that range. The same restrictions as `s.remove()` apply.
-      *
-      * The fourth argument is optional. It can have a storeName property - if true, the original name will be stored
-      * for later inclusion in a sourcemap's names array - and a contentOnly property which determines whether only
-      * the content is overwritten, or anything that was appended/prepended to the range as well.
-      *
-      * It may be preferred to use `s.update(...)` instead if you wish to avoid overwriting the appended/prepended content.
-      */
-      overwrite(start2, end2, content, options) {
-        const optionObject = typeof options === "object" && options ? options : {};
-        return this.update(start2, end2, content, {
-          ...optionObject,
-          overwrite: !optionObject.contentOnly
-        });
-      }
-      /**
-      * Replaces the characters from `start` to `end` with `content`. The same restrictions as `s.remove()` apply.
-      *
-      * The fourth argument is optional. It can have a storeName property - if true, the original name will be stored
-      * for later inclusion in a sourcemap's names array - and an overwrite property which determines whether only
-      * the content is overwritten, or anything that was appended/prepended to the range as well.
-      */
-      update(start2, end2, content, options) {
-        start2 = start2 + this.offset;
-        end2 = end2 + this.offset;
-        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
-        if (this.original.length !== 0) {
-          if (start2 < 0) start2 = Math.max(0, start2 + this.original.length);
-          if (end2 < 0) end2 = Math.max(0, end2 + this.original.length);
-        }
-        if (start2 < 0) throw new MagicStringError(`start ${start2} is out of bounds`);
-        if (end2 > this.original.length) throw new MagicStringError(`end ${end2} is out of bounds`);
-        if (start2 === end2) throw new MagicStringError(`cannot overwrite a zero-length range at ${start2}, use appendLeft() or prependRight()`);
-        if (start2 > end2) throw new MagicStringError(`end must be greater than start (start: ${start2}, end: ${end2})`);
-        this._split(start2);
-        this._split(end2);
-        if (options === true) {
-          if (!warned.storeName) {
-            console.warn("The final argument to magicString.overwrite(...) should be an options object. See https://github.com/rich-harris/magic-string");
-            warned.storeName = true;
-          }
-          options = { storeName: true };
-        }
-        const optionObject = typeof options === "object" && options ? options : {};
-        const storeName = optionObject.storeName || false;
-        const overwrite = optionObject.overwrite || false;
-        if (storeName) {
-          const original = this.original.slice(start2, end2);
-          Object.defineProperty(this.storedNames, original, {
-            writable: true,
-            value: true,
-            enumerable: true
-          });
-        }
-        const first = this.byStart.get(start2);
-        const last = this.byEnd.get(end2);
-        if (first) {
-          let chunk = first;
-          while (chunk !== last) {
-            if (chunk.next !== this.byStart.get(chunk.end)) throw new MagicStringError("cannot overwrite across a split point");
-            chunk = chunk.next;
-          }
-          chunk = first;
-          while (chunk !== last) {
-            chunk = chunk.next;
-            chunk.edit("", false, !overwrite);
-            chunk.replacesUntil = -1;
-            chunk.replacedFrom = start2;
-          }
-          first.edit(content, storeName, !overwrite);
-          first.replacesUntil = end2;
-          first.replacedFrom = -1;
-        } else {
-          const newChunk = new Chunk(start2, end2, "").edit(content, storeName);
-          last.next = newChunk;
-          newChunk.previous = last;
-        }
-        return this;
-      }
-      /**
-      * Prepends the string with the specified content.
-      */
-      prepend(content) {
-        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
-        this.intro = content + this.intro;
-        return this;
-      }
-      /**
-      * Same as `s.appendLeft(...)`, except that the inserted content will go *before* any previous appends or prepends at index
-      */
-      prependLeft(index, content) {
-        index = index + this.offset;
-        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
-        this._split(index);
-        const chunk = this.byEnd.get(index);
-        if (chunk) chunk.prependLeft(content);
-        else this.intro = content + this.intro;
-        return this;
-      }
-      /**
-      * Same as `s.appendRight(...)`, except that the inserted content will go *before* any previous appends or prepends at `index`
-      */
-      prependRight(index, content) {
-        index = index + this.offset;
-        if (typeof content !== "string") throw new MagicStringError(`content must be a string, got ${typeof content}`);
-        this._split(index);
-        const chunk = this.byStart.get(index);
-        if (chunk) chunk.prependRight(content);
-        else this.outro = content + this.outro;
-        return this;
-      }
-      /**
-      * Removes the characters from `start` to `end` (of the original string, **not** the generated string).
-      * Content appended or prepended at positions strictly inside the range is removed with it, while
-      * content attached at `start` or `end` is preserved — use `s.overwrite(start, end, '')` to remove
-      * the range including its edge inserts.
-      * Repeated removals and removals with partially overlapping ranges are allowed.
-      */
-      remove(start2, end2) {
-        start2 = start2 + this.offset;
-        end2 = end2 + this.offset;
-        if (this.original.length !== 0) {
-          if (start2 < 0) start2 = Math.max(0, start2 + this.original.length);
-          if (end2 < 0) end2 = Math.max(0, end2 + this.original.length);
-        }
-        if (start2 === end2) return this;
-        if (start2 < 0 || end2 > this.original.length) throw new MagicStringError(`range ${start2}\u2013${end2} is out of bounds`);
-        if (start2 > end2) throw new MagicStringError(`end must be greater than start (start: ${start2}, end: ${end2})`);
-        this._split(start2);
-        this._split(end2);
-        let chunk = this.byStart.get(start2);
-        while (chunk) {
-          if (chunk.start > start2) chunk.intro = "";
-          if (chunk.end < end2) chunk.outro = "";
-          chunk.edit("", false, true);
-          chunk.replacesUntil = -1;
-          chunk.replacedFrom = -1;
-          chunk = end2 > chunk.end ? this.byStart.get(chunk.end) : null;
-        }
-        return this;
-      }
-      /**
-      * Reset the modified characters from `start` to `end` (of the original string, **not** the generated string).
-      */
-      reset(start2, end2) {
-        start2 = start2 + this.offset;
-        end2 = end2 + this.offset;
-        if (this.original.length !== 0) {
-          if (start2 < 0) start2 = Math.max(0, start2 + this.original.length);
-          if (end2 < 0) end2 = Math.max(0, end2 + this.original.length);
-        }
-        if (start2 === end2) return this;
-        if (start2 < 0 || end2 > this.original.length) throw new MagicStringError(`range ${start2}\u2013${end2} is out of bounds`);
-        if (start2 > end2) throw new MagicStringError(`end must be greater than start (start: ${start2}, end: ${end2})`);
-        this._split(start2);
-        this._split(end2);
-        let chunk = this.byStart.get(start2);
-        while (chunk) {
-          chunk.reset();
-          chunk = end2 > chunk.end ? this.byStart.get(chunk.end) : null;
-        }
-        return this;
-      }
-      lastChar() {
-        if (this.outro.length) return this.outro[this.outro.length - 1];
-        let chunk = this.lastChunk;
-        while (chunk) {
-          if (chunk.outro.length) return chunk.outro[chunk.outro.length - 1];
-          if (chunk.content.length) return chunk.content[chunk.content.length - 1];
-          if (chunk.intro.length) return chunk.intro[chunk.intro.length - 1];
-          chunk = chunk.previous;
-        }
-        if (this.intro.length) return this.intro[this.intro.length - 1];
-        return "";
-      }
-      lastLine() {
-        let lineIndex = this.outro.lastIndexOf(n);
-        if (lineIndex !== -1) return this.outro.substr(lineIndex + 1);
-        let lineStr = this.outro;
-        let chunk = this.lastChunk;
-        while (chunk) {
-          if (chunk.outro.length > 0) {
-            lineIndex = chunk.outro.lastIndexOf(n);
-            if (lineIndex !== -1) return chunk.outro.substr(lineIndex + 1) + lineStr;
-            lineStr = chunk.outro + lineStr;
-          }
-          if (chunk.content.length > 0) {
-            lineIndex = chunk.content.lastIndexOf(n);
-            if (lineIndex !== -1) return chunk.content.substr(lineIndex + 1) + lineStr;
-            lineStr = chunk.content + lineStr;
-          }
-          if (chunk.intro.length > 0) {
-            lineIndex = chunk.intro.lastIndexOf(n);
-            if (lineIndex !== -1) return chunk.intro.substr(lineIndex + 1) + lineStr;
-            lineStr = chunk.intro + lineStr;
-          }
-          chunk = chunk.previous;
-        }
-        lineIndex = this.intro.lastIndexOf(n);
-        if (lineIndex !== -1) return this.intro.substr(lineIndex + 1) + lineStr;
-        return this.intro + lineStr;
-      }
-      /**
-      * Returns the content of the generated string that corresponds to the slice between `start` and `end` of the original string.
-      * Throws error if the indices are for characters that were already removed.
-      */
-      slice(start2 = 0, end2 = this.original.length - this.offset) {
-        start2 = start2 + this.offset;
-        end2 = end2 + this.offset;
-        if (this.original.length !== 0) {
-          if (start2 < 0) start2 = Math.max(0, start2 + this.original.length);
-          if (end2 < 0) end2 = Math.max(0, end2 + this.original.length);
-        }
-        let result = "";
-        let chunk = this.firstChunk;
-        while (chunk && (chunk.start > start2 || chunk.end <= start2)) {
-          if (chunk.start < end2 && chunk.end >= end2 || end2 === 0 && chunk.start === 0) return result;
-          chunk = chunk.next;
-        }
-        if (chunk && chunk.edited && chunk.start !== start2) throw new MagicStringError(`cannot use edited character ${start2} as slice start anchor`);
-        const startChunk = chunk;
-        while (chunk) {
-          if (end2 === 0 && chunk.start === 0) break;
-          if (chunk.intro && (startChunk !== chunk || chunk.start === start2)) result += chunk.intro;
-          const containsEnd = chunk.start < end2 && chunk.end >= end2;
-          if (containsEnd && chunk.edited && chunk.end !== end2) throw new MagicStringError(`cannot use edited character ${end2} as slice end anchor`);
-          const sliceStart = startChunk === chunk ? start2 - chunk.start : 0;
-          const sliceEnd = containsEnd ? chunk.content.length + end2 - chunk.end : chunk.content.length;
-          result += chunk.content.slice(sliceStart, sliceEnd);
-          if (chunk.outro && (!containsEnd || chunk.end === end2)) result += chunk.outro;
-          if (containsEnd) break;
-          chunk = chunk.next;
-        }
-        return result;
-      }
-      /**
-      * Returns a clone of `s`, with all content before the `start` and `end` characters of the original string removed.
-      */
-      snip(start2, end2) {
-        const clone = this.clone();
-        clone.remove(-clone.offset, start2);
-        clone.remove(end2, clone.original.length - clone.offset);
-        return clone;
-      }
-      /** @internal */
-      _split(index) {
-        if (this.byStart.get(index) || this.byEnd.get(index)) return;
-        let chunk = this.lastSearchedChunk;
-        let previousChunk = chunk;
-        const searchForward = index > chunk.end;
-        while (chunk) {
-          if (chunk.contains(index)) return this._splitChunk(chunk, index);
-          chunk = searchForward ? this.byStart.get(chunk.end) : this.byEnd.get(chunk.start);
-          if (chunk === previousChunk) return;
-          previousChunk = chunk;
-        }
-      }
-      /** @internal */
-      _splitChunk(chunk, index) {
-        if (chunk.edited && chunk.content.length) {
-          const loc2 = getLocator(this.original)(index);
-          throw new MagicStringError(`cannot split a chunk that has already been edited (${loc2.line}:${loc2.column} \u2013 "${chunk.original}")`);
-        }
-        const newChunk = chunk.split(index);
-        this.byEnd.set(index, chunk);
-        this.byStart.set(index, newChunk);
-        this.byEnd.set(newChunk.end, newChunk);
-        if (chunk === this.lastChunk) this.lastChunk = newChunk;
-        this.lastSearchedChunk = chunk;
-        return true;
-      }
-      /**
-      * Returns the generated string.
-      */
-      toString() {
-        let str = this.intro;
-        let chunk = this.firstChunk;
-        while (chunk) {
-          str += chunk.toString();
-          chunk = chunk.next;
-        }
-        return str + this.outro;
-      }
-      /**
-      * Returns true if the resulting source is empty (disregarding white space).
-      */
-      isEmpty() {
-        if (this.intro.length && this.intro.trim()) return false;
-        let chunk = this.firstChunk;
-        while (chunk) {
-          if (chunk.intro.length && chunk.intro.trim() || chunk.content.length && chunk.content.trim() || chunk.outro.length && chunk.outro.trim()) return false;
-          chunk = chunk.next;
-        }
-        if (this.outro.length && this.outro.trim()) return false;
-        return true;
-      }
-      length() {
-        let chunk = this.firstChunk;
-        let length = 0;
-        while (chunk) {
-          length += chunk.intro.length + chunk.content.length + chunk.outro.length;
-          chunk = chunk.next;
-        }
-        return length;
-      }
-      /**
-      * Removes empty lines from the start and end.
-      */
-      trimLines() {
-        return this.trim("[\\r\\n]");
-      }
-      /**
-      * Trims content matching `charType` (defaults to `\s`, i.e. whitespace) from the start and end.
-      */
-      trim(charType) {
-        return this.trimStart(charType).trimEnd(charType);
-      }
-      /** @internal */
-      trimEndAborted(charType) {
-        const rx = new RegExp(`${charType || "\\s"}+$`);
-        this.outro = this.outro.replace(rx, "");
-        if (this.outro.length) return true;
-        let chunk = this.lastChunk;
-        do {
-          const end2 = chunk.end;
-          const aborted = chunk.trimEnd(rx);
-          if (chunk.end !== end2) {
-            if (this.lastChunk === chunk) this.lastChunk = chunk.next;
-            this.byEnd.set(chunk.end, chunk);
-            this.byStart.set(chunk.next.start, chunk.next);
-            this.byEnd.set(chunk.next.end, chunk.next);
-          }
-          if (aborted) return true;
-          chunk = chunk.previous;
-        } while (chunk);
-        this.intro = this.intro.replace(rx, "");
-        return this.intro.length > 0;
-      }
-      /**
-      * Trims content matching `charType` (defaults to `\s`, i.e. whitespace) from the end.
-      */
-      trimEnd(charType) {
-        this.trimEndAborted(charType);
-        return this;
-      }
-      /** @internal */
-      trimStartAborted(charType) {
-        const rx = new RegExp(`^${charType || "\\s"}+`);
-        this.intro = this.intro.replace(rx, "");
-        if (this.intro.length) return true;
-        let chunk = this.firstChunk;
-        do {
-          const end2 = chunk.end;
-          const aborted = chunk.trimStart(rx);
-          if (chunk.end !== end2) {
-            if (chunk === this.lastChunk) this.lastChunk = chunk.next;
-            this.byEnd.set(chunk.end, chunk);
-            this.byStart.set(chunk.next.start, chunk.next);
-            this.byEnd.set(chunk.next.end, chunk.next);
-          }
-          if (aborted) return true;
-          chunk = chunk.next;
-        } while (chunk);
-        this.outro = this.outro.replace(rx, "");
-        return this.outro.length > 0;
-      }
-      /**
-      * Trims content matching `charType` (defaults to `\s`, i.e. whitespace) from the start.
-      */
-      trimStart(charType) {
-        this.trimStartAborted(charType);
-        return this;
-      }
-      /**
-      * Indicates if the string has been changed.
-      */
-      hasChanged() {
-        if (this.intro || this.outro) return true;
-        let outputIndex = 0;
-        let chunk = this.firstChunk;
-        while (chunk) {
-          if (chunk.intro || chunk.outro) return true;
-          if (!chunk.edited && chunk.start === outputIndex) outputIndex = chunk.end;
-          else {
-            if (!this.original.startsWith(chunk.content, outputIndex)) return true;
-            outputIndex += chunk.content.length;
-          }
-          chunk = chunk.next;
-        }
-        return outputIndex !== this.original.length;
-      }
-      /**
-      * Whether the original range [start, end) has had any of its characters
-      * removed. `replace`/`replaceAll` search `original`, so a match can land on
-      * text that is no longer in the output - overwriting it would resurrect the
-      * removed characters, so such matches are skipped instead.
-      *
-      * @internal
-      */
-      _hasRemovedContent(start2, end2) {
-        let chunk = this.byStart.get(start2);
-        if (chunk && start2 === end2) {
-          const previous = this.byEnd.get(start2);
-          return !!previous && previous.content === "" && chunk.content === "";
-        }
-        if (!chunk) {
-          chunk = this.lastSearchedChunk;
-          const searchForward = start2 >= chunk.end;
-          while (chunk && !chunk.contains(start2)) chunk = searchForward ? this.byStart.get(chunk.end) : this.byEnd.get(chunk.start);
-          if (chunk) this.lastSearchedChunk = chunk;
-        }
-        while (chunk && chunk.start < end2) {
-          if (chunk.content === "" && (chunk.replacedFrom < start2 || this.byStart.get(chunk.replacedFrom).replacesUntil < chunk.end)) return true;
-          chunk = this.byStart.get(chunk.end);
-        }
-        return false;
-      }
-      /** @internal */
-      _replaceRegexp(searchValue, replacement) {
-        function getReplacement(match2, str) {
-          if (typeof replacement === "string") return expandReplacement(replacement, match2[0], match2.index, str, match2.slice(1), match2.groups);
-          else return match2.groups === void 0 ? replacement(match2[0], ...match2.slice(1), match2.index, str) : replacement(match2[0], ...match2.slice(1), match2.index, str, match2.groups);
-        }
-        const replaceMatch = (match2) => {
-          if (match2.index == null) return false;
-          if (this._hasRemovedContent(match2.index, match2.index + match2[0].length)) return false;
-          const replacement2 = getReplacement(match2, this.original);
-          if (replacement2 === match2[0]) return true;
-          if (match2[0].length === 0) this.appendRight(match2.index - this.offset, replacement2);
-          else this.overwrite(match2.index - this.offset, match2.index + match2[0].length - this.offset, replacement2);
-          return true;
-        };
-        if (searchValue.global) {
-          searchValue.lastIndex = 0;
-          for (const match2 of this.original.matchAll(searchValue)) replaceMatch(match2);
-        } else {
-          const match2 = this.original.match(searchValue);
-          if (match2 && !replaceMatch(match2)) {
-            const global2 = new RegExp(searchValue.source, `${searchValue.flags}g`);
-            for (const next2 of this.original.matchAll(global2)) if (replaceMatch(next2)) break;
-          }
-        }
-        return this;
-      }
-      /** @internal */
-      _replaceString(string2, replacement) {
-        const { original } = this;
-        let index = original.indexOf(string2);
-        while (index !== -1) {
-          if (this._hasRemovedContent(index, index + string2.length)) {
-            index = original.indexOf(string2, index + string2.length);
-            continue;
-          }
-          if (typeof replacement === "function") replacement = replacement(string2, index, original);
-          else replacement = expandReplacement(replacement, string2, index, original, [], void 0);
-          if (string2 !== replacement) {
-            if (string2.length === 0) this.appendRight(index - this.offset, replacement);
-            else this.overwrite(index - this.offset, index + string2.length - this.offset, replacement);
-          }
-          break;
-        }
-        return this;
-      }
-      /**
-      * String replacement with RegExp or string.
-      */
-      replace(searchValue, replacement) {
-        if (typeof searchValue === "string") return this._replaceString(searchValue, replacement);
-        return this._replaceRegexp(searchValue, replacement);
-      }
-      /** @internal */
-      _replaceAllString(string2, replacement) {
-        const { original } = this;
-        const stringLength = string2.length;
-        if (stringLength === 0) {
-          for (let index = 0; index <= original.length; index += 1) {
-            if (this._hasRemovedContent(index, index)) continue;
-            const _replacement = typeof replacement === "function" ? replacement("", index, original) : expandReplacement(replacement, "", index, original, [], void 0);
-            if (_replacement !== "") this.appendRight(index - this.offset, _replacement);
-          }
-          return this;
-        }
-        for (let index = original.indexOf(string2); index !== -1; index = original.indexOf(string2, index + stringLength)) {
-          if (this._hasRemovedContent(index, index + stringLength)) continue;
-          const previous = original.slice(index, index + stringLength);
-          const _replacement = typeof replacement === "function" ? replacement(previous, index, original) : expandReplacement(replacement, previous, index, original, [], void 0);
-          if (previous !== _replacement) this.overwrite(index - this.offset, index + stringLength - this.offset, _replacement);
-        }
-        return this;
-      }
-      /**
-      * Same as `s.replace`, but replace all matched strings instead of just one.
-      */
-      replaceAll(searchValue, replacement) {
-        if (typeof searchValue === "string") return this._replaceAllString(searchValue, replacement);
-        if (!searchValue.global) throw new MagicStringError("replaceAll() requires a global RegExp");
-        return this._replaceRegexp(searchValue, replacement);
-      }
-    };
-  }
-});
-
 // ../../node_modules/zimmerframe/src/walk.js
 function walk(node2, state, visitors6) {
   const universal = visitors6._;
@@ -71637,9 +71776,9 @@ function walk(node2, state, visitors6) {
   const stop = () => {
     stopped = true;
   };
-  function visit_children(node3, path15, state2) {
+  function visit_children(node3, path16, state2) {
     let mutations = null;
-    path15.push(node3);
+    path16.push(node3);
     for (const key2 in node3) {
       if (key2 === "type" || // avoid manipulating the prototype
       key2 === "__proto__") {
@@ -71653,7 +71792,7 @@ function walk(node2, state, visitors6) {
           for (let i3 = 0; i3 < len; i3++) {
             const node4 = child_node[i3];
             if (node4 && typeof node4 === "object") {
-              const result = visit(node4, path15, state2);
+              const result = visit(node4, path16, state2);
               if (result) {
                 (mutated_array ??= child_node.slice())[i3] = result;
               }
@@ -71666,7 +71805,7 @@ function walk(node2, state, visitors6) {
           const result = visit(
             /** @type {T} */
             child_node,
-            path15,
+            path16,
             state2
           );
           if (result) {
@@ -71675,12 +71814,12 @@ function walk(node2, state, visitors6) {
         }
       }
     }
-    path15.pop();
+    path16.pop();
     if (mutations) {
       return apply_mutations(node3, mutations);
     }
   }
-  function visit(node3, path15, state2) {
+  function visit(node3, path16, state2) {
     if (stopped) return;
     if (!node3.type) return;
     const visitor = (
@@ -71691,28 +71830,28 @@ function walk(node2, state, visitors6) {
       ]
     );
     if (!universal && !visitor) {
-      return visit_children(node3, path15, state2);
+      return visit_children(node3, path16, state2);
     }
     let result;
     let next_result;
-    const next2 = (next_state = state2) => next_result = visit_children(node3, path15, next_state);
+    const next2 = (next_state = state2) => next_result = visit_children(node3, path16, next_state);
     const visit_node = (next_node, next_state = state2) => {
-      path15.push(node3);
-      const result2 = visit(next_node, path15, next_state) ?? next_node;
-      path15.pop();
+      path16.push(node3);
+      const result2 = visit(next_node, path16, next_state) ?? next_node;
+      path16.pop();
       return result2;
     };
     if (universal) {
       let inner_result;
       result = universal(node3, {
         // Don't spread for performance reasons
-        path: path15,
+        path: path16,
         state: state2,
         /** @param {U} next_state */
         next: (next_state = state2) => {
           state2 = next_state;
           inner_result = visitor ? visitor(node3, {
-            path: path15,
+            path: path16,
             state: next_state,
             next: next2,
             stop,
@@ -71729,7 +71868,7 @@ function walk(node2, state, visitors6) {
     } else {
       result = /** @type {Visitor<T, U, T>} */
       visitor(node3, {
-        path: path15,
+        path: path16,
         state: state2,
         next: next2,
         stop,
@@ -73413,8 +73552,8 @@ function convert(source2, ast) {
           else: elseblock
         };
       },
-      ExpressionTag(node2, { path: path15 }) {
-        const parent = path15.at(-1);
+      ExpressionTag(node2, { path: path16 }) {
+        const parent = path16.at(-1);
         if (parent?.type === "Attribute") {
           if (source2[parent.start] === "{") {
             return {
@@ -73546,14 +73685,14 @@ function convert(source2, ast) {
           )
         };
       },
-      Attribute(node2, { visit, next: next2, path: path15 }) {
+      Attribute(node2, { visit, next: next2, path: path16 }) {
         if (node2.value !== true && !Array.isArray(node2.value)) {
-          path15.push(node2);
+          path16.push(node2);
           const value = (
             /** @type {Legacy.LegacyAttribute['value']} */
             [visit(node2.value)]
           );
-          path15.pop();
+          path16.pop();
           return {
             ...node2,
             value
@@ -73562,14 +73701,14 @@ function convert(source2, ast) {
           return next2();
         }
       },
-      StyleDirective(node2, { visit, next: next2, path: path15 }) {
+      StyleDirective(node2, { visit, next: next2, path: path16 }) {
         if (node2.value !== true && !Array.isArray(node2.value)) {
-          path15.push(node2);
+          path16.push(node2);
           const value = (
             /** @type {Legacy.LegacyStyleDirective['value']} */
             [visit(node2.value)]
           );
-          path15.pop();
+          path16.pop();
           return {
             ...node2,
             value
@@ -73762,8 +73901,8 @@ function convert(source2, ast) {
           )
         };
       },
-      Text(node2, { path: path15 }) {
-        const parent = path15.at(-1);
+      Text(node2, { path: path16 }) {
+        const parent = path16.at(-1);
         if (parent?.type === "RegularElement" && parent.name === "style") {
           return (
             /** @type {AST.Text} */
@@ -86098,7 +86237,7 @@ function get_comment_handlers(source2, comments, index = 0) {
       if (comments.length === 0) return;
       comments = comments.filter((comment) => comment.start >= index).map(({ type, value, start: start2, end: end2 }) => ({ type, value, start: start2, end: end2 }));
       walk(ast, null, {
-        _(node2, { next: next2, path: path15 }) {
+        _(node2, { next: next2, path: path16 }) {
           let comment;
           while (comments[0] && comments[0].start < node2.start) {
             comment = /** @type {CommentWithLocation} */
@@ -86109,7 +86248,7 @@ function get_comment_handlers(source2, comments, index = 0) {
           if (comments[0]) {
             const parent = (
               /** @type {any} */
-              path15.at(-1)
+              path16.at(-1)
             );
             if (parent === void 0 || node2.end !== parent.end) {
               const slice = source2.slice(node2.end, comments[0].start);
@@ -86596,8 +86735,8 @@ function member(object4, property2, computed = false, optional = false) {
   }
   return { type: "MemberExpression", object: object4, property: property2, computed, optional };
 }
-function member_id(path15) {
-  const parts = path15.split(".");
+function member_id(path16) {
+  const parts = path16.split(".");
   let expression = id(parts[0]);
   for (let i3 = 1; i3 < parts.length; i3 += 1) {
     expression = member(expression, id(parts[i3]));
@@ -86835,8 +86974,8 @@ function extract_all_identifiers_from_expression(expr) {
     expr,
     {},
     {
-      Identifier(node2, { path: path15 }) {
-        const parent = path15.at(-1);
+      Identifier(node2, { path: path16 }) {
+        const parent = path16.at(-1);
         if (parent?.type !== "MemberExpression" || parent.property !== node2 || parent.computed) {
           nodes.push(node2);
         }
@@ -86846,9 +86985,9 @@ function extract_all_identifiers_from_expression(expr) {
           keypath.push(node2.name);
         }
       },
-      Literal(node2, { path: path15 }) {
+      Literal(node2, { path: path16 }) {
         const value = typeof node2.value === "string" ? `"${node2.value}"` : String(node2.value);
-        const parent = path15.at(-1);
+        const parent = path16.at(-1);
         if (parent?.type === "MemberExpression" && parent.computed && parent.property === node2) {
           keypath.push(`[${value}]`);
         } else {
@@ -87030,12 +87169,12 @@ function _extract_paths(paths, inserts, param, expression, update_expression, ha
   }
   return paths;
 }
-function get_parent(path15, at2) {
-  let node2 = path15.at(at2);
+function get_parent(path16, at2) {
+  let node2 = path16.at(at2);
   if (node2.type === "TSNonNullExpression" || node2.type === "TSAsExpression") {
     return (
       /** @type {T} */
-      path15.at(at2 < 0 ? at2 - 1 : at2 + 1)
+      path16.at(at2 < 0 ? at2 - 1 : at2 + 1)
     );
   }
   return (
@@ -92799,8 +92938,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       context.visit(child, state2);
     }
   };
-  const SvelteDirective = (node2, { state: state2, path: path15, visit }) => {
-    state2.scope.reference(id(node2.name.split(".")[0]), path15);
+  const SvelteDirective = (node2, { state: state2, path: path16, visit }) => {
+    state2.scope.reference(id(node2.name.split(".")[0]), path16);
     if (node2.expression) {
       visit(node2.expression);
     }
@@ -92814,8 +92953,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       context.next();
     },
     // references
-    Identifier(node2, { path: path15, state: state2 }) {
-      const parent2 = path15.at(-1);
+    Identifier(node2, { path: path16, state: state2 }) {
+      const parent2 = path16.at(-1);
       if (parent2 && is_reference(
         node2,
         /** @type {Node} */
@@ -92824,11 +92963,11 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       // but for the migration they aren't, so we need to filter them out here
       // TODO -> once migration script is gone we can remove this check
       !parent2.type.startsWith("TS")) {
-        references.push([state2.scope, { node: node2, path: path15.slice() }]);
+        references.push([state2.scope, { node: node2, path: path16.slice() }]);
       }
     },
-    LabeledStatement(node2, { path: path15, next: next2 }) {
-      if (path15.length > 1 || !allow_reactive_declarations) return next2();
+    LabeledStatement(node2, { path: path16, next: next2 }) {
+      if (path16.length > 1 || !allow_reactive_declarations) return next2();
       if (node2.label.name !== "$") return next2();
       const scope2 = state.scope.child();
       scopes.set(node2, scope2);
@@ -92929,8 +93068,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       if (node2.id) state2.scope.declare(node2.id, "normal", "let", node2);
       next2();
     },
-    VariableDeclaration(node2, { state: state2, path: path15, next: next2 }) {
-      const is_parent_const_tag = path15.at(-1)?.type === "ConstTag";
+    VariableDeclaration(node2, { state: state2, path: path16, next: next2 }) {
+      const is_parent_const_tag = path16.at(-1)?.type === "ConstTag";
       for (const declarator2 of node2.declarations) {
         const bindings = [];
         state2.scope.declarators.set(declarator2, bindings);
@@ -93088,9 +93227,9 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
     // handled by `Identifier`. This is the special case for the shorthand
     // eg <button style:height /> where the variable has the same name of
     // the css property
-    StyleDirective(node2, { path: path15, state: state2, next: next2 }) {
+    StyleDirective(node2, { path: path16, state: state2, next: next2 }) {
       if (node2.value === true) {
-        state2.scope.reference(id(node2.name), path15.concat(node2));
+        state2.scope.reference(id(node2.name), path16.concat(node2));
       }
       next2();
     }
@@ -93101,8 +93240,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
     if (binding2) continue;
     scope.declare(id3, "legacy_reactive", "let");
   }
-  for (const [scope2, { node: node2, path: path15 }] of references) {
-    scope2.reference(node2, path15);
+  for (const [scope2, { node: node2, path: path16 }] of references) {
+    scope2.reference(node2, path16);
   }
   for (const [scope2, node2, value] of updates) {
     for (const expression of unwrap_pattern(node2)) {
@@ -93814,16 +93953,16 @@ var init_scope = __esm({
        * @param {Identifier} node
        * @param {AST.SvelteNode[]} path
        */
-      reference(node2, path15) {
-        path15 = [...path15];
+      reference(node2, path16) {
+        path16 = [...path16];
         let references = this.references.get(node2.name);
         if (!references) this.references.set(node2.name, references = []);
-        references.push({ node: node2, path: path15 });
+        references.push({ node: node2, path: path16 });
         const binding2 = this.declarations.get(node2.name);
         if (binding2) {
-          binding2.references.push({ node: node2, path: path15 });
+          binding2.references.push({ node: node2, path: path16 });
         } else if (this.parent) {
-          this.parent.reference(node2, path15);
+          this.parent.reference(node2, path16);
         } else {
           this.root.conflicts.add(node2.name);
         }
@@ -94083,11 +94222,11 @@ var init_utils2 = __esm({
 function is_global_block_selector(simple_selector) {
   return simple_selector.type === "PseudoClassSelector" && simple_selector.name === "global" && simple_selector.args === null;
 }
-function is_unscoped(path15) {
-  return path15.filter((node2) => node2.type === "Rule").every((node2) => node2.metadata.has_global_selectors);
+function is_unscoped(path16) {
+  return path16.filter((node2) => node2.type === "Rule").every((node2) => node2.metadata.has_global_selectors);
 }
-function is_in_global_block(path15) {
-  return path15.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
+function is_in_global_block(path16) {
+  return path16.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
 }
 function analyze_css(stylesheet, analysis) {
   const css_state = {
@@ -94544,9 +94683,9 @@ function relative_selector_might_apply_to_node(relative_selector, rule, element3
                 context.next();
               }
             });
-            const relative = truncate(complex_selector);
+            const relative2 = truncate(complex_selector);
             if (complex_selector.children.length > 1) {
-              for (const selector2 of relative) {
+              for (const selector2 of relative2) {
                 selector2.metadata.scoped = true;
               }
               let el = element3;
@@ -94561,18 +94700,18 @@ function relative_selector_might_apply_to_node(relative_selector, rule, element3
         if ((name === "is" || name === "where") && selector.args) {
           let matched = false;
           for (const complex_selector of selector.args.children) {
-            const relative = truncate(complex_selector);
-            const is_global3 = relative.length === 0;
+            const relative2 = truncate(complex_selector);
+            const is_global3 = relative2.length === 0;
             if (is_global3) {
               complex_selector.metadata.used = true;
               matched = true;
-            } else if (apply_selector(relative, rule, element3, BACKWARD)) {
+            } else if (apply_selector(relative2, rule, element3, BACKWARD)) {
               complex_selector.metadata.used = true;
               matched = true;
             } else if (complex_selector.children.length > 1 && (name == "is" || name == "where")) {
               complex_selector.metadata.used = true;
               matched = true;
-              for (const selector2 of relative) {
+              for (const selector2 of relative2) {
                 selector2.metadata.scoped = true;
               }
             }
@@ -94756,10 +94895,10 @@ function unquote(str) {
 }
 function get_ancestor_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ new Set()) {
   const ancestors = [];
-  const path15 = node2.metadata.path;
-  let i3 = path15.length;
+  const path16 = node2.metadata.path;
+  let i3 = path16.length;
   while (i3--) {
-    const parent = path15[i3];
+    const parent = path16[i3];
     if (parent.type === "SnippetBlock") {
       if (!seen2.has(parent)) {
         seen2.add(parent);
@@ -94772,7 +94911,7 @@ function get_ancestor_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ new
     if (parent.type === "RegularElement" || parent.type === "SvelteElement") {
       if (parent.type === "RegularElement" && parent.name === "option") {
         const is_direct_child = ancestors.length === 0;
-        const select_element = path15.findLast(
+        const select_element = path16.findLast(
           (element3, j) => element3.type === "RegularElement" && element3.name === "select" && j < i3
         );
         if (select_element && (!adjacent_only || is_direct_child)) {
@@ -94826,8 +94965,8 @@ function get_descendant_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ n
   }
   walk_children(node2.type === "RenderTag" ? node2 : node2.fragment);
   if (node2.type === "RegularElement" && node2.name === "selectedcontent") {
-    const path15 = node2.metadata.path;
-    const select_element = path15.findLast(
+    const path16 = node2.metadata.path;
+    const select_element = path16.findLast(
       (element3) => element3.type === "RegularElement" && element3.name === "select"
     );
     if (select_element) {
@@ -94851,10 +94990,10 @@ function get_descendant_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ n
   return descendants;
 }
 function get_element_parent(node2) {
-  let path15 = node2.metadata.path;
-  let i3 = path15.length;
+  let path16 = node2.metadata.path;
+  let i3 = path16.length;
   while (i3--) {
-    const parent = path15[i3];
+    const parent = path16[i3];
     if (parent.type === "RegularElement" || parent.type === "SvelteElement") {
       return parent;
     }
@@ -94863,13 +95002,13 @@ function get_element_parent(node2) {
 }
 function get_possible_element_siblings(node2, direction, adjacent_only, seen2 = /* @__PURE__ */ new Set()) {
   const result = /* @__PURE__ */ new Map();
-  const path15 = node2.metadata.path;
+  const path16 = node2.metadata.path;
   let current2 = node2;
-  let i3 = path15.length;
+  let i3 = path16.length;
   while (i3--) {
     const fragment2 = (
       /** @type {Compiler.AST.Fragment} */
-      path15[i3--]
+      path16[i3--]
     );
     let j = fragment2.nodes.indexOf(current2) + (direction === FORWARD ? 1 : -1);
     while (j >= 0 && j < fragment2.nodes.length) {
@@ -94903,7 +95042,7 @@ function get_possible_element_siblings(node2, direction, adjacent_only, seen2 = 
       }
       j = direction === FORWARD ? j + 1 : j - 1;
     }
-    current2 = path15[i3];
+    current2 = path16[i3];
     if (!current2) break;
     if (current2.type === "Component" || current2.type === "SvelteComponent" || current2.type === "SvelteSelf") {
       continue;
@@ -95391,10 +95530,10 @@ var init_AnimateDirective = __esm({
 });
 
 // ../../node_modules/svelte/src/compiler/phases/2-analyze/visitors/shared/fragment.js
-function mark_subtree_dynamic(path15) {
-  let i3 = path15.length;
+function mark_subtree_dynamic(path16) {
+  let i3 = path16.length;
   while (i3--) {
-    const node2 = path15[i3];
+    const node2 = path16[i3];
     if (node2.type === "Fragment") {
       if (node2.metadata.dynamic) return;
       node2.metadata.dynamic = true;
@@ -95540,11 +95679,11 @@ function AwaitExpression(node2, context) {
   }
   context.next();
 }
-function is_reactive_expression(path15, in_derived) {
+function is_reactive_expression(path16, in_derived) {
   if (in_derived) return true;
-  let i3 = path15.length;
+  let i3 = path16.length;
   while (i3--) {
-    const parent = path15[i3];
+    const parent = path16[i3];
     if (parent.type === "ArrowFunctionExpression" || parent.type === "FunctionExpression" || parent.type === "FunctionDeclaration") {
       return false;
     }
@@ -95554,10 +95693,10 @@ function is_reactive_expression(path15, in_derived) {
   }
   return false;
 }
-function is_last_evaluated_expression(path15, node2) {
-  let i3 = path15.length;
+function is_last_evaluated_expression(path16, node2) {
+  let i3 = path16.length;
   while (i3--) {
-    const parent = path15[i3];
+    const parent = path16[i3];
     if (parent.type === "ConstTag") {
       return false;
     }
@@ -97204,17 +97343,17 @@ function LabeledStatement(node2, context) {
       for (const [name, nodes] of context.state.scope.references) {
         const binding2 = context.state.scope.get(name);
         if (binding2 === null) continue;
-        for (const { node: node3, path: path15 } of nodes) {
+        for (const { node: node3, path: path16 } of nodes) {
           let left = node3;
-          let i3 = path15.length - 1;
+          let i3 = path16.length - 1;
           let parent2 = (
             /** @type {Expression} */
-            path15.at(i3)
+            path16.at(i3)
           );
           while (parent2.type === "MemberExpression") {
             left = parent2;
             parent2 = /** @type {Expression} */
-            path15.at(--i3);
+            path16.at(--i3);
           }
           if (parent2.type === "AssignmentExpression" && parent2.operator === "=" && parent2.left === left) {
             continue;
@@ -108804,10 +108943,10 @@ function match_schema(schema, tag_name, attribute_map) {
     return true;
   });
 }
-function is_parent(path15, elements) {
-  let i3 = path15.length;
+function is_parent(path16, elements) {
+  let i3 = path16.length;
   while (i3--) {
-    const parent = path15[i3];
+    const parent = path16[i3];
     if (parent.type === "SvelteElement") return true;
     if (parent.type === "RegularElement") {
       return elements.includes(parent.name);
@@ -109292,8 +109431,8 @@ function SnippetBlock(node2, context) {
       context.state.analysis.module.scope.declarations.set(name2, binding2);
     }
   }
-  const { path: path15 } = context;
-  const parent = path15.at(-2);
+  const { path: path16 } = context;
+  const parent = path16.at(-2);
   if (!parent) return;
   if (parent.type === "Component" && parent.attributes.some(
     (attribute2) => (attribute2.type === "Attribute" || attribute2.type === "BindDirective") && attribute2.name === node2.expression.name
@@ -109778,19 +109917,19 @@ function VariableDeclarator(node2, context) {
     const init2 = node2.init;
     const rune = get_rune(init2, context.state.scope);
     const { paths } = extract_paths(node2.id, id("dummy"));
-    for (const path15 of paths) {
+    for (const path16 of paths) {
       validate_identifier_name(context.state.scope.get(
         /** @type {Identifier} */
-        path15.node.name
+        path16.node.name
       ));
     }
     if (rune === "$state" || rune === "$state.raw" || rune === "$derived" || rune === "$derived.by" || rune === "$props") {
-      for (const path15 of paths) {
+      for (const path16 of paths) {
         const binding2 = (
           /** @type {Binding} */
-          context.state.scope.get(path15.node.name)
+          context.state.scope.get(path16.node.name)
         );
-        binding2.kind = rune === "$state" ? "state" : rune === "$state.raw" ? "raw_state" : rune === "$derived" || rune === "$derived.by" ? "derived" : path15.is_rest ? "rest_prop" : "prop";
+        binding2.kind = rune === "$state" ? "state" : rune === "$state.raw" ? "raw_state" : rune === "$derived" || rune === "$derived.by" ? "derived" : path16.is_rest ? "rest_prop" : "prop";
         if (rune === "$props" && binding2.kind === "rest_prop" && node2.id.type === "ObjectPattern") {
           const { properties } = node2.id;
           const exclude_props = [];
@@ -110042,15 +110181,15 @@ function analyze_component(root, source2, options) {
         if (declaration2 === null && /[a-z]/.test(store_name[0])) {
           global_reference_invalid(references[0].node, name2);
         } else if (declaration2 !== null && is_rune(name2)) {
-          for (const { node: node2, path: path15 } of references) {
-            if (path15.at(-1)?.type === "CallExpression") {
+          for (const { node: node2, path: path16 } of references) {
+            if (path16.at(-1)?.type === "CallExpression") {
               store_rune_conflict(node2, store_name);
             }
           }
         }
       }
       if (module.ast) {
-        for (const { node: node2, path: path15 } of references) {
+        for (const { node: node2, path: path16 } of references) {
           if (
             /** @type {number} */
             node2.start > /** @type {number} */
@@ -110059,7 +110198,7 @@ function analyze_component(root, source2, options) {
             module.ast.end && // const state = $state(0) is valid
             get_rune(
               /** @type {ESTree.Node} */
-              path15.at(-1),
+              path16.at(-1),
               module.scope
             ) === null
           ) {
@@ -110218,10 +110357,10 @@ function analyze_component(root, source2, options) {
     }
     for (const binding2 of instance.scope.declarations.values()) {
       if (binding2.kind !== "normal") continue;
-      for (const { node: node2, path: path15 } of binding2.references) {
+      for (const { node: node2, path: path16 } of binding2.references) {
         if (node2 === binding2.node) continue;
         if (binding2.updated) {
-          if (path15[path15.length - 1].type === "StyleDirective" || path15.some((node3) => node3.type === "Fragment") || path15[1].type === "LabeledStatement" && path15[1].label.name === "$") {
+          if (path16[path16.length - 1].type === "StyleDirective" || path16.some((node3) => node3.type === "Fragment") || path16[1].type === "LabeledStatement" && path16[1].label.name === "$") {
             binding2.kind = "state";
           }
         }
@@ -110318,17 +110457,17 @@ function analyze_component(root, source2, options) {
     for (const scope2 of [module.scope, instance.scope]) {
       outer: for (const [name2, binding2] of scope2.declarations) {
         if (binding2.kind === "normal" && binding2.reassigned) {
-          inner: for (const { path: path15 } of binding2.references) {
-            if (path15[0].type !== "Fragment") continue;
-            for (let i3 = 1; i3 < path15.length; i3 += 1) {
-              const type = path15[i3].type;
+          inner: for (const { path: path16 } of binding2.references) {
+            if (path16[0].type !== "Fragment") continue;
+            for (let i3 = 1; i3 < path16.length; i3 += 1) {
+              const type = path16[i3].type;
               if (type === "FunctionDeclaration" || type === "FunctionExpression" || type === "ArrowFunctionExpression") {
                 continue inner;
               }
               if (type === "BindDirective" && /** @type {AST.BindDirective} */
-              path15[i3].name === "this") {
+              path16[i3].name === "this") {
                 for (let j = i3 - 1; j >= 0; j -= 1) {
-                  const type2 = path15[j].type;
+                  const type2 = path16[j].type;
                   if (type2 === "IfBlock" || type2 === "EachBlock" || type2 === "AwaitBlock" || type2 === "KeyBlock") {
                     non_reactive_update(binding2.node, name2);
                     continue outer;
@@ -110856,8 +110995,8 @@ var init_analyze = __esm({
     init_fragment2();
     init_state();
     visitors3 = {
-      _(node2, { state, next: next2, path: path15 }) {
-        const parent = path15.at(-1);
+      _(node2, { state, next: next2, path: path16 }) {
+        const parent = path16.at(-1);
         const ignores = [];
         if (parent?.type === "Fragment" && node2.type !== "Comment" && node2.type !== "Text") {
           const idx = parent.nodes.indexOf(
@@ -111741,7 +111880,7 @@ function write_for_head_declaration(node2, context, no_in = false) {
 }
 function handle_var_declaration(node2, context, no_in = false) {
   const open3 = context.new();
-  const join14 = context.new();
+  const join15 = context.new();
   const child_context = context.new();
   context.append(child_context);
   if (node2.declare) {
@@ -111755,7 +111894,7 @@ function handle_var_declaration(node2, context, no_in = false) {
   child_context.append(open3);
   let first = true;
   for (const d3 of node2.declarations) {
-    if (!first) child_context.append(join14);
+    if (!first) child_context.append(join15);
     first = false;
     handle_var_declarator(d3, child_context, no_in);
   }
@@ -111764,11 +111903,11 @@ function handle_var_declaration(node2, context, no_in = false) {
   if (multiline) {
     context.multiline = true;
     if (node2.declarations.length > 1) open3.indent();
-    join14.write(",");
-    join14.newline();
+    join15.write(",");
+    join15.newline();
     if (node2.declarations.length > 1) context.dedent();
   } else {
-    join14.write(", ");
+    join15.write(", ");
   }
 }
 function quote(string2, char) {
@@ -112124,7 +112263,7 @@ var init_ts = __esm({
           }
           if (node2.typeArguments) context.visit(node2.typeArguments);
           const open3 = context.new();
-          const join14 = context.new();
+          const join15 = context.new();
           context.write("(");
           context.append(open3);
           const child_context = context.new();
@@ -112142,17 +112281,17 @@ var init_ts = __esm({
             if (!is_last) context2.write(",");
             const next2 = is_last ? node2.loc?.end ?? null : node2.arguments[i3 + 1]?.loc?.start ?? null;
             flush_trailing_comments(context2, arg.loc?.end ?? null, next2);
-            if (!is_last) context2.append(join14);
+            if (!is_last) context2.append(join15);
           }
           context.multiline ||= child_context.multiline || final_context.multiline;
           if (child_context.multiline) {
             open3.indent();
             open3.newline();
-            join14.newline();
+            join15.newline();
             context.dedent();
             context.newline();
           } else {
-            join14.write(" ");
+            join15.write(" ");
           }
           context.write(")");
         },
@@ -114551,16 +114690,16 @@ function parseAbsoluteUrl(input) {
 }
 function parseFileUrl(input) {
   const match2 = fileRegex.exec(input);
-  const path15 = match2[2];
-  return makeUrl("file:", "", match2[1] || "", "", isAbsolutePath(path15) ? path15 : "/" + path15, match2[3] || "", match2[4] || "");
+  const path16 = match2[2];
+  return makeUrl("file:", "", match2[1] || "", "", isAbsolutePath(path16) ? path16 : "/" + path16, match2[3] || "", match2[4] || "");
 }
-function makeUrl(scheme, user, host, port, path15, query, hash2) {
+function makeUrl(scheme, user, host, port, path16, query, hash2) {
   return {
     scheme,
     user,
     host,
     port,
-    path: path15,
+    path: path16,
     query,
     hash: hash2,
     type: 7
@@ -114590,11 +114729,11 @@ function parseUrl2(input) {
   url.type = input ? input.startsWith("?") ? 3 : input.startsWith("#") ? 2 : 4 : 1;
   return url;
 }
-function stripPathFilename(path15) {
-  if (path15.endsWith("/.."))
-    return path15;
-  const index = path15.lastIndexOf("/");
-  return path15.slice(0, index + 1);
+function stripPathFilename(path16) {
+  if (path16.endsWith("/.."))
+    return path16;
+  const index = path16.lastIndexOf("/");
+  return path16.slice(0, index + 1);
 }
 function mergePaths(url, base) {
   normalizePath(base, base.type);
@@ -114632,14 +114771,14 @@ function normalizePath(url, type) {
     pieces[pointer++] = piece;
     positive++;
   }
-  let path15 = "";
+  let path16 = "";
   for (let i3 = 1; i3 < pointer; i3++) {
-    path15 += "/" + pieces[i3];
+    path16 += "/" + pieces[i3];
   }
-  if (!path15 || addTrailingSlash && !path15.endsWith("/..")) {
-    path15 += "/";
+  if (!path16 || addTrailingSlash && !path16.endsWith("/..")) {
+    path16 += "/";
   }
-  url.path = path15;
+  url.path = path16;
 }
 function resolve(input, base) {
   if (!input && !base)
@@ -114680,13 +114819,13 @@ function resolve(input, base) {
     case 3:
       return queryHash;
     case 4: {
-      const path15 = url.path.slice(1);
-      if (!path15)
+      const path16 = url.path.slice(1);
+      if (!path16)
         return queryHash || ".";
-      if (isRelative(base || input) && !isRelative(path15)) {
-        return "./" + path15 + queryHash;
+      if (isRelative(base || input) && !isRelative(path16)) {
+        return "./" + path16 + queryHash;
       }
-      return path15 + queryHash;
+      return path16 + queryHash;
     }
     case 5:
       return url.path + queryHash;
@@ -114704,10 +114843,10 @@ var init_resolve_uri = __esm({
 });
 
 // ../../node_modules/@jridgewell/trace-mapping/dist/trace-mapping.mjs
-function stripFilename(path15) {
-  if (!path15) return "";
-  const index = path15.lastIndexOf("/");
-  return path15.slice(0, index + 1);
+function stripFilename(path16) {
+  if (!path16) return "";
+  const index = path16.lastIndexOf("/");
+  return path16.slice(0, index + 1);
 }
 function resolver(mapUrl, sourceRoot) {
   const from = stripFilename(mapUrl);
@@ -115599,8 +115738,8 @@ function render_stylesheet(source2, analysis, options) {
   }
   return css;
 }
-function is_in_global_block2(path15) {
-  return path15.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
+function is_in_global_block2(path16) {
+  return path16.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
 }
 function remove_global_pseudo_class(selector, combinator, state) {
   if (selector.args === null) {
@@ -115675,7 +115814,7 @@ var init_css2 = __esm({
         context.state.code.addSourcemapLocation(node2.end);
         context.next();
       },
-      Atrule(node2, { state, next: next2, path: path15 }) {
+      Atrule(node2, { state, next: next2, path: path16 }) {
         if (is_keyframes_node(node2)) {
           let start2 = node2.start + node2.name.length + 1;
           while (state.code.original[start2] === " ") start2 += 1;
@@ -115683,7 +115822,7 @@ var init_css2 = __esm({
           while (state.code.original[end2] !== "{" && state.code.original[end2] !== " ") end2 += 1;
           if (node2.prelude.startsWith("-global-")) {
             state.code.remove(start2, start2 + 8);
-          } else if (!is_in_global_block2(path15)) {
+          } else if (!is_in_global_block2(path16)) {
             state.code.prependRight(start2, `${state.hash}-`);
           }
           return;
@@ -115720,12 +115859,12 @@ var init_css2 = __esm({
           }
         }
       },
-      Rule(node2, { state, next: next2, visit, path: path15 }) {
+      Rule(node2, { state, next: next2, visit, path: path16 }) {
         if (state.minify) {
           remove_preceding_whitespace(node2.start, state);
           remove_preceding_whitespace(node2.block.end - 1, state);
         }
-        if (!dev && is_empty(node2, is_in_global_block2(path15))) {
+        if (!dev && is_empty(node2, is_in_global_block2(path16))) {
           if (state.minify) {
             state.code.remove(node2.start, node2.end);
           } else {
@@ -115735,7 +115874,7 @@ var init_css2 = __esm({
           }
           return;
         }
-        if (!is_used(node2) && !is_in_global_block2(path15)) {
+        if (!is_used(node2) && !is_in_global_block2(path16)) {
           if (state.minify) {
             state.code.remove(node2.start, node2.end);
           } else {
@@ -115763,9 +115902,9 @@ var init_css2 = __esm({
         }
         next2();
       },
-      SelectorList(node2, { state, next: next2, path: path15 }) {
-        const parent = path15.at(-1);
-        if ((!is_in_global_block2(path15) || node2.children.length > 1 && parent?.type === "Rule" && parent.metadata.is_global_block) && !path15.find((n4) => n4.type === "ComplexSelector" && !n4.metadata.used)) {
+      SelectorList(node2, { state, next: next2, path: path16 }) {
+        const parent = path16.at(-1);
+        if ((!is_in_global_block2(path16) || node2.children.length > 1 && parent?.type === "Rule" && parent.metadata.is_global_block) && !path16.find((n4) => n4.type === "ComplexSelector" && !n4.metadata.used)) {
           const children = node2.children;
           let pruning = false;
           let prune_start = children[0].start;
@@ -115914,14 +116053,14 @@ function visit_assignment_expression(node2, context, build_assignment3) {
     for (const { id: id3 } of inserts) {
       id3.name = context.state.scope.generate("$$array");
     }
-    const assignments = paths.map((path15) => {
-      const value2 = path15.expression;
-      let assignment2 = build_assignment3("=", path15.node, value2, context);
+    const assignments = paths.map((path16) => {
+      const value2 = path16.expression;
+      let assignment2 = build_assignment3("=", path16.node, value2, context);
       if (assignment2 !== null) changed = true;
       return assignment2 ?? assignment(
         "=",
         /** @type {Pattern} */
-        context.visit(path15.node),
+        context.visit(path16.node),
         /** @type {Expression} */
         context.visit(value2)
       );
@@ -116532,7 +116671,7 @@ function sort_const_tags(nodes, state) {
   }
   return [...sorted, ...other];
 }
-function clean_nodes(parent, nodes, path15, namespace = "html", state, preserve_whitespace, preserve_comments) {
+function clean_nodes(parent, nodes, path16, namespace = "html", state, preserve_whitespace, preserve_comments) {
   if (!state.analysis.runes) {
     nodes = sort_const_tags(nodes, state);
   }
@@ -116566,7 +116705,7 @@ function clean_nodes(parent, nodes, path15, namespace = "html", state, preserve_
       last.raw = last.raw.replace(regex_ends_with_whitespaces, "");
       last.data = last.data.replace(regex_ends_with_whitespaces, "");
     }
-    const can_remove_entirely = namespace === "svg" && (parent.type !== "RegularElement" || parent.name !== "text") && !path15.some((n4) => n4.type === "RegularElement" && n4.name === "text") || parent.type === "RegularElement" && // TODO others?
+    const can_remove_entirely = namespace === "svg" && (parent.type !== "RegularElement" || parent.name !== "text") && !path16.some((n4) => n4.type === "RegularElement" && n4.name === "text") || parent.type === "RegularElement" && // TODO others?
     (parent.name === "select" || parent.name === "tr" || parent.name === "table" || parent.name === "tbody" || parent.name === "thead" || parent.name === "tfoot" || parent.name === "colgroup" || parent.name === "datalist");
     for (let i3 = 0; i3 < regular.length; i3++) {
       const prev = regular[i3 - 1];
@@ -118658,13 +118797,13 @@ function VariableDeclaration(node2, context) {
             const call8 = call("$.derived", expression);
             declarations.push(declarator(id3, call8));
           }
-          for (const path15 of paths) {
+          for (const path16 of paths) {
             const expression = (
               /** @type {Expression} */
-              context.visit(path15.expression)
+              context.visit(path16.expression)
             );
             const call8 = call("$.derived", thunk(expression));
-            declarations.push(declarator(path15.node, call8));
+            declarations.push(declarator(path16.node, call8));
           }
         }
         continue;
@@ -118708,18 +118847,18 @@ function VariableDeclaration(node2, context) {
             id3.name = context.state.scope.generate("$$array");
             declarations.push(declarator(id3, value));
           }
-          for (const path15 of paths) {
-            const value = path15.expression;
+          for (const path16 of paths) {
+            const value = path16.expression;
             const name = (
               /** @type {Identifier} */
-              path15.node.name
+              path16.node.name
             );
             const binding3 = (
               /** @type {Binding} */
               context.state.scope.get(name)
             );
             const prop3 = member(id("$$props"), literal2(binding3.prop_alias ?? name), true);
-            declarations.push(declarator(path15.node, build_fallback(prop3, value)));
+            declarations.push(declarator(path16.node, build_fallback(prop3, value)));
           }
           continue;
         }
@@ -118774,9 +118913,9 @@ function create_state_declarators(declarator2, scope, value) {
       id3.name = scope.generate("$$array");
       return declarator(id3, value2);
     }),
-    ...paths.map((path15) => {
-      const value2 = path15.expression;
-      return declarator(path15.node, value2);
+    ...paths.map((path16) => {
+      const value2 = path16.expression;
+      return declarator(path16.node, value2);
     })
   ];
 }
@@ -119475,12 +119614,12 @@ function build_bind_this(expression, value, { state, visit }) {
   const seen2 = [];
   const transform2 = { ...state.transform };
   walk(getter ?? expression, null, {
-    Identifier(node3, { path: path15 }) {
+    Identifier(node3, { path: path16 }) {
       if (seen2.includes(node3.name)) return;
       seen2.push(node3.name);
       const parent = (
         /** @type {Expression} */
-        path15.at(-1)
+        path16.at(-1)
       );
       if (!is_reference(node3, parent)) return;
       const binding2 = state.scope.get(node3.name);
@@ -119581,23 +119720,23 @@ function validate_mutation(node2, context, expression) {
     context.state
   );
   state.analysis.needs_mutation_validation = true;
-  const path15 = [];
+  const path16 = [];
   while (left.type === "MemberExpression") {
     if (left.property.type === "Literal") {
-      path15.unshift(left.property);
+      path16.unshift(left.property);
     } else if (left.property.type === "Identifier") {
       const transform2 = Object.hasOwn(context.state.transform, left.property.name) ? context.state.transform[left.property.name] : null;
       if (left.computed) {
-        path15.unshift(transform2?.read ? transform2.read(left.property) : left.property);
+        path16.unshift(transform2?.read ? transform2.read(left.property) : left.property);
       } else {
-        path15.unshift(literal2(left.property.name));
+        path16.unshift(literal2(left.property.name));
       }
     } else {
       return expression;
     }
     left = left.object;
   }
-  path15.unshift(literal2(name.name));
+  path16.unshift(literal2(name.name));
   const loc2 = locator(
     /** @type {number} */
     left.start
@@ -119605,7 +119744,7 @@ function validate_mutation(node2, context, expression) {
   return call(
     "$$ownership_validator.mutation",
     literal2(binding2.prop_alias),
-    array(path15),
+    array(path16),
     expression,
     loc2 && literal2(loc2.line),
     loc2 && literal2(loc2.column)
@@ -119864,9 +120003,9 @@ function build_assignment2(operator, left, right, context) {
   const binding2 = context.state.scope.get(object4.name);
   if (!binding2) return null;
   const transform2 = Object.hasOwn(context.state.transform, object4.name) ? context.state.transform[object4.name] : null;
-  const path15 = context.path.map((node2) => node2.type);
+  const path16 = context.path.map((node2) => node2.type);
   if (object4 === left && transform2?.assign) {
-    const is_primitive = path15.at(-1) === "BindDirective" && path15.at(-2) === "RegularElement";
+    const is_primitive = path16.at(-1) === "BindDirective" && path16.at(-2) === "RegularElement";
     let value = (
       /** @type {Expression} */
       context.visit(build_assignment_value(operator, left, right))
@@ -119906,8 +120045,8 @@ function build_assignment2(operator, left, right, context) {
     }
     return mutation;
   }
-  let should_transform = dev && path15.at(-1) !== "ExpressionStatement" && is_non_coercive_operator(operator) && !context.state.scope.evaluate(right).is_primitive;
-  if (path15.at(-1) === "ArrowFunctionExpression" && (path15.at(-2) === "RegularElement" || path15.at(-2) === "SvelteElement")) {
+  let should_transform = dev && path16.at(-1) !== "ExpressionStatement" && is_non_coercive_operator(operator) && !context.state.scope.evaluate(right).is_primitive;
+  if (path16.at(-1) === "ArrowFunctionExpression" && (path16.at(-2) === "RegularElement" || path16.at(-2) === "SvelteElement")) {
     const element3 = (
       /** @type {AST.RegularElement} */
       context.path.at(-2)
@@ -119923,7 +120062,7 @@ function build_assignment2(operator, left, right, context) {
       should_transform = false;
     }
   }
-  if (path15.at(-1) === "BindDirective" || path15.at(-1) === "Component" || path15.at(-1) === "SvelteComponent" || path15.at(-1) === "ArrowFunctionExpression" && (path15.at(-2) === "BindDirective" || path15.at(-2) === "Component" && path15.at(-3) === "Fragment" || path15.at(-2) === "SequenceExpression" && (path15.at(-3) === "Component" || path15.at(-3) === "SvelteComponent" || path15.at(-3) === "BindDirective"))) {
+  if (path16.at(-1) === "BindDirective" || path16.at(-1) === "Component" || path16.at(-1) === "SvelteComponent" || path16.at(-1) === "ArrowFunctionExpression" && (path16.at(-2) === "BindDirective" || path16.at(-2) === "Component" && path16.at(-3) === "Fragment" || path16.at(-2) === "SequenceExpression" && (path16.at(-3) === "Component" || path16.at(-3) === "SvelteComponent" || path16.at(-3) === "BindDirective"))) {
     should_transform = false;
   }
   if (left.type === "MemberExpression" && should_transform) {
@@ -122562,24 +122701,24 @@ function EachBlock3(node2, context) {
       );
       declarations.push(var_builder(id3, call("$.derived", expression)));
     }
-    for (const path15 of paths) {
+    for (const path16 of paths) {
       const name = (
         /** @type {Identifier} */
-        path15.node.name
+        path16.node.name
       );
-      const needs_derived = path15.has_default_value;
+      const needs_derived = path16.has_default_value;
       const fn2 = thunk(
         /** @type {Expression} */
-        context.visit(path15.expression, child_state)
+        context.visit(path16.expression, child_state)
       );
-      declarations.push(let_builder(path15.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
+      declarations.push(let_builder(path16.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
       const read2 = needs_derived ? get_value : call;
       child_state.transform[name] = {
         read: read2,
         assign: (_2, value) => {
           const left = (
             /** @type {Pattern} */
-            path15.update_expression
+            path16.update_expression
           );
           return sequence([assignment("=", left, value), ...sequence2]);
         },
@@ -123561,17 +123700,17 @@ function SnippetBlock3(node2, context) {
         ))
       );
     }
-    for (const path15 of paths) {
+    for (const path16 of paths) {
       const name = (
         /** @type {Identifier} */
-        path15.node.name
+        path16.node.name
       );
-      const needs_derived = path15.has_default_value;
+      const needs_derived = path16.has_default_value;
       const fn2 = thunk(
         /** @type {Expression} */
-        context.visit(path15.expression, child_state)
+        context.visit(path16.expression, child_state)
       );
-      declarations.push(let_builder(path15.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
+      declarations.push(let_builder(path16.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
       transform2[name] = {
         read: needs_derived ? get_value : call
       };
@@ -124302,17 +124441,17 @@ function VariableDeclaration2(node2, context) {
               }
               return declarator(id3, call7);
             }),
-            ...paths.map((path15) => {
+            ...paths.map((path16) => {
               const value2 = (
                 /** @type {Expression} */
-                context.visit(path15.expression)
+                context.visit(path16.expression)
               );
               const binding2 = context.state.scope.get(
                 /** @type {Identifier} */
-                path15.node.name
+                path16.node.name
               );
               return declarator(
-                path15.node,
+                path16.node,
                 binding2?.kind === "state" || binding2?.kind === "raw_state" ? create_state_declarator(binding2.node, value2) : value2
               );
             })
@@ -124389,18 +124528,18 @@ function VariableDeclaration2(node2, context) {
             }
             declarations.push(declarator(id3, call7));
           }
-          for (const path15 of paths) {
+          for (const path16 of paths) {
             const expression2 = (
               /** @type {Expression} */
-              context.visit(path15.expression)
+              context.visit(path16.expression)
             );
             const call7 = call("$.derived", thunk(expression2));
             declarations.push(
               declarator(
-                path15.node,
+                path16.node,
                 dev ? call("$.tag", call7, literal2(
                   /** @type {Identifier} */
-                  path15.node.name
+                  path16.node.name
                 )) : call7
               )
             );
@@ -124447,10 +124586,10 @@ function VariableDeclaration2(node2, context) {
             );
             declarations.push(declarator(id3, call("$.derived", expression)));
           }
-          for (const path15 of paths) {
+          for (const path16 of paths) {
             const name = (
               /** @type {Identifier} */
-              path15.node.name
+              path16.node.name
             );
             const binding3 = (
               /** @type {Binding} */
@@ -124458,11 +124597,11 @@ function VariableDeclaration2(node2, context) {
             );
             const value = (
               /** @type {Expression} */
-              context.visit(path15.expression)
+              context.visit(path16.expression)
             );
             declarations.push(
               declarator(
-                path15.node,
+                path16.node,
                 binding3.kind === "bindable_prop" ? get_prop_source(binding3, context.state, binding3.prop_alias ?? name, value) : value
               )
             );
@@ -124526,21 +124665,21 @@ function create_state_declarators2(declarator2, context, value) {
       );
       return declarator(id3, call("$.derived", expression));
     }),
-    ...paths.map((path15) => {
+    ...paths.map((path16) => {
       const value2 = (
         /** @type {Expression} */
-        context.visit(path15.expression)
+        context.visit(path16.expression)
       );
       const binding2 = context.state.scope.get(
         /** @type {Identifier} */
-        path15.node.name
+        path16.node.name
       );
       return declarator(
-        path15.node,
+        path16.node,
         binding2?.kind === "state" ? mutable_source(
           value2,
           /** @type {Identifier} */
-          path15.node.name
+          path16.node.name
         ) : value2
       );
     })
@@ -126486,7 +126625,7 @@ var init_print = __esm({
       DeclarationTag(node2, context) {
         context.write("{");
         const open3 = context.new();
-        const join14 = context.new();
+        const join15 = context.new();
         const child_context = context.new();
         context.append(child_context);
         child_context.write(`${node2.declaration.kind} `);
@@ -126494,7 +126633,7 @@ var init_print = __esm({
         const declarations = node2.declaration.declarations;
         let first = true;
         for (const d3 of declarations) {
-          if (!first) child_context.append(join14);
+          if (!first) child_context.append(join15);
           first = false;
           child_context.visit(d3);
         }
@@ -126503,11 +126642,11 @@ var init_print = __esm({
         if (multiline) {
           context.multiline = true;
           if (declarations.length > 1) open3.indent();
-          join14.write(",");
-          join14.newline();
+          join15.write(",");
+          join15.newline();
           if (declarations.length > 1) context.dedent();
         } else {
-          join14.write(", ");
+          join15.write(", ");
         }
         context.write("}");
       },
@@ -127096,8 +127235,8 @@ function trim_block(state, start2, end2) {
     state.str.update(start2 + 1, end2 - 1, without_parens.trim());
   }
 }
-function migrate_slot_usage(node2, path15, state) {
-  const parent = path15.at(-2);
+function migrate_slot_usage(node2, path16, state) {
+  const parent = path16.at(-2);
   if (parent?.type !== "Component" && parent?.type !== "SvelteComponent" && node2.type !== "Component" && node2.type !== "SvelteComponent") {
     return;
   }
@@ -127185,7 +127324,7 @@ ${state.indent}`
     state.str.appendLeft(
       inner_start,
       `{#snippet ${snippet_name}(${props})}
-${state.indent.repeat(path15.length)}`
+${state.indent.repeat(path16.length)}`
     );
     state.str.indent(state.indent, {
       exclude: [
@@ -127195,19 +127334,19 @@ ${state.indent.repeat(path15.length)}`
     });
     if (inner_end < node2.fragment.nodes[node2.fragment.nodes.length - 1].end) {
       state.str.prependLeft(inner_end, `{/snippet}
-${state.indent.repeat(path15.length)}`);
+${state.indent.repeat(path16.length)}`);
     } else {
       state.str.prependLeft(
         inner_end,
-        `${state.indent.repeat(path15.length)}{/snippet}
-${state.indent.repeat(path15.length - 1)}`
+        `${state.indent.repeat(path16.length)}{/snippet}
+${state.indent.repeat(path16.length - 1)}`
       );
     }
   } else {
     state.str.prependLeft(
       node2.start,
       `{#snippet ${snippet_name}(${props})}
-${state.indent.repeat(path15.length - 2)}`
+${state.indent.repeat(path16.length - 2)}`
     );
     state.str.indent(state.indent, {
       exclude: [
@@ -127216,7 +127355,7 @@ ${state.indent.repeat(path15.length - 2)}`
       ]
     });
     const str = `
-${state.indent.repeat(path15.length - 2)}{/snippet}`;
+${state.indent.repeat(path16.length - 2)}{/snippet}`;
     if (node2.type === "SlotElement") {
       state.str.appendRight(node2.end, str);
     } else {
@@ -127224,9 +127363,9 @@ ${state.indent.repeat(path15.length - 2)}{/snippet}`;
     }
   }
 }
-function extract_type_and_comment(declarator2, state, path15) {
+function extract_type_and_comment(declarator2, state, path16) {
   const str = state.str;
-  let parent = path15.at(-1);
+  let parent = path16.at(-1);
   if (parent?.type === "Program") {
     parent = void 0;
   }
@@ -127414,8 +127553,8 @@ function get_node_range(source2, node2) {
   start2 = idx;
   return { start: start2, end: end2 };
 }
-function handle_identifier(node2, state, path15) {
-  const parent = path15.at(-1);
+function handle_identifier(node2, state, path16) {
+  const parent = path16.at(-1);
   if (parent?.type === "MemberExpression" && parent.property === node2) return;
   if (state.analysis.uses_props && node2.name !== "$$slots") {
     if (node2.name === "$$props" || node2.name === "$$restProps") {
@@ -127583,8 +127722,8 @@ var init_migrate = __esm({
         }
         next2();
       },
-      Identifier(node2, { state, path: path15 }) {
-        handle_identifier(node2, state, path15);
+      Identifier(node2, { state, path: path16 }) {
+        handle_identifier(node2, state, path16);
       },
       ImportDeclaration(node2, { state }) {
         state.props_insertion_point = node2.end ?? state.props_insertion_point;
@@ -127654,7 +127793,7 @@ var init_migrate = __esm({
           );
         }
       },
-      VariableDeclaration(node2, { state, path: path15, visit, next: next2 }) {
+      VariableDeclaration(node2, { state, path: path16, visit, next: next2 }) {
         if (state.scope !== state.analysis.instance.scope) {
           return;
         }
@@ -127737,7 +127876,7 @@ var init_migrate = __esm({
                 ).toString() : "",
                 optional: !!declarator2.init,
                 bindable: binding2.updated,
-                ...extract_type_and_comment(declarator2, state, path15)
+                ...extract_type_and_comment(declarator2, state, path16)
               });
             }
             let start2 = (
@@ -127939,7 +128078,7 @@ ${indent2}// ${comment.value}`
             /** @type {number} */
             node2.end
           );
-          const parent = path15.at(-1);
+          const parent = path16.at(-1);
           if (parent?.type === "ExportNamedDeclaration") {
             start2 = /** @type {number} */
             parent.start;
@@ -127955,8 +128094,8 @@ ${indent2}// ${comment.value}`
           state.str.update(start2, end2, "");
         }
       },
-      BreakStatement(node2, { state, path: path15 }) {
-        if (path15[1].type !== "LabeledStatement") return;
+      BreakStatement(node2, { state, path: path16 }) {
+        if (path16[1].type !== "LabeledStatement") return;
         if (node2.label?.name !== "$") return;
         state.str.update(
           /** @type {number} */
@@ -127966,9 +128105,9 @@ ${indent2}// ${comment.value}`
           "return;"
         );
       },
-      LabeledStatement(node2, { path: path15, state, next: next2 }) {
+      LabeledStatement(node2, { path: path16, state, next: next2 }) {
         if (state.analysis.runes) return;
-        if (path15.length > 1) return;
+        if (path16.length > 1) return;
         if (node2.label.name !== "$") return;
         if (state.derived_labeled_statements.has(node2)) return;
         next2();
@@ -128099,10 +128238,10 @@ ${state.indent}});`
       }
     };
     template2 = {
-      Identifier(node2, { state, path: path15 }) {
-        handle_identifier(node2, state, path15);
+      Identifier(node2, { state, path: path16 }) {
+        handle_identifier(node2, state, path16);
       },
-      RegularElement(node2, { state, path: path15, next: next2 }) {
+      RegularElement(node2, { state, path: path16, next: next2 }) {
         const node_name = node2.name.replace(/[a-zA-Z-]*:/g, "");
         if (state.analysis.source[node2.end - 2] === "/" && !is_void(node_name) && !is_svg(node_name)) {
           let trimmed_position = node2.end - 2;
@@ -128110,7 +128249,7 @@ ${state.indent}});`
           state.str.remove(trimmed_position, node2.end - 1);
           state.str.appendLeft(node2.end, `</${node2.name}>`);
         }
-        migrate_slot_usage(node2, path15, state);
+        migrate_slot_usage(node2, path16, state);
         handle_events(node2, state);
         next2();
       },
@@ -128148,8 +128287,8 @@ ${indent2}`
         state.has_svelte_self = true;
         next2();
       },
-      SvelteElement(node2, { state, path: path15, next: next2 }) {
-        migrate_slot_usage(node2, path15, state);
+      SvelteElement(node2, { state, path: path16, next: next2 }) {
+        migrate_slot_usage(node2, path16, state);
         if (node2.tag.type === "Literal") {
           let is_static = true;
           let a = (
@@ -128179,13 +128318,13 @@ ${indent2}`
         handle_events(node2, state);
         next2();
       },
-      Component(node2, { state, path: path15, next: next2 }) {
+      Component(node2, { state, path: path16, next: next2 }) {
         next2();
-        migrate_slot_usage(node2, path15, state);
+        migrate_slot_usage(node2, path16, state);
       },
-      SvelteComponent(node2, { state, next: next2, path: path15 }) {
+      SvelteComponent(node2, { state, next: next2, path: path16 }) {
         next2();
-        migrate_slot_usage(node2, path15, state);
+        migrate_slot_usage(node2, path16, state);
         let expression = state.str.snip(
           /** @type {number} */
           node2.expression.start,
@@ -128196,13 +128335,13 @@ ${indent2}`
           let current_expression = expression;
           expression = state.scope.generate("SvelteComponent");
           let needs_derived = true;
-          for (let i3 = path15.length - 1; i3 >= 0; i3--) {
-            const part = path15[i3];
+          for (let i3 = path16.length - 1; i3 >= 0; i3--) {
+            const part = path16[i3];
             if (part.type === "EachBlock" || part.type === "AwaitBlock" || part.type === "IfBlock" || part.type === "SnippetBlock" || part.type === "Component" || part.type === "SvelteComponent") {
               let position2 = node2.start;
-              if (i3 !== path15.length - 1) {
-                for (let modifier = 1; modifier < path15.length - i3; modifier++) {
-                  const path_part = path15[i3 + modifier];
+              if (i3 !== path16.length - 1) {
+                for (let modifier = 1; modifier < path16.length - i3; modifier++) {
+                  const path_part = path16[i3 + modifier];
                   if ("start" in path_part) {
                     position2 = /** @type {number} */
                     path_part.start;
@@ -128241,8 +128380,8 @@ ${indent2}`
         const end_pos = state.str.original.indexOf("}", node2.expression.end) + 1;
         state.str.remove(this_pos, end_pos);
       },
-      SvelteFragment(node2, { state, path: path15, next: next2 }) {
-        migrate_slot_usage(node2, path15, state);
+      SvelteFragment(node2, { state, path: path16, next: next2 }) {
+        migrate_slot_usage(node2, path16, state);
         next2();
       },
       SvelteWindow(node2, { state, next: next2 }) {
@@ -128257,8 +128396,8 @@ ${indent2}`
         handle_events(node2, state);
         next2();
       },
-      SlotElement(node2, { state, path: path15, next: next2, visit }) {
-        migrate_slot_usage(node2, path15, state);
+      SlotElement(node2, { state, path: path16, next: next2, visit }) {
+        migrate_slot_usage(node2, path16, state);
         if (state.analysis.custom_element) return;
         let name = "children";
         let slot_name = "default";
@@ -128278,7 +128417,7 @@ ${indent2}`
             if (attr2.name === "name") {
               slot_name = /** @type {any} */
               attr2.value[0].data;
-              if (path15.some(
+              if (path16.some(
                 (parent) => (parent.type === "RegularElement" || parent.type === "SvelteElement" || parent.type === "Component" || parent.type === "SvelteComponent" || parent.type === "SvelteFragment") && parent.attributes.some(
                   (attribute2) => attribute2.type === "Attribute" && attribute2.name === "slot" && is_text_attribute(attribute2) && attribute2.value[0].data === slot_name
                 )
@@ -128341,7 +128480,7 @@ ${indent2}`
           existing_prop.type = `import('svelte').${slot_props ? "Snippet<[any]>" : "Snippet"}`;
           existing_prop.needs_refine_type = false;
         }
-        if (slot_name === "default" && path15.some(
+        if (slot_name === "default" && path16.some(
           (parent) => (parent.type === "SvelteComponent" || parent.type === "Component" || parent.type === "RegularElement" || parent.type === "SvelteElement" || parent.type === "SvelteFragment") && parent.attributes.some((attr2) => attr2.type === "LetDirective")
         )) {
           aliased_slot_name = `${name}_render`;
@@ -130820,27 +130959,27 @@ var require_util10 = __commonJS({
       };
     }
     var normalize2 = lruMemoize(function normalize3(aPath) {
-      var path15 = aPath;
+      var path16 = aPath;
       var url = urlParse(aPath);
       if (url) {
         if (!url.path) {
           return aPath;
         }
-        path15 = url.path;
+        path16 = url.path;
       }
-      var isAbsolute = exports.isAbsolute(path15);
+      var isAbsolute = exports.isAbsolute(path16);
       var parts = [];
       var start2 = 0;
       var i3 = 0;
       while (true) {
         start2 = i3;
-        i3 = path15.indexOf("/", start2);
+        i3 = path16.indexOf("/", start2);
         if (i3 === -1) {
-          parts.push(path15.slice(start2));
+          parts.push(path16.slice(start2));
           break;
         } else {
-          parts.push(path15.slice(start2, i3));
-          while (i3 < path15.length && path15[i3] === "/") {
+          parts.push(path16.slice(start2, i3));
+          while (i3 < path16.length && path16[i3] === "/") {
             i3++;
           }
         }
@@ -130861,18 +131000,18 @@ var require_util10 = __commonJS({
           }
         }
       }
-      path15 = parts.join("/");
-      if (path15 === "") {
-        path15 = isAbsolute ? "/" : ".";
+      path16 = parts.join("/");
+      if (path16 === "") {
+        path16 = isAbsolute ? "/" : ".";
       }
       if (url) {
-        url.path = path15;
+        url.path = path16;
         return urlGenerate(url);
       }
-      return path15;
+      return path16;
     });
     exports.normalize = normalize2;
-    function join14(aRoot, aPath) {
+    function join15(aRoot, aPath) {
       if (aRoot === "") {
         aRoot = ".";
       }
@@ -130904,11 +131043,11 @@ var require_util10 = __commonJS({
       }
       return joined;
     }
-    exports.join = join14;
+    exports.join = join15;
     exports.isAbsolute = function(aPath) {
       return aPath.charAt(0) === "/" || urlRegexp.test(aPath);
     };
-    function relative(aRoot, aPath) {
+    function relative2(aRoot, aPath) {
       if (aRoot === "") {
         aRoot = ".";
       }
@@ -130927,7 +131066,7 @@ var require_util10 = __commonJS({
       }
       return Array(level + 1).join("../") + aPath.substr(aRoot.length + 1);
     }
-    exports.relative = relative;
+    exports.relative = relative2;
     var supportsNullProto = (function() {
       var obj = /* @__PURE__ */ Object.create(null);
       return !("__proto__" in obj);
@@ -131118,7 +131257,7 @@ var require_util10 = __commonJS({
             parsed.path = parsed.path.substring(0, index + 1);
           }
         }
-        sourceURL = join14(urlGenerate(parsed), sourceURL);
+        sourceURL = join15(urlGenerate(parsed), sourceURL);
       }
       return normalize2(sourceURL);
     }
@@ -134542,14 +134681,14 @@ For props declared with defineModel(), assign the returned ref to a variable and
     var whitespaceRE = /\s+[.[]\s*|\s*[.[]\s+/g;
     var getExpSource = (exp) => exp.type === 4 ? exp.content : exp.loc.source;
     var isMemberExpressionBrowser = (exp) => {
-      const path15 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
+      const path16 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
       let state = 0;
       let stateStack = [];
       let currentOpenBracketCount = 0;
       let currentOpenParensCount = 0;
       let currentStringType = null;
-      for (let i3 = 0; i3 < path15.length; i3++) {
-        const char = path15.charAt(i3);
+      for (let i3 = 0; i3 < path16.length; i3++) {
+        const char = path16.charAt(i3);
         switch (state) {
           case 0:
             if (char === "[") {
@@ -134585,7 +134724,7 @@ For props declared with defineModel(), assign the returned ref to a variable and
             } else if (char === `(`) {
               currentOpenParensCount++;
             } else if (char === `)`) {
-              if (i3 === path15.length - 1) {
+              if (i3 === path16.length - 1) {
                 return false;
               }
               if (!--currentOpenParensCount) {
@@ -141352,14 +141491,14 @@ For props declared with defineModel(), assign the returned ref to a variable and
     var whitespaceRE = /\s+[.[]\s*|\s*[.[]\s+/g;
     var getExpSource = (exp) => exp.type === 4 ? exp.content : exp.loc.source;
     var isMemberExpressionBrowser = (exp) => {
-      const path15 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
+      const path16 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
       let state = 0;
       let stateStack = [];
       let currentOpenBracketCount = 0;
       let currentOpenParensCount = 0;
       let currentStringType = null;
-      for (let i3 = 0; i3 < path15.length; i3++) {
-        const char = path15.charAt(i3);
+      for (let i3 = 0; i3 < path16.length; i3++) {
+        const char = path16.charAt(i3);
         switch (state) {
           case 0:
             if (char === "[") {
@@ -141395,7 +141534,7 @@ For props declared with defineModel(), assign the returned ref to a variable and
             } else if (char === `(`) {
               currentOpenParensCount++;
             } else if (char === `)`) {
-              if (i3 === path15.length - 1) {
+              if (i3 === path16.length - 1) {
                 return false;
               }
               if (!--currentOpenParensCount) {
@@ -180842,10 +180981,10 @@ function omitLeft(body, i3, multiple) {
 function PrintVisitor() {
   this.padding = 0;
 }
-function prefix(path15) {
-  if (path15.data) {
+function prefix(path16) {
+  if (path16.data) {
     return "@";
-  } else if (path15.this) {
+  } else if (path16.this) {
     return "this.";
   } else {
     return "";
@@ -180930,12 +181069,12 @@ function preparePath(data2, sexpr, parts, loc2) {
     loc: loc2
   };
 }
-function prepareMustache(path15, params, hash2, open3, strip, locInfo) {
+function prepareMustache(path16, params, hash2, open3, strip, locInfo) {
   let escapeFlag = open3.charAt(3) || open3.charAt(2), escaped = escapeFlag !== "{" && escapeFlag !== "&";
   let decorator = /\*/.test(open3);
   return {
     type: decorator ? "Decorator" : "MustacheStatement",
-    path: path15,
+    path: path16,
     params,
     hash: hash2,
     escaped,
@@ -181233,12 +181372,12 @@ function getNodeHandler(visitor, nodeType) {
   }
   return visitor.All;
 }
-function visitNode(visitor, path15) {
+function visitNode(visitor, path16) {
   let {
     node: node2,
     parent,
     parentKey
-  } = path15;
+  } = path16;
   let handler2 = getNodeHandler(visitor, node2.type);
   let enter;
   let exit;
@@ -181248,7 +181387,7 @@ function visitNode(visitor, path15) {
   }
   let result;
   if (enter !== void 0) {
-    result = enter(node2, path15);
+    result = enter(node2, path16);
   }
   if (result !== void 0 && result !== null) {
     if (JSON.stringify(node2) === JSON.stringify(result)) {
@@ -181257,18 +181396,18 @@ function visitNode(visitor, path15) {
       visitArray(visitor, result, parent, parentKey);
       return result;
     } else {
-      let path16 = new WalkerPath(result, parent, parentKey);
-      return visitNode(visitor, path16) || result;
+      let path17 = new WalkerPath(result, parent, parentKey);
+      return visitNode(visitor, path17) || result;
     }
   }
   if (result === void 0) {
     let keys = visitorKeys[node2.type];
     for (let i3 = 0; i3 < keys.length; i3++) {
       let key2 = keys[i3];
-      visitKey(visitor, handler2, path15, key2);
+      visitKey(visitor, handler2, path16, key2);
     }
     if (exit !== void 0) {
-      result = exit(node2, path15);
+      result = exit(node2, path16);
     }
   }
   return result;
@@ -181279,10 +181418,10 @@ function get3(node2, key2) {
 function set2(node2, key2, value) {
   node2[key2] = value;
 }
-function visitKey(visitor, handler2, path15, key2) {
+function visitKey(visitor, handler2, path16, key2) {
   let {
     node: node2
-  } = path15;
+  } = path16;
   let value = get3(node2, key2);
   if (!value) {
     return;
@@ -181302,9 +181441,9 @@ function visitKey(visitor, handler2, path15, key2) {
     }
   }
   if (Array.isArray(value)) {
-    visitArray(visitor, value, path15, key2);
+    visitArray(visitor, value, path16, key2);
   } else {
-    let keyPath = new WalkerPath(value, path15, key2);
+    let keyPath = new WalkerPath(value, path16, key2);
     let result = visitNode(visitor, keyPath);
     if (result !== void 0) {
       assignKey(node2, key2, value, result);
@@ -181319,8 +181458,8 @@ function visitKey(visitor, handler2, path15, key2) {
 function visitArray(visitor, array2, parent, parentKey) {
   for (let i3 = 0; i3 < array2.length; i3++) {
     let node2 = unwrap(array2[i3]);
-    let path15 = new WalkerPath(node2, parent, parentKey);
-    let result = visitNode(visitor, path15);
+    let path16 = new WalkerPath(node2, parent, parentKey);
+    let result = visitNode(visitor, path16);
     if (result !== void 0) {
       i3 += spliceArray(array2, i3, result) - 1;
     }
@@ -181356,8 +181495,8 @@ function spliceArray(array2, index, result) {
   }
 }
 function traverse2(node2, visitor) {
-  let path15 = new WalkerPath(node2);
-  visitNode(visitor, path15);
+  let path16 = new WalkerPath(node2);
+  visitNode(visitor, path16);
 }
 function walkBody(walker, body, callback) {
   for (const child of body) {
@@ -181376,8 +181515,8 @@ function childrenFor(node2) {
 function appendChild(parent, node2) {
   childrenFor(parent).push(node2);
 }
-function isHBSLiteral(path15) {
-  return path15.type === "StringLiteral" || path15.type === "BooleanLiteral" || path15.type === "NumberLiteral" || path15.type === "NullLiteral" || path15.type === "UndefinedLiteral";
+function isHBSLiteral(path16) {
+  return path16.type === "StringLiteral" || path16.type === "BooleanLiteral" || path16.type === "NumberLiteral" || path16.type === "NullLiteral" || path16.type === "UndefinedLiteral";
 }
 function printLiteral(literal5) {
   if (literal5.type === "UndefinedLiteral") {
@@ -181398,9 +181537,9 @@ function SOURCE() {
   }
   return _SOURCE;
 }
-function buildMustache(path15, params = [], hash2 = buildHash([]), trusting = false, loc2, strip) {
+function buildMustache(path16, params = [], hash2 = buildHash([]), trusting = false, loc2, strip) {
   return b3.mustache({
-    path: buildPath(path15),
+    path: buildPath(path16),
     params,
     hash: hash2,
     trusting,
@@ -181408,7 +181547,7 @@ function buildMustache(path15, params = [], hash2 = buildHash([]), trusting = fa
     loc: buildLoc(loc2 || null)
   });
 }
-function buildBlock(path15, params, hash2, _defaultBlock, _elseBlock = null, loc2, openStrip, inverseStrip, closeStrip) {
+function buildBlock(path16, params, hash2, _defaultBlock, _elseBlock = null, loc2, openStrip, inverseStrip, closeStrip) {
   let defaultBlock;
   let elseBlock = null;
   if (_defaultBlock.type === "Template") {
@@ -181431,7 +181570,7 @@ function buildBlock(path15, params, hash2, _defaultBlock, _elseBlock = null, loc
     elseBlock = _elseBlock;
   }
   return b3.block({
-    path: buildPath(path15),
+    path: buildPath(path16),
     params: params || [],
     hash: hash2 || buildHash([]),
     defaultBlock,
@@ -181442,9 +181581,9 @@ function buildBlock(path15, params, hash2, _defaultBlock, _elseBlock = null, loc
     closeStrip
   });
 }
-function buildElementModifier(path15, params, hash2, loc2) {
+function buildElementModifier(path16, params, hash2, loc2) {
   return b3.elementModifier({
-    path: buildPath(path15),
+    path: buildPath(path16),
     params: params || [],
     hash: hash2 || buildHash([]),
     loc: buildLoc(loc2 || null)
@@ -181482,24 +181621,24 @@ function buildElement(tag2, options = {}) {
     closeTag: _closeTag,
     loc: loc2
   } = options;
-  let path15;
+  let path16;
   let selfClosing;
   if (typeof tag2 === "string") {
     if (tag2.endsWith("/")) {
-      path15 = buildPath(tag2.slice(0, -1));
+      path16 = buildPath(tag2.slice(0, -1));
       selfClosing = true;
     } else {
-      path15 = buildPath(tag2);
+      path16 = buildPath(tag2);
     }
   } else if ("type" in tag2) {
     assert3(tag2.type === "PathExpression", `Invalid tag type ${tag2.type}`);
-    path15 = tag2;
+    path16 = tag2;
   } else if ("path" in tag2) {
     assert3(tag2.path.type === "PathExpression", `Invalid tag type ${tag2.path.type}`);
-    path15 = tag2.path;
+    path16 = tag2.path;
     selfClosing = tag2.selfClosing;
   } else {
-    path15 = buildPath(tag2.name);
+    path16 = buildPath(tag2.name);
     selfClosing = tag2.selfClosing;
   }
   let params = blockParams?.map((param) => {
@@ -181513,10 +181652,10 @@ function buildElement(tag2, options = {}) {
   if (_closeTag) {
     closeTag = buildLoc(_closeTag);
   } else if (_closeTag === void 0) {
-    closeTag = selfClosing || isVoidTag(path15.original) ? null : buildLoc(null);
+    closeTag = selfClosing || isVoidTag(path16.original) ? null : buildLoc(null);
   }
   return b3.element({
-    path: path15,
+    path: path16,
     selfClosing: selfClosing || false,
     attributes: attrs || [],
     params: params || [],
@@ -181541,9 +181680,9 @@ function buildText(chars2 = "", loc2) {
     loc: buildLoc(loc2 || null)
   });
 }
-function buildSexpr(path15, params = [], hash2 = buildHash([]), loc2) {
+function buildSexpr(path16, params = [], hash2 = buildHash([]), loc2) {
   return b3.sexpr({
-    path: buildPath(path15),
+    path: buildPath(path16),
     params,
     hash: hash2,
     loc: buildLoc(loc2 || null)
@@ -181591,17 +181730,17 @@ function buildCleanPath(head, tail = [], loc2) {
     loc: buildLoc(loc2 || null)
   });
 }
-function buildPath(path15, loc2) {
+function buildPath(path16, loc2) {
   let span2 = buildLoc(loc2 || null);
-  if (typeof path15 !== "string") {
-    if ("type" in path15) {
-      return path15;
+  if (typeof path16 !== "string") {
+    if ("type" in path16) {
+      return path16;
     } else {
-      assert3(path15.head.indexOf(".") === -1);
+      assert3(path16.head.indexOf(".") === -1);
       let {
         head: head2,
         tail: tail2
-      } = path15;
+      } = path16;
       return b3.path({
         head: b3.head({
           original: head2,
@@ -181617,7 +181756,7 @@ function buildPath(path15, loc2) {
   let {
     head,
     tail
-  } = buildHead(path15, span2);
+  } = buildHead(path16, span2);
   return b3.path({
     head,
     tail,
@@ -181707,7 +181846,7 @@ function literal4(type) {
   };
 }
 function buildLegacyMustache({
-  path: path15,
+  path: path16,
   params,
   hash: hash2,
   trusting,
@@ -181716,7 +181855,7 @@ function buildLegacyMustache({
 }) {
   const node2 = {
     type: "MustacheStatement",
-    path: path15,
+    path: path16,
     params,
     hash: hash2,
     trusting,
@@ -181841,13 +181980,13 @@ function updateTokenizerLocation(tokenizer3, content) {
   tokenizer3.column = column;
 }
 function acceptCallNodes(compiler, node2) {
-  let path15;
+  let path16;
   switch (node2.path.type) {
     case "PathExpression":
-      path15 = compiler.PathExpression(node2.path);
+      path16 = compiler.PathExpression(node2.path);
       break;
     case "SubExpression":
-      path15 = compiler.SubExpression(node2.path);
+      path16 = compiler.SubExpression(node2.path);
       break;
     case "HashLiteral":
       return compiler.HashLiteral(node2.path);
@@ -181872,31 +182011,31 @@ function acceptCallNodes(compiler, node2) {
     }
   }
   const params = node2.params.map((e2) => compiler.acceptNode(e2));
-  const end2 = isPresentArray(params) ? getLast(params).loc : path15.loc;
+  const end2 = isPresentArray(params) ? getLast(params).loc : path16.loc;
   const hash2 = node2.hash ? compiler.Hash(node2.hash) : b3.hash({
     pairs: [],
     loc: compiler.source.spanFor(end2).collapse("end")
   });
   return {
-    path: path15,
+    path: path16,
     params,
     hash: hash2
   };
 }
 function addElementModifier(element3, mustache) {
   const {
-    path: path15,
+    path: path16,
     params,
     hash: hash2,
     loc: loc2
   } = mustache;
-  if (isHBSLiteral(path15)) {
-    const modifier2 = `{{${printLiteral(path15)}}}`;
+  if (isHBSLiteral(path16)) {
+    const modifier2 = `{{${printLiteral(path16)}}}`;
     const tag2 = `<${element3.name} ... ${modifier2} ...`;
     throw generateSyntaxError(`In ${tag2}, ${modifier2} is not a valid modifier`, mustache.loc);
   }
   const modifier = b3.elementModifier({
-    path: path15,
+    path: path16,
     params,
     hash: hash2,
     loc: loc2
@@ -182542,11 +182681,11 @@ var init_es = __esm({
         }
         this.buffer += `<!--${comment.value}-->`;
       }
-      PathExpression(path15) {
-        if (this.handledByOverride(path15)) {
+      PathExpression(path16) {
+        if (this.handledByOverride(path16)) {
           return;
         }
-        this.buffer += path15.original;
+        this.buffer += path16.original;
       }
       SubExpression(sexp) {
         if (this.handledByOverride(sexp)) {
@@ -184592,8 +184731,8 @@ var init_es = __esm({
     };
     PrintVisitor.prototype.PathExpression = function(id3) {
       let head = typeof id3.head === "string" ? id3.head : `[${this.accept(id3.head)}]`;
-      let path15 = [head, ...id3.tail].join("/");
-      return "p%" + prefix(id3) + path15;
+      let path16 = [head, ...id3.tail].join("/");
+      return "p%" + prefix(id3) + path16;
     };
     PrintVisitor.prototype.StringLiteral = function(string2) {
       return '"' + string2.value + '"';
@@ -188226,8 +188365,8 @@ var init_es = __esm({
     };
     PathParentsIterator = class {
       path;
-      constructor(path15) {
-        this.path = path15;
+      constructor(path16) {
+        this.path = path16;
       }
       next() {
         if (this.path.parent) {
@@ -188368,7 +188507,7 @@ var init_es = __esm({
         };
       }
       mustache({
-        path: path15,
+        path: path16,
         params,
         hash: hash2,
         trusting,
@@ -188376,7 +188515,7 @@ var init_es = __esm({
         strip = DEFAULT_STRIP
       }) {
         return buildLegacyMustache({
-          path: path15,
+          path: path16,
           params,
           hash: hash2,
           trusting,
@@ -188385,7 +188524,7 @@ var init_es = __esm({
         });
       }
       block({
-        path: path15,
+        path: path16,
         params,
         hash: hash2,
         defaultBlock,
@@ -188397,7 +188536,7 @@ var init_es = __esm({
       }) {
         return {
           type: "BlockStatement",
-          path: path15,
+          path: path16,
           params,
           hash: hash2,
           program: defaultBlock,
@@ -188439,7 +188578,7 @@ var init_es = __esm({
         };
       }
       element({
-        path: path15,
+        path: path16,
         selfClosing,
         attributes: attributes2,
         modifiers: modifiers2,
@@ -188453,7 +188592,7 @@ var init_es = __esm({
         let _selfClosing = selfClosing;
         return {
           type: "ElementNode",
-          path: path15,
+          path: path16,
           attributes: attributes2,
           modifiers: modifiers2,
           params,
@@ -188493,14 +188632,14 @@ var init_es = __esm({
         };
       }
       elementModifier({
-        path: path15,
+        path: path16,
         params,
         hash: hash2,
         loc: loc2
       }) {
         return {
           type: "ElementModifierStatement",
-          path: path15,
+          path: path16,
           params,
           hash: hash2,
           loc: loc2
@@ -188529,14 +188668,14 @@ var init_es = __esm({
         };
       }
       sexpr({
-        path: path15,
+        path: path16,
         params,
         hash: hash2,
         loc: loc2
       }) {
         return {
           type: "SubExpression",
-          path: path15,
+          path: path16,
           params,
           hash: hash2,
           loc: loc2
@@ -188833,7 +188972,7 @@ var init_es = __esm({
           throw generateSyntaxError("Inverse sections (`{{^foo}}...{{/foo}}`) are not supported. Use `{{#unless foo}}...{{/unless}}` instead", this.source.spanFor(block3.loc));
         }
         const {
-          path: path15,
+          path: path16,
           params,
           hash: hash2
         } = acceptCallNodes(this, block3);
@@ -188883,7 +189022,7 @@ var init_es = __esm({
         const program2 = this.Program(repairedBlock.program, blockParams);
         const inverse = repairedBlock.inverse ? this.Program(repairedBlock.inverse, []) : null;
         const node2 = b3.block({
-          path: path15,
+          path: path16,
           params,
           hash: hash2,
           defaultBlock: program2,
@@ -188927,12 +189066,12 @@ var init_es = __esm({
           });
         } else {
           const {
-            path: path15,
+            path: path16,
             params,
             hash: hash2
           } = acceptCallNodes(this, rawMustache);
           mustache = b3.mustache({
-            path: path15,
+            path: path16,
             params,
             hash: hash2,
             trusting: !escaped,
@@ -189082,12 +189221,12 @@ var init_es = __esm({
       }
       SubExpression(sexpr) {
         const {
-          path: path15,
+          path: path16,
           params,
           hash: hash2
         } = acceptCallNodes(this, sexpr);
         return b3.sexpr({
-          path: path15,
+          path: path16,
           params,
           hash: hash2,
           loc: this.source.spanFor(sexpr.loc)
@@ -189096,29 +189235,29 @@ var init_es = __esm({
       HashLiteral(hash2) {
         throw generateSyntaxError(`Hash literals are not supported. Use named arguments (\`{{helper foo=bar}}\`) or the \`hash\` helper (\`(hash foo=bar)\`) instead`, this.source.spanFor(hash2.loc));
       }
-      PathExpression(path15) {
+      PathExpression(path16) {
         const {
           original
-        } = path15;
+        } = path16;
         let parts;
-        if (typeof path15.head === "object") {
-          throw generateSyntaxError(`A path cannot start with a sub-expression. Use the \`get\` helper (\`(get (foo) "bar")\`) instead`, this.source.spanFor(path15.loc));
+        if (typeof path16.head === "object") {
+          throw generateSyntaxError(`A path cannot start with a sub-expression. Use the \`get\` helper (\`(get (foo) "bar")\`) instead`, this.source.spanFor(path16.loc));
         }
         if (original.indexOf("/") !== -1) {
           if (original.slice(0, 2) === "./") {
-            throw generateSyntaxError(`Using "./" is not supported in Glimmer and unnecessary`, this.source.spanFor(path15.loc));
+            throw generateSyntaxError(`Using "./" is not supported in Glimmer and unnecessary`, this.source.spanFor(path16.loc));
           }
           if (original.slice(0, 3) === "../") {
-            throw generateSyntaxError(`Changing context using "../" is not supported in Glimmer`, this.source.spanFor(path15.loc));
+            throw generateSyntaxError(`Changing context using "../" is not supported in Glimmer`, this.source.spanFor(path16.loc));
           }
           if (original.indexOf(".") !== -1) {
-            throw generateSyntaxError(`Mixing '.' and '/' in paths is not supported in Glimmer; use only '.' to separate property paths`, this.source.spanFor(path15.loc));
+            throw generateSyntaxError(`Mixing '.' and '/' in paths is not supported in Glimmer; use only '.' to separate property paths`, this.source.spanFor(path16.loc));
           }
-          parts = [path15.parts.join("/")];
+          parts = [path16.parts.join("/")];
         } else if (original === ".") {
-          throw generateSyntaxError(`'.' is not a supported path in Glimmer; check for a path with a trailing '.'`, this.source.spanFor(path15.loc));
+          throw generateSyntaxError(`'.' is not a supported path in Glimmer; check for a path with a trailing '.'`, this.source.spanFor(path16.loc));
         } else {
-          parts = path15.parts;
+          parts = path16.parts;
         }
         let thisHead = false;
         if (/^this(?:\..+)?$/u.test(original)) {
@@ -189128,40 +189267,40 @@ var init_es = __esm({
         if (thisHead) {
           pathHead = b3.this({
             loc: this.source.spanFor({
-              start: path15.loc.start,
+              start: path16.loc.start,
               end: {
-                line: path15.loc.start.line,
-                column: path15.loc.start.column + 4
+                line: path16.loc.start.line,
+                column: path16.loc.start.column + 4
               }
             })
           });
-        } else if (path15.data) {
+        } else if (path16.data) {
           const head = parts.shift();
           if (head === void 0) {
-            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths beginning with @ must start with a-z.`, this.source.spanFor(path15.loc));
+            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths beginning with @ must start with a-z.`, this.source.spanFor(path16.loc));
           }
           pathHead = b3.atName({
             name: `@${head}`,
             loc: this.source.spanFor({
-              start: path15.loc.start,
+              start: path16.loc.start,
               end: {
-                line: path15.loc.start.line,
-                column: path15.loc.start.column + head.length + 1
+                line: path16.loc.start.line,
+                column: path16.loc.start.column + head.length + 1
               }
             })
           });
         } else {
           const head = parts.shift();
           if (head === void 0) {
-            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths must start with a-z or A-Z.`, this.source.spanFor(path15.loc));
+            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths must start with a-z or A-Z.`, this.source.spanFor(path16.loc));
           }
           pathHead = b3.var({
             name: head,
             loc: this.source.spanFor({
-              start: path15.loc.start,
+              start: path16.loc.start,
               end: {
-                line: path15.loc.start.line,
-                column: path15.loc.start.column + head.length
+                line: path16.loc.start.line,
+                column: path16.loc.start.column + head.length
               }
             })
           });
@@ -189169,7 +189308,7 @@ var init_es = __esm({
         return b3.path({
           head: pathHead,
           tail: parts,
-          loc: this.source.spanFor(path15.loc)
+          loc: this.source.spanFor(path16.loc)
         });
       }
       Hash(hash2) {
@@ -189305,7 +189444,7 @@ var init_es = __esm({
         } = this.currentStartTag;
         let nameLoc = nameStart.until(nameEnd);
         let [head, ...tail] = asPresentArray(name.split("."));
-        let path15 = b3.path({
+        let path16 = b3.path({
           head: b3.head({
             original: head,
             loc: nameLoc.sliceStartChars({
@@ -189324,7 +189463,7 @@ var init_es = __esm({
           loc: loc2
         } = this.finish(this.currentStartTag);
         let element3 = b3.element({
-          path: path15,
+          path: path16,
           selfClosing,
           attributes: attributes2,
           modifiers: modifiers2,
@@ -190541,12 +190680,12 @@ var init_es = __esm({
        */
       callParts(parts, context) {
         let {
-          path: path15,
+          path: path16,
           params,
           hash: hash2,
           loc: loc2
         } = parts;
-        let callee = this.normalize(path15, context);
+        let callee = this.normalize(path16, context);
         let paramList2 = params.map((p) => this.normalize(p, STRICT_RESOLUTION));
         let paramLoc = SpanList.range(paramList2, callee.loc.collapse("end"));
         let namedLoc = this.block.loc(hash2.loc);
@@ -190693,18 +190832,18 @@ var init_es = __esm({
        */
       MustacheStatement(mustache) {
         let {
-          path: path15,
+          path: path16,
           params,
           hash: hash2,
           trusting
         } = mustache;
         let loc2 = this.block.loc(mustache.loc);
         let value;
-        if (isLiteral(path15)) {
+        if (isLiteral(path16)) {
           if (params.length === 0 && hash2.pairs.length === 0) {
-            value = this.expr.normalize(path15);
+            value = this.expr.normalize(path16);
           } else {
-            assertIllegalLiteral(path15, loc2);
+            assertIllegalLiteral(path16, loc2);
           }
         } else {
           let resolution = this.block.resolutionFor(mustache, AppendSyntaxContext);
@@ -190712,7 +190851,7 @@ var init_es = __esm({
             throw generateSyntaxError(`You attempted to render a path (\`{{${resolution.path}}}\`), but ${resolution.head} was not in scope`, loc2);
           }
           let callParts = this.expr.callParts({
-            path: path15,
+            path: path16,
             params,
             hash: hash2,
             loc: loc2
@@ -190787,7 +190926,7 @@ var init_es = __esm({
         } = element3;
         let loc2 = this.ctx.loc(element3.loc);
         let [tagHead, ...rest2] = asPresentArray(tag2.split("."));
-        let path15 = this.classifyTag(tagHead, rest2, element3.loc);
+        let path16 = this.classifyTag(tagHead, rest2, element3.loc);
         let attrs = element3.attributes.filter((a) => a.name[0] !== "@").map((a) => this.attr(a));
         let args = element3.attributes.filter((a) => a.name[0] === "@").map((a) => this.arg(a));
         let modifiers2 = element3.modifiers.map((m2) => this.modifier(m2));
@@ -190807,7 +190946,7 @@ var init_es = __esm({
           chars: tag2.length,
           skipStart: 1
         });
-        if (path15 === "ElementHead") {
+        if (path16 === "ElementHead") {
           if (tag2[0] === ":") {
             return children.assertNamedBlock(tagOffsets.slice({
               skipStart: 1
@@ -190817,10 +190956,10 @@ var init_es = __esm({
           }
         }
         if (element3.selfClosing) {
-          return el.selfClosingComponent(path15, loc2);
+          return el.selfClosingComponent(path16, loc2);
         } else {
           let blocks = children.assertComponent(tag2, child.table, element3.blockParams.length > 0);
-          return el.componentWithNamedBlocks(path15, blocks, loc2);
+          return el.componentWithNamedBlocks(path16, blocks, loc2);
         }
       }
       modifier(m2) {
@@ -190845,16 +190984,16 @@ var init_es = __esm({
        */
       mustacheAttr(mustache) {
         let {
-          path: path15,
+          path: path16,
           params,
           hash: hash2,
           loc: loc2
         } = mustache;
-        if (isLiteral(path15)) {
+        if (isLiteral(path16)) {
           if (params.length === 0 && hash2.pairs.length === 0) {
-            return this.expr.normalize(path15);
+            return this.expr.normalize(path16);
           } else {
-            assertIllegalLiteral(path15, loc2);
+            assertIllegalLiteral(path16, loc2);
           }
         }
         let resolution = this.ctx.resolutionFor(mustache, AttrValueSyntaxContext);
@@ -190928,15 +191067,15 @@ var init_es = __esm({
           return;
         }
         let {
-          path: path15
+          path: path16
         } = value;
-        if (path15.type !== "PathExpression") {
+        if (path16.type !== "PathExpression") {
           return;
         }
-        if (path15.tail.length > 0) {
+        if (path16.tail.length > 0) {
           return;
         }
-        let resolution = this.ctx.resolutionFor(path15, () => {
+        let resolution = this.ctx.resolutionFor(path16, () => {
           return null;
         });
         if (resolution.result === "error" && resolution.path !== "has-block") {
@@ -190993,7 +191132,7 @@ var init_es = __esm({
         let pathEnd = variableLoc.getEnd().move(tailLength);
         let pathLoc = variableLoc.withEnd(pathEnd);
         if (isComponent) {
-          let path15 = b3.path({
+          let path16 = b3.path({
             head: b3.head({
               original: variable2,
               loc: variableLoc
@@ -191003,11 +191142,11 @@ var init_es = __esm({
           });
           let resolution = this.ctx.isLexicalVar(variable2) ? {
             result: STRICT_RESOLUTION
-          } : this.ctx.resolutionFor(path15, ComponentSyntaxContext);
+          } : this.ctx.resolutionFor(path16, ComponentSyntaxContext);
           if (resolution.result === "error") {
             throw generateSyntaxError(`You attempted to invoke a path (\`<${resolution.path}>\`) but ${resolution.head} was not in scope`, loc2);
           }
-          return new ExpressionNormalizer(this.ctx).normalize(path15, resolution.result);
+          return new ExpressionNormalizer(this.ctx).normalize(path16, resolution.result);
         } else {
           this.ctx.table.allocateFree(variable2, STRICT_RESOLUTION);
         }
@@ -191212,8 +191351,8 @@ var init_optional = __esm({
 
 // src/formats/markup.ts
 function paramName(source2, taken) {
-  const path15 = source2.trim().replace(/\.(?:length|size)$/, "");
-  const last = /([A-Za-z_$][\w$]*)\s*(?:\(\s*\))?\s*$/.exec(path15)?.[1];
+  const path16 = source2.trim().replace(/\.(?:length|size)$/, "");
+  const last = /([A-Za-z_$][\w$]*)\s*(?:\(\s*\))?\s*$/.exec(path16)?.[1];
   let base = last && /^[A-Za-z_]\w*$/.test(last) ? last : "value";
   if (base === "t" || base === "$t" || base === "_") base = "value";
   let name = base;
@@ -191308,6 +191447,12 @@ function registerCounts(run, add) {
       )
     ];
   }
+}
+function componentCopyAttr(tag2, name, value, copyProps) {
+  const component = /^[A-Z]/.test(tag2) || tag2.includes("-") || tag2.includes(".");
+  const camel = name.replace(/-(\w)/g, (_m, c) => c.toUpperCase());
+  const v2 = value.trim();
+  return component && copyProps.has(camel) && new RegExp("\\p{L}", "u").test(v2) && (/\s/.test(v2) || new RegExp("^\\p{Lu}", "u").test(v2));
 }
 function lineOf(code, offset2) {
   let line = 1;
@@ -191420,18 +191565,18 @@ function scriptLiterals(script, offset2) {
   }
   const found2 = [];
   traverse3(ast, {
-    CallExpression(path15) {
-      const sink = sinkName(path15.node.callee);
-      const arg = path15.node.arguments[0];
+    CallExpression(path16) {
+      const sink = sinkName(path16.node.callee);
+      const arg = path16.node.arguments[0];
       if (!sink || !arg) return;
       const lit = literalMessage(arg, offset2, script);
-      if (lit) found2.push({ ...lit, sink, method: inMethod(path15) });
+      if (lit) found2.push({ ...lit, sink, method: inMethod(path16) });
     },
-    AssignmentExpression(path15) {
-      const { left, right } = path15.node;
+    AssignmentExpression(path16) {
+      const { left, right } = path16.node;
       if (!t2.isMemberExpression(left) || !t2.isIdentifier(left.object, { name: "document" }) || !t2.isIdentifier(left.property, { name: "title" })) return;
       const lit = literalMessage(right, offset2, script);
-      if (lit) found2.push({ ...lit, sink: "document.title", method: inMethod(path15) });
+      if (lit) found2.push({ ...lit, sink: "document.title", method: inMethod(path16) });
     }
   });
   return found2;
@@ -191441,8 +191586,8 @@ function bindsName(script, name) {
     const ast = (0, import_parser2.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
     let bound = false;
     traverse3(ast, {
-      Scope(path15) {
-        if (path15.scope.hasOwnBinding(name)) bound = true, path15.stop();
+      Scope(path16) {
+        if (path16.scope.hasOwnBinding(name)) bound = true, path16.stop();
       }
     });
     return bound;
@@ -191501,8 +191646,8 @@ var init_script2 = __esm({
       }
       return null;
     };
-    inMethod = (path15) => {
-      const fn2 = path15.getFunctionParent();
+    inMethod = (path16) => {
+      const fn2 = path16.getFunctionParent();
       let p = fn2;
       while (p && p.isArrowFunctionExpression()) p = p.parentPath?.getFunctionParent() ?? null;
       return !!p && (p.isObjectMethod() || p.isFunctionExpression() && !!p.parentPath?.isObjectProperty());
@@ -200886,17 +201031,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key2, node2, visitor, path15) {
-      const ctrl = callVisitor(key2, node2, visitor, path15);
+    function visit_(key2, node2, visitor, path16) {
+      const ctrl = callVisitor(key2, node2, visitor, path16);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key2, path15, ctrl);
-        return visit_(key2, ctrl, visitor, path15);
+        replaceNode(key2, path16, ctrl);
+        return visit_(key2, ctrl, visitor, path16);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node2)) {
-          path15 = Object.freeze(path15.concat(node2));
+          path16 = Object.freeze(path16.concat(node2));
           for (let i3 = 0; i3 < node2.items.length; ++i3) {
-            const ci = visit_(i3, node2.items[i3], visitor, path15);
+            const ci = visit_(i3, node2.items[i3], visitor, path16);
             if (typeof ci === "number")
               i3 = ci - 1;
             else if (ci === BREAK)
@@ -200907,13 +201052,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node2)) {
-          path15 = Object.freeze(path15.concat(node2));
-          const ck = visit_("key", node2.key, visitor, path15);
+          path16 = Object.freeze(path16.concat(node2));
+          const ck = visit_("key", node2.key, visitor, path16);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node2.key = null;
-          const cv = visit_("value", node2.value, visitor, path15);
+          const cv = visit_("value", node2.value, visitor, path16);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -200934,17 +201079,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key2, node2, visitor, path15) {
-      const ctrl = await callVisitor(key2, node2, visitor, path15);
+    async function visitAsync_(key2, node2, visitor, path16) {
+      const ctrl = await callVisitor(key2, node2, visitor, path16);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key2, path15, ctrl);
-        return visitAsync_(key2, ctrl, visitor, path15);
+        replaceNode(key2, path16, ctrl);
+        return visitAsync_(key2, ctrl, visitor, path16);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node2)) {
-          path15 = Object.freeze(path15.concat(node2));
+          path16 = Object.freeze(path16.concat(node2));
           for (let i3 = 0; i3 < node2.items.length; ++i3) {
-            const ci = await visitAsync_(i3, node2.items[i3], visitor, path15);
+            const ci = await visitAsync_(i3, node2.items[i3], visitor, path16);
             if (typeof ci === "number")
               i3 = ci - 1;
             else if (ci === BREAK)
@@ -200955,13 +201100,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node2)) {
-          path15 = Object.freeze(path15.concat(node2));
-          const ck = await visitAsync_("key", node2.key, visitor, path15);
+          path16 = Object.freeze(path16.concat(node2));
+          const ck = await visitAsync_("key", node2.key, visitor, path16);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node2.key = null;
-          const cv = await visitAsync_("value", node2.value, visitor, path15);
+          const cv = await visitAsync_("value", node2.value, visitor, path16);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -200988,23 +201133,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key2, node2, visitor, path15) {
+    function callVisitor(key2, node2, visitor, path16) {
       if (typeof visitor === "function")
-        return visitor(key2, node2, path15);
+        return visitor(key2, node2, path16);
       if (identity.isMap(node2))
-        return visitor.Map?.(key2, node2, path15);
+        return visitor.Map?.(key2, node2, path16);
       if (identity.isSeq(node2))
-        return visitor.Seq?.(key2, node2, path15);
+        return visitor.Seq?.(key2, node2, path16);
       if (identity.isPair(node2))
-        return visitor.Pair?.(key2, node2, path15);
+        return visitor.Pair?.(key2, node2, path16);
       if (identity.isScalar(node2))
-        return visitor.Scalar?.(key2, node2, path15);
+        return visitor.Scalar?.(key2, node2, path16);
       if (identity.isAlias(node2))
-        return visitor.Alias?.(key2, node2, path15);
+        return visitor.Alias?.(key2, node2, path16);
       return void 0;
     }
-    function replaceNode(key2, path15, node2) {
-      const parent = path15[path15.length - 1];
+    function replaceNode(key2, path16, node2) {
+      const parent = path16[path16.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key2] = node2;
       } else if (identity.isPair(parent)) {
@@ -201616,10 +201761,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node3 = require_Node();
-    function collectionFromPath(schema, path15, value) {
+    function collectionFromPath(schema, path16, value) {
       let v2 = value;
-      for (let i3 = path15.length - 1; i3 >= 0; --i3) {
-        const k = path15[i3];
+      for (let i3 = path16.length - 1; i3 >= 0; --i3) {
+        const k = path16[i3];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v2;
@@ -201638,7 +201783,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path15) => path15 == null || typeof path15 === "object" && !!path15[Symbol.iterator]().next().done;
+    var isEmptyPath = (path16) => path16 == null || typeof path16 === "object" && !!path16[Symbol.iterator]().next().done;
     var Collection2 = class extends Node3.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -201668,11 +201813,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path15, value) {
-        if (isEmptyPath(path15))
+      addIn(path16, value) {
+        if (isEmptyPath(path16))
           this.add(value);
         else {
-          const [key2, ...rest2] = path15;
+          const [key2, ...rest2] = path16;
           const node2 = this.get(key2, true);
           if (identity.isCollection(node2))
             node2.addIn(rest2, value);
@@ -201686,8 +201831,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path15) {
-        const [key2, ...rest2] = path15;
+      deleteIn(path16) {
+        const [key2, ...rest2] = path16;
         if (rest2.length === 0)
           return this.delete(key2);
         const node2 = this.get(key2, true);
@@ -201701,8 +201846,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path15, keepScalar) {
-        const [key2, ...rest2] = path15;
+      getIn(path16, keepScalar) {
+        const [key2, ...rest2] = path16;
         const node2 = this.get(key2, true);
         if (rest2.length === 0)
           return !keepScalar && identity.isScalar(node2) ? node2.value : node2;
@@ -201720,8 +201865,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path15) {
-        const [key2, ...rest2] = path15;
+      hasIn(path16) {
+        const [key2, ...rest2] = path16;
         if (rest2.length === 0)
           return this.has(key2);
         const node2 = this.get(key2, true);
@@ -201731,8 +201876,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path15, value) {
-        const [key2, ...rest2] = path15;
+      setIn(path16, value) {
+        const [key2, ...rest2] = path16;
         if (rest2.length === 0) {
           this.set(key2, value);
         } else {
@@ -204247,9 +204392,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path15, value) {
+      addIn(path16, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path15, value);
+          this.contents.addIn(path16, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -204324,14 +204469,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path15) {
-        if (Collection2.isEmptyPath(path15)) {
+      deleteIn(path16) {
+        if (Collection2.isEmptyPath(path16)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path15) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path16) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -204346,10 +204491,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path15, keepScalar) {
-        if (Collection2.isEmptyPath(path15))
+      getIn(path16, keepScalar) {
+        if (Collection2.isEmptyPath(path16))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path15, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path16, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -204360,10 +204505,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path15) {
-        if (Collection2.isEmptyPath(path15))
+      hasIn(path16) {
+        if (Collection2.isEmptyPath(path16))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path15) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path16) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -204380,13 +204525,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path15, value) {
-        if (Collection2.isEmptyPath(path15)) {
+      setIn(path16, value) {
+        if (Collection2.isEmptyPath(path16)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection2.collectionFromPath(this.schema, Array.from(path15), value);
+          this.contents = Collection2.collectionFromPath(this.schema, Array.from(path16), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path15, value);
+          this.contents.setIn(path16, value);
         }
       }
       /**
@@ -206347,9 +206492,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path15) => {
+    visit.itemAtPath = (cst, path16) => {
       let item = cst;
-      for (const [field, index] of path15) {
+      for (const [field, index] of path16) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -206358,23 +206503,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path15) => {
-      const parent = visit.itemAtPath(cst, path15.slice(0, -1));
-      const field = path15[path15.length - 1][0];
+    visit.parentCollection = (cst, path16) => {
+      const parent = visit.itemAtPath(cst, path16.slice(0, -1));
+      const field = path16[path16.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path15, item, visitor) {
-      let ctrl = visitor(item, path15);
+    function _visit(path16, item, visitor) {
+      let ctrl = visitor(item, path16);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token2 = item[field];
         if (token2 && "items" in token2) {
           for (let i3 = 0; i3 < token2.items.length; ++i3) {
-            const ci = _visit(Object.freeze(path15.concat([[field, i3]])), token2.items[i3], visitor);
+            const ci = _visit(Object.freeze(path16.concat([[field, i3]])), token2.items[i3], visitor);
             if (typeof ci === "number")
               i3 = ci - 1;
             else if (ci === BREAK)
@@ -206385,10 +206530,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path15);
+            ctrl = ctrl(item, path16);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path15) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path16) : ctrl;
     }
     exports.visit = visit;
   }
@@ -207690,14 +207835,14 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs16 = this.flowScalar(this.type);
+              const fs17 = this.flowScalar(this.type);
               if (atNextItem || it.value) {
-                map.items.push({ start: start2, key: fs16, sep: [] });
+                map.items.push({ start: start2, key: fs17, sep: [] });
                 this.onKeyLine = true;
               } else if (it.sep) {
-                this.stack.push(fs16);
+                this.stack.push(fs17);
               } else {
-                Object.assign(it, { key: fs16, sep: [] });
+                Object.assign(it, { key: fs17, sep: [] });
                 this.onKeyLine = true;
               }
               return;
@@ -207825,13 +207970,13 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs16 = this.flowScalar(this.type);
+              const fs17 = this.flowScalar(this.type);
               if (!it || it.value)
-                fc.items.push({ start: [], key: fs16, sep: [] });
+                fc.items.push({ start: [], key: fs17, sep: [] });
               else if (it.sep)
-                this.stack.push(fs16);
+                this.stack.push(fs17);
               else
-                Object.assign(it, { key: fs16, sep: [] });
+                Object.assign(it, { key: fs17, sep: [] });
               return;
             }
             case "flow-map-end":
@@ -209831,6 +209976,45 @@ function derivedCopy(script, offset2, template4, flavor) {
   }
   return found2;
 }
+function exportedCopy(code) {
+  const found2 = /* @__PURE__ */ new Map();
+  let ast;
+  try {
+    ast = (0, import_parser7.parse)(code, { sourceType: "module", plugins: ["typescript", "jsx"], errorRecovery: true });
+  } catch {
+    return found2;
+  }
+  const unwrap2 = (n4) => t4.isTSAsExpression(n4) || t4.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
+  for (const statement of ast.program.body) {
+    if (!t4.isExportNamedDeclaration(statement) || !t4.isVariableDeclaration(statement.declaration)) continue;
+    for (const d3 of statement.declaration.declarations) {
+      if (!t4.isIdentifier(d3.id)) continue;
+      const init2 = unwrap2(d3.init);
+      let entry = null;
+      if (t4.isArrayExpression(init2) && init2.elements.length && init2.elements.every((e2) => t4.isObjectExpression(unwrap2(e2)))) {
+        const literals = init2.elements.flatMap((e2) => objectCopy(unwrap2(e2), 0));
+        if (literals.length) entry = { kind: "list", literals };
+      } else if (t4.isObjectExpression(init2)) {
+        const props = init2.properties;
+        const lookup = props.length > 1 && props.every((p) => t4.isObjectProperty(p) && !p.computed && t4.isStringLiteral(p.value)) && props.some((p) => new RegExp("\\s|^\\p{Lu}", "u").test(p.value.value.trim()));
+        if (lookup) {
+          const literals = props.flatMap((p) => {
+            const field = t4.isIdentifier(p.key) ? p.key.name : t4.isStringLiteral(p.key) ? p.key.value : null;
+            const v2 = p.value;
+            const text4 = copyText(v2);
+            return field && text4 ? [{ start: v2.start, end: v2.end, text: text4, field }] : [];
+          });
+          if (literals.length) entry = { kind: "lookup", literals };
+        } else {
+          const literals = objectCopy(init2, 0);
+          if (literals.length) entry = { kind: "object", literals };
+        }
+      }
+      if (entry) found2.set(d3.id.name, entry);
+    }
+  }
+  return found2;
+}
 function templateExpressions(template4, flavor) {
   if (flavor === "svelte") return [...template4.matchAll(/\{([^{}]*)\}/g)].map((m2) => m2[1].trim());
   return [
@@ -210129,7 +210313,8 @@ async function scanVue(code, filePath, opts) {
             }
             continue;
           }
-          if (p.type !== NodeTypes.ATTRIBUTE || !p.value || !opts.attributes.includes(p.name) || !translatableAttr(p.value.content)) continue;
+          if (p.type !== NodeTypes.ATTRIBUTE || !p.value || !translatableAttr(p.value.content)) continue;
+          if (!opts.attributes.includes(p.name) && !componentCopyAttr(child.tag, p.name, p.value.content, COPY_PROPS)) continue;
           add(cleanAttr(p.value.content), { kind: "attr", start: p.loc.start.offset, end: p.loc.end.offset, params: [], attrName: p.name }, { attributeName: p.name, element: child.tag });
         }
         walk3(child.children, child.tag);
@@ -210220,6 +210405,7 @@ var init_vue = __esm({
   "src/formats/vue.ts"() {
     "use strict";
     init_optional();
+    init_scanner();
     init_dist();
     init_filters();
     init_markup();
@@ -210363,7 +210549,9 @@ async function scanSvelte(code, filePath, opts) {
               const e2 = a.value[0].expression;
               if (wholeCopy(code.slice(e2.start, e2.end), usable, "$_") && readSite(code.slice(e2.start, e2.end), e2.start)) continue;
             }
-            if (a.type !== "Attribute" || !opts.attributes.includes(a.name) || a.value === true) continue;
+            if (a.type !== "Attribute" || a.value === true) continue;
+            const copyProp = a.value.length === 1 && a.value[0].type === "Text" && componentCopyAttr(child.name ?? "", a.name, a.value[0].raw ?? a.value[0].data ?? "", COPY_PROPS);
+            if (!opts.attributes.includes(a.name) && !copyProp) continue;
             if (a.value.length === 1 && a.value[0].type === "Text") {
               const value = a.value[0].raw ?? a.value[0].data ?? "";
               if (!translatableAttr(value)) continue;
@@ -210472,6 +210660,7 @@ var init_svelte = __esm({
     "use strict";
     init_dist();
     init_optional();
+    init_scanner();
     init_markup();
     init_script2();
     init_script_copy();
@@ -210707,6 +210896,9 @@ function transformComponent(code, filePath, keys, options = {}) {
   const hooks = /* @__PURE__ */ new Map();
   let usesTrans = false;
   let usesRich = false;
+  let usesGlobalT = false;
+  const i18nextDefault = /import\s+([A-Za-z_$][\w$]*)\s*(?:,\s*\{[^}]*\})?\s*from\s*['"]i18next['"]/.exec(code)?.[1];
+  const i18nextName = i18nextDefault ?? "i18next";
   const withI18n = /* @__PURE__ */ new Set();
   const all = [...scan.sites.values()];
   const insideTrans = /* @__PURE__ */ new Map();
@@ -210777,6 +210969,9 @@ function transformComponent(code, filePath, keys, options = {}) {
         hooks.set(site.hook.fnStart, site.hook);
         withI18n.add(site.hook.fnStart);
       }
+    } else if (site.callee === "i18next") {
+      text4 = buildCall(key2, site).replace(/^t\(/, `${i18nextName}.t(`);
+      usesGlobalT = true;
     } else {
       const call7 = buildCall(key2, site);
       text4 = site.kind === "expression" ? call7 : `{${call7}}`;
@@ -210786,7 +210981,8 @@ function transformComponent(code, filePath, keys, options = {}) {
     replacements2.push({ id: str.id, key: key2, line: str.loc.line, before: code.slice(site.start, site.end), after: text4 });
   }
   for (const read2 of scan.keyUsages ?? []) {
-    if (!read2.ids.some((id3) => keys.has(id3))) continue;
+    if (!read2.external && !read2.ids.some((id3) => keys.has(id3))) continue;
+    if (read2.external) replacements2.push({ id: `read_${read2.start}`, key: read2.source, line: code.slice(0, read2.start).split("\n").length, before: read2.source, after: `t(${read2.source})` });
     if (readsInTrans.has(read2)) {
       hooks.set(read2.hook.fnStart, read2.hook);
       continue;
@@ -210797,8 +210993,14 @@ function transformComponent(code, filePath, keys, options = {}) {
   if (!replacements2.length) return { code, changed: false, replacements: replacements2 };
   const wrapped = /* @__PURE__ */ new Set();
   const ts = /\.tsx?$/.test(filePath);
-  const i18nextDefault = /import\s+([A-Za-z_$][\w$]*)\s*(?:,\s*\{[^}]*\})?\s*from\s*['"]i18next['"]/.exec(code)?.[1];
-  const i18nextName = i18nextDefault ?? "i18next";
+  const subscribeOnly = /* @__PURE__ */ new Set();
+  if (usesGlobalT) {
+    for (const hook2 of scan.subscriptions ?? []) {
+      if (hooks.has(hook2.fnStart)) continue;
+      hooks.set(hook2.fnStart, hook2);
+      subscribeOnly.add(hook2.fnStart);
+    }
+  }
   for (const hook2 of hooks.values()) {
     if (hook2.wrap && !wrapped.has(hook2.wrap.className)) {
       const w4 = hook2.wrap;
@@ -210848,7 +211050,7 @@ ${hook2.indent}${line}`);
 ${hook2.indent}`);
       continue;
     }
-    const hookLine = !server ? "const { t } = useTranslation();" : withI18n.has(hook2.fnStart) ? "const { t, i18n } = await getTranslation();" : "const { t } = await getTranslation();";
+    const hookLine = !server ? subscribeOnly.has(hook2.fnStart) ? "useTranslation(); // re-renders when the language changes" : "const { t } = useTranslation();" : withI18n.has(hook2.fnStart) ? "const { t, i18n } = await getTranslation();" : "const { t } = await getTranslation();";
     if (server && hook2.mode === "reuse" && hook2.addI18nAt !== void 0 && withI18n.has(hook2.fnStart)) s.appendLeft(hook2.addI18nAt, ", i18n");
     if (server && hook2.mode !== "reuse" && hook2.isAsync === false && hook2.asyncAt !== void 0) s.appendLeft(hook2.asyncAt, "async ");
     if (hook2.mode === "insertBlock") {
@@ -210885,7 +211087,7 @@ ${hook2.indent}}`);
       ...usesRich && !/\brich\b/.test(code.slice(0, scan.imports.lastImportEnd ?? 0)) ? ["rich"] : []
     ];
     if (names.length) lines.push(`import { ${names.join(", ")} } from '${importSource}';`);
-    if ([...hooks.values()].some((h) => h.mode === "classGlobal") && !i18nextDefault) lines.push("import i18next from 'i18next';");
+    if (([...hooks.values()].some((h) => h.mode === "classGlobal") || usesGlobalT) && !i18nextDefault) lines.push("import i18next from 'i18next';");
   }
   if (lines.length) {
     const importLine = lines.join("\n");
@@ -210947,6 +211149,32 @@ var init_sense = __esm({
 });
 
 // src/ast/locale-formats.ts
+function dateOptions(pattern, flavor) {
+  const styles = flavor === "date-fns" ? { P: "dateStyle: 'short'", PP: "dateStyle: 'medium'", PPP: "dateStyle: 'long'", PPPP: "dateStyle: 'full'", p: "timeStyle: 'short'", pp: "timeStyle: 'medium'", PPp: "dateStyle: 'medium', timeStyle: 'short'", PPPp: "dateStyle: 'long', timeStyle: 'short'" } : { L: "dateStyle: 'short'", LL: "dateStyle: 'long'", LLL: "dateStyle: 'long', timeStyle: 'short'", LLLL: "dateStyle: 'full', timeStyle: 'short'", LT: "timeStyle: 'short'", LTS: "timeStyle: 'medium'" };
+  if (styles[pattern.trim()]) return `{ ${styles[pattern.trim()]} }`;
+  if (/['[]/.test(pattern) || /^[yY]+-M+-[dD]+$/.test(pattern.trim())) return null;
+  const tokens2 = pattern.match(/([A-Za-z])\1*/g) ?? [];
+  const opts = [];
+  const set3 = (k, v2) => !opts.some((o) => o.startsWith(`${k}:`)) && opts.push(`${k}: ${v2}`);
+  for (const tok of tokens2) {
+    const c = tok[0];
+    const n4 = tok.length;
+    const year = flavor === "date-fns" ? "y" : "Y";
+    const day = flavor === "date-fns" ? "d" : "D";
+    const weekday = flavor === "date-fns" ? "E" : "d";
+    if (c === year) set3("year", n4 === 2 ? "'2-digit'" : "'numeric'");
+    else if (c === "M") set3("month", n4 >= 4 ? "'long'" : n4 === 3 ? "'short'" : n4 === 2 ? "'2-digit'" : "'numeric'");
+    else if (c === day && !(flavor === "dayjs" && n4 >= 3)) set3("day", n4 === 2 ? "'2-digit'" : "'numeric'");
+    else if (c === weekday && (flavor === "date-fns" || n4 >= 3)) set3("weekday", n4 >= 4 ? "'long'" : "'short'");
+    else if (c === "H") set3("hour", n4 === 2 ? "'2-digit'" : "'numeric'"), set3("hourCycle", "'h23'");
+    else if (c === "h") set3("hour", n4 === 2 ? "'2-digit'" : "'numeric'"), set3("hour12", "true");
+    else if (c === "m") set3("minute", "'2-digit'");
+    else if (c === "s") set3("second", "'2-digit'");
+    else if (c === "a" || c === "A") set3("hour12", "true");
+    else return null;
+  }
+  return opts.length ? `{ ${opts.join(", ")} }` : null;
+}
 function handBuiltList(node2, code) {
   const { quasis, expressions } = node2;
   if (expressions.length !== 2 || quasis[0].value.cooked !== "" || quasis[2].value.cooked !== "") return null;
@@ -210981,42 +211209,84 @@ function localizeFormats(code, filePath, opts) {
   };
   const isLocaleLiteral = (n4) => !!n4 && (t5.isStringLiteral(n4) && /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(n4.value) || t5.isArrayExpression(n4) && n4.elements.length > 0 && n4.elements.every((e2) => !!e2 && isLocaleLiteral(e2)));
   const isDefaultLocale = (n4) => !n4 || t5.isIdentifier(n4) && n4.name === "undefined";
+  const dateFns = /* @__PURE__ */ new Map();
+  const dateLibs = /* @__PURE__ */ new Set();
+  for (const node2 of ast.program.body) {
+    if (!t5.isImportDeclaration(node2)) continue;
+    const from = node2.source.value;
+    for (const spec of node2.specifiers) {
+      if (/^date-fns(\/|$)/.test(from) && t5.isImportSpecifier(spec)) dateFns.set(spec.local.name, t5.isIdentifier(spec.imported) ? spec.imported.name : spec.imported.value);
+      if (/^date-fns\/(format|formatDistance\w*|formatRelative)$/.test(from) && t5.isImportDefaultSpecifier(spec)) dateFns.set(spec.local.name, from.split("/")[1]);
+      if ((from === "dayjs" || from === "moment") && (t5.isImportDefaultSpecifier(spec) || t5.isImportNamespaceSpecifier(spec))) dateLibs.add(spec.local.name);
+    }
+  }
   traverse6(ast, {
-    CallExpression(path15) {
-      const callee = path15.node.callee;
-      if (t5.isMemberExpression(callee) && t5.isIdentifier(callee.property, { name: "join" }) && path15.node.arguments.length === 1 && t5.isStringLiteral(path15.node.arguments[0]) && /^,\s?$/.test(path15.node.arguments[0].value) && path15.parentPath.isJSXExpressionContainer() && path15.parentPath.parentPath?.isJSXElement()) {
-        replace(path15.node, `new Intl.ListFormat(${opts.lang}, { style: 'short', type: 'unit' }).format(Array.from(${code.slice(callee.object.start, callee.object.end)}, String))`);
+    CallExpression(path16) {
+      const callee = path16.node.callee;
+      const [first, second] = path16.node.arguments;
+      if (t5.isIdentifier(callee) && dateFns.has(callee.name) && dateFns.get(callee.name) === "format" && first && t5.isStringLiteral(second)) {
+        const options = dateOptions(second.value, "date-fns");
+        if (options) {
+          replace(path16.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code.slice(first.start, first.end)})`);
+          return;
+        }
+      }
+      if (t5.isMemberExpression(callee) && t5.isIdentifier(callee.property, { name: "format" }) && t5.isCallExpression(callee.object) && t5.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name) && t5.isStringLiteral(first)) {
+        const options = dateOptions(first.value, "dayjs");
+        if (options) {
+          replace(path16.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code.slice(callee.object.start, callee.object.end)}.toDate())`);
+          return;
+        }
+      }
+      const relative2 = t5.isIdentifier(callee) && ["formatDistance", "formatDistanceToNow", "formatDistanceStrict", "formatRelative"].includes(dateFns.get(callee.name) ?? "") || t5.isMemberExpression(callee) && t5.isIdentifier(callee.property) && ["fromNow", "toNow", "from", "to", "calendar"].includes(callee.property.name) && t5.isCallExpression(callee.object) && t5.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name);
+      if (relative2) {
+        const at2 = path16.node.loc?.start ?? { line: 0, column: 0 };
+        warnings2.push({ filePath, loc: { line: at2.line, column: at2.column }, text: code.slice(path16.node.start, path16.node.end), reason: "relative time from a date library stays English: use Intl.RelativeTimeFormat with the app language" });
+      }
+      if (t5.isMemberExpression(callee) && t5.isIdentifier(callee.property, { name: "localeCompare" }) && path16.node.arguments.length === 1) {
+        changes.push({ line: lineOf2(path16.node), before: code.slice(path16.node.start, path16.node.end), after: "(compared in the app language)" });
+        s.appendLeft(path16.node.arguments[0].end, `, ${opts.lang}`);
+        return;
+      }
+      if (t5.isMemberExpression(callee) && t5.isIdentifier(callee.property) && (callee.property.name === "toUpperCase" || callee.property.name === "toLowerCase") && !path16.node.arguments.length && (path16.parentPath.isJSXExpressionContainer() || t5.isCallExpression(callee.object) && t5.isIdentifier(callee.object.callee, { name: "t" }))) {
+        const name = callee.property.name === "toUpperCase" ? "toLocaleUpperCase" : "toLocaleLowerCase";
+        changes.push({ line: lineOf2(path16.node), before: code.slice(path16.node.start, path16.node.end), after: `(${name} in the app language)` });
+        s.overwrite(callee.property.start, path16.node.end, `${name}(${opts.lang})`);
+        return;
+      }
+      if (t5.isMemberExpression(callee) && t5.isIdentifier(callee.property, { name: "join" }) && path16.node.arguments.length === 1 && t5.isStringLiteral(path16.node.arguments[0]) && /^,\s?$/.test(path16.node.arguments[0].value) && path16.parentPath.isJSXExpressionContainer() && path16.parentPath.parentPath?.isJSXElement()) {
+        replace(path16.node, `new Intl.ListFormat(${opts.lang}, { style: 'short', type: 'unit' }).format(Array.from(${code.slice(callee.object.start, callee.object.end)}, String))`);
         return;
       }
       if (!t5.isMemberExpression(callee) || !t5.isIdentifier(callee.property) || !TO_LOCALE.has(callee.property.name)) return;
-      const [locale] = path15.node.arguments;
+      const [locale] = path16.node.arguments;
       if (isLocaleLiteral(locale)) replace(locale, opts.lang);
       else if (isDefaultLocale(locale)) {
         if (locale) replace(locale, opts.lang);
         else {
           const open3 = code.indexOf("(", callee.end);
-          changes.push({ line: lineOf2(path15.node), before: code.slice(path15.node.start, path15.node.end), after: `${code.slice(path15.node.start, open3 + 1)}${opts.lang}${code.slice(open3 + 1, path15.node.end)}` });
+          changes.push({ line: lineOf2(path16.node), before: code.slice(path16.node.start, path16.node.end), after: `${code.slice(path16.node.start, open3 + 1)}${opts.lang}${code.slice(open3 + 1, path16.node.end)}` });
           s.appendLeft(open3 + 1, opts.lang);
         }
       }
     },
-    NewExpression(path15) {
-      const callee = path15.node.callee;
+    NewExpression(path16) {
+      const callee = path16.node.callee;
       const intl = t5.isMemberExpression(callee) && t5.isIdentifier(callee.object, { name: "Intl" }) && t5.isIdentifier(callee.property) && INTL.has(callee.property.name);
       if (!intl) return;
-      const [locale] = path15.node.arguments;
+      const [locale] = path16.node.arguments;
       if (isLocaleLiteral(locale)) replace(locale, opts.lang);
       else if (isDefaultLocale(locale) && locale) replace(locale, opts.lang);
       else if (!locale) {
         const open3 = code.indexOf("(", callee.end);
-        if (open3 !== -1 && open3 < path15.node.end) s.appendLeft(open3 + 1, opts.lang), changes.push({ line: lineOf2(path15.node), before: code.slice(path15.node.start, path15.node.end), after: "(app language)" });
+        if (open3 !== -1 && open3 < path16.node.end) s.appendLeft(open3 + 1, opts.lang), changes.push({ line: lineOf2(path16.node), before: code.slice(path16.node.start, path16.node.end), after: "(app language)" });
       }
     },
-    TemplateLiteral(path15) {
-      const { quasis, expressions } = path15.node;
-      const list4 = handBuiltList(path15.node, code);
+    TemplateLiteral(path16) {
+      const { quasis, expressions } = path16.node;
+      const list4 = handBuiltList(path16.node, code);
       if (list4) {
-        replace(path15.node, `new Intl.ListFormat(${opts.lang}, { type: '${list4.type}' }).format(${list4.items})`);
+        replace(path16.node, `new Intl.ListFormat(${opts.lang}, { type: '${list4.type}' }).format(${list4.items})`);
         return;
       }
       if (expressions.length !== 1 || quasis[1].value.cooked !== "") return;
@@ -211025,10 +211295,10 @@ function localizeFormats(code, filePath, opts) {
       if (!currency) return;
       let amount = expressions[0];
       if (t5.isCallExpression(amount) && t5.isMemberExpression(amount.callee) && t5.isIdentifier(amount.callee.property, { name: "toFixed" })) amount = amount.callee.object;
-      replace(path15.node, `new Intl.NumberFormat(${opts.lang}, { style: 'currency', currency: '${currency}' }).format(${code.slice(amount.start, amount.end)})`);
+      replace(path16.node, `new Intl.NumberFormat(${opts.lang}, { style: 'currency', currency: '${currency}' }).format(${code.slice(amount.start, amount.end)})`);
     },
-    JSXElement(path15) {
-      const kids = path15.node.children;
+    JSXElement(path16) {
+      const kids = path16.node.children;
       for (let i3 = 0; i3 < kids.length - 1; i3++) {
         const text4 = kids[i3];
         const value = kids[i3 + 1];
@@ -211516,6 +211786,11 @@ function planVueSetup(ctx) {
     (code) => /\.use\(\s*i18n\s*\)/.test(code) ? code : code.replace(/createApp\(([^()]*)\)/, (m2) => `${m2}.use(i18n)`)
   );
   if (!/createApp\(/.test(readText(cwd, entry, ctx.changed) ?? "")) result.notes.push(`Add \`app.use(i18n)\` where the app is created in \`${entry}\`.`);
+  addToTestSetup(
+    ctx,
+    file2,
+    (spec2) => hasDep(ctx, "@vue/test-utils") ? ["import { config } from '@vue/test-utils';", `import { i18n } from '${spec2}';`, "", "config.global.plugins.push(i18n);"] : [`import '${spec2}';`]
+  );
   result.notes.push(`Switch language with \`setLanguage(code)\` from \`${file2}\`.`);
   return result;
 }
@@ -213348,6 +213623,57 @@ function relativeImport(fromFile, target) {
   if (!spec.startsWith(".")) spec = `./${spec}`;
   return spec;
 }
+function testSetupFiles(cwd, changed) {
+  const found2 = /* @__PURE__ */ new Set();
+  const exists2 = (f2) => readText(cwd, f2, changed) !== void 0;
+  for (const f2 of ["src/setupTests.ts", "src/setupTests.tsx", "src/setupTests.js"]) if (exists2(f2)) found2.add(f2);
+  const listed = (text4, key2) => {
+    const m2 = new RegExp(`${key2}\\s*:\\s*(\\[[^\\]]*\\]|['"][^'"]+['"])`).exec(text4);
+    return m2 ? [...m2[1].matchAll(/['"]([^'"]+)['"]/g)].map((x) => x[1].replace(/^<rootDir>\//, "").replace(/^\.\//, "")) : [];
+  };
+  for (const cfg of ["vitest.config.ts", "vitest.config.mts", "vitest.config.js", "vite.config.ts", "vite.config.mts", "vite.config.js"]) {
+    const text4 = readText(cwd, cfg, changed);
+    if (text4) listed(text4, "setupFiles").filter(exists2).forEach((f2) => found2.add(f2));
+  }
+  for (const cfg of ["jest.config.ts", "jest.config.js", "jest.config.cjs", "jest.config.mjs"]) {
+    const text4 = readText(cwd, cfg, changed);
+    if (text4) listed(text4, "setupFilesAfterEnv").filter(exists2).forEach((f2) => found2.add(f2));
+  }
+  try {
+    const pkg = JSON.parse(readText(cwd, "package.json", changed) ?? "{}");
+    for (const f2 of pkg.jest?.setupFilesAfterEnv ?? []) {
+      const rel = String(f2).replace(/^<rootDir>\//, "").replace(/^\.\//, "");
+      if (exists2(rel)) found2.add(rel);
+    }
+  } catch {
+  }
+  return [...found2];
+}
+function addToTestSetup(o, i18nFile, lines) {
+  const files = testSetupFiles(o.cwd, o.changed);
+  if (!files.length) {
+    const pkg = (() => {
+      try {
+        return JSON.parse(readText(o.cwd, "package.json", o.changed) ?? "{}");
+      } catch {
+        return {};
+      }
+    })();
+    const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+    if ("vitest" in deps || "jest" in deps) o.result.notes.push(`Tests render the translated text once ${i18nFile} is loaded: import it in your test setup file (Vitest setupFiles, Jest setupFilesAfterEnv).`);
+    return;
+  }
+  for (const file2 of files) {
+    let code = readText(o.cwd, file2, o.changed);
+    const spec = relativeImport(file2, i18nFile);
+    if (code.includes(`'${spec}'`) || code.includes(`"${spec}"`)) continue;
+    const add = lines(spec).join("\n");
+    const at2 = afterLastImport(code);
+    code = `${code.slice(0, at2)}${at2 ? "\n" : ""}${add}${at2 ? "" : "\n"}${code.slice(at2)}`;
+    o.out(file2, code);
+    o.changed.set(file2, code);
+  }
+}
 function readText(cwd, file2, changed) {
   if (changed.has(file2)) return changed.get(file2);
   const abs = path7.join(cwd, file2);
@@ -213387,8 +213713,10 @@ async function planI18nSetup(opts) {
     if (config.framework === "astro") return planAstroSetup(ctx);
     if (config.framework === "qwik") return planQwikSetup(ctx);
     if (config.framework === "ember") return planEmberSetup(ctx);
-    if (config.framework === "lit") return planLitSetup(ctx);
-    return config.framework === "vue" ? planVueSetup(ctx) : config.framework === "svelte" ? planSvelteSetup(ctx) : planSolidSetup(ctx);
+    if (config.framework === "vue") return planVueSetup(ctx);
+    const planned = config.framework === "lit" ? planLitSetup(ctx) : config.framework === "svelte" ? planSvelteSetup(ctx) : planSolidSetup(ctx);
+    if (planned.i18nFile) addToTestSetup(ctx, planned.i18nFile, (spec2) => [`import '${spec2}';`]);
+    return planned;
   }
   if (config.importSource !== "react-i18next") return result;
   if (opts.upgradeOnly) {
@@ -213442,14 +213770,23 @@ async function planI18nSetup(opts) {
   const locales2 = [config.sourceLocale, ...config.targetLocales.filter((l2) => l2 !== config.sourceLocale)];
   const imports2 = [];
   const entries = [];
+  const lazy = config.framework !== "react-native" && !("next" in deps) && (config.lazyLocales ?? config.targetLocales.filter((l2) => l2 !== config.sourceLocale).length > 3);
+  const tsModule = /\.tsx?$/.test(i18nFile);
+  const ssr = ["@remix-run/react", "@react-router/dev"].some((d3) => d3 in deps);
+  const loaders = [];
   for (const locale of locales2) {
     const file2 = toPosix2(localePath(config.localesPath, locale));
     if (readText(cwd, file2, changed) === void 0) out(file2, "{}\n");
     let rel = path7.posix.relative(path7.posix.dirname(i18nFile), file2);
     if (!rel.startsWith(".")) rel = `./${rel}`;
     const id3 = locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
+    const name = /^[A-Za-z_$][\w$]*$/.test(locale) ? locale : `'${locale}'`;
+    if (lazy && locale !== config.sourceLocale) {
+      loaders.push(`  ${name}: () => import('${rel}'),`);
+      continue;
+    }
     imports2.push(`import ${id3} from '${rel}';`);
-    entries.push(`  ${/^[A-Za-z_$][\w$]*$/.test(locale) ? locale : `'${locale}'`}: { translation: ${id3} },`);
+    entries.push(`  ${name}: { translation: ${id3} },`);
   }
   const icu = config.interpolation === "icu";
   const entry = findEntry(cwd, config, changed);
@@ -213463,24 +213800,40 @@ async function planI18nSetup(opts) {
       ...config.framework === "react-native" && config.targetLocales.some(isRtl) ? ["import { I18nManager } from 'react-native';"] : [],
       ...imports2,
       "",
-      "// Generated by Localize.dev. Every locale is bundled; the language comes from a saved choice",
+      `// Generated by Localize.dev. ${lazy ? "The source language is bundled, the rest load when first used" : "Every locale is bundled"}; the language comes from a saved choice`,
       `// (localStorage "lang"), then the device language, then ${config.sourceLocale}.`,
       "export const resources = {",
       ...entries,
       "};",
       "",
-      "const supported = Object.keys(resources);",
+      ...lazy ? [
+        "/** Every other language loads when it is first used. */",
+        `const loaders${tsModule ? ": Record<string, () => Promise<{ default: unknown }>>" : ""} = {`,
+        ...loaders,
+        "};",
+        `const supported = ${JSON.stringify(locales2).replace(/"/g, "'").replace(/,/g, ", ")};`,
+        "const lazyLocales = {",
+        `  type: 'backend'${tsModule ? " as const" : ""},`,
+        "  init() {},",
+        `  read(language${tsModule ? ": string" : ""}, _namespace${tsModule ? ": string" : ""}, done${tsModule ? ": (error: unknown, data: unknown) => void" : ""}) {`,
+        "    const load = loaders[language];",
+        "    if (!load) return done(null, {});",
+        "    load().then((module) => done(null, module.default), (error) => done(error, false));",
+        "  },",
+        "};"
+      ] : ["const supported = Object.keys(resources);"],
       "const saved = typeof localStorage === 'undefined' ? null : localStorage.getItem('lang');",
       "// The visitor languages in order (Intl on React Native, where navigator has none): matched",
       "// exactly (pt-BR), by language (pt-BR \u2192 pt), or to a regional variant the app has (pt \u2192 pt-BR).",
       "const devices = [...(typeof navigator !== 'undefined' && navigator.languages ? navigator.languages : []), typeof navigator !== 'undefined' ? navigator.language : undefined, typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().locale : undefined];",
       `const device = ${bestLanguage("devices", "supported")};`,
       "",
-      `i18n${icu ? "\n  .use(ICU)" : ""}`,
+      `i18n${icu ? "\n  .use(ICU)" : ""}${lazy ? "\n  .use(lazyLocales)" : ""}`,
       "  .use(initReactI18next)",
       "  .init({",
       "    resources,",
-      `    lng: (saved && supported.includes(saved) ? saved : undefined) ?? device ?? '${config.sourceLocale}',`,
+      ...lazy ? ["    partialBundledLanguages: true,", "    react: { useSuspense: false }, // shows the source language until a file arrives"] : [],
+      ssr ? `    lng: (typeof document !== 'undefined' && supported.includes(document.documentElement.lang) ? document.documentElement.lang : undefined) ?? '${config.sourceLocale}',` : `    lng: (saved && supported.includes(saved) ? saved : undefined) ?? device ?? '${config.sourceLocale}',`,
       `    fallbackLng: '${config.sourceLocale}',`,
       "    interpolation: { escapeValue: false }, // React already escapes",
       "  });",
@@ -213511,11 +213864,25 @@ async function planI18nSetup(opts) {
         "applyDirection(i18n.language);",
         ""
       ] : [],
+      ...ssr ? [
+        "// Hydration matches the server (the page\u2019s <html lang>); the visitor\u2019s own language follows once it has loaded.",
+        "if (typeof window !== 'undefined') {",
+        "  window.addEventListener('load', () => {",
+        "    const wanted = (saved && supported.includes(saved) ? saved : undefined) ?? device;",
+        "    if (wanted && wanted !== i18n.language) i18n.changeLanguage(wanted);",
+        "  }, { once: true });",
+        "}",
+        ""
+      ] : [],
       "export default i18n;",
       ""
     ].join("\n"))
   );
   result.i18nFile = i18nFile;
+  addToTestSetup({ cwd, changed, out, result }, i18nFile, (spec2) => [`import '${spec2}';`]);
+  if (["@remix-run/react", "@react-router/dev"].some((d3) => d3 in deps)) {
+    result.notes.push('Server rendering: put the "lang" cookie on <html lang> in your root route (the language switcher sets it), so pages render in the visitor\u2019s language with no switch after loading.');
+  }
   if (config.framework === "react-native") {
     result.notes.push(`React Native: switch language with \`i18n.changeLanguage(code)\` (import i18n from \`${i18nFile.replace(/\.[jt]s$/, "")}\`), e.g. from a settings screen.`);
     if (config.targetLocales.some(isRtl)) {
@@ -214033,6 +214400,32 @@ var init_setup = __esm({
       yarn: ["yarn", "install", "--mode=update-lockfile"],
       bun: ["bun", "install", "--lockfile-only", "--ignore-scripts"]
     };
+  }
+});
+
+// src/merge-locales.ts
+import * as fs9 from "node:fs";
+import * as path8 from "node:path";
+function localeAttributes(config) {
+  if (!/\.(json|arb)$/.test(config.localesPath)) return null;
+  return `${config.localesPath.replace(/\{locale\}/g, "*")} merge=localize-dev`;
+}
+function withLocaleAttributes(cwd, config) {
+  const line = localeAttributes(config);
+  if (!line) return null;
+  const file2 = path8.join(cwd, ".gitattributes");
+  const current2 = fs9.existsSync(file2) ? fs9.readFileSync(file2, "utf8") : "";
+  if (current2.includes("merge=localize-dev")) return null;
+  const head = "# Locale files merge key by key (localize-dev merge-locales), so branches adding keys don't conflict.";
+  return { path: ".gitattributes", content: `${current2}${current2 && !current2.endsWith("\n") ? "\n" : ""}${current2 ? "\n" : ""}${head}
+${line}
+` };
+}
+var MERGE_DRIVER_SETUP;
+var init_merge_locales = __esm({
+  "src/merge-locales.ts"() {
+    "use strict";
+    MERGE_DRIVER_SETUP = 'git config merge.localize-dev.driver "npx localize-dev merge-locales %O %A %B %P"';
   }
 });
 
@@ -214828,8 +215221,8 @@ var init_yaml = __esm({
 
 // src/sync/lock.ts
 import { createHash } from "node:crypto";
-import * as fs9 from "node:fs";
-import * as path8 from "node:path";
+import * as fs10 from "node:fs";
+import * as path9 from "node:path";
 function displayKey(key2) {
   if (!key2.startsWith("[")) return key2;
   try {
@@ -214841,7 +215234,7 @@ function displayKey(key2) {
 }
 function readLock(cwd) {
   try {
-    const lock = JSON.parse(fs9.readFileSync(path8.join(cwd, LOCK_FILE), "utf8"));
+    const lock = JSON.parse(fs10.readFileSync(path9.join(cwd, LOCK_FILE), "utf8"));
     return {
       messages: lock && typeof lock.messages === "object" ? lock.messages : {},
       ...lock && typeof lock.content === "object" ? { content: lock.content } : {}
@@ -214881,11 +215274,11 @@ __export(sync_exports, {
   findCatalogs: () => findCatalogs,
   translateFiles: () => translateFiles
 });
-import * as fs10 from "node:fs";
-import * as path9 from "node:path";
+import * as fs11 from "node:fs";
+import * as path10 from "node:path";
 function readText2(abs) {
-  if (!fs10.existsSync(abs)) return void 0;
-  const buf = fs10.readFileSync(abs);
+  if (!fs11.existsSync(abs)) return void 0;
+  const buf = fs11.readFileSync(abs);
   if (buf[0] === 255 && buf[1] === 254) return buf.subarray(2).toString("utf16le");
   if (buf[0] === 254 && buf[1] === 255) return Buffer.from(buf.subarray(2)).swap16().toString("utf16le");
   return buf.toString("utf8").replace(/^﻿/, "");
@@ -214893,7 +215286,7 @@ function readText2(abs) {
 async function findCatalogs(cwd, sourceLocale, opts = {}) {
   const cache = /* @__PURE__ */ new Map();
   const read2 = (file2) => {
-    if (!cache.has(file2)) cache.set(file2, readText2(path9.join(cwd, file2)));
+    if (!cache.has(file2)) cache.set(file2, readText2(path10.join(cwd, file2)));
     return cache.get(file2);
   };
   const files = (await (0, import_fast_glob6.default)(PATTERNS, { cwd, ignore: IGNORE2, dot: false })).sort();
@@ -214909,7 +215302,7 @@ async function translateFiles(opts) {
   const cache = /* @__PURE__ */ new Map();
   const read2 = (file2) => {
     if (opts.overlay?.has(file2)) return opts.overlay.get(file2);
-    if (!cache.has(file2)) cache.set(file2, readText2(path9.join(cwd, file2)));
+    if (!cache.has(file2)) cache.set(file2, readText2(path10.join(cwd, file2)));
     return cache.get(file2);
   };
   const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob6.default)(PATTERNS, { cwd, ignore: IGNORE2, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
@@ -215062,9 +215455,9 @@ async function translateFiles(opts) {
   }
   if (opts.write) {
     for (const f2 of out) {
-      const abs = path9.join(cwd, f2.path);
-      fs10.mkdirSync(path9.dirname(abs), { recursive: true });
-      fs10.writeFileSync(abs, f2.content);
+      const abs = path10.join(cwd, f2.path);
+      fs11.mkdirSync(path10.dirname(abs), { recursive: true });
+      fs11.writeFileSync(abs, f2.content);
     }
   }
   return {
@@ -215120,17 +215513,29 @@ var init_sync = __esm({
 });
 
 // src/pipeline.ts
-import * as fs11 from "node:fs";
-import * as path10 from "node:path";
+import * as fs12 from "node:fs";
+import * as path11 from "node:path";
 async function scanProject(cwd, config, log) {
-  const root = path10.join(cwd, config.srcDir);
+  const root = path11.join(cwd, config.srcDir);
   const files = (await (0, import_fast_glob7.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
   const scanned = [];
+  const moduleCopy = /* @__PURE__ */ new Map();
+  const copyUses = /* @__PURE__ */ new Map();
+  const plainModule = (abs) => /\.(ts|js|mjs)$/.test(abs) && !abs.endsWith(".d.ts") && fs12.existsSync(abs) && fs12.statSync(abs).isFile();
+  const resolveModule = (fromFile, specifier) => {
+    if (!specifier.startsWith(".")) return null;
+    const base = path11.join(cwd, path11.dirname(fromFile), specifier);
+    return ["", ".ts", ".js", ".mjs", "/index.ts", "/index.js"].map((e2) => `${base}${e2}`).find(plainModule) ?? null;
+  };
+  const copyIn = (abs) => {
+    if (!moduleCopy.has(abs)) moduleCopy.set(abs, exportedCopy(fs12.readFileSync(abs, "utf8")));
+    return moduleCopy.get(abs);
+  };
   const warnings2 = [];
   const next2 = nextAppRouter(cwd, config);
   for (const rel of files) {
-    const file2 = toPosix3(path10.join(config.srcDir, rel));
-    const code = fs11.readFileSync(path10.join(cwd, file2), "utf8");
+    const file2 = toPosix3(path11.join(config.srcDir, rel));
+    const code = fs12.readFileSync(path11.join(cwd, file2), "utf8");
     const adapter = await adapterFor(file2, config.framework);
     if (adapter) {
       try {
@@ -215144,16 +215549,54 @@ async function scanProject(cwd, config, log) {
     }
     const server = !!next2 && isServerComponentFile(file2, code, next2.appDir);
     try {
-      const result = parseAndScanComponent(code, file2, { attributes: config.attributes, server, ordinals: config.interpolation === "i18next" });
+      const importedCopy = (specifier) => {
+        const abs = resolveModule(file2, specifier);
+        const copy = abs ? copyIn(abs) : null;
+        if (!copy?.size) return null;
+        return new Map([...copy].map(([name, c]) => [name, { kind: c.kind, fields: [...new Set(c.literals.map((l2) => l2.field))] }]));
+      };
+      const result = parseAndScanComponent(code, file2, { attributes: config.attributes, server, ordinals: config.interpolation === "i18next", importedCopy });
       warnings2.push(...result.warnings);
-      if (result.extractedStrings.length) scanned.push({ file: file2, code, strings: result.extractedStrings, server });
+      for (const use of result.externalCopy ?? []) {
+        const abs = resolveModule(file2, use.specifier);
+        const id3 = `${abs}\0${use.name}`;
+        copyUses.set(id3, (copyUses.get(id3) ?? true) && use.followed);
+      }
+      if (result.extractedStrings.length || result.keyUsages.some((k) => k.external)) scanned.push({ file: file2, code, strings: result.extractedStrings, server, importedCopy });
     } catch (err) {
       log.warn(`Skipping ${file2}: ${err.message}`);
     }
   }
+  const componentFiles = new Set(scanned.map((s) => path11.join(cwd, s.file)));
+  const others = (await (0, import_fast_glob7.default)("**/*.{ts,tsx,js,jsx,mjs}", { cwd: root, ignore: [...config.ignore, "**/*.d.ts"] })).map((f2) => path11.join(root, f2)).filter((f2) => !componentFiles.has(f2));
+  const byModule = /* @__PURE__ */ new Map();
+  for (const [id3, followed] of copyUses) {
+    const [abs, name] = id3.split("\0");
+    if (!followed) continue;
+    const importedElsewhere = others.some((f2) => {
+      if (f2 === abs) return false;
+      const text4 = fs12.readFileSync(f2, "utf8");
+      return [...text4.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"](\.[^'"]+)['"]/g)].some((m2) => new RegExp(`\\b${name}\\b`).test(m2[1]) && resolveModule(toPosix3(path11.relative(cwd, f2)), m2[2]) === abs);
+    });
+    if (!importedElsewhere) byModule.set(abs, [...byModule.get(abs) ?? [], name]);
+  }
+  for (const [abs, names] of byModule) {
+    const code = fs12.readFileSync(abs, "utf8");
+    const file2 = toPosix3(path11.relative(cwd, abs));
+    const strings2 = [];
+    const sites = /* @__PURE__ */ new Map();
+    for (const name of names) {
+      for (const l2 of copyIn(abs).get(name).literals) {
+        const id3 = `str_${strings2.length + 1}`;
+        strings2.push({ id: id3, originalText: l2.text, nodeType: "StringLiteral", filePath: file2, loc: { line: code.slice(0, l2.start).split("\n").length, column: 0 }, component: name, element: l2.field });
+        sites.set(id3, { start: l2.start, end: l2.end });
+      }
+    }
+    if (strings2.length) scanned.push({ file: file2, code, strings: strings2, server: false, copyModule: sites });
+  }
   const shell = spaShell(cwd, config);
   if (shell) {
-    const code = fs11.readFileSync(path10.join(cwd, shell), "utf8");
+    const code = fs12.readFileSync(path11.join(cwd, shell), "utf8");
     const strings2 = [];
     const take = (text4, key2, element3, at2) => {
       const message = normalizeWhitespace(decodeEntities(text4 ?? "")).trim();
@@ -215189,13 +215632,13 @@ async function pool(items, limit, fn2) {
 function richOptions(cwd, config, file2) {
   if (config.framework === "angular") return { richModule: "i18n-t" };
   if (config.framework === "ember") {
-    let spec2 = path10.posix.relative(path10.posix.dirname(file2), EMBER_RICH);
+    let spec2 = path11.posix.relative(path11.posix.dirname(file2), EMBER_RICH);
     if (!spec2.startsWith(".")) spec2 = `./${spec2}`;
     return { richModule: spec2 };
   }
   const target = config.framework === "svelte" && file2.endsWith(".svelte") ? svelteRichPath(cwd, config) : null;
   if (!target) return {};
-  let spec = path10.posix.relative(path10.posix.dirname(file2), target);
+  let spec = path11.posix.relative(path11.posix.dirname(file2), target);
   if (!spec.startsWith(".")) spec = `./${spec}`;
   return { richModule: spec, ...svelteMajor(cwd) < 5 ? { richSlots: true } : {} };
 }
@@ -215203,7 +215646,7 @@ async function runPipeline(opts) {
   const { cwd, config, translator, log } = opts;
   const { filesScanned, scanned, warnings: warnings2 } = await scanProject(cwd, config, log);
   const store = storeFor(config);
-  const fileText = (p) => fs11.existsSync(path10.join(cwd, p)) ? fs11.readFileSync(path10.join(cwd, p), "utf8") : void 0;
+  const fileText = (p) => fs12.existsSync(path11.join(cwd, p)) ? fs12.readFileSync(path11.join(cwd, p), "utf8") : void 0;
   const sourcePath = store.path(config.sourceLocale);
   const sourceDict = store.read(fileText(sourcePath), config.sourceLocale);
   const targets = new Map(
@@ -215299,7 +215742,7 @@ async function runPipeline(opts) {
     }
   };
   const set3 = (dict2, key2, value, where) => guard(() => setNested(dict2, key2, value), where);
-  for (const { file: file2, code, strings: strings2, server, keep } of scanned) {
+  for (const { file: file2, code, strings: strings2, server, keep, copyModule, importedCopy } of scanned) {
     const keys = /* @__PURE__ */ new Map();
     const selectBase = /* @__PURE__ */ new Map();
     const ordered = [...strings2].sort((a, b4) => Number(!!a.select && a.select.value !== null) - Number(!!b4.select && b4.select.value !== null));
@@ -215338,6 +215781,24 @@ async function runPipeline(opts) {
       }
     }
     if (keep) continue;
+    if (copyModule) {
+      const s = new MagicString(code);
+      const done2 = [];
+      for (const [id3, at2] of copyModule) {
+        const key2 = keys.get(id3);
+        if (!key2) continue;
+        const before2 = code.slice(at2.start, at2.end);
+        const quote3 = /^['"`]/.test(before2) ? before2[0] : "'";
+        s.overwrite(at2.start, at2.end, `${quote3}${key2}${quote3}`);
+        done2.push({ id: id3, key: key2, line: code.slice(0, at2.start).split("\n").length, before: before2, after: `${quote3}${key2}${quote3}` });
+      }
+      if (done2.length) {
+        files.push({ path: file2, content: s.toString() });
+        replacements2.set(file2, done2);
+        stats.stringsReplaced += done2.length;
+      }
+      continue;
+    }
     const adapter = await adapterFor(file2, config.framework);
     const result = adapter ? await adapter.transform(code, file2, keys, {
       attributes: config.attributes,
@@ -215352,7 +215813,8 @@ async function runPipeline(opts) {
       importSource: config.framework === "solid" || config.framework === "qwik" ? relativeImport(file2, solidModulePath(cwd, config)) : config.framework === "astro" ? "react-i18next" : config.importSource,
       richFunction: config.framework === "solid" || config.framework === "qwik",
       server,
-      serverModule: server ? relativeImport(file2, serverModulePath(cwd, config)) : void 0
+      serverModule: server ? relativeImport(file2, serverModulePath(cwd, config)) : void 0,
+      importedCopy
     });
     if (result.changed && config.framework === "astro" && /\.(tsx|jsx|svelte)$/.test(file2)) {
       result.code = withIslandImport(result.code, file2, relativeImport(file2, `${config.srcDir}/i18n/${file2.endsWith(".svelte") ? "svelte" : "react"}`));
@@ -215369,24 +215831,25 @@ async function runPipeline(opts) {
     const solid = config.framework === "solid";
     let deps = {};
     try {
-      const pkg = JSON.parse(fs11.readFileSync(path10.join(cwd, "package.json"), "utf8"));
+      const pkg = JSON.parse(fs12.readFileSync(path11.join(cwd, "package.json"), "utf8"));
       deps = { ...pkg.dependencies, ...pkg.devDependencies };
     } catch {
     }
-    const ready = stats.stringsReplaced > 0 || (solid ? fs11.existsSync(path10.join(cwd, solidModulePath(cwd, config))) : component === "vue" ? "vue-i18n" in deps || "@nuxtjs/i18n" in deps : component === "svelte" ? "svelte-i18n" in deps : "i18next" in deps);
+    const ready = stats.stringsReplaced > 0 || (solid ? fs12.existsSync(path11.join(cwd, solidModulePath(cwd, config))) : component === "vue" ? "vue-i18n" in deps || "@nuxtjs/i18n" in deps : component === "svelte" ? "svelte-i18n" in deps : "i18next" in deps);
     const appRouter = nextAppRouter(cwd, config);
-    const all = ready && !appRouter ? (await (0, import_fast_glob7.default)(config.include, { cwd: path10.join(cwd, config.srcDir), ignore: config.ignore })).sort() : [];
+    const all = ready && !appRouter ? (await (0, import_fast_glob7.default)(config.include, { cwd: path11.join(cwd, config.srcDir), ignore: config.ignore })).sort() : [];
     for (const rel of all) {
-      const file2 = toPosix3(path10.join(config.srcDir, rel));
+      const file2 = toPosix3(path11.join(config.srcDir, rel));
       if (!(component ? file2.endsWith(`.${component}`) : /\.(tsx|jsx)$/.test(file2))) continue;
       const existing = files.find((f2) => f2.path === file2);
-      const code = existing?.content ?? fs11.readFileSync(path10.join(cwd, file2), "utf8");
-      const vueModule = component === "vue" && fs11.existsSync(path10.join(cwd, solidModulePath(cwd, config))) ? relativeImport(file2, solidModulePath(cwd, config)) : void 0;
+      const code = existing?.content ?? fs12.readFileSync(path11.join(cwd, file2), "utf8");
+      const vueModule = component === "vue" && fs12.existsSync(path11.join(cwd, solidModulePath(cwd, config))) ? relativeImport(file2, solidModulePath(cwd, config)) : void 0;
       const result = component ? localizeComponentFormats(code, file2, { kind: component, vueModule, currency: config.currency }) : localizeFormats(
         code,
         file2,
         solid ? { lang: "i18n.language", importLine: `import i18n from '${relativeImport(file2, solidModulePath(cwd, config))}';`, currency: config.currency } : { lang: "i18next.language", importLine: "import i18next from 'i18next';", currency: config.currency }
       );
+      if ("warnings" in result) warnings2.push(...result.warnings);
       if (!result.changes.length) continue;
       if (existing) existing.content = result.code;
       else files.push({ path: file2, content: result.code });
@@ -215397,19 +215860,26 @@ async function runPipeline(opts) {
   const dicts = [[sourcePath, sourceDict, config.sourceLocale], ...[...targets].map(([l2, t7]) => [t7.path, t7.dict, l2])];
   for (const [p, content] of serializeAll(dicts)) {
     if (content === null) continue;
-    const missingArb = config.localesPath.endsWith(".arb") && opts.setup !== false && !fs11.existsSync(path10.join(cwd, p));
+    const missingArb = config.localesPath.endsWith(".arb") && opts.setup !== false && !fs12.existsSync(path11.join(cwd, p));
     if (content !== originals.get(p) || missingArb) files.push({ path: toPosix3(p), content });
   }
   const setup = opts.setup === false ? { files: [], addedDependencies: {}, notes: [] } : (
     // Nothing replaced: only bring an earlier Localize.dev setup up to date, never start one.
     await planI18nSetup({ cwd, config, files, upgradeOnly: !stats.stringsReplaced })
   );
+  if (opts.setup !== false && setup.i18nFile) {
+    const attributes2 = withLocaleAttributes(cwd, config);
+    if (attributes2) {
+      setup.files.push(attributes2);
+      setup.notes.push(`Locale files now merge key by key: run this once per clone (and in CI before merging) so git uses it: ${MERGE_DRIVER_SETUP}`);
+    }
+  }
   const allFiles = mergeFiles(files, setup.files);
   if (opts.write) {
     for (const f2 of allFiles) {
-      const abs = path10.join(cwd, f2.path);
-      fs11.mkdirSync(path10.dirname(abs), { recursive: true });
-      fs11.writeFileSync(abs, f2.content);
+      const abs = path11.join(cwd, f2.path);
+      fs12.mkdirSync(path11.dirname(abs), { recursive: true });
+      fs12.writeFileSync(abs, f2.content);
     }
   }
   return {
@@ -215440,6 +215910,7 @@ var import_fast_glob7, duration, toPosix3, BATCH_SIZE, CONCURRENCY;
 var init_pipeline = __esm({
   "src/pipeline.ts"() {
     "use strict";
+    init_dist();
     import_fast_glob7 = __toESM(require_out4(), 1);
     init_scanner();
     init_formats();
@@ -215452,6 +215923,8 @@ var init_pipeline = __esm({
     init_template_formats();
     init_setup();
     init_filters();
+    init_script_copy();
+    init_merge_locales();
     init_setup_frameworks();
     init_stores();
     init_dart();
@@ -215459,15 +215932,15 @@ var init_pipeline = __esm({
       const s = Math.round(ms / 1e3);
       return s >= 60 ? `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s` : `${s}s`;
     };
-    toPosix3 = (p) => p.split(path10.sep).join("/");
+    toPosix3 = (p) => p.split(path11.sep).join("/");
     BATCH_SIZE = 10;
     CONCURRENCY = 2;
   }
 });
 
 // src/action/main.ts
-import * as fs15 from "node:fs";
-import * as path14 from "node:path";
+import * as fs16 from "node:fs";
+import * as path15 from "node:path";
 
 // ../../node_modules/@actions/core/lib/command.js
 import * as os from "os";
@@ -217034,17 +217507,17 @@ function requestLog(octokit) {
     octokit.log.debug("request", options);
     const start2 = Date.now();
     const requestOptions = octokit.request.endpoint.parse(options);
-    const path15 = requestOptions.url.replace(options.baseUrl, "");
+    const path16 = requestOptions.url.replace(options.baseUrl, "");
     return request2(options).then((response) => {
       const requestId = response.headers["x-github-request-id"];
       octokit.log.info(
-        `${requestOptions.method} ${path15} - ${response.status} with id ${requestId} in ${Date.now() - start2}ms`
+        `${requestOptions.method} ${path16} - ${response.status} with id ${requestId} in ${Date.now() - start2}ms`
       );
       return response;
     }).catch((error2) => {
       const requestId = error2.response?.headers["x-github-request-id"] || "UNKNOWN";
       octokit.log.error(
-        `${requestOptions.method} ${path15} - ${error2.status} with id ${requestId} in ${Date.now() - start2}ms`
+        `${requestOptions.method} ${path16} - ${error2.status} with id ${requestId} in ${Date.now() - start2}ms`
       );
       throw error2;
     });
@@ -219700,8 +220173,8 @@ init_stores();
 init_sync();
 init_lock();
 init_rtl();
-import * as fs12 from "node:fs";
-import * as path11 from "node:path";
+import * as fs13 from "node:fs";
+import * as path12 from "node:path";
 var QUOTED_KEYS = /* @__PURE__ */ new Set([void 0, "react", "react-native", "vue", "svelte", "angular", "astro", "solid", "qwik", "lit", "ember", "html"]);
 var CODE = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,astro,html,hbs,gjs,gts}";
 var IGNORE3 = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.nuxt/**", "**/.svelte-kit/**", "**/.output/**", "**/coverage/**", "**/*.d.ts"];
@@ -219709,12 +220182,12 @@ async function unusedKeys(cwd, config) {
   const store = storeFor(config);
   const file2 = store.path(config.sourceLocale);
   if (!QUOTED_KEYS.has(config.framework) || store.textKeys) return { file: file2, keys: [] };
-  const abs = path11.join(cwd, file2);
-  if (!fs12.existsSync(abs)) return { file: file2, keys: [] };
-  const keys = [...new Set([...flatten(store.read(fs12.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].map(messageKey))];
-  const sources = await (0, import_fast_glob8.default)(CODE, { cwd: path11.join(cwd, config.srcDir), ignore: IGNORE3 });
+  const abs = path12.join(cwd, file2);
+  if (!fs13.existsSync(abs)) return { file: file2, keys: [] };
+  const keys = [...new Set([...flatten(store.read(fs13.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].map(messageKey))];
+  const sources = await (0, import_fast_glob8.default)(CODE, { cwd: path12.join(cwd, config.srcDir), ignore: IGNORE3 });
   let code = "";
-  for (const f2 of sources) code += `${fs12.readFileSync(path11.join(cwd, config.srcDir, f2), "utf8")}
+  for (const f2 of sources) code += `${fs13.readFileSync(path12.join(cwd, config.srcDir, f2), "utf8")}
 `;
   const prefixes = [...code.matchAll(/`([\w.-]*)\$\{/g)].map((m2) => m2[1]).filter((p) => p.includes(".") || p.length > 2);
   const used = (key2) => code.includes(`'${key2}'`) || code.includes(`"${key2}"`) || code.includes(`\`${key2}\``) || prefixes.some((p) => key2.startsWith(p));
@@ -219722,9 +220195,9 @@ async function unusedKeys(cwd, config) {
 }
 var messageKey = (key2) => key2.replace(/(?:_ordinal)?[._](zero|one|two|few|many|other)$/, "");
 function keysOf(cwd, store, locale) {
-  const file2 = path11.join(cwd, store.path(locale));
-  if (!fs12.existsSync(file2)) return null;
-  const dict2 = store.read(fs12.readFileSync(file2, "utf8"), locale);
+  const file2 = path12.join(cwd, store.path(locale));
+  if (!fs13.existsSync(file2)) return null;
+  const dict2 = store.read(fs13.readFileSync(file2, "utf8"), locale);
   return new Set([...flatten(dict2)].filter(([, v2]) => v2.trim() !== "").map(([k]) => messageKey(k)));
 }
 async function checkProject(cwd, config, log, only) {
@@ -219762,15 +220235,16 @@ async function checkProject(cwd, config, log, only) {
   const rawValues = [];
   if (only !== "translations") {
     const store = storeFor(config);
-    const abs = path11.join(cwd, store.path(config.sourceLocale));
-    const source2 = fs12.existsSync(abs) ? flatten(store.read(fs12.readFileSync(abs, "utf8"), config.sourceLocale)) : /* @__PURE__ */ new Map();
+    const abs = path12.join(cwd, store.path(config.sourceLocale));
+    const source2 = fs13.existsSync(abs) ? flatten(store.read(fs13.readFileSync(abs, "utf8"), config.sourceLocale)) : /* @__PURE__ */ new Map();
     for (const [key2, text4] of source2) {
       const value = RAW_VALUE.exec(text4);
       if (value) rawValues.push({ file: store.path(config.sourceLocale), line: 0, text: `${messageKey(key2)}: "${text4}" shows {${value[1]}} as stored` });
     }
   }
   const unknown = only === "translations" ? [] : await unknownKeys(cwd, config);
-  return { filesScanned, hardcoded, missing, outdated, unused, rtl, cssText, rawValues, unknownKeys: unknown, ok: !hardcoded.length && !missing.length && !outdated.length && !unknown.length };
+  const fonts = await fontCoverage(cwd, config);
+  return { filesScanned, hardcoded, missing, outdated, unused, rtl, cssText, rawValues, unknownKeys: unknown, fonts, ok: !hardcoded.length && !missing.length && !outdated.length && !unknown.length };
 }
 var KEY_USES = [
   /(?<![\w$.])(?:t|\$t|\$_|i18n\.t|this\.\$t)\(\s*(['"`])([\w-]+(?:\.[\w-]+)+)\1/g,
@@ -219781,31 +220255,78 @@ var KEY_USES = [
 async function unknownKeys(cwd, config) {
   const store = storeFor(config);
   if (!QUOTED_KEYS.has(config.framework) || store.textKeys) return [];
-  const abs = path11.join(cwd, store.path(config.sourceLocale));
-  if (!fs12.existsSync(abs)) return [];
-  const known = new Set([...flatten(store.read(fs12.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].flatMap((k) => [k, messageKey(k), k.replace(/_(?:male|female|other)$/, "")]));
+  const abs = path12.join(cwd, store.path(config.sourceLocale));
+  if (!fs13.existsSync(abs)) return [];
+  const known = new Set([...flatten(store.read(fs13.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].flatMap((k) => [k, messageKey(k), k.replace(/_(?:male|female|other)$/, "")]));
   const out = [];
-  for (const f2 of await (0, import_fast_glob8.default)(CODE, { cwd: path11.join(cwd, config.srcDir), ignore: IGNORE3 })) {
-    const text4 = fs12.readFileSync(path11.join(cwd, config.srcDir, f2), "utf8");
+  for (const f2 of await (0, import_fast_glob8.default)(CODE, { cwd: path12.join(cwd, config.srcDir), ignore: IGNORE3 })) {
+    const text4 = fs13.readFileSync(path12.join(cwd, config.srcDir, f2), "utf8");
     for (const re of KEY_USES) {
       for (const m2 of text4.matchAll(re)) {
         const key2 = m2[2];
         if (known.has(key2) || [...known].some((k) => k.startsWith(`${key2}.`))) continue;
-        out.push({ file: path11.posix.join(config.srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: key2 });
+        out.push({ file: path12.posix.join(config.srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: key2 });
       }
+    }
+  }
+  return out;
+}
+var SUBSET = {
+  vi: "vietnamese",
+  ru: "cyrillic",
+  uk: "cyrillic",
+  bg: "cyrillic",
+  sr: "cyrillic",
+  mk: "cyrillic",
+  be: "cyrillic",
+  kk: "cyrillic",
+  el: "greek",
+  pl: "latin-ext",
+  cs: "latin-ext",
+  sk: "latin-ext",
+  hu: "latin-ext",
+  ro: "latin-ext",
+  hr: "latin-ext",
+  sl: "latin-ext",
+  tr: "latin-ext",
+  lv: "latin-ext",
+  lt: "latin-ext",
+  et: "latin-ext",
+  is: "latin-ext",
+  az: "latin-ext",
+  mt: "latin-ext",
+  sq: "latin-ext"
+};
+var SCRIPT = { ar: "Arabic", fa: "Arabic", ur: "Arabic", he: "Hebrew", hi: "Devanagari", mr: "Devanagari", bn: "Bengali", ta: "Tamil", te: "Telugu", th: "Thai", ja: "Japanese", zh: "Chinese", ko: "Korean", ka: "Georgian", hy: "Armenian" };
+async function fontCoverage(cwd, config) {
+  const langs = config.targetLocales.map((l2) => l2.split("-")[0].toLowerCase());
+  if (!langs.some((l2) => SUBSET[l2] || SCRIPT[l2])) return [];
+  const out = [];
+  for (const f2 of await (0, import_fast_glob8.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE3 })) {
+    const text4 = fs13.readFileSync(path12.join(cwd, f2), "utf8");
+    if (!/from\s*['"]next\/font\/google['"]/.test(text4)) continue;
+    for (const m2 of text4.matchAll(/\b([A-Z]\w*)\(\s*\{([^}]*)\}\s*\)/g)) {
+      const subsets = /subsets\s*:\s*\[([^\]]*)\]/.exec(m2[2]);
+      if (!subsets) continue;
+      const has = [...subsets[1].matchAll(/['"]([\w-]+)['"]/g)].map((x) => x[1]);
+      const line = text4.slice(0, m2.index).split("\n").length;
+      const need = [...new Set(langs.map((l2) => SUBSET[l2]).filter((s) => !!s && !has.includes(s)))];
+      if (need.length) out.push({ file: f2, line, text: `${m2[1]} lacks the ${need.join(", ")} subset${need.length > 1 ? "s" : ""} (${langs.filter((l2) => need.includes(SUBSET[l2])).join(", ")}): add ${need.map((s) => `'${s}'`).join(", ")} to subsets if the font has ${need.length > 1 ? "them" : "it"}` });
+      const scripts = [...new Set(langs.map((l2) => SCRIPT[l2]).filter(Boolean))];
+      if (scripts.length) out.push({ file: f2, line, text: `${m2[1]} has no ${scripts.join(", ")} letters: pair it with a font that does (e.g. Noto Sans ${scripts[0]}) for those languages` });
     }
   }
   return out;
 }
 var RAW_VALUE = /\{\{?\s*(status|state|type|role|kind|category|level|priority|plan|tier|stage|mode|gender)\s*\}?\}/i;
 async function cssContentText(cwd, srcDir) {
-  const root = path11.join(cwd, srcDir);
+  const root = path12.join(cwd, srcDir);
   const out = [];
   for (const f2 of await (0, import_fast_glob8.default)("**/*.{css,scss,sass,less,vue,svelte}", { cwd: root, ignore: IGNORE3 })) {
-    const text4 = fs12.readFileSync(path11.join(root, f2), "utf8");
+    const text4 = fs13.readFileSync(path12.join(root, f2), "utf8");
     for (const m2 of text4.matchAll(new RegExp(`\\bcontent\\s*:\\s*(["'])((?:(?!\\1).)*\\p{L}(?:(?!\\1).)*)\\1`, "gu"))) {
       if (/^\\[0-9a-f]+$/i.test(m2[2])) continue;
-      out.push({ file: path11.posix.join(srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: m2[2] });
+      out.push({ file: path12.posix.join(srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: m2[2] });
     }
   }
   return out;
@@ -219828,6 +220349,9 @@ function annotations(result) {
     ),
     ...result.unknownKeys.map(
       (u) => `::error file=${prop2(u.file)},line=${u.line},title=Unknown key::${esc(`${u.text} isn't in the source locale file, so people see the key itself. Fix the typo, or run localize-dev run.`)}`
+    ),
+    ...result.fonts.map(
+      (f2) => `::warning file=${prop2(f2.file)},line=${f2.line},title=Font coverage::${esc(f2.text)}`
     ),
     ...result.cssText.map(
       (c) => `::warning file=${prop2(c.file)},line=${c.line},title=Text in CSS::${esc(`"${c.text}" is in a stylesheet, where no translation reaches it: put it in the markup, or set it from a data attribute (content: attr(data-label)).`)}`
@@ -219948,18 +220472,18 @@ init_sync();
 var import_fast_glob9 = __toESM(require_out4(), 1);
 init_framework();
 init_stores();
-import * as fs13 from "node:fs";
-import * as path12 from "node:path";
+import * as fs14 from "node:fs";
+import * as path13 from "node:path";
 function workspacePatterns(root) {
   try {
-    const pkg = JSON.parse(fs13.readFileSync(path12.join(root, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs14.readFileSync(path13.join(root, "package.json"), "utf8"));
     const ws = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages;
     if (Array.isArray(ws) && ws.length) return ws;
   } catch {
   }
-  const yaml = path12.join(root, "pnpm-workspace.yaml");
-  if (!fs13.existsSync(yaml)) return null;
-  const list4 = /^packages:\s*\n((?:[ \t]+-.*\n?|[ \t]*#.*\n?|[ \t]*\n)*)/m.exec(fs13.readFileSync(yaml, "utf8"))?.[1] ?? "";
+  const yaml = path13.join(root, "pnpm-workspace.yaml");
+  if (!fs14.existsSync(yaml)) return null;
+  const list4 = /^packages:\s*\n((?:[ \t]+-.*\n?|[ \t]*#.*\n?|[ \t]*\n)*)/m.exec(fs14.readFileSync(yaml, "utf8"))?.[1] ?? "";
   const patterns = [...list4.matchAll(/^[ \t]+-[ \t]*['"]?([^'"#\n]+?)['"]?[ \t]*(?:#.*)?$/gm)].map((m2) => m2[1]);
   return patterns.length ? patterns : null;
 }
@@ -219974,12 +220498,12 @@ function workspaceApps(root) {
   const libraries = [];
   const skipped = [];
   for (const manifest of manifests.sort()) {
-    const dir = path12.posix.dirname(manifest);
-    const pkg = JSON.parse(fs13.readFileSync(path12.join(root, manifest), "utf8"));
+    const dir = path13.posix.dirname(manifest);
+    const pkg = JSON.parse(fs14.readFileSync(path13.join(root, manifest), "utf8"));
     const library = !pkg.scripts?.dev && !pkg.scripts?.start;
     let framework;
     try {
-      framework = detectFramework(path12.join(root, dir));
+      framework = detectFramework(path13.join(root, dir));
     } catch (err) {
       if (!(err instanceof UnsupportedFrameworkError)) throw err;
       skipped.push({ dir, reason: library ? "a library without a UI framework" : err.message.split(":")[0] });
@@ -219997,10 +220521,10 @@ function mergeLibraryLocales(root, lib, app, write, pending = /* @__PURE__ */ ne
   const from = storeFor(lib.config);
   const to = storeFor(app.config);
   const read2 = (dir, file2) => {
-    const rel = path12.posix.join(dir, file2);
+    const rel = path13.posix.join(dir, file2);
     if (pending.has(rel)) return pending.get(rel);
-    const abs = path12.join(root, rel);
-    return fs13.existsSync(abs) ? fs13.readFileSync(abs, "utf8") : void 0;
+    const abs = path13.join(root, rel);
+    return fs14.existsSync(abs) ? fs14.readFileSync(abs, "utf8") : void 0;
   };
   const merge2 = (into, add) => {
     let changed = false;
@@ -220024,17 +220548,17 @@ function mergeLibraryLocales(root, lib, app, write, pending = /* @__PURE__ */ ne
     if (locale === app.config.sourceLocale) merge2(appSource, dict2);
     const content = to.serialize(dict2, locale, original, appSource);
     if (content === null || content === original) continue;
-    const file2 = path12.posix.join(app.dir, target);
+    const file2 = path13.posix.join(app.dir, target);
     if (write) {
-      fs13.mkdirSync(path12.dirname(path12.join(root, file2)), { recursive: true });
-      fs13.writeFileSync(path12.join(root, file2), content);
+      fs14.mkdirSync(path13.dirname(path13.join(root, file2)), { recursive: true });
+      fs14.writeFileSync(path13.join(root, file2), content);
     }
     files.push({ path: file2, content });
   }
   return files;
 }
 function mergeResults(results) {
-  const at2 = (dir, p) => path12.posix.join(dir, p);
+  const at2 = (dir, p) => path13.posix.join(dir, p);
   const merged = {
     files: [],
     replacements: /* @__PURE__ */ new Map(),
@@ -220065,8 +220589,8 @@ function mergeResults(results) {
 
 // src/tms/index.ts
 init_sync();
-import * as fs14 from "node:fs";
-import * as path13 from "node:path";
+import * as fs15 from "node:fs";
+import * as path14 from "node:path";
 
 // src/tms/types.ts
 var TmsError = class extends Error {
@@ -220102,9 +220626,9 @@ var CrowdinClient = class {
   files = null;
   dirs = /* @__PURE__ */ new Map();
   languages = null;
-  async api(method2, path15, body, what = `Crowdin ${method2} ${path15}`) {
+  async api(method2, path16, body, what = `Crowdin ${method2} ${path16}`) {
     const res = await check(
-      await this.fetchImpl(`${this.base}${path15}`, {
+      await this.fetchImpl(`${this.base}${path16}`, {
         method: method2,
         headers: { Authorization: `Bearer ${this.opts.token}`, ...body ? { "Content-Type": "application/json" } : {} },
         ...body ? { body: JSON.stringify(body) } : {}
@@ -220260,14 +220784,14 @@ var LokaliseClient = class {
   base;
   languages = null;
   sourceLocale = "en";
-  async api(method2, path15, body) {
+  async api(method2, path16, body) {
     const res = await check(
-      await this.fetchImpl(`${this.base}/projects/${encodeURIComponent(this.opts.projectId)}${path15}`, {
+      await this.fetchImpl(`${this.base}/projects/${encodeURIComponent(this.opts.projectId)}${path16}`, {
         method: method2,
         headers: { "X-Api-Token": this.opts.token, ...body ? { "Content-Type": "application/json" } : {} },
         ...body ? { body: JSON.stringify(body) } : {}
       }),
-      `Lokalise ${method2} ${path15}`
+      `Lokalise ${method2} ${path16}`
     );
     return await res.json();
   }
@@ -220408,9 +220932,9 @@ var TransifexClient = class {
   /** `public/locales/en/common.json` → `public-locales-en-common-json`. */
   slug = (file2) => file2.path.toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-|-$/g, "").slice(0, 50);
   resource = (file2) => `${this.project()}:r:${this.slug(file2)}`;
-  async request(method2, path15, body, what = `Transifex ${method2} ${path15}`) {
+  async request(method2, path16, body, what = `Transifex ${method2} ${path16}`) {
     return check(
-      await this.fetchImpl(path15.startsWith("http") ? path15 : `${this.base}${path15}`, {
+      await this.fetchImpl(path16.startsWith("http") ? path16 : `${this.base}${path16}`, {
         method: method2,
         headers: { Authorization: `Bearer ${this.opts.token}`, Accept: "application/vnd.api+json", ...body ? { "Content-Type": "application/vnd.api+json" } : {} },
         ...body ? { body: JSON.stringify(body) } : {},
@@ -220547,7 +221071,7 @@ async function syncFiles(cwd, sourceLocale) {
   }
   return { files, skipped };
 }
-var read = (cwd, file2) => fs14.existsSync(path13.join(cwd, file2)) ? fs14.readFileSync(path13.join(cwd, file2), "utf8") : void 0;
+var read = (cwd, file2) => fs15.existsSync(path14.join(cwd, file2)) ? fs15.readFileSync(path14.join(cwd, file2), "utf8") : void 0;
 async function push(o) {
   let sources = 0;
   let translations = 0;
@@ -220576,8 +221100,8 @@ async function pull(o) {
       o.log.info(`\u2B07\uFE0F  ${target} (${locale})`);
       changed.push({ path: target, content });
       if (o.write) {
-        fs14.mkdirSync(path13.dirname(path13.join(o.cwd, target)), { recursive: true });
-        fs14.writeFileSync(path13.join(o.cwd, target), content);
+        fs15.mkdirSync(path14.dirname(path14.join(o.cwd, target)), { recursive: true });
+        fs15.writeFileSync(path14.join(o.cwd, target), content);
       }
     }
   }
@@ -220666,9 +221190,9 @@ async function main() {
     const libConfigs = /* @__PURE__ */ new Map();
     let stopped = false;
     for (const lib of found2.libraries) {
-      const dir = path14.join(cwd, lib.dir);
+      const dir = path15.join(cwd, lib.dir);
       const libConfig = configAt(dir);
-      libConfig.targetLocales = [...new Set(found2.apps.filter((a) => a.uses?.includes(lib.dir)).flatMap((a) => configAt(path14.join(cwd, a.dir)).targetLocales))];
+      libConfig.targetLocales = [...new Set(found2.apps.filter((a) => a.uses?.includes(lib.dir)).flatMap((a) => configAt(path15.join(cwd, a.dir)).targetLocales))];
       info(`Localizing ${lib.dir} (${lib.framework} library)`);
       const r = await runPipeline({ cwd: dir, config: libConfig, translator, write: false, log, setup: false });
       libConfigs.set(lib.dir, libConfig);
@@ -220680,15 +221204,15 @@ async function main() {
     }
     for (const app of stopped ? [] : found2.apps) {
       info(`Localizing ${app.dir} (${app.framework})`);
-      const dir = path14.join(cwd, app.dir);
+      const dir = path15.join(cwd, app.dir);
       const appConfig = configAt(dir);
       const r = await runPipeline({ cwd: dir, config: appConfig, translator, write: false, log });
-      const pending = new Map(results.concat({ dir: app.dir, result: r }).flatMap((x) => x.result.files.map((f2) => [path14.posix.join(x.dir, f2.path), f2.content])));
+      const pending = new Map(results.concat({ dir: app.dir, result: r }).flatMap((x) => x.result.files.map((f2) => [path15.posix.join(x.dir, f2.path), f2.content])));
       for (const libDir of app.uses ?? []) {
         const lib = libConfigs.get(libDir);
         if (!lib) continue;
         const merged = mergeLibraryLocales(cwd, { dir: libDir, config: lib }, { dir: app.dir, config: appConfig }, false, pending);
-        r.files = mergeFiles(r.files, merged.map((f2) => ({ ...f2, path: path14.posix.relative(app.dir, f2.path) })));
+        r.files = mergeFiles(r.files, merged.map((f2) => ({ ...f2, path: path15.posix.relative(app.dir, f2.path) })));
       }
       results.push({ dir: app.dir, result: r });
       if (r.incomplete) break;
@@ -220760,7 +221284,7 @@ async function translateMode(o) {
   if (o.offline) throw new Error("mode: translate needs an api_key; there is nothing to do offline");
   const raw = (() => {
     try {
-      return JSON.parse(fs15.readFileSync(path14.join(o.cwd, "localize.config.json"), "utf8"));
+      return JSON.parse(fs16.readFileSync(path15.join(o.cwd, "localize.config.json"), "utf8"));
     } catch {
       return {};
     }
@@ -220830,7 +221354,7 @@ async function translateMode(o) {
 }
 function rawConfig(cwd) {
   try {
-    return JSON.parse(fs15.readFileSync(path14.join(cwd, "localize.config.json"), "utf8"));
+    return JSON.parse(fs16.readFileSync(path15.join(cwd, "localize.config.json"), "utf8"));
   } catch {
     return {};
   }
@@ -220855,7 +221379,7 @@ async function tmsPush(cwd, branch) {
   if (getInput("tms_push") !== "true") return;
   let defaultBranch;
   try {
-    defaultBranch = JSON.parse(fs15.readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")).repository?.default_branch;
+    defaultBranch = JSON.parse(fs16.readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")).repository?.default_branch;
   } catch {
   }
   if (branch !== defaultBranch) {
@@ -220877,7 +221401,7 @@ async function tmsPush(cwd, branch) {
 }
 var withPulled = (files, pulled) => {
   const paths = new Set(files.map((f2) => f2.path));
-  return [...files, ...pulled.filter((f2) => !paths.has(f2.path)).map((f2) => ({ path: f2.path, content: fs15.readFileSync(path14.join(process.env.GITHUB_WORKSPACE ?? process.cwd(), f2.path), "utf8") }))];
+  return [...files, ...pulled.filter((f2) => !paths.has(f2.path)).map((f2) => ({ path: f2.path, content: fs16.readFileSync(path15.join(process.env.GITHUB_WORKSPACE ?? process.cwd(), f2.path), "utf8") }))];
 };
 var reportFailure = null;
 main().catch(async (err) => {
