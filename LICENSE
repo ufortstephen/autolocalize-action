@@ -1,21 +1,31 @@
-MIT License
+Localize.dev Software License
 
-Copyright (c) 2026 Localize.dev
+Copyright (c) 2026 Localize.dev. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software (the localize-dev command-line tool, its library, and the Localize.dev GitHub
+Action) is proprietary. It is licensed, not sold.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+You may install and run it, unmodified, to localize your own software and to use the
+Localize.dev service, including in your build, CI and deployment pipelines.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+You may not, except as the law expressly allows despite this restriction:
+  - copy, modify, adapt, translate or create derivative works of it, or any part of it;
+  - distribute, publish, sublicense, sell, rent, lend or host it for others;
+  - decompile, disassemble or reverse engineer it;
+  - use it, or any part of it, to build or offer a product or service that competes with
+    Localize.dev;
+  - remove or alter this notice or any other proprietary notice.
+
+Code that this software writes into your own projects (translation calls, locale files,
+generated i18n setup files) is yours to use, change and distribute as part of your projects.
+
+Third-party components bundled in this software remain under their own licenses, whose
+notices are kept in the files.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+Use of the Localize.dev service is also subject to its Terms at https://uselocalize.dev/terms.
