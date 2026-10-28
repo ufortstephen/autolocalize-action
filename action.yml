@@ -1,5 +1,5 @@
 name: 'Localize.dev i18n Auto-Refactor'
-description: 'Automatically scans frontend codebases, extracts hardcoded text, and opens localized PRs.'
+description: 'Finds hardcoded UI strings in web, mobile and desktop apps, translates them with context, and opens one pull request.'
 author: 'Localize.dev'
 branding:
   icon: 'globe'
@@ -15,19 +15,38 @@ inputs:
     description: 'Localize.dev API base URL (override for staging or self-hosted deployments)'
     required: false
     default: 'https://uselocalize.dev'
+  mode:
+    description: 'rewrite: extract hardcoded strings from code (default). translate: only fill in missing translations in existing locale files (JSON, YAML, .po, .arb, strings.xml, .xcstrings, .strings, messages.json), for any stack. check: fail the job (with annotations on the pull request) when copy is hardcoded, translations are missing or out of date; no api_key needed'
+    required: false
+    default: 'rewrite'
   target_locales:
-    description: 'Comma-separated target languages (e.g., es,fr,de,ja)'
+    description: 'Comma-separated target languages (e.g., es,fr,de,ja). Default: localize.config.json, else es,fr; in translate mode, the languages the files already have'
     required: false
-    default: 'es,fr'
+    default: ''
   src_dir:
-    description: 'Source code directory to scan'
+    description: "Source code directory to scan (default: localize.config.json, else the framework's own: src, app/views, resources/views, lib…)"
     required: false
-    default: 'src'
+    default: ''
   locales_path:
     description: 'Dictionary path pattern; {locale} is replaced (default from localize.config.json, else locales/{locale}.json)'
     required: false
   base_branch:
     description: 'Branch to open the PR against (default: PR head branch or pushed branch)'
+    required: false
+  workspaces:
+    description: 'Monorepo: localize every app in the workspaces (package.json "workspaces" or pnpm-workspace.yaml), each with its own locale files'
+    required: false
+    default: 'false'
+  tms_pull:
+    description: 'Pull translations from the TMS in localize.config.json ("tms") into the pull request before the run'
+    required: false
+    default: 'false'
+  tms_push:
+    description: 'Push source locale files to the TMS after the run, on the default branch only'
+    required: false
+    default: 'false'
+  tms_token:
+    description: 'TMS API token (store it as a secret); or set CROWDIN_TOKEN, PHRASE_TOKEN, LOKALISE_TOKEN or TRANSIFEX_TOKEN in env'
     required: false
   offline:
     description: 'Generate keys without translating (no API key needed); target locales are left untranslated'

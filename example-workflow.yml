@@ -39,5 +39,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           api_key: ${{ secrets.LOCALIZEDEV_API_KEY }}
           target_locales: 'es,fr'
-          src_dir: 'src'
-          # locales_path: 'public/locales/{locale}/common.json' # default: locales/{locale}.json
+          # src_dir: 'src' # default: your framework's (src, app/views, resources/views, lib…)
+          # locales_path: 'public/locales/{locale}/common.json' # default: your framework's
