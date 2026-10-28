@@ -19171,6 +19171,17 @@ function pluralCategories(locale, ordinal = false) {
   }
   return PLURAL_CATEGORIES.filter((c) => found2.includes(c));
 }
+function integerCategories(locale) {
+  let rules;
+  try {
+    rules = new Intl.PluralRules(locale);
+  } catch {
+    return ["one", "other"];
+  }
+  const seen2 = /* @__PURE__ */ new Set();
+  for (let n4 = 0; n4 <= 200; n4++) seen2.add(rules.select(n4));
+  return PLURAL_CATEGORIES.filter((c) => seen2.has(c));
+}
 function splitPluralKey(key2) {
   const m2 = SUFFIX.exec(key2);
   return m2 ? { base: m2[1], category: m2[2] } : null;
@@ -19215,7 +19226,7 @@ function writePlural(dict2, key2, forms, style, ordinal = false) {
     setNested(dict2, key2, style === "icu" ? toIcuPlural(forms) : toVuePlural(forms));
     return;
   }
-  if (style === "rails") {
+  if (style === "rails" || style === "android" || style === "apple" || style === "gettext" || style === "laravel") {
     for (const c of PLURAL_CATEGORIES) if (forms[c] !== void 0) setNested(dict2, `${key2}.${c}`, toDictFormat(forms[c], style));
     return;
   }
@@ -19226,7 +19237,8 @@ function writePlural(dict2, key2, forms, style, ordinal = false) {
 }
 function hasPlural(dict2, key2, style, ordinal = false) {
   if (ordinal) return getNested(dict2, style === "icu" ? key2 : `${key2}_ordinal_other`) !== void 0;
-  return getNested(dict2, style === "i18next" ? `${key2}_other` : style === "rails" ? `${key2}.other` : key2) !== void 0;
+  const nested = style === "rails" || style === "android" || style === "apple" || style === "gettext" || style === "laravel";
+  return getNested(dict2, style === "i18next" ? `${key2}_other` : nested ? `${key2}.other` : key2) !== void 0;
 }
 function messageId(text4, plural) {
   return plural ? `${plural.ordinal ? "ordinal" : "plural"}${JSON.stringify(PLURAL_CATEGORIES.map((c) => plural[c] ?? null))}` : text4;
@@ -19244,12 +19256,13 @@ function pluralsIn(flat) {
   }
   return new Map([...out].filter((e2) => e2[1].other !== void 0));
 }
-var PLURAL_CATEGORIES, SUFFIX;
+var PLURAL_CATEGORIES, isPluralForms, SUFFIX;
 var init_plural = __esm({
   "src/plural.ts"() {
     "use strict";
     init_dictionary();
     PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"];
+    isPluralForms = (v2) => !!v2 && typeof v2 === "object" && typeof v2.other === "string" && Object.keys(v2).every((k) => PLURAL_CATEGORIES.includes(k));
     SUFFIX = new RegExp(`^(.+)_(${PLURAL_CATEGORIES.join("|")})$`);
   }
 });
@@ -19292,7 +19305,11 @@ function setNested(dict2, key2, value) {
 function appleKey(text4) {
   return text4.replace(/%/g, "%%").replace(/\{(\w+)\}/g, (_m, name) => NUMERIC_NAME.test(name) ? "%lld" : "%@");
 }
-function textKeyFor(text4, style) {
+function textKeyFor(text4, style, plural) {
+  if (plural) {
+    if (style === "gettext") return toDictFormat(plural.one, style);
+    if (style === "laravel") return `${toDictFormat(plural.one, style)}|${toDictFormat(plural.other, style)}`;
+  }
   return style === "apple" ? appleKey(text4) : toDictFormat(text4, style);
 }
 function toDictFormat(text4, style) {
@@ -191110,8 +191127,8 @@ function paramName(source2, taken) {
   return name;
 }
 function buildRun(parts, opts = {}) {
-  if (!parts.some((p) => p.kind === "text" && p.raw.trim())) return null;
   const ternaries = parts.map((p) => p.kind === "expr" && opts.plurals !== false ? pluralFromSource(p.source.trim()) : null);
+  if (!parts.some((p) => p.kind === "text" && p.raw.trim()) && !ternaries.some(Boolean)) return null;
   const found2 = ternaries.filter(Boolean).length;
   const plural = found2 === 1 ? ternaries.find(Boolean) : null;
   const several = opts.counts && found2 > 1;
@@ -191519,17 +191536,22 @@ async function scanAngular(code, filePath, opts) {
       if (rich(nodes, element3)) return;
       let parts = [];
       const flush = () => {
-        const run = buildRun(parts, { plurals: false });
+        const run = buildRun(parts, { counts: true, ordinals: true });
         if (!run) {
           for (const p of parts) if (p.kind === "expr" && p.at !== void 0) expressionLiterals(p.source, p.at).forEach((l2) => literal5(l2));
         }
         if (run) {
           for (const p of run.params) {
-            if (p.at === void 0) continue;
+            if (p.at === void 0 || p.sub || run.plural && p.name === "count") continue;
             const ids = expressionLiterals(p.source, p.at).map((l2) => literal5(l2, true));
             if (ids.length) p.literals = ids;
           }
-          add(run.text, { kind: "run", start: run.start, end: run.end, params: run.params }, { element: element3 });
+          registerCounts(run, add);
+          add(
+            run.text,
+            { kind: "run", start: run.start, end: run.end, params: run.params, ...run.plural ? { plural: true } : {}, ...run.plural?.ordinal ? { ordinal: true } : {} },
+            { element: element3, ...run.plural ? { plural: run.plural } : {} }
+          );
         }
         parts = [];
       };
@@ -191591,7 +191613,7 @@ async function transformAngular(code, filePath, keys, opts) {
     const key2 = keys.get(site.id);
     if (!key2 || site.nested) continue;
     const before2 = code.slice(site.start, site.end);
-    const params = withLiterals(site.params, sites, keys, (k, p) => `(${pipe2(k, p)})`);
+    const params = withLiterals(site.params, sites, keys, (k, p, l2) => `(${l2.plural ? pluralPipe(k, p) : pipe2(k, p)})`);
     if (site.kind === "rich") {
       const render2 = (rich, richKey, richParams) => {
         const slots = (rich.slots ?? []).map((slot) => {
@@ -191608,13 +191630,14 @@ async function transformAngular(code, filePath, keys, opts) {
       replacements2.push({ id: site.id, key: key2, line: lineOf(code, site.start).line, before: before2, after: after2 });
       continue;
     }
-    const after = site.kind === "literal" ? `(${pipe2(key2, params)})` : site.kind === "attr" ? `[${binding(site.attrName)}]="${pipe2(key2, params)}"` : `{{ ${pipe2(key2, params)} }}`;
+    const translated = site.plural ? pluralPipe(key2, params, site.ordinal) : pipe2(key2, params);
+    const after = site.kind === "literal" ? `(${translated})` : site.kind === "attr" ? `[${binding(site.attrName)}]="${translated}"` : `{{ ${translated} }}`;
     s.overwrite(site.start, site.end, after);
     replacements2.push({ id: site.id, key: key2, line: lineOf(code, site.start).line, before: before2, after });
   }
   return { code: s.toString(), changed: replacements2.length > 0, replacements: replacements2 };
 }
-var import_parser3, BLOCK_KEYS, componentOf, paramObject, binding, pipe2, angularAdapter;
+var import_parser3, BLOCK_KEYS, componentOf, paramObject, binding, pipe2, pluralPipe, angularAdapter;
 var init_angular = __esm({
   "src/formats/angular.ts"() {
     "use strict";
@@ -191628,6 +191651,10 @@ var init_angular = __esm({
     paramObject = (params) => `{ ${params.map((p) => `${p.name}: ${p.source}`).join(", ")} }`;
     binding = (name) => /^(aria|data)-/.test(name) ? `attr.${name}` : name;
     pipe2 = (key2, params) => params.length ? `'${key2}' | translate: ${paramObject(params)}` : `'${key2}' | translate`;
+    pluralPipe = (key2, params, ordinal = false) => {
+      const count = params.find((p) => p.name === "count").source;
+      return `('${key2}_' + (${count} | pluralForm${ordinal ? ": 'ordinal'" : ""})) | translate: ${paramObject(params)}`;
+    };
     angularAdapter = { scan: scanAngular, transform: transformAngular };
   }
 });
@@ -192180,6 +192207,7 @@ function scanAndroid(code, filePath, _opts) {
     const id3 = `str_${++n4}`;
     sites.set(id3, { id: id3, ...site });
     strings2.push({ id: id3, originalText: text4, nodeType: site.kind === "attr" ? "JSXAttribute" : "JSXText", filePath, loc: lineOf(code, site.start), component, ...site.params.length ? { params: site.params.map((p) => p.name) } : {}, ...extra });
+    return id3;
   };
   if (filePath.endsWith(".xml")) {
     for (const m2 of code.matchAll(XML_ATTRIBUTES)) {
@@ -192216,13 +192244,24 @@ function scanAndroid(code, filePath, _opts) {
     const isText = COMPOSE_TEXT.test(before2);
     if (!toast && !named && !isText) continue;
     if (!/^[,)]/.test(code.slice(lit.end).trimStart())) continue;
-    const run = buildRun(lit.parts, { plurals: false });
+    const run = buildRun(
+      lit.parts.map((p) => p.kind === "expr" ? { ...p, source: kotlinChoice(p.source) } : p),
+      { counts: true }
+    );
     if (!run) continue;
     if (!toast && !composableAt(lit.start, groups)) {
       warnings2.push({ filePath, loc: lineOf(code, lit.start), text: run.text, reason: "not inside a @Composable function" });
       continue;
     }
-    add(run.text, { kind: "run", start: lit.start, end: lit.end, params: run.params, ...toast ? { context: "script", attrName: toast[1] } : {} }, { element: toast ? "Toast" : named ? named[1] : "Text" });
+    for (const p of run.params) {
+      if (!p.sub) continue;
+      p.literals = [add(p.sub.other, { kind: "run", start: 0, end: 0, params: [{ name: "count", source: p.sub.count }], nested: true, plural: true }, { element: "count", plural: { one: p.sub.one, other: p.sub.other } })];
+    }
+    add(
+      run.text,
+      { kind: "run", start: lit.start, end: lit.end, params: run.params, text: run.text, ...run.plural ? { plural: true } : {}, ...toast ? { context: "script", attrName: toast[1] } : {} },
+      { element: toast ? "Toast" : named ? named[1] : "Text", ...run.plural ? { plural: run.plural } : {} }
+    );
   }
   return { strings: strings2, warnings: warnings2, sites };
 }
@@ -192231,6 +192270,7 @@ function transformAndroid(code, filePath, keys, opts) {
   const s = new MagicString(code);
   const replacements2 = [];
   let composed = false;
+  let pluralUsed = false;
   let usesR = false;
   for (const site of sites.values()) {
     const key2 = keys.get(site.id);
@@ -192242,9 +192282,19 @@ function transformAndroid(code, filePath, keys, opts) {
       after = site.attrName ? `${site.attrName}(R.string.${key2})` : `R.string.${key2}`;
       usesR = true;
     } else {
-      const args = site.params.map((p) => `, ${p.source}`).join("");
-      after = site.context === "script" ? `${site.attrName}.getString(R.string.${key2}${args})` : `stringResource(R.string.${key2}${args})`;
-      composed ||= site.context !== "script";
+      if (site.params.some((p) => p.literals?.some((id3) => !keys.has(id3)))) continue;
+      const toastCtx = site.context === "script" ? site.attrName : null;
+      const quantity = (k, count, rest2) => {
+        if (toastCtx) return `${toastCtx}.resources.getQuantityString(R.plurals.${k}, ${count}${rest2})`;
+        pluralUsed = true;
+        return `pluralStringResource(R.plurals.${k}, ${count}${rest2})`;
+      };
+      const params = site.params.map((p) => p.sub && p.literals ? { ...p, source: quantity(keys.get(p.literals[0]), p.sub.count, `, ${p.sub.count}`) } : p);
+      const ordered = (site.text ? placeholderOrder(site.text) : params.map((p) => p.name)).map((name) => params.find((p) => p.name === name)).filter(Boolean);
+      const args = ordered.map((p) => `, ${p.source}`).join("");
+      if (site.plural) after = quantity(key2, params.find((p) => p.name === "count").source, args);
+      else after = toastCtx ? `${toastCtx}.getString(R.string.${key2}${args})` : `stringResource(R.string.${key2}${args})`;
+      composed ||= site.context !== "script" && !site.plural;
       usesR = true;
     }
     s.overwrite(site.start, site.end, after);
@@ -192254,6 +192304,7 @@ function transformAndroid(code, filePath, keys, opts) {
     const pkg = /^package\s+([\w.]+)/m.exec(code)?.[1]?.replace(/;$/, "");
     const lines = [
       ...composed && !/import\s+androidx\.compose\.ui\.res\.stringResource\b/.test(code) ? ["import androidx.compose.ui.res.stringResource"] : [],
+      ...pluralUsed && !/import\s+androidx\.compose\.ui\.res\.pluralStringResource\b/.test(code) ? ["import androidx.compose.ui.res.pluralStringResource"] : [],
       ...opts.androidNamespace && pkg !== opts.androidNamespace && !new RegExp(`import\\s+${opts.androidNamespace.replace(/\./g, "\\.")}\\.R\\b`).test(code) ? [`import ${opts.androidNamespace}.R`] : []
     ];
     if (lines.length) {
@@ -192274,7 +192325,7 @@ ${block3}`);
   }
   return { code: s.toString(), changed: replacements2.length > 0, replacements: replacements2 };
 }
-var XML_ATTRIBUTES, COMPOSE_TEXT, COMPOSE_NAMED, TOAST, VIEW_CALL, VIEW_ASSIGN, SETTER2, androidAdapter;
+var XML_ATTRIBUTES, COMPOSE_TEXT, COMPOSE_NAMED, TOAST, VIEW_CALL, VIEW_ASSIGN, SETTER2, kotlinChoice, placeholderOrder, androidAdapter;
 var init_android_code = __esm({
   "src/formats/android-code.ts"() {
     "use strict";
@@ -192289,6 +192340,8 @@ var init_android_code = __esm({
     VIEW_CALL = /\.?\b(setText|setHint|setTitle|setSubtitle|setPositiveButton|setNegativeButton|setNeutralButton|setMessage)\(\s*$/;
     VIEW_ASSIGN = /(?<=[\w)\]!])(\??\.)(text|hint|title|subtitle)\s*=\s*$/;
     SETTER2 = { text: "setText", hint: "setHint", title: "setTitle", subtitle: "setSubtitle" };
+    kotlinChoice = (source2) => source2.replace(/^\s*if\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*("(?:[^"\\]|\\.)*")\s*else\s*("(?:[^"\\]|\\.)*")\s*$/, "($1) ? $2 : $3");
+    placeholderOrder = (text4) => [...new Set([...text4.matchAll(/\{(\w+)\}/g)].map((m2) => m2[1]))];
     androidAdapter = {
       scan: (code, filePath, opts) => scanAndroid(code, filePath, opts),
       transform: (code, filePath, keys, opts) => transformAndroid(code, filePath, keys, opts)
@@ -192392,10 +192445,14 @@ function scanSwift(code, filePath, _opts) {
     const swiftui = SWIFTUI.test(before2);
     const uikit = !swiftui && UIKIT.test(before2);
     if (!swiftui && !uikit) continue;
-    const run = buildRun(lit.parts, { plurals: false });
+    let run = buildRun(lit.parts);
+    if (run?.plural && !run.text.includes("{count}")) run = buildRun(lit.parts, { plurals: false });
     if (!run) continue;
     const id3 = `str_${++n4}`;
-    sites.set(id3, { id: id3, kind: "literal", start: lit.start, end: lit.end, params: run.params, context: swiftui ? "template" : "script" });
+    const choice = run.plural ? lit.parts.find((p) => p.kind === "expr" && !!pluralFromSource(p.source)) : void 0;
+    const pluralForm = choice ? pluralFromSource(choice.source).other : "";
+    const looked = choice ? code.slice(lit.start, choice.start) + pluralForm.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + code.slice(choice.end, lit.end) : void 0;
+    sites.set(id3, { id: id3, kind: "literal", start: lit.start, end: lit.end, params: run.params, context: swiftui ? "template" : "script", ...run.plural ? { plural: true } : {}, ...looked ? { text: looked } : {} });
     strings2.push({
       id: id3,
       originalText: run.text,
@@ -192404,7 +192461,8 @@ function scanSwift(code, filePath, _opts) {
       loc: lineOf(code, lit.start),
       component,
       element: swiftui ? /\b(\w+)\s*\(\s*$/.exec(before2)?.[1] ?? "Text" : "UIKit",
-      ...run.params.length ? { params: run.params.map((p) => p.name) } : {}
+      ...run.params.length ? { params: run.params.map((p) => p.name) } : {},
+      ...run.plural ? { plural: run.plural } : {}
     });
   }
   return { strings: strings2, warnings: warnings2, sites };
@@ -192417,7 +192475,8 @@ function transformSwift(code, filePath, keys, opts) {
     const key2 = keys.get(site.id);
     if (!key2) continue;
     const before2 = code.slice(site.start, site.end);
-    const after = site.context === "template" ? before2 : `String(localized: ${before2})`;
+    const literal5 = site.text ?? before2;
+    const after = site.context === "template" ? literal5 : `String(localized: ${literal5})`;
     if (after !== before2) s.overwrite(site.start, site.end, after);
     replacements2.push({ id: site.id, key: key2, line: lineOf(code, site.start).line, before: before2, after });
   }
@@ -192428,6 +192487,7 @@ var init_swift = __esm({
   "src/formats/swift.ts"() {
     "use strict";
     init_dist();
+    init_scanner();
     init_markup();
     unescape3 = (s) => s.replace(/\\(["\\'nt0])/g, (_m, c) => ({ n: "\n", t: "	", "0": "\0" })[c] ?? c);
     SWIFTUI = /\b(Text|Button|Label|Toggle|TextField|SecureField|Section|Link|Picker|Menu|NavigationLink|Stepper|DatePicker|ColorPicker|ProgressView|Gauge|LabeledContent|ContentUnavailableView|ControlGroup|DisclosureGroup|GroupBox|Tab|ShareLink)\s*\(\s*$|\.(navigationTitle|navigationBarTitle|help|accessibilityLabel|accessibilityHint|accessibilityValue|alert|confirmationDialog|badge)\s*\(\s*$|\bprompt:\s*$/;
@@ -208374,9 +208434,22 @@ var init_po = __esm({
 function poEntries(text4) {
   const out = /* @__PURE__ */ new Map();
   for (const m2 of text4.matchAll(/^msgid ((?:".*"\s*\n?)+)msgstr ((?:".*"\s*\n?)+)/gm)) {
-    const join14 = (block3) => [...block3.matchAll(/"(?:[^"\\]|\\.)*"/g)].map((q) => poUnquote(q[0])).join("");
-    const id3 = join14(m2[1]);
-    if (id3) out.set(id3, join14(m2[2]));
+    const id3 = poJoin(m2[1]);
+    if (id3) out.set(id3, poJoin(m2[2]));
+  }
+  return out;
+}
+function poPluralEntries(text4, locale) {
+  const out = /* @__PURE__ */ new Map();
+  const slots = poSlots(locale);
+  for (const m2 of text4.matchAll(/^msgid ((?:".*"\s*\n)+)msgid_plural (?:".*"\s*\n)+((?:msgstr\[\d+\] (?:".*"\s*\n?)+)+)/gm)) {
+    const forms = {};
+    for (const s of m2[2].matchAll(/msgstr\[(\d+)\] ((?:".*"\s*\n?)+)/g)) {
+      const value = poJoin(s[2]);
+      const cat = slots[Number(s[1])];
+      if (value && cat) forms[cat] = value;
+    }
+    if (forms.other) out.set(poJoin(m2[1]), forms);
   }
   return out;
 }
@@ -208390,13 +208463,14 @@ function storeFor(config) {
   if (config.interpolation === "laravel") return laravelStore(p);
   return jsonStore(p);
 }
-var import_yaml, DOT, encodeKey, decodeKey, json, jsonStore, arbStore, railsStore, laravelStore, poQuote, poUnquote, gettextStore, androidEscape, androidUnescape, androidStore, xcstringsStore;
+var import_yaml, DOT, encodeKey, decodeKey, json, jsonStore, arbStore, railsStore, laravelStore, poQuote, poUnquote, poJoin, poSlots, gettextStore, androidEscape, androidUnescape, androidStore, xcstringsStore;
 var init_stores = __esm({
   "src/stores.ts"() {
     "use strict";
     import_yaml = __toESM(require_dist(), 1);
     init_dictionary();
     init_po();
+    init_plural();
     DOT = "\u2024";
     encodeKey = (text4) => text4.replace(/\./g, DOT);
     decodeKey = (key2) => key2.replace(new RegExp(DOT, "g"), ".");
@@ -208438,21 +208512,36 @@ var init_stores = __esm({
     laravelStore = (pattern) => ({
       path: (l2) => pattern.replace(/\{locale\}/g, l2.replace(/-/g, "_")),
       textKeys: true,
-      read: (text4) => Object.fromEntries(Object.entries(json(text4)).filter(([, v2]) => typeof v2 === "string").map(([k, v2]) => [encodeKey(k), v2])),
-      serialize(dict2, _locale, original) {
+      read: (text4, locale) => Object.fromEntries(
+        Object.entries(json(text4)).filter(([, v2]) => typeof v2 === "string").map(([k, v2]) => {
+          if (!k.includes("|")) return [encodeKey(k), v2];
+          const cats = integerCategories(locale);
+          const parts = v2.split("|");
+          return [encodeKey(k), Object.fromEntries(cats.map((c, i3) => [c, parts[Math.min(i3, parts.length - 1)]]))];
+        })
+      ),
+      serialize(dict2, locale, original) {
         const out = { ...json(original) };
-        for (const [k, v2] of flatten(dict2)) out[decodeKey(k)] = v2;
+        for (const [k, v2] of Object.entries(dict2)) {
+          if (isPluralForms(v2)) out[decodeKey(k)] = integerCategories(locale).map((c) => v2[c] ?? v2.other).join("|");
+          else for (const [fk2, fv] of flatten({ [k]: v2 })) out[decodeKey(fk2)] = fv;
+        }
         return `${JSON.stringify(out, null, 4)}
 `;
       }
     });
     poQuote = (s) => `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n")}"`;
     poUnquote = (s) => JSON.parse(s.replace(/\\(?!["\\/bfnrtu])/g, "\\\\"));
+    poJoin = (block3) => [...block3.matchAll(/"(?:[^"\\]|\\.)*"/g)].map((q) => poUnquote(q[0])).join("");
+    poSlots = (locale) => slotCategories({ "Plural-Forms": pluralFormsFor(locale) ?? "nplurals=2; plural=(n != 1);" }, locale) ?? ["one", "other"];
     gettextStore = (pattern, sourceLocale) => ({
       path: (l2) => pattern.replace(/\{locale\}/g, l2.replace(/-/g, "_")),
       textKeys: true,
-      read: (text4) => Object.fromEntries([...poEntries(text4 ?? "")].filter(([, v2]) => v2).map(([k, v2]) => [encodeKey(k), v2])),
-      serialize(dict2, locale, original) {
+      read: (text4, locale) => ({
+        ...Object.fromEntries([...poEntries(text4 ?? "")].filter(([, v2]) => v2).map(([k, v2]) => [encodeKey(k), v2])),
+        ...Object.fromEntries([...poPluralEntries(text4 ?? "", locale)].map(([k, v2]) => [encodeKey(k), v2]))
+      }),
+      serialize(dict2, locale, original, source2) {
         if (locale === sourceLocale) return null;
         let text4 = original ?? [
           'msgid ""',
@@ -208466,7 +208555,17 @@ var init_stores = __esm({
         ].join("\n");
         const existing = poEntries(text4);
         const added = [];
-        for (const [k, value] of flatten(dict2)) {
+        for (const [k, v2] of Object.entries(dict2)) {
+          if (!isPluralForms(v2)) continue;
+          const id3 = decodeKey(k);
+          if (text4.includes(`msgid ${poQuote(id3)}
+msgid_plural`)) continue;
+          const src = source2?.[k];
+          const plural = isPluralForms(src) ? src.other : v2.other;
+          const slots = poSlots(locale);
+          added.push([`msgid ${poQuote(id3)}`, `msgid_plural ${poQuote(plural)}`, ...slots.map((c, i3) => `msgstr[${i3}] ${poQuote(v2[c] ?? v2.other)}`)].join("\n"));
+        }
+        for (const [k, value] of flatten(Object.fromEntries(Object.entries(dict2).filter(([, v2]) => !isPluralForms(v2))))) {
           const id3 = decodeKey(k);
           if (existing.get(id3)) continue;
           if (existing.has(id3)) {
@@ -208490,20 +208589,32 @@ ${added.join("\n\n")}
       },
       read(text4) {
         const out = {};
-        for (const m2 of (text4 ?? "").matchAll(/<string\s+name="([^"]+)"[^>]*>([\s\S]*?)<\/string>/g)) {
-          out[m2[1]] = androidUnescape(m2[2]).replace(/%(\d+)\$[sd]/g, (_2, n4) => `{arg${n4}}`);
+        const arg = (s) => androidUnescape(s).replace(/%(\d+)\$[sd]/g, (_2, n4) => `{arg${n4}}`);
+        for (const m2 of (text4 ?? "").matchAll(/<string\s+name="([^"]+)"[^>]*>([\s\S]*?)<\/string>/g)) out[m2[1]] = arg(m2[2]);
+        for (const m2 of (text4 ?? "").matchAll(/<plurals\s+name="([^"]+)"[^>]*>([\s\S]*?)<\/plurals>/g)) {
+          const forms = Object.fromEntries([...m2[2].matchAll(/<item\s+quantity="(\w+)"\s*>([\s\S]*?)<\/item>/g)].map((i3) => [i3[1], arg(i3[2])]));
+          if (forms.other !== void 0) out[m2[1]] = forms;
         }
         return out;
       },
       serialize(dict2, _locale, original, source2) {
         const base = original ?? '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n';
-        const have = new Set([...base.matchAll(/<string\s+name="([^"]+)"/g)].map((m2) => m2[1]));
+        const have = new Set([...base.matchAll(/<(?:string|plurals)\s+name="([^"]+)"/g)].map((m2) => m2[1]));
         const lines = [];
-        for (const [key2, value] of flatten(dict2)) {
+        const formatted = (value, order) => androidEscape(value).replace(/\{(\w+)\}/g, (m2, name) => order.includes(name) ? `%${order.indexOf(name) + 1}$${name === "count" ? "d" : "s"}` : m2);
+        for (const [key2, entry] of Object.entries(dict2)) {
+          if (have.has(key2) || !isPluralForms(entry)) continue;
+          const src = source2?.[key2];
+          const order = [...new Set([...(isPluralForms(src) ? src.other : entry.other).matchAll(/\{(\w+)\}/g)].map((m2) => m2[1]))];
+          const items = PLURAL_CATEGORIES.filter((c) => entry[c] !== void 0).map((c) => `        <item quantity="${c}">${formatted(entry[c], order)}</item>`);
+          lines.push(`    <plurals name="${key2}">
+${items.join("\n")}
+    </plurals>`);
+        }
+        for (const [key2, value] of flatten(Object.fromEntries(Object.entries(dict2).filter(([, v2]) => !isPluralForms(v2))))) {
           if (have.has(key2)) continue;
           const order = [...new Set([...String(getNested(source2, key2) ?? value).matchAll(/\{(\w+)\}/g)].map((m2) => m2[1]))];
-          const text4 = androidEscape(value).replace(/\{(\w+)\}/g, (m2, name) => order.includes(name) ? `%${order.indexOf(name) + 1}$s` : m2);
-          lines.push(`    <string name="${key2}">${text4}</string>`);
+          lines.push(`    <string name="${key2}">${formatted(value, order)}</string>`);
         }
         if (!lines.length) return base;
         const end2 = base.lastIndexOf("</resources>");
@@ -208518,7 +208629,13 @@ ${base.slice(end2)}`;
         const catalog = text4?.trim() ? JSON.parse(text4) : {};
         const out = {};
         for (const [key2, entry] of Object.entries(catalog.strings ?? {})) {
-          const value = entry.localizations?.[locale]?.stringUnit?.value ?? (locale === sourceLocale ? key2 : void 0);
+          const l10n = entry.localizations?.[locale];
+          const plural = l10n?.variations?.plural;
+          if (plural?.other?.stringUnit?.value !== void 0) {
+            out[encodeKey(key2)] = Object.fromEntries(Object.entries(plural).map(([c, u]) => [c, u.stringUnit?.value ?? ""]));
+            continue;
+          }
+          const value = l10n?.stringUnit?.value ?? (locale === sourceLocale ? key2 : void 0);
           if (value !== void 0) out[encodeKey(key2)] = value;
         }
         return out;
@@ -208527,18 +208644,20 @@ ${base.slice(end2)}`;
         const catalog = original?.trim() ? JSON.parse(original) : { sourceLanguage: sourceLocale, strings: {}, version: "1.0" };
         catalog.strings ??= {};
         for (const [encoded, value] of Object.entries(dict2)) {
-          if (typeof value !== "string") continue;
+          const plural = isPluralForms(value);
+          if (typeof value !== "string" && !plural) continue;
           const key2 = decodeKey(encoded);
           const entry = catalog.strings[key2] ??= {};
-          if (locale === sourceLocale) continue;
-          const names = [...String(source2[encoded] ?? "").matchAll(/\{(\w+)\}/g)].map((m2) => m2[1]);
+          if (locale === sourceLocale && !plural) continue;
+          const src = source2[encoded];
+          const names = [...String(isPluralForms(src) ? src.other : src ?? "").matchAll(/\{(\w+)\}/g)].map((m2) => m2[1]);
           const formats = [...key2.matchAll(/%(?:lld|@)/g)].map((m2) => m2[0].slice(1));
-          const localized = value.replace(/\{(\w+)\}/g, (m2, name) => {
+          const localize = (text4) => text4.replace(/\{(\w+)\}/g, (m2, name) => {
             const i3 = names.indexOf(name);
             return i3 === -1 ? m2 : names.length > 1 ? `%${i3 + 1}$${formats[i3] ?? "@"}` : `%${formats[i3] ?? "@"}`;
           });
           entry.localizations ??= {};
-          entry.localizations[locale] = { stringUnit: { state: "translated", value: localized } };
+          entry.localizations[locale] = plural ? { variations: { plural: Object.fromEntries(PLURAL_CATEGORIES.filter((c) => value[c] !== void 0).map((c) => [c, { stringUnit: { state: "translated", value: localize(value[c]) } }])) } } : { stringUnit: { state: "translated", value: localize(value) } };
         }
         const sorted = (v2) => Array.isArray(v2) ? v2.map(sorted) : v2 && typeof v2 === "object" ? Object.fromEntries(Object.keys(v2).sort().map((k) => [k, sorted(v2[k])])) : v2;
         return `${JSON.stringify(sorted(catalog), null, 2).replace(/^(\s*"(?:[^"\\]|\\.)*"): /gm, "$1 : ")}
@@ -208648,12 +208767,13 @@ function scanServerTemplate(engine) {
       return parts;
     };
     const run = (parts) => {
-      const r = buildRun(parts, { plurals: engine === "rails", counts: engine === "rails" });
+      const r = buildRun(parts, { counts: engine !== "django" });
       if (!r) return r;
       for (const p of r.params) {
         p.source = fromJs(p.source);
-        if (p.name.startsWith("__ivar_")) {
-          const name = p.name.slice("__ivar_".length);
+        const stand = /^__(?:ivar|arrow)_/.exec(p.name);
+        if (stand) {
+          const name = p.name.slice(stand[0].length);
           if (name && !r.params.some((q) => q.name === name)) {
             const from = new RegExp(`\\{${p.name}\\}`, "g");
             r.text = r.text.replace(from, `{${name}}`);
@@ -208698,7 +208818,7 @@ function scanServerTemplate(engine) {
         if (!pending) return;
         const r = run(partsOf(pending.start, pending.end));
         const html = r ? railsLinks(r) : false;
-        if (r) add(r.text, { kind: "run", start: r.start, end: r.end, params: r.params, ...r.plural ? { plural: true } : {} }, { element: element3, ...r.plural ? { plural: r.plural } : {}, ...html ? { keySuffix: "_html" } : {} });
+        if (r) add(r.text, { kind: "run", start: r.start, end: r.end, params: r.params, ...r.plural ? { plural: true, forms: { one: r.plural.one, other: r.plural.other } } : {} }, { element: element3, ...r.plural ? { plural: r.plural } : {}, ...html ? { keySuffix: "_html" } : {} });
         pending = null;
       };
       for (const child of node2.childNodes ?? []) {
@@ -208755,15 +208875,27 @@ function scanServerTemplate(engine) {
     return { strings: strings2, warnings: warnings2, sites };
   };
 }
-function render(engine, key2, params, inAttr) {
+function render(engine, key2, params, inAttr, forms) {
   if (engine === "rails") {
     const args = params.map((p) => `, ${p.name}: ${p.source}`).join("");
     return `<%= t(${rubyString(key2)}${args}) %>`;
   }
   if (engine === "laravel") {
     const text4 = decodeKey(key2);
+    if (forms) {
+      const count = params.find((p) => p.name === "count");
+      const rest2 = params.filter((p) => p !== count);
+      const args2 = rest2.length ? `, [${rest2.map((p) => `${phpString(p.name)} => ${p.source}`).join(", ")}]` : "";
+      return `{{ trans_choice(${phpString(text4)}, ${count.source}${args2}) }}`;
+    }
     const args = params.length ? `, [${params.map((p) => `${phpString(p.name)} => ${p.source}`).join(", ")}]` : "";
     return `{{ __(${phpString(text4)}${args}) }}`;
+  }
+  if (forms) {
+    const body2 = (text4) => toDictFormat(text4, "gettext").replace(/%\((\w+)\)s/g, "{{ $1 }}").replace(/%%/g, "%");
+    const count = params.find((p) => p.name === "count");
+    const withs2 = params.filter((p) => p !== count && p.name !== p.source).map((p) => `${p.name}=${p.source}`);
+    return `{% blocktranslate${withs2.length ? ` with ${withs2.join(" ")}` : ""} count count=${count.source} %}${body2(forms.one)}{% plural %}${body2(forms.other)}{% endblocktranslate %}`;
   }
   const msgid = decodeKey(key2);
   const quote3 = inAttr === '"' ? "'" : '"';
@@ -208788,9 +208920,12 @@ function transformServerTemplate(engine) {
         source: p.source.replace(/\u0001(str_\d+)\u0002([\s\S]*?)\u0001/g, (_m, id3, literal5) => {
           const inner = keys.get(id3);
           return inner ? `t(${rubyString(inner)})` : literal5;
-        }).replace(/\u0001(str_\d+)\u0004([\s\S]*?)\u0001/g, (_m, id3, count) => `t(${rubyString(keys.get(id3))}, count: ${count})`)
+        }).replace(
+          /\u0001(str_\d+)\u0004([\s\S]*?)\u0001/g,
+          (_m, id3, count) => engine === "laravel" ? `trans_choice(${phpString(decodeKey(keys.get(id3)))}, ${count})` : `t(${rubyString(keys.get(id3))}, count: ${count})`
+        )
       }));
-      const call7 = render(engine, key2, params, site.kind === "attr" ? site.text ?? '"' : null);
+      const call7 = render(engine, key2, params, site.kind === "attr" ? site.text ?? '"' : null, site.kind === "run" ? site.forms : void 0);
       const after = site.kind === "literal" ? `t(${rubyString(key2)})` : site.kind === "attr" ? `${site.attrName}=${site.text}${call7}${site.text}` : call7;
       s.overwrite(site.start, site.end, after);
       replacements2.push({ id: site.id, key: engine === "rails" ? key2 : decodeKey(key2), line: lineOf(code, site.start).line, before: before2, after });
@@ -208804,18 +208939,32 @@ function transformServerTemplate(engine) {
     return { code: s.toString(), changed: replacements2.length > 0, replacements: replacements2 };
   };
 }
-var BLADE_DIRECTIVES, RAW2, forJs, fromJs, RAILS_LINK, RAILS_HELPER_TEXT, rubyString, phpString, erbAdapter, djangoAdapter, bladeAdapter;
+var BLADE_DIRECTIVES, RAW2, englishPlural, forJs, fromJs, RAILS_LINK, RAILS_HELPER_TEXT, rubyString, phpString, erbAdapter, djangoAdapter, bladeAdapter;
 var init_server_templates = __esm({
   "src/formats/server-templates.ts"() {
     "use strict";
     init_dist();
     init_dist2();
+    init_dictionary();
     init_stores();
     init_markup();
     BLADE_DIRECTIVES = /@(?:if|elseif|else|endif|unless|endunless|isset|endisset|empty|endempty|auth|endauth|guest|endguest|foreach|endforeach|forelse|endforelse|for|endfor|while|endwhile|switch|case|break|default|endswitch|section|endsection|show|yield|extends|include|includeIf|includeWhen|each|component|endcomponent|slot|endslot|push|endpush|stack|php|endphp|csrf|method|error|enderror|props|class|style|checked|selected|disabled|readonly|required|once|endonce|env|endenv|production|endproduction|can|endcan|cannot|endcannot|json|vite|livewire\w*)\b/g;
     RAW2 = /* @__PURE__ */ new Set([...IGNORED_ELEMENTS2, "script", "style"]);
-    forJs = (source2, engine) => engine === "rails" ? source2.replace(/@(\w)/g, "__ivar_$1") : source2;
-    fromJs = (source2) => source2.replace(/__ivar_/g, "@");
+    englishPlural = (w4) => /[^aeiou]y$/i.test(w4) ? `${w4.slice(0, -1)}ies` : /(s|x|z|ch|sh)$/i.test(w4) ? `${w4}es` : `${w4}s`;
+    forJs = (source2, engine) => {
+      if (engine === "rails") return source2.replace(/@(\w)/g, "__ivar_$1");
+      if (engine === "django") {
+        const m2 = /^\s*([\w.]+)\s*\|\s*pluralize(?::\s*(?:"([^"]*)"|'([^']*)'))?\s*$/.exec(source2);
+        if (!m2) return source2;
+        const arg = m2[2] ?? m2[3];
+        const [one, other] = arg === void 0 ? ["", "s"] : arg.includes(",") ? arg.split(",") : ["", arg];
+        return `${m2[1]} === 1 ? ${JSON.stringify(one)} : ${JSON.stringify(other)}`;
+      }
+      const php = source2.replace(/->/g, ".__arrow_");
+      const plural = /^\s*(?:Str::plural|str_plural)\(\s*(['"])([^'"]+)\1\s*,\s*([$\w.]+)\s*\)\s*$/.exec(php);
+      return plural ? `${plural[3]} === 1 ? ${JSON.stringify(plural[2])} : ${JSON.stringify(englishPlural(plural[2]))}` : php;
+    };
+    fromJs = (source2) => source2.replace(/__ivar_/g, "@").replace(/\.__arrow_/g, "->");
     RAILS_LINK = /^(link_to|button_to|mail_to)\s*\(?\s*(['"])((?:\\.|(?!\2).)*)\2\s*,\s*([\s\S]+?)\)?\s*$/;
     RAILS_HELPER_TEXT = /<%=\s*(link_to|button_to|submit_tag|label_tag|mail_to|\w+\.submit|\w+\.label|\w+\.button)\s*\(?\s*(?:(?::\w+|\w+|'[^']*'|"[^"]*")\s*,\s*)??(['"])((?:\\.|(?!\2).)*)\2/;
     rubyString = (s) => `'${s.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
@@ -211856,6 +212005,12 @@ function planAngularSetup(ctx) {
     const current2 = readText(cwd, richFile, ctx.changed);
     if (current2 === void 0 || current2.includes(GENERATED)) ctx.out(richFile, (legacy ? angularRichModuleLines : angularRichLines).join("\n"));
   }
+  const pluralFile = `${appDir}/plural-form.ts`;
+  const usesPlural = ctx.files.some((f2) => f2.content.includes("| pluralForm"));
+  if (usesPlural) {
+    const current2 = readText(cwd, pluralFile, ctx.changed);
+    if (current2 === void 0 || current2.includes(GENERATED)) ctx.out(pluralFile, angularPluralLines(legacy).join("\n"));
+  }
   const modules = [];
   for (const changed of [...ctx.files]) {
     const candidates = changed.path.endsWith(".ts") ? [changed.path] : (() => {
@@ -211867,15 +212022,20 @@ function planAngularSetup(ctx) {
       const code = readText(cwd, component, ctx.changed);
       if (!code) continue;
       const rich = changed.content.includes("<i18n-t ");
+      const plural = changed.content.includes("| pluralForm");
       let next2 = addTranslatePipe(code, major);
       if (next2 !== "ngmodule" && rich) {
         const spec = relFrom(component, richFile).replace(/\.ts$/, "");
         next2 = addStandaloneImports(next2 ?? code, ["I18nT", "I18nSlot"], spec, major) ?? next2;
       }
+      if (next2 !== "ngmodule" && plural) {
+        next2 = addStandaloneImports(next2 ?? code, ["PluralForm"], relFrom(component, pluralFile).replace(/\.ts$/, ""), major) ?? next2;
+      }
       if (next2 === "ngmodule") {
         const module = addToDeclaringModule(ctx, component, [
           { names: ["TranslateModule"], from: "@ngx-translate/core" },
-          ...rich ? [{ names: legacy ? ["I18nTModule"] : ["I18nT", "I18nSlot"], from: (m2) => relFrom(m2, richFile).replace(/\.ts$/, "") }] : []
+          ...rich ? [{ names: legacy ? ["I18nTModule"] : ["I18nT", "I18nSlot"], from: (m2) => relFrom(m2, richFile).replace(/\.ts$/, "") }] : [],
+          ...plural ? [{ names: legacy ? ["PluralFormModule"] : ["PluralForm"], from: (m2) => relFrom(m2, pluralFile).replace(/\.ts$/, "") }] : []
         ]);
         if (!module) modules.push(component);
       } else if (next2) ctx.out(component, next2);
@@ -212721,7 +212881,7 @@ ${all.map((l2) => `    <locale android:name="${l2}" />`).join("\n")}
   }
   return result;
 }
-var import_fast_glob3, toPosix, GENERATED, VUE_I18N, SVELTE_I18N, NUXT_I18N, locales, ident, relFrom, RTL, rtlLine, documentLines, rememberLines, pluralRuleLines, detectLines, pickLanguage, firstExisting, hasDep, I18NEXT, ngxTranslateFor, addTranslatePipe, angularRichModuleLines, angularRichLines, EMBER_INTL, EMBER_RICH;
+var import_fast_glob3, toPosix, GENERATED, VUE_I18N, SVELTE_I18N, NUXT_I18N, locales, ident, relFrom, RTL, rtlLine, documentLines, rememberLines, pluralRuleLines, detectLines, pickLanguage, firstExisting, hasDep, I18NEXT, ngxTranslateFor, addTranslatePipe, angularPluralLines, angularRichModuleLines, angularRichLines, EMBER_INTL, EMBER_RICH;
 var init_setup_frameworks = __esm({
   "src/setup-frameworks.ts"() {
     "use strict";
@@ -212785,6 +212945,25 @@ var init_setup_frameworks = __esm({
     I18NEXT = { i18next: "^26.5.0" };
     ngxTranslateFor = (major) => ({ "@ngx-translate/core": major === void 0 || major >= 16 ? "^18.1.0" : major >= 13 ? "^14.0.0" : "^13.0.0" });
     addTranslatePipe = (code, major) => addStandaloneImports(code, ["TranslatePipe"], "@ngx-translate/core", major);
+    angularPluralLines = (legacy) => [
+      `// ${GENERATED}: the plural form of a count in the current language, for choosing a message's key.`,
+      `import { ${legacy ? "NgModule, " : "inject, "}Pipe, PipeTransform } from '@angular/core';`,
+      "import { TranslateService } from '@ngx-translate/core';",
+      "",
+      "/** `count | pluralForm` \u2192 'one', 'few', 'other'\u2026; `count | pluralForm: 'ordinal'` \u2192 'ordinal_one'\u2026 (1st, 2nd). */",
+      `@Pipe({ name: 'pluralForm', ${legacy ? "" : "standalone: true, "}pure: false })`,
+      "export class PluralForm implements PipeTransform {",
+      ...legacy ? ["  constructor(private readonly translate: TranslateService) {}"] : ["  private readonly translate = inject(TranslateService);"],
+      "",
+      "  transform(count: number, type: 'cardinal' | 'ordinal' = 'cardinal'): string {",
+      "    const lang = this.translate.currentLang || this.translate.defaultLang || 'en';",
+      "    const form = new Intl.PluralRules(lang, { type }).select(count);",
+      "    return type === 'ordinal' ? `ordinal_${form}` : form;",
+      "  }",
+      "}",
+      ...legacy ? ["", "/** Import into each NgModule whose templates use `pluralForm`. */", "@NgModule({ declarations: [PluralForm], exports: [PluralForm] })", "export class PluralFormModule {}"] : [],
+      ""
+    ];
     angularRichModuleLines = [
       `// ${GENERATED}: a message whose {{placeholders}} render the <ng-template i18nSlot="name"> of the same name.`,
       "import { ChangeDetectorRef, Component, ContentChildren, Directive, Input, NgModule, OnDestroy, QueryList, TemplateRef } from '@angular/core';",
@@ -214833,7 +215012,7 @@ async function runPipeline(opts) {
         );
         if (same) registry.alias(mid, same);
       }
-      const base = variant && selectBase.has(variant.group) ? `${selectBase.get(variant.group)}_${variant.value}` : store.textKeys ? encodeKey(textKeyFor(s.originalText, config.interpolation)) : mapping?.key ?? fallbackKey(file2, s.originalText);
+      const base = variant && selectBase.has(variant.group) ? `${selectBase.get(variant.group)}_${variant.value}` : store.textKeys ? encodeKey(textKeyFor(s.originalText, config.interpolation, s.plural)) : mapping?.key ?? fallbackKey(file2, s.originalText);
       const proposed = s.keySuffix && !base.endsWith(s.keySuffix) ? `${base}${s.keySuffix}` : base;
       const { key: key2, isNew } = registry.register(proposed, mid);
       if (s.select && s.select.value === null) selectBase.set(s.select.group, key2);
