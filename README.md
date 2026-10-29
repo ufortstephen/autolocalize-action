@@ -6,7 +6,7 @@ for translation calls and adds the locale files. On every push, new copy gets th
 
 Works with React, Next.js, React Native, Vue, Nuxt, Svelte, Angular, Astro, Solid, Qwik, Lit,
 Ember, Flutter, Android, iOS, Rails, Django, Laravel and static HTML; each gets the i18n library
-its framework expects. Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.23.0.
+its framework expects. Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.24.1.
 Docs: [https://uselocalize.dev/docs](https://uselocalize.dev/docs).
 
 ## Setup
@@ -35,7 +35,17 @@ Docs: [https://uselocalize.dev/docs](https://uselocalize.dev/docs).
 - `translate`: only fill in missing (or out-of-date) translations in the locale files you
   already have: JSON, YAML, .po, .arb, strings.xml, .xcstrings, .strings, messages.json. Code isn't touched.
 - `check`: fail the job when copy is hardcoded or translations are missing or out of date, with
-  each problem annotated on the pull request. No API key needed.
+  each problem annotated on the pull request. No API key needed. Set `check_only: strings` to
+  check only for hardcoded copy, as a workflow that localizes with `offline: true` needs: its
+  languages stay untranslated by design, so missing translations would fail every check.
+
+```yaml
+- uses: ufortstephen/autolocalize-action@v1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    mode: check
+    check_only: strings
+```
 
 ## Inputs
 
@@ -48,11 +58,12 @@ Docs: [https://uselocalize.dev/docs](https://uselocalize.dev/docs).
 | `src_dir` | the framework's own | Directory to scan. |
 | `locales_path` | the framework's own | Where locale files go; `{locale}` is replaced. |
 | `base_branch` | the triggering branch | Branch the PR targets. |
+| `check_only` | everything | With `mode: check`: `strings` (hardcoded copy) or `translations` (missing or out-of-date translations) only, as `check --only` does. |
 | `workspaces` | `false` | Monorepo: localize (or check) every app, each with its own locale files. |
 | `tms_pull` / `tms_push` | `false` | Pull translations from, or push sources to, Crowdin, Phrase, Lokalise or Transifex. |
 | `tms_token` | | The translation platform's API token. |
 | `api_url` | `https://uselocalize.dev` | API base URL, for staging deployments. |
-| `offline` | `false` | Generate keys without translating; no API key needed. |
+| `offline` | `false` | Generate keys without translating; no API key needed. Pair a `mode: check` job with `check_only: strings`. |
 
 ## Outputs
 

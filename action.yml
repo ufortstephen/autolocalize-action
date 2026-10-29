@@ -33,6 +33,14 @@ inputs:
   base_branch:
     description: 'Branch to open the PR against (default: PR head branch or pushed branch)'
     required: false
+  timeout_minutes:
+    description: 'Stop and fail the run after this many minutes, so a hang never holds the runner (0: no limit)'
+    required: false
+    default: '30'
+  check_only:
+    description: 'With mode: check, check only "strings" (hardcoded copy) or "translations" (missing or out-of-date translations); same as the CLI''s check --only. Use strings when your localize job runs with offline: true, since its languages stay untranslated'
+    required: false
+    default: ''
   workspaces:
     description: 'Monorepo: localize (or, with mode: check, check) every app in the workspaces (package.json "workspaces" or pnpm-workspace.yaml), each with its own locale files'
     required: false
