@@ -42804,7 +42804,7 @@ var require_generated = __commonJS({
     exports.isObjectExpression = isObjectExpression7;
     exports.isObjectMember = isObjectMember;
     exports.isObjectMethod = isObjectMethod;
-    exports.isObjectPattern = isObjectPattern3;
+    exports.isObjectPattern = isObjectPattern4;
     exports.isObjectProperty = isObjectProperty8;
     exports.isObjectTypeAnnotation = isObjectTypeAnnotation;
     exports.isObjectTypeCallProperty = isObjectTypeCallProperty;
@@ -42832,7 +42832,7 @@ var require_generated = __commonJS({
     exports.isRecordExpression = isRecordExpression;
     exports.isRegExpLiteral = isRegExpLiteral;
     exports.isRegexLiteral = isRegexLiteral;
-    exports.isRestElement = isRestElement2;
+    exports.isRestElement = isRestElement3;
     exports.isRestProperty = isRestProperty;
     exports.isReturnStatement = isReturnStatement3;
     exports.isScopable = isScopable;
@@ -43136,7 +43136,7 @@ var require_generated = __commonJS({
       if (node2.type !== "ObjectProperty") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isRestElement2(node2, opts) {
+    function isRestElement3(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "RestElement") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
@@ -43301,7 +43301,7 @@ var require_generated = __commonJS({
       if (node2.type !== "ClassMethod") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isObjectPattern3(node2, opts) {
+    function isObjectPattern4(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "ObjectPattern") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
@@ -68446,7 +68446,7 @@ var require_conversion = __commonJS({
       toBindingIdentifierName,
       isFunction: isFunction3,
       isAssignmentPattern: isAssignmentPattern3,
-      isRestElement: isRestElement2,
+      isRestElement: isRestElement3,
       getFunctionName,
       cloneNode,
       variableDeclaration,
@@ -69006,7 +69006,7 @@ var require_conversion = __commonJS({
       return this.replaceWith(call7)[0].get("arguments.0");
     }
     function getFunctionArity(node2) {
-      const count = node2.params.findIndex((param) => isAssignmentPattern3(param) || isRestElement2(param));
+      const count = node2.params.findIndex((param) => isAssignmentPattern3(param) || isRestElement3(param));
       return count === -1 ? node2.params.length : count;
     }
   }
@@ -70658,7 +70658,8 @@ function isTranslatable(text4) {
     FILE_PATH_REGEX,
     TECHNICAL_ID_REGEX,
     PLACEHOLDER_ONLY,
-    PRICE_ONLY
+    PRICE_ONLY,
+    VERSION_ONLY
   ].some((re) => re.test(s)) && !isClassList(s);
 }
 function isClassList(text4) {
@@ -70668,6 +70669,25 @@ function isClassList(text4) {
 function metaHoldsText(attrs) {
   const named = attrs.find((a) => a.name === "name" || a.name === "property")?.value;
   return typeof named === "string" && META_TEXT.test(named.trim());
+}
+function versionValues(text4, taken = []) {
+  const params = [];
+  const names = new Set(taken);
+  const name = (base) => {
+    let n4 = base;
+    for (let i3 = 2; names.has(n4); i3++) n4 = `${base}${i3}`;
+    names.add(n4);
+    return n4;
+  };
+  const value = (base, source2) => {
+    const p = { name: name(base), source: source2 };
+    params.push(p);
+    return `{${p.name}}`;
+  };
+  let out = text4.replace(/(?<![\w.])(\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*)?)(?![\w.]*\d)(?!\.\d)/g, (m2) => value("version", `'${m2}'`)).replace(/\b((?:[Vv]ersion|[Rr]elease|[Vv]er\.?)\s+|v)(\d+\.\d+)(?![\w.]*\d)/g, (_2, lead, v2) => `${lead}${value("version", `'${v2}'`)}`).replace(/\b([Bb]uild|[Rr]evision|[Rr]ev\.?)(\s*#?\s*)(\d+)\b/g, (_2, word, gap, n4) => `${word}${gap}${value("build", String(Number(n4)))}`);
+  if (!params.length) return null;
+  out = out.replace(/\s+/g, " ");
+  return { text: out, params };
 }
 function normalizeWhitespace(text4) {
   return text4.replace(/\s+/g, " ").trim();
@@ -70681,7 +70701,7 @@ function decodeEntities(text4) {
     return ENTITIES[e2.toLowerCase()] ?? m2;
   });
 }
-var URL_REGEX, HEX_COLOR_REGEX, UUID_REGEX, PURE_SPEC_CHARS, CSS_UNIT_REGEX, EMAIL_REGEX, FILE_NAME_REGEX, FILE_PATH_REGEX, TECHNICAL_ID_REGEX, PLACEHOLDER_ONLY, PRICE_ONLY, PLAIN_UTILITIES, META_TEXT, ENTITIES;
+var URL_REGEX, HEX_COLOR_REGEX, UUID_REGEX, PURE_SPEC_CHARS, CSS_UNIT_REGEX, EMAIL_REGEX, FILE_NAME_REGEX, FILE_PATH_REGEX, TECHNICAL_ID_REGEX, PLACEHOLDER_ONLY, VERSION_ONLY, PRICE_ONLY, PLAIN_UTILITIES, META_TEXT, ENTITIES;
 var init_filters = __esm({
   "src/ast/filters.ts"() {
     "use strict";
@@ -70695,6 +70715,7 @@ var init_filters = __esm({
     FILE_PATH_REGEX = /^[\w.@{}[\],*~-]+(?:\/[\w.@{}[\],*~-]+)*\/[\w@{}[\],*~-]*\.[\w{},]+$/;
     TECHNICAL_ID_REGEX = /^[a-z0-9]+([_.:-][a-z0-9]+)+$/;
     PLACEHOLDER_ONLY = /^(\s*\{\w+\}\s*)+$/;
+    VERSION_ONLY = /^v?\d+(?:\.\d+){1,3}(?:[-+][0-9A-Za-z.]+)?$/i;
     PRICE_ONLY = /^(?:(?:[A-Z]{1,3})?[$€£¥₹₦₩₱₺₴₫₪]\s*\{\w+\}|\{\w+\}\s*(?:[A-Z]{3}|[€£¥₹₦₩₱₺₴₫₪]))$/;
     PLAIN_UTILITIES = /* @__PURE__ */ new Set(["border", "flex", "grid", "block", "inline", "contents", "hidden", "table", "relative", "absolute", "fixed", "sticky", "static", "visible", "invisible", "rounded", "shadow", "ring", "outline", "truncate", "italic", "underline", "uppercase", "lowercase", "capitalize", "antialiased", "container", "transition", "transform", "grow", "shrink", "isolate", "blur", "grayscale", "invert", "sr-only", "group", "peer", "prose"]);
     META_TEXT = /^(description|(og|twitter):(title|description|site_name|image:alt))$/i;
@@ -70754,6 +70775,13 @@ function parseAndScanComponent(code, filePath, options = {}) {
   const directivesEnd = directives.length ? directives[directives.length - 1].end : null;
   const record = (path17, nodeType, text4, range, kind, params = [], attributeName, plural, components) => {
     const loc2 = path17.node.loc?.start ?? { line: 0, column: 0 };
+    if (!plural && (kind === "jsxChild" || kind === "attrValue" || kind === "expression" || kind === "trans")) {
+      const versions = versionValues(text4, params.map((p) => p.name));
+      if (versions) {
+        text4 = versions.text;
+        params = [...params, ...versions.params];
+      }
+    }
     let hook2 = resolveHookTarget(path17, code, !!options.server, !!options.server && kind === "trans");
     let contextual = false;
     if ("reason" in hook2 && hook2.reason === OUTSIDE_COMPONENTS && !options.server && options.richText !== false && !options.richFunction && (kind === "jsxChild" || kind === "trans") && !plural) {
@@ -191964,8 +191992,15 @@ function buildRun(parts, opts = {}) {
     });
     return normalizeWhitespace(text5).trim();
   };
-  const text4 = build3("other");
+  let text4 = build3("other");
   if (!isTranslatable(text4)) return null;
+  if (opts.values && !plural && !ordinal) {
+    const versions = versionValues(text4, params.map((p) => p.name));
+    if (versions) {
+      text4 = versions.text;
+      params.push(...versions.params);
+    }
+  }
   const first = parts[0];
   const last = parts[parts.length - 1];
   const start2 = first.kind === "text" ? first.start + (first.raw.length - first.raw.trimStart().length) : first.start;
@@ -192084,7 +192119,7 @@ var init_markup = __esm({
 // src/formats/script.ts
 function literalMessage(node2, offset2, code) {
   if (t2.isStringLiteral(node2)) {
-    const run2 = buildRun([{ kind: "text", start: 0, end: node2.value.length, raw: node2.value }]);
+    const run2 = buildRun([{ kind: "text", start: 0, end: node2.value.length, raw: node2.value }], { values: true });
     return run2 ? { start: offset2 + node2.start, end: offset2 + node2.end, text: run2.text, params: [] } : null;
   }
   if (!t2.isTemplateLiteral(node2)) return null;
@@ -192095,7 +192130,7 @@ function literalMessage(node2, offset2, code) {
     const expr = node2.expressions[i3];
     if (expr) parts.push({ kind: "expr", start: 0, end: 0, source: code.slice(expr.start, expr.end) });
   });
-  const run = buildRun(parts);
+  const run = buildRun(parts, { values: true });
   if (!run || run.plural) return null;
   return { start: offset2 + node2.start, end: offset2 + node2.end, text: run.text, params: run.params };
 }
@@ -192468,7 +192503,7 @@ async function scanAngular(code, filePath, opts) {
       if (rich(nodes, element3)) return;
       let parts = [];
       const flush = () => {
-        const run = buildRun(parts, { counts: true, ordinals: true });
+        const run = buildRun(parts, { counts: true, ordinals: true, values: true });
         if (!run) {
           for (const p of parts) {
             if (p.kind !== "expr" || p.at === void 0) continue;
@@ -192697,7 +192732,7 @@ function scanLit(code, filePath, opts) {
     let name = "";
     let nameStart = 0;
     const flush = () => {
-      const run = ignoreDepth ? null : buildRun(parts, { counts: true, ordinals: true });
+      const run = ignoreDepth ? null : buildRun(parts, { counts: true, ordinals: true, values: true });
       if (!run && !ignoreDepth) {
         for (const p of parts) if (p.kind === "expr" && p.at !== void 0) expressionLiterals(p.source, p.at).forEach((l2) => literal5(l2));
       }
@@ -210149,7 +210184,7 @@ async function scanEmber(code, filePath, opts) {
       if (rich(nodes, element3)) return;
       let parts = [];
       const flush = () => {
-        const run = buildRun(parts, { counts: true, ordinals: true });
+        const run = buildRun(parts, { counts: true, ordinals: true, values: true });
         if (run) {
           const arg = (source2) => source2.replace(/(^|[^\w.])__arg\./g, "$1@");
           const params = run.params.map((p) => {
@@ -210391,10 +210426,45 @@ async function scanAstro(code, filePath, opts) {
     return id3;
   };
   const literal5 = (lit, nested = false) => add(lit.text, { kind: "literal", start: lit.start, end: lit.end, params: lit.params, context: "template", ...nested ? { nested } : {} }, { element: lit.sink });
+  const toNodes = (nodes) => nodes.map((node2) => {
+    const start2 = node2.position?.start.offset;
+    if (start2 === void 0) return { kind: "other" };
+    if (node2.type === "comment") return { kind: "comment" };
+    if (node2.type === "text") {
+      const value = node2.value ?? "";
+      return code.startsWith(value, start2) ? { kind: "text", start: start2, end: start2 + value.length, raw: value } : { kind: "other" };
+    }
+    if (node2.type === "expression") {
+      if ((node2.children ?? []).some((c) => c.type !== "text")) return { kind: "other" };
+      const open3 = code.indexOf("{", start2);
+      const close2 = matchBrace(code, open3);
+      const source2 = code.slice(open3 + 1, close2);
+      return /^\s*[\w$.?]+\s*$/.test(source2) ? { kind: "expr", start: open3, end: close2 + 1, source: source2 } : { kind: "other" };
+    }
+    const tag2 = node2.name ?? "";
+    const kids = node2.children ?? [];
+    const attrs = node2.attributes ?? [];
+    if (node2.type !== "element" || !INLINE_ELEMENTS.has(tag2) || kids.length !== 1 || kids[0].type !== "text") return { kind: "other" };
+    if (attrs.some((a) => IGNORE_ATTRIBUTES2.has(a.name) || RAW_DIRECTIVES.test(a.name) || a.name === "slot" || opts.attributes.includes(a.name))) return { kind: "other" };
+    const innerStart = kids[0].position?.start.offset;
+    const text4 = kids[0].value ?? "";
+    if (innerStart === void 0 || !code.startsWith(text4, innerStart) || code[innerStart - 1] !== ">") return { kind: "other" };
+    const innerEnd = innerStart + text4.length;
+    if (!code.startsWith(`</${tag2}>`, innerEnd)) return { kind: "other" };
+    return { kind: "element", tag: tag2, start: start2, end: innerEnd + tag2.length + 3, innerStart, innerEnd };
+  });
+  const rich = (nodes, element3) => {
+    const message = richMessage(toNodes(nodes), code);
+    if (!message || message.slots.some((s) => s.nested)) return false;
+    const slots = richSlots(message, add);
+    add(message.text, { kind: "rich", start: message.start, end: message.end, params: message.params, slots }, { element: element3 });
+    return true;
+  };
   const walk3 = (nodes, element3) => {
+    if (element3 !== component && rich(nodes, element3)) return;
     let parts = [];
     const flush = () => {
-      const run = buildRun(parts, { counts: true, ordinals: true });
+      const run = buildRun(parts, { counts: true, ordinals: true, values: true });
       if (!run) {
         for (const p of parts) if (p.kind === "expr" && p.at !== void 0) expressionLiterals(p.source, p.at).forEach((l2) => literal5(l2));
       }
@@ -210491,22 +210561,39 @@ async function transformAstro(code, filePath, keys, opts) {
   const s = new MagicString(code);
   const replacements2 = [];
   let early = false;
+  let usesRich = false;
   for (const site of sites.values()) {
     const key2 = keys.get(site.id);
     if (!key2 || site.nested) continue;
     early ||= site.context === "script";
+    if (site.kind === "rich") {
+      const values = site.params.length ? ` values={{ ${site.params.map((p) => p.name === p.source ? p.name : `${p.name}: ${p.source}`).join(", ")} }}` : "";
+      const slots = (site.slots ?? []).map((slot) => {
+        const innerKey = slot.innerId ? keys.get(slot.innerId) : void 0;
+        return `${slot.open.replace(/^<([\w-]+)/, `<$1 slot="${slot.name}"`)}${innerKey ? `{${call4(innerKey, [])}}` : slot.text}${slot.close}`;
+      });
+      const after2 = `<I18nT key="${key2}" slots="${(site.slots ?? []).map((x) => x.name).join(" ")}"${values}>${slots.join("")}</I18nT>`;
+      const before3 = code.slice(site.start, site.end);
+      s.overwrite(site.start, site.end, after2);
+      replacements2.push({ id: site.id, key: key2, line: lineOf(code, site.start).line, before: before3, after: after2 });
+      usesRich = true;
+      continue;
+    }
     const params = withLiterals(site.params, sites, keys, (k, p) => call4(k, p));
     const after = site.kind === "literal" ? call4(key2, params) : site.kind === "attr" ? `${site.attrName}={${call4(key2, params)}}` : `{${call4(key2, params, site.ordinal)}}`;
     const before2 = code.slice(site.start, site.end);
     s.overwrite(site.start, site.end, after);
     replacements2.push({ id: site.id, key: key2, line: lineOf(code, site.start).line, before: before2, after });
   }
+  const richImport = usesRich && !/\bimport\s+I18nT\b/.test(code) ? `import I18nT from '${opts.astroModule ?? "../i18n"}/I18nT.astro';
+` : "";
+  if (richImport && frontmatterEnd !== null) s.appendLeft(code.indexOf("\n", code.indexOf("---")) + 1, richImport);
   if (replacements2.length && !/\bconst\s+t\s*=\s*useTranslations\(/.test(code)) {
     const importLine = `import { getLangFromUrl, useTranslations } from '${opts.astroModule ?? "../i18n"}';`;
     const tLine = "const t = useTranslations(getLangFromUrl(Astro.url));";
     if (frontmatterEnd === null) {
       s.prepend(`---
-${importLine}
+${richImport}${importLine}
 ${tLine}
 ---
 `);
@@ -211170,7 +211257,7 @@ async function scanVue(code, filePath, opts) {
     return true;
   };
   const runSite = (parts, element3) => {
-    const run = buildRun(parts, { counts: true, ordinals: true });
+    const run = buildRun(parts, { counts: true, ordinals: true, values: true });
     if (!run) {
       for (const p of parts) if (p.kind === "expr" && p.at !== void 0 && !readSite(p.source, p.at)) expressionLiterals(p.source, p.at).forEach((l2) => literal5(l2, "template"));
     }
@@ -211459,7 +211546,7 @@ async function scanSvelte(code, filePath, opts) {
     if (children && rich(children, element3)) return;
     let parts = [];
     const flush = () => {
-      const run = buildRun(parts, { counts: true, ordinals: true });
+      const run = buildRun(parts, { counts: true, ordinals: true, values: true });
       if (!run) {
         for (const p of parts) if (p.kind === "expr" && p.at !== void 0 && !readSite(p.source, p.at)) expressionLiterals(p.source, p.at).forEach((l2) => literal5(l2, "template"));
       }
@@ -211631,21 +211718,66 @@ __export(sveltekit_exports, {
 });
 function scanKit(code, filePath) {
   const strings2 = [];
+  const warnings2 = [];
   const sites = /* @__PURE__ */ new Map();
-  if (!/@sveltejs\/kit/.test(code)) return { strings: strings2, warnings: [], sites };
+  if (!/@sveltejs\/kit/.test(code)) return { strings: strings2, warnings: warnings2, sites };
   let ast;
   try {
     ast = (0, import_parser10.parse)(code, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
   } catch {
-    return { strings: strings2, warnings: [], sites };
+    return { strings: strings2, warnings: warnings2, sites };
   }
+  const server = /\.server\.[jt]s$|(^|\/)\+server\.[jt]s$/.test(filePath);
   const component = filePath.split("/").slice(-2).join("/").replace(/\.[jt]s$/, "");
   let n4 = 0;
-  const take = (node2, sink) => {
+  const languageAt = (call7) => {
+    let fn2 = call7.getFunctionParent();
+    let outer = null;
+    while (fn2) {
+      outer = fn2;
+      fn2 = fn2.parentPath?.getFunctionParent() ?? null;
+    }
+    if (!outer) return "outside a load, action or endpoint, where the request is unknown";
+    const node2 = outer.node;
+    const param = node2.params[0];
+    const want = server ? "locals" : "parent";
+    const edits = [];
+    let name;
+    if (!param) {
+      const open3 = code.indexOf("(", node2.start);
+      if (open3 === -1 || open3 > node2.body.start) return "the handler's parameters can't be found";
+      edits.push({ at: open3 + 1, text: `{ ${want} }`, key: `${node2.start}:param` });
+      name = want;
+    } else if (t7.isIdentifier(param)) name = `${param.name}.${want}`;
+    else if (t7.isObjectPattern(param)) {
+      const own = param.properties.find((p) => t7.isObjectProperty(p) && !p.computed && t7.isIdentifier(p.key, { name: want }));
+      const rest2 = param.properties.find((p) => t7.isRestElement(p));
+      if (own) {
+        if (!t7.isIdentifier(own.value)) return `the handler takes ${want} apart`;
+        name = own.value.name;
+      } else if (rest2 && t7.isIdentifier(rest2.argument)) name = `${rest2.argument.name}.${want}`;
+      else if (outer.scope.hasBinding(want)) return `${want} is already a name here`;
+      else {
+        const last = param.properties[param.properties.length - 1];
+        edits.push(last ? { at: last.end, text: `, ${want}`, key: `${node2.start}:param` } : { at: param.start + 1, text: ` ${want} `, key: `${node2.start}:param` });
+        name = want;
+      }
+    } else return "the handler's parameter can't be read";
+    if (server) return { lang: `${name}.lang`, edits };
+    if (call7.getFunctionParent()?.node !== node2) return "inside a callback in a universal load, where parent() can't be awaited: move it into the load";
+    if (!node2.async) edits.push({ at: node2.start, text: "async ", key: `${node2.start}:async` });
+    return { lang: `(await ${name}()).lang`, edits };
+  };
+  const take = (call7, node2, sink) => {
     const lit = node2 && literalMessage(node2, 0, code);
     if (!lit || !new RegExp("\\s|^\\p{Lu}", "u").test(lit.text)) return;
+    const where = languageAt(call7);
+    if (typeof where === "string") {
+      warnings2.push({ filePath, loc: lineOf(code, lit.start), text: lit.text, reason: where });
+      return;
+    }
     const id3 = `str_${++n4}`;
-    sites.set(id3, { id: id3, kind: "literal", start: lit.start, end: lit.end, params: lit.params, context: "script" });
+    sites.set(id3, { id: id3, kind: "literal", start: lit.start, end: lit.end, params: lit.params, context: "script", ...where });
     strings2.push({ id: id3, originalText: lit.text, nodeType: "StringLiteral", filePath, loc: lineOf(code, lit.start), component, element: sink, ...lit.params.length ? { params: lit.params.map((p) => p.name) } : {} });
   };
   traverse8(ast, {
@@ -211656,11 +211788,11 @@ function scanKit(code, filePath) {
       if (!at2?.isImportSpecifier() || at2.parentPath.node.source.value !== "@sveltejs/kit") return;
       const arg = path17.node.arguments[1];
       if (t7.isObjectExpression(arg)) {
-        for (const p of arg.properties) if (t7.isObjectProperty(p) && !p.computed) take(p.value, `${callee.name}()`);
-      } else take(arg, `${callee.name}()`);
+        for (const p of arg.properties) if (t7.isObjectProperty(p) && !p.computed) take(path17, p.value, `${callee.name}()`);
+      } else take(path17, arg, `${callee.name}()`);
     }
   });
-  return { strings: strings2, warnings: [], sites };
+  return { strings: strings2, warnings: warnings2, sites };
 }
 var import_parser10, import_traverse7, t7, traverse8, svelteKitAdapter;
 var init_sveltekit = __esm({
@@ -211679,11 +211811,17 @@ var init_sveltekit = __esm({
         const { sites } = scanKit(code, filePath);
         const s = new MagicString(code);
         const replacements2 = [];
+        const edited = /* @__PURE__ */ new Set();
         for (const site of sites.values()) {
           const key2 = keys.get(site.id);
           if (!key2) continue;
+          for (const e2 of site.edits) {
+            if (edited.has(e2.key)) continue;
+            edited.add(e2.key);
+            s.appendLeft(e2.at, e2.text);
+          }
           const args = site.params.length ? `, { ${site.params.map((p) => p.name === p.source ? p.name : `${p.name}: ${p.source}`).join(", ")} }` : "";
-          const after = `translate('${key2}'${args})`;
+          const after = `translate(${site.lang}, '${key2}'${args})`;
           const before2 = code.slice(site.start, site.end);
           s.overwrite(site.start, site.end, after);
           replacements2.push({ id: site.id, key: key2, line: lineOf(code, site.start).line, before: before2, after });
@@ -213073,7 +213211,7 @@ function planSvelteSetup(ctx) {
       ...bundles.map((b4) => b4.line),
       "",
       ...detectLines(config.sourceLocale),
-      ...kit ? ["// In SvelteKit the server renders the language it chose (hooks.server) into <html lang>."] : [],
+      ...kit ? ["// In SvelteKit, hooks.server picks each request's language (event.locals.lang); the root layout renders in it."] : [],
       ...bundles.map((b4) => `addMessages('${b4.locale}', ${b4.id});`),
       ...pickLanguage(config.sourceLocale, supported, kit),
       "",
@@ -213089,9 +213227,13 @@ function planSvelteSetup(ctx) {
       "}",
       ...kit ? [
         "",
-        "/** Outside components (load functions, form actions, error()): a message in the language being rendered. */",
-        `export function translate(key${ts ? ": string" : ""}, values${ts ? "?: Record<string, string | number | boolean | Date | null | undefined>" : ""})${ts ? ": string" : ""} {`,
-        "  return get(_)(key, values ? { values } : undefined);",
+        "/**",
+        " * On the server (load functions, form actions, error()): a message in this request's language,",
+        " * `translate(locals.lang, 'key')`. The language is passed in, never read from svelte-i18n's store,",
+        " * which every request shares.",
+        " */",
+        `export function translate(lang${ts ? ": string | undefined" : ""}, key${ts ? ": string" : ""}, values${ts ? "?: Record<string, string | number | boolean | Date | null | undefined>" : ""})${ts ? ": string" : ""} {`,
+        `  return get(_)(key, { locale: lang && supported.includes(lang) ? lang : '${config.sourceLocale}', ...(values ? { values } : {}) });`,
         "}"
       ] : [],
       ""
@@ -213104,6 +213246,7 @@ function planSvelteSetup(ctx) {
     if (readText(cwd, layout, ctx.changed) === void 0) ctx.out(layout, "import '$lib/i18n';\n");
     else importInEntry(ctx, layout, "import '$lib/i18n';");
     planSvelteKitHooks(ctx, hooks, ts, supported);
+    planSvelteKitRendering(ctx, ext, ts);
   } else {
     const entry = firstExisting(ctx, ["ts", "js"].map((e2) => `${config.srcDir}/main.${e2}`));
     if (entry) importInEntry(ctx, entry, `import '${relFrom(entry, file2).replace(/\.[jt]s$/, "")}';`);
@@ -213112,13 +213255,106 @@ function planSvelteSetup(ctx) {
   result.notes.push(`Switch language with \`setLanguage(code)\` from \`${file2}\`.`);
   return result;
 }
+function planSvelteKitRendering(ctx, ext, ts) {
+  const { cwd, config, result } = ctx;
+  if (ts) {
+    const dts = "src/app.d.ts";
+    const code2 = readText(cwd, dts, ctx.changed);
+    const field = "/** The language this request renders in (set in hooks.server). */ lang?: string";
+    if (code2 === void 0) {
+      ctx.out(dts, ["// See https://svelte.dev/docs/kit/types#app.d.ts", "declare global {", "  namespace App {", "    interface Locals {", "      /** The language this request renders in (set in hooks.server). */", "      lang?: string;", "    }", "  }", "}", "", "export {};", ""].join("\n"));
+    } else if (!/\blang\??\s*:/.test(code2)) {
+      const locals = /interface\s+Locals\s*\{/.exec(code2);
+      const app = /namespace\s+App\s*\{/.exec(code2);
+      let next3 = null;
+      if (locals) {
+        const at2 = locals.index + locals[0].length;
+        const close2 = code2.indexOf("}", at2);
+        const inner = code2.slice(at2, close2);
+        next3 = !inner.includes("\n") ? `${code2.slice(0, at2)}${inner.trim() ? ` ${inner.trim().replace(/;?$/, ";")}` : ""} ${field} ${code2.slice(close2)}` : `${code2.slice(0, at2)}
+      ${field};${code2.slice(at2)}`;
+      } else if (app) next3 = `${code2.slice(0, app.index + app[0].length)}
+    interface Locals { ${field} }${code2.slice(app.index + app[0].length)}`;
+      if (next3) ctx.out(dts, next3);
+      else result.notes.push(`SvelteKit: add \`lang?: string\` to App.Locals in \`${dts}\`.`);
+    }
+  }
+  const serverLoad = firstExisting(ctx, ["src/routes/+layout.server.ts", "src/routes/+layout.server.js"]) ?? `src/routes/+layout.server.${ext}`;
+  const existing = readText(cwd, serverLoad, ctx.changed);
+  if (existing === void 0 || isGenerated(existing)) {
+    ctx.out(
+      serverLoad,
+      [
+        `// ${GENERATED}: this request's language (hooks.server sets it), for the root layout to render in.`,
+        ...ts ? ["import type { LayoutServerLoad } from './$types';", ""] : ["/** @type {import('./$types').LayoutServerLoad} */"],
+        `export const load${ts ? ": LayoutServerLoad" : ""} = ({ locals }) => ({ lang: locals.lang ?? '${config.sourceLocale}' });`,
+        ""
+      ].join("\n")
+    );
+  } else if (!/\blang\b/.test(existing)) {
+    result.notes.push(`SvelteKit: return \`lang: locals.lang\` from the load in \`${serverLoad}\`, so the root layout renders each request in its own language.`);
+  }
+  const layout = "src/routes/+layout.svelte";
+  const runes2 = svelteMajor(cwd) >= 5;
+  const set3 = "  // This request's language, set as the page renders: rendering never awaits, so no other request gets in between.\n  locale.set(data.lang);";
+  const code = readText(cwd, layout, ctx.changed);
+  if (code === void 0) {
+    ctx.out(
+      layout,
+      runes2 ? `<script${ts ? ' lang="ts"' : ""}>
+  import { locale } from 'svelte-i18n';
+
+  let { data, children } = $props();
+${set3}
+</script>
+
+{@render children()}
+` : `<script${ts ? ' lang="ts"' : ""}>
+  import { locale } from 'svelte-i18n';
+
+  export let data${ts ? ": { lang: string }" : ""};
+${set3}
+</script>
+
+<slot />
+`
+    );
+    return;
+  }
+  if (/locale\.set\(\s*data\.lang\s*\)/.test(code)) return;
+  const script = /<script\b[^>]*>/.exec(code);
+  const props = /let\s*\{([^}]*)\}\s*=\s*\$props\(\)\s*;?/.exec(code);
+  const exported = /export\s+let\s+data\b[^;\n]*;?/.exec(code);
+  let next2 = null;
+  if (runes2 && props) {
+    const names = props[1].split(",").map((n4) => n4.trim()).filter(Boolean);
+    const withData = names.some((n4) => /^data\b/.test(n4)) ? props[0] : props[0].replace(props[1], ` ${["data", ...names].join(", ")} `);
+    next2 = `${code.slice(0, props.index)}${withData}
+${set3}${code.slice(props.index + props[0].length)}`;
+  } else if (!runes2 && exported) next2 = `${code.slice(0, exported.index + exported[0].length)}
+${set3}${code.slice(exported.index + exported[0].length)}`;
+  else if (!script) next2 = runes2 ? `<script${ts ? ' lang="ts"' : ""}>
+  let { data, children } = $props();
+${set3}
+</script>
+
+${code}` : null;
+  if (next2 && script && !/import\s*\{[^}]*\blocale\b[^}]*\}\s*from\s*['"]svelte-i18n['"]/.test(next2)) {
+    const open3 = /<script\b[^>]*>/.exec(next2);
+    next2 = `${next2.slice(0, open3.index + open3[0].length)}
+  import { locale } from 'svelte-i18n';${next2.slice(open3.index + open3[0].length)}`;
+  } else if (next2 && !script) next2 = next2.replace(/<script\b[^>]*>/, (m2) => `${m2}
+  import { locale } from 'svelte-i18n';`);
+  if (next2) ctx.out(layout, next2);
+  else result.notes.push(`SvelteKit: in \`${layout}\`, call svelte-i18n's \`locale.set(data.lang)\` at the top of its script, so each request renders in its own language.`);
+}
 function planSvelteKitHooks(ctx, file2, ts, supported) {
   const { config, result } = ctx;
   const existing = readText(ctx.cwd, file2, ctx.changed);
   if (existing !== void 0 && !isGenerated(existing)) {
     if (!existing.includes("svelte-i18n")) {
       result.notes.push(
-        `SvelteKit: \`${file2}\` already exists; call \`locale.set(lang)\` from svelte-i18n in its \`handle\` (from the "lang" cookie or Accept-Language) so pages render in the visitor's language.`
+        `SvelteKit: \`${file2}\` already exists; set \`event.locals.lang\` in its \`handle\` (from the "lang" cookie or Accept-Language) so pages and server messages are in the visitor's language. Don't call svelte-i18n's \`locale.set\` there: requests share it.`
       );
     }
     return;
@@ -213129,7 +213365,6 @@ function planSvelteKitHooks(ctx, file2, ts, supported) {
       `// ${GENERATED}. Renders each page in the visitor's language: their saved choice`,
       `// (the "lang" cookie), then the browser's Accept-Language, then ${config.sourceLocale}.`,
       ...ts ? ["import type { Handle } from '@sveltejs/kit';"] : [],
-      "import { locale } from 'svelte-i18n';",
       "import '$lib/i18n';",
       "",
       `const supported = ${supported};`,
@@ -213140,7 +213375,8 @@ function planSvelteKitHooks(ctx, file2, ts, supported) {
       "  const accepted = (event.request.headers.get('accept-language') ?? '').split(',').map((part) => part.split(';')[0].trim());",
       `  const saved = event.cookies.get('lang');`,
       `  const lang = (saved && supported.includes(saved) ? saved : undefined) ?? ${bestLanguage("accepted", "supported")} ?? '${config.sourceLocale}';`,
-      "  locale.set(lang);",
+      "  // Per request: svelte-i18n's own locale is shared by every request the server handles at once.",
+      "  event.locals.lang = lang;",
       "  const dir = RTL.includes(lang) ? 'rtl' : 'ltr';",
       "  return resolve(event, {",
       `    transformPageChunk: ({ html }) => html.replace(/<html([^>]*)>/, (_${ts ? ": string" : ""}, attrs${ts ? ": string" : ""}) => \`<html\${attrs.replace(/\\s(lang|dir)="[^"]*"/g, '')} lang="\${lang}" dir="\${dir}">\`),`,
@@ -213824,6 +214060,31 @@ ${body}`;
 ${codeLine}`;
   return code.slice(0, front.index) + front[0].replace(front[1], body) + code.slice(front.index + front[0].length);
 }
+function astroRichSource(ts) {
+  const T = (s) => ts ? s : "";
+  return [
+    "---",
+    `// ${GENERATED}: a sentence around the page's own elements, as one message.`,
+    `// <I18nT key="about.read_our" slots="a strong"><a slot="a" href="/process">{t('about.process_notes')}</a>\u2026</I18nT>`,
+    "import { getLangFromUrl, useTranslations } from './index';",
+    ...ts ? ["", "interface Props {", "  key: string;", "  /** The slot names, in the order the elements were written. */", "  slots: string;", "  values?: Record<string, unknown>;", "}", ""] : [],
+    "const { key, slots, values = {} } = Astro.props;",
+    "const t = useTranslations(getLangFromUrl(Astro.url));",
+    "const MARK = '\\u0000';",
+    "const names = slots.split(' ').filter(Boolean);",
+    "// Each placeholder marks where its element goes.",
+    "const parts = t(key, { ...values, ...Object.fromEntries(names.map((n) => [n, `${MARK}${n}${MARK}`])) }).split(MARK);",
+    `const escape = (text${T(": string")}) => text.replace(/[&<>"']/g, (c) => \`&#\${c.charCodeAt(0)};\`);`,
+    "let html = '';",
+    "for (const [i, part] of parts.entries()) {",
+    "  if (i % 2 === 0) html += escape(part);",
+    `  else if (names.includes(part) && Astro.slots.has(part)) html += (await Astro.slots.render(part)).replace(/^(<[\\w-]+[^>]*?)\\s+slot="[^"]*"/, '$1');`,
+    "}",
+    "---",
+    "<Fragment set:html={html} />",
+    ""
+  ].join("\n");
+}
 function planAstroSetup(ctx) {
   const { cwd, config, result } = ctx;
   const ts = fs7.existsSync(path6.join(cwd, "tsconfig.json"));
@@ -213885,6 +214146,9 @@ function planAstroSetup(ctx) {
   );
   result.i18nFile = file2;
   if (ts) enableJsonImports(cwd, ctx.changed, ctx.out);
+  const rich = `${path6.posix.dirname(file2)}/I18nT.astro`;
+  const richCode = readText(cwd, rich, ctx.changed);
+  if (ctx.files.some((f2) => f2.content.includes("<I18nT ")) && (richCode === void 0 || isGenerated(richCode))) ctx.out(rich, astroRichSource(ts));
   const pagesDir = `${config.srcDir}/pages`;
   const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
   const pages = import_fast_glob4.default.sync("**/*.astro", { cwd: path6.join(cwd, pagesDir) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)));
@@ -215585,7 +215849,7 @@ var init_setup = __esm({
     toPosix2 = (p) => p.split(path7.sep).join("/");
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION = true ? "0.20.0" : "0.6.0";
+    SELF_VERSION = true ? "0.21.0" : "0.6.0";
     isLegacySwitcher = (code) => isGenerated(code) && code.includes("function nameOf(") && code.includes("<select") && !code.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {

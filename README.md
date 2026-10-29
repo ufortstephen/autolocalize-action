@@ -6,7 +6,7 @@ for translation calls and adds the locale files. On every push, new copy gets th
 
 Works with React, Next.js, React Native, Vue, Nuxt, Svelte, Angular, Astro, Solid, Qwik, Lit,
 Ember, Flutter, Android, iOS, Rails, Django, Laravel and static HTML; each gets the i18n library
-its framework expects. Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.20.0.
+its framework expects. Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.21.0.
 Docs: [https://uselocalize.dev/docs](https://uselocalize.dev/docs).
 
 ## Setup
