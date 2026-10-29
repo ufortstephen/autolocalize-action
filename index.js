@@ -12292,13 +12292,13 @@ var require_headers = __commonJS({
           return this.#headersList[kHeadersSortedMap];
         }
         const headers = [];
-        const names = this.#headersList.toSortedArray();
+        const names2 = this.#headersList.toSortedArray();
         const cookies = this.#headersList.cookies;
         if (cookies === null || cookies.length === 1) {
-          return this.#headersList[kHeadersSortedMap] = names;
+          return this.#headersList[kHeadersSortedMap] = names2;
         }
-        for (let i3 = 0; i3 < names.length; ++i3) {
-          const { 0: name, 1: value } = names[i3];
+        for (let i3 = 0; i3 < names2.length; ++i3) {
+          const { 0: name, 1: value } = names2[i3];
           if (name === "set-cookie") {
             for (let j = 0; j < cookies.length; ++j) {
               headers.push([name, cookies[j]]);
@@ -19335,11 +19335,11 @@ function serializeArb(dict2, locale, template4) {
     if (k === "@@locale" || k.startsWith("@") && k.slice(1) in dict2) continue;
     out[k] = v2;
     const meta = dict2[`@${k}`];
-    const names = typeof v2 === "string" ? [...new Set([...v2.matchAll(/\{(\w+)(?=[},])/g)].map((m2) => m2[1]))] : [];
-    if (template4 && names.length) {
+    const names2 = typeof v2 === "string" ? [...new Set([...v2.matchAll(/\{(\w+)(?=[},])/g)].map((m2) => m2[1]))] : [];
+    if (template4 && names2.length) {
       const existing = typeof meta === "object" ? meta : {};
       const plural = new Set([...v2.matchAll(/\{(\w+),\s*(?:plural|select)/g)].map((m2) => m2[1]));
-      const placeholders = Object.fromEntries(names.map((n4) => [n4, plural.has(n4) ? { type: "int" } : {}]));
+      const placeholders = Object.fromEntries(names2.map((n4) => [n4, plural.has(n4) ? { type: "int" } : {}]));
       out[`@${k}`] = { ...existing, placeholders: { ...placeholders, ...existing.placeholders ?? {} } };
     } else if (meta !== void 0) {
       out[`@${k}`] = meta;
@@ -23486,12 +23486,12 @@ var require_async2 = __commonJS({
       };
     }
     function readdir2(directory, settings, callback) {
-      settings.fs.readdir(directory, (readdirError, names) => {
+      settings.fs.readdir(directory, (readdirError, names2) => {
         if (readdirError !== null) {
           callFailureCallback(callback, readdirError);
           return;
         }
-        const tasks = names.map((name) => {
+        const tasks = names2.map((name) => {
           const path17 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done2) => {
             fsStat.stat(path17, settings.fsStatSettings, (error2, stats) => {
@@ -23570,8 +23570,8 @@ var require_sync2 = __commonJS({
     }
     exports.readdirWithFileTypes = readdirWithFileTypes;
     function readdir2(directory, settings) {
-      const names = settings.fs.readdirSync(directory);
-      return names.map((name) => {
+      const names2 = settings.fs.readdirSync(directory);
+      return names2.map((name) => {
         const entryPath = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
         const stats = fsStat.statSync(entryPath, settings.fsStatSettings);
         const entry = {
@@ -25256,12 +25256,96 @@ var init_framework = __esm({
   }
 });
 
+// src/llm/translator.ts
+import * as path2 from "node:path";
+function namespaceFromPath(filePath) {
+  const base = path2.basename(filePath).replace(/\.[^.]+$/, "").replace(/\.(html|blade|text|txt|json)$/, "").replace(/\.(component|page|screen|view|container|module)$/, "").replace(/\./g, "_");
+  const parent = path2.basename(path2.dirname(filePath));
+  const name = base === "index" || base === "page" || base === "layout" ? /^(pages|routes|app|src|\.)$/.test(parent) ? "home" : parent : base;
+  return sanitizeKey(name.replace(/[[\]()]/g, "")) || "common";
+}
+function fallbackKey(filePath, text4) {
+  const words = text4.replace(/<\/?[A-Za-z][\w-]*\s*\/?>/g, " ").replace(/\{\w+\}/g, " ").toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean).slice(0, 5);
+  return `${namespaceFromPath(filePath)}.${words.join("_") || "text"}`;
+}
+var OfflineTranslator;
+var init_translator = __esm({
+  "src/llm/translator.ts"() {
+    "use strict";
+    init_dictionary();
+    OfflineTranslator = class {
+      async translate(req) {
+        return req.strings.map((s) => ({ id: s.id, key: fallbackKey(req.filePath, s.text), en: s.text, translations: {} }));
+      }
+    };
+  }
+});
+
+// src/pseudo.ts
+var PSEUDO_LOCALES, isPseudoLocale, ACCENTS;
+var init_pseudo = __esm({
+  "src/pseudo.ts"() {
+    "use strict";
+    init_translator();
+    init_plural();
+    PSEUDO_LOCALES = { accents: "en-XA", rtl: "ar-XB" };
+    isPseudoLocale = (l2) => l2 === PSEUDO_LOCALES.accents || l2 === PSEUDO_LOCALES.rtl;
+    ACCENTS = Object.fromEntries(
+      [..."abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"].map((c, i3) => [c, [..."\xE1\u0180\xE7\xF0\xE9\u0192\u011D\u0125\xEE\u0135\u0137\u013C\u0271\xF1\xF6\xFE\u01EB\u0155\u0161\u0163\xFB\u1E7D\u0175\u1E8B\xFD\u017E\xC5\u0181\xC7\u0110\xC9\u0191\u011C\u0124\xCE\u0134\u0136\u013B\u1E40\xD1\xD6\xDE\u01EA\u0154\u0160\u0162\xDB\u1E7C\u0174\u1E8A\xDD\u017D"][i3]])
+    );
+  }
+});
+
+// src/languages.ts
+function languageProblem(code) {
+  if (isPseudoLocale(code)) return null;
+  const example = "use a BCP 47 code such as es, pt-BR or zh-Hant";
+  let locale;
+  try {
+    locale = new Intl.Locale(Intl.getCanonicalLocales(code)[0]);
+  } catch {
+    return `"${code}" isn't a language code: ${example}`;
+  }
+  const meant = MISTAKES[locale.language];
+  if (!named("language", locale.language) && !PRIVATE_LANGUAGE.test(locale.language)) {
+    const suggestion = meant ? `${meant}${code.slice(locale.language.length)}` : null;
+    return suggestion ? `"${code}" isn't a language code: did you mean "${suggestion}" (${named("language", meant)})?` : `"${code}" isn't a language code: ${example}`;
+  }
+  if (locale.region && !/^\d{3}$/.test(locale.region) && !PRIVATE_REGION.test(locale.region) && !named("region", locale.region)) return `"${code}" has a region (${locale.region}) that doesn't exist: ${example}`;
+  if (locale.script && !PRIVATE_SCRIPT.test(locale.script) && !named("script", locale.script)) return `"${code}" has a script (${locale.script}) that doesn't exist: ${example}`;
+  return null;
+}
+function assertLanguages(codes3, where) {
+  const problems = codes3.filter((c) => !!c).map(languageProblem).filter(Boolean);
+  if (problems.length) throw new Error(`${where}: ${problems.join("; ")}.`);
+}
+var MISTAKES, PRIVATE_LANGUAGE, PRIVATE_REGION, PRIVATE_SCRIPT, names, named;
+var init_languages = __esm({
+  "src/languages.ts"() {
+    "use strict";
+    init_pseudo();
+    MISTAKES = { jp: "ja", cn: "zh", cz: "cs", dk: "da", gr: "el", ua: "uk", vn: "vi", ir: "fa", il: "he", us: "en", gb: "en", mx: "es", kp: "ko" };
+    PRIVATE_LANGUAGE = /^q[a-t][a-z]$/;
+    PRIVATE_REGION = /^(AA|Q[M-Z]|X[A-Z]|ZZ)$/;
+    PRIVATE_SCRIPT = /^Qa(a[a-z]|b[a-x])$/;
+    names = (type) => new Intl.DisplayNames(["en"], { type, fallback: "none" });
+    named = (type, code) => {
+      try {
+        const name = names(type).of(code);
+        return name && name.toLowerCase() !== code.toLowerCase() ? name : null;
+      } catch {
+        return null;
+      }
+    };
+  }
+});
+
 // src/config.ts
 import * as fs4 from "node:fs";
-import * as path2 from "node:path";
+import * as path3 from "node:path";
 function astroIslands(cwd) {
   try {
-    const pkg = JSON.parse(fs4.readFileSync(path2.join(
+    const pkg = JSON.parse(fs4.readFileSync(path3.join(
       /*turbopackIgnore: true*/
       cwd,
       "package.json"
@@ -25283,7 +25367,7 @@ function astroDefaults(islands) {
   return { include, interpolation, islands };
 }
 function loadConfig(cwd, overrides = {}) {
-  const file2 = path2.join(
+  const file2 = path3.join(
     /*turbopackIgnore: true*/
     cwd,
     CONFIG_FILE
@@ -25304,11 +25388,15 @@ function loadConfig(cwd, overrides = {}) {
   const framework = chosen.framework ?? detectFramework(cwd);
   const defaults = framework === "astro" ? { ...frameworkDefaults(framework), ...astroDefaults(astroIslands(cwd)) } : frameworkDefaults(framework);
   const config = { ...DEFAULT_CONFIG, ...defaults, ...chosen, framework };
-  if (framework === "ios" && !chosen.localesPath && !fs4.existsSync(path2.join(cwd, config.localesPath))) {
+  if (framework === "ios" && !chosen.localesPath && !fs4.existsSync(path3.join(cwd, config.localesPath))) {
     const found2 = import_fast_glob2.default.sync("**/*.xcstrings", { cwd, ignore: ["**/Pods/**", "**/.build/**", "**/DerivedData/**", "**/node_modules/**"] }).sort((a, b4) => Number(!/Localizable/.test(a)) - Number(!/Localizable/.test(b4)))[0];
     if (found2) config.localesPath = found2;
   }
   if (framework === "html" && config.htmlPages) config.ignore = [...config.ignore, ...config.targetLocales.map((l2) => `${l2}/**`)];
+  assertLanguages([config.sourceLocale, ...config.targetLocales], fs4.existsSync(
+    /*turbopackIgnore: true*/
+    file2
+  ) ? `${CONFIG_FILE} (or --locales)` : "Languages");
   return config;
 }
 function frameworkDefaults(framework) {
@@ -25376,6 +25464,7 @@ var init_config = __esm({
     "use strict";
     import_fast_glob2 = __toESM(require_out4(), 1);
     init_framework();
+    init_languages();
     DEFAULT_ATTRIBUTES = ["placeholder", "alt", "title", "aria-label", "aria-description", "aria-valuetext", "aria-roledescription", "label", "tooltip"];
     DEFAULT_CONFIG = {
       srcDir: "src",
@@ -25485,31 +25574,6 @@ var require_fast_content_type_parse = __commonJS({
     module.exports.parse = parse22;
     module.exports.safeParse = safeParse2;
     module.exports.defaultContentType = defaultContentType;
-  }
-});
-
-// src/llm/translator.ts
-import * as path3 from "node:path";
-function namespaceFromPath(filePath) {
-  const base = path3.basename(filePath).replace(/\.[^.]+$/, "").replace(/\.(html|blade|text|txt|json)$/, "").replace(/\.(component|page|screen|view|container|module)$/, "").replace(/\./g, "_");
-  const parent = path3.basename(path3.dirname(filePath));
-  const name = base === "index" || base === "page" || base === "layout" ? /^(pages|routes|app|src|\.)$/.test(parent) ? "home" : parent : base;
-  return sanitizeKey(name.replace(/[[\]()]/g, "")) || "common";
-}
-function fallbackKey(filePath, text4) {
-  const words = text4.replace(/<\/?[A-Za-z][\w-]*\s*\/?>/g, " ").replace(/\{\w+\}/g, " ").toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean).slice(0, 5);
-  return `${namespaceFromPath(filePath)}.${words.join("_") || "text"}`;
-}
-var OfflineTranslator;
-var init_translator = __esm({
-  "src/llm/translator.ts"() {
-    "use strict";
-    init_dictionary();
-    OfflineTranslator = class {
-      async translate(req) {
-        return req.strings.map((s) => ({ id: s.id, key: fallbackKey(req.filePath, s.text), en: s.text, translations: {} }));
-      }
-    };
   }
 });
 
@@ -26419,9 +26483,9 @@ var init_dist = __esm({
       generateDecodedMap(options) {
         options = options || {};
         const mappings = new Mappings(options.hires);
-        const names = this._generateMappings(mappings);
+        const names2 = this._generateMappings(mappings);
         return {
-          ...this._mapProperties(options, names),
+          ...this._mapProperties(options, names2),
           mappings: mappings.raw,
           rangeMappings: mappings.rawRangeMappings
         };
@@ -26433,9 +26497,9 @@ var init_dist = __esm({
         options = options || {};
         const encoder = new MappingsEncoder();
         const mappings = new Mappings(options.hires, encoder);
-        const names = this._generateMappings(mappings);
+        const names2 = this._generateMappings(mappings);
         return new SourceMap({
-          ...this._mapProperties(options, names),
+          ...this._mapProperties(options, names2),
           mappings: encoder.finish(mappings.rawSegments),
           rangeMappings: mappings.rawRangeMappings
         });
@@ -26443,26 +26507,26 @@ var init_dist = __esm({
       /** @internal */
       _generateMappings(mappings) {
         const sourceIndex = 0;
-        const names = Object.keys(this.storedNames);
+        const names2 = Object.keys(this.storedNames);
         const locate = getLocator(this.original);
         if (this.intro) mappings.advance(this.intro);
         this.firstChunk.eachNext((chunk) => {
           const loc2 = locate(chunk.start);
           if (chunk.intro.length) mappings.advance(chunk.intro);
-          if (chunk.edited) mappings.addEdit(sourceIndex, chunk.content, loc2, chunk.storeName ? names.indexOf(chunk.original) : -1);
+          if (chunk.edited) mappings.addEdit(sourceIndex, chunk.content, loc2, chunk.storeName ? names2.indexOf(chunk.original) : -1);
           else mappings.addUneditedChunk(sourceIndex, chunk, this.original, loc2, this.sourcemapLocations);
           if (chunk.outro.length) mappings.advance(chunk.outro);
         });
         if (this.outro) mappings.advance(this.outro);
-        return names;
+        return names2;
       }
       /** @internal */
-      _mapProperties(options, names) {
+      _mapProperties(options, names2) {
         return {
           file: options.file ? options.file.split(/[/\\]/).pop() : void 0,
           sources: [options.source ? getRelativePath(options.file || "", options.source) : options.file || ""],
           sourcesContent: options.includeContent ? [this.original] : void 0,
-          names,
+          names: names2,
           x_google_ignoreList: this.ignoreList ? [0] : void 0
         };
       }
@@ -42771,7 +42835,7 @@ var require_generated = __commonJS({
     exports.isJSXEmptyExpression = isJSXEmptyExpression3;
     exports.isJSXExpressionContainer = isJSXExpressionContainer4;
     exports.isJSXFragment = isJSXFragment2;
-    exports.isJSXIdentifier = isJSXIdentifier3;
+    exports.isJSXIdentifier = isJSXIdentifier4;
     exports.isJSXMemberExpression = isJSXMemberExpression2;
     exports.isJSXNamespacedName = isJSXNamespacedName2;
     exports.isJSXOpeningElement = isJSXOpeningElement2;
@@ -43756,7 +43820,7 @@ var require_generated = __commonJS({
       if (node2.type !== "JSXSpreadChild") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isJSXIdentifier3(node2, opts) {
+    function isJSXIdentifier4(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "JSXIdentifier") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
@@ -55219,7 +55283,7 @@ var require_valueToNode = __commonJS({
     function isRegExp(value) {
       return objectToString(value) === "[object RegExp]";
     }
-    function isPlainObject3(value) {
+    function isPlainObject4(value) {
       if (typeof value !== "object" || value === null || Object.prototype.toString.call(value) !== "[object Object]") {
         return false;
       }
@@ -55272,7 +55336,7 @@ var require_valueToNode = __commonJS({
       if (Array.isArray(value)) {
         return (0, _index.arrayExpression)(value.map(valueToNode));
       }
-      if (isPlainObject3(value)) {
+      if (isPlainObject4(value)) {
         const props = [];
         for (const key2 of Object.keys(value)) {
           let nodeKey, computed = false;
@@ -56683,7 +56747,7 @@ var require_virtual_types_validator = __commonJS({
       isIdentifier: isIdentifier11,
       isImportDeclaration: isImportDeclaration3,
       isImportSpecifier: isImportSpecifier3,
-      isJSXIdentifier: isJSXIdentifier3,
+      isJSXIdentifier: isJSXIdentifier4,
       isJSXMemberExpression: isJSXMemberExpression2,
       isMemberExpression: isMemberExpression9,
       isRestElement: nodeIsRestElement,
@@ -56705,7 +56769,7 @@ var require_virtual_types_validator = __commonJS({
       } = this;
       if (isIdentifier11(node2, opts)) {
         return nodeIsReferenced(node2, parent, this.parentPath.parent);
-      } else if (isJSXIdentifier3(node2, opts)) {
+      } else if (isJSXIdentifier4(node2, opts)) {
         if (!isJSXMemberExpression2(parent) && isCompatTag(node2.name)) return false;
         return nodeIsReferenced(node2, parent, this.parentPath.parent);
       } else {
@@ -59406,7 +59470,7 @@ var require_trace_mapping_umd = __commonJS({
         const mappings = [];
         const sources = [];
         const sourcesContent = [];
-        const names = [];
+        const names2 = [];
         const ignoreList = [];
         recurse(
           parsed,
@@ -59414,7 +59478,7 @@ var require_trace_mapping_umd = __commonJS({
           mappings,
           sources,
           sourcesContent,
-          names,
+          names2,
           ignoreList,
           0,
           0,
@@ -59424,7 +59488,7 @@ var require_trace_mapping_umd = __commonJS({
         const joined = {
           version: 3,
           file: parsed.file,
-          names,
+          names: names2,
           sources,
           sourcesContent,
           mappings,
@@ -59432,7 +59496,7 @@ var require_trace_mapping_umd = __commonJS({
         };
         return presortedDecodedMap(joined);
       };
-      function recurse(input, mapUrl, mappings, sources, sourcesContent, names, ignoreList, lineOffset, columnOffset, stopLine, stopColumn) {
+      function recurse(input, mapUrl, mappings, sources, sourcesContent, names2, ignoreList, lineOffset, columnOffset, stopLine, stopColumn) {
         const { sections } = input;
         for (let i3 = 0; i3 < sections.length; i3++) {
           const { map, offset: offset2 } = sections[i3];
@@ -59453,7 +59517,7 @@ var require_trace_mapping_umd = __commonJS({
             mappings,
             sources,
             sourcesContent,
-            names,
+            names2,
             ignoreList,
             lineOffset + offset2.line,
             columnOffset + offset2.column,
@@ -59462,16 +59526,16 @@ var require_trace_mapping_umd = __commonJS({
           );
         }
       }
-      function addSection(input, mapUrl, mappings, sources, sourcesContent, names, ignoreList, lineOffset, columnOffset, stopLine, stopColumn) {
+      function addSection(input, mapUrl, mappings, sources, sourcesContent, names2, ignoreList, lineOffset, columnOffset, stopLine, stopColumn) {
         const parsed = parse22(input);
         if ("sections" in parsed) return recurse(...arguments);
         const map = new TraceMap2(parsed, mapUrl);
         const sourcesOffset = sources.length;
-        const namesOffset = names.length;
+        const namesOffset = names2.length;
         const decoded = decodedMappings2(map);
         const { resolvedSources, sourcesContent: contents, ignoreList: ignores } = map;
         append2(sources, resolvedSources);
-        append2(names, map.names);
+        append2(names2, map.names);
         if (contents) append2(sourcesContent, contents);
         else for (let i3 = 0; i3 < resolvedSources.length; i3++) sourcesContent.push(null);
         if (ignores) for (let i3 = 0; i3 < ignores.length; i3++) ignoreList.push(ignores[i3] + sourcesOffset);
@@ -59514,10 +59578,10 @@ var require_trace_mapping_umd = __commonJS({
           const isString = typeof map === "string";
           if (!isString && map._decodedMemo) return map;
           const parsed = parse22(map);
-          const { version: version2, file: file2, names, sourceRoot, sources, sourcesContent } = parsed;
+          const { version: version2, file: file2, names: names2, sourceRoot, sources, sourcesContent } = parsed;
           this.version = version2;
           this.file = file2;
-          this.names = names || [];
+          this.names = names2 || [];
           this.sourceRoot = sourceRoot;
           this.sources = sources;
           this.sourcesContent = sourcesContent;
@@ -59583,12 +59647,12 @@ var require_trace_mapping_umd = __commonJS({
         if (index === -1) return OMapping(null, null, null, null);
         const segment = segments[index];
         if (segment.length === 1) return OMapping(null, null, null, null);
-        const { names, resolvedSources } = map;
+        const { names: names2, resolvedSources } = map;
         return OMapping(
           resolvedSources[segment[SOURCES_INDEX2]],
           segment[SOURCE_LINE2] + 1,
           segment[SOURCE_COLUMN2],
-          segment.length === 5 ? names[segment[NAMES_INDEX2]] : null
+          segment.length === 5 ? names2[segment[NAMES_INDEX2]] : null
         );
       }
       function generatedPositionFor(map, needle) {
@@ -59601,7 +59665,7 @@ var require_trace_mapping_umd = __commonJS({
       }
       function eachMapping(map, cb) {
         const decoded = decodedMappings2(map);
-        const { names, resolvedSources } = map;
+        const { names: names2, resolvedSources } = map;
         for (let i3 = 0; i3 < decoded.length; i3++) {
           const line = decoded[i3];
           for (let j = 0; j < line.length; j++) {
@@ -59617,7 +59681,7 @@ var require_trace_mapping_umd = __commonJS({
               originalLine = seg[2] + 1;
               originalColumn = seg[3];
             }
-            if (seg.length === 5) name = names[seg[4]];
+            if (seg.length === 5) name = names2[seg[4]];
             cb({
               generatedLine,
               generatedColumn,
@@ -59911,7 +59975,7 @@ var require_gen_mapping_umd = __commonJS({
           _mappings: mappings,
           _sources: sources,
           _sourcesContent: sourcesContent,
-          _names: names,
+          _names: names2,
           _ignoreList: ignoreList
           // _originalScopes: originalScopes,
           // _generatedRanges: generatedRanges,
@@ -59920,7 +59984,7 @@ var require_gen_mapping_umd = __commonJS({
         return {
           version: 3,
           file: map.file || void 0,
-          names: names.array,
+          names: names2.array,
           sourceRoot: map.sourceRoot || void 0,
           sources: sources.array,
           sourcesContent,
@@ -59950,7 +60014,7 @@ var require_gen_mapping_umd = __commonJS({
       }
       function allMappings(map) {
         const out = [];
-        const { _mappings: mappings, _sources: sources, _names: names } = cast23(map);
+        const { _mappings: mappings, _sources: sources, _names: names2 } = cast23(map);
         for (let i3 = 0; i3 < mappings.length; i3++) {
           const line = mappings[i3];
           for (let j = 0; j < line.length; j++) {
@@ -59962,7 +60026,7 @@ var require_gen_mapping_umd = __commonJS({
             if (seg.length !== 1) {
               source2 = sources.array[seg[SOURCES_INDEX2]];
               original = { line: seg[SOURCE_LINE2] + 1, column: seg[SOURCE_COLUMN2] };
-              if (seg.length === 5) name = names.array[seg[NAMES_INDEX2]];
+              if (seg.length === 5) name = names2.array[seg[NAMES_INDEX2]];
             }
             out.push({ generated, source: source2, original, name });
           }
@@ -59974,7 +60038,7 @@ var require_gen_mapping_umd = __commonJS({
           _mappings: mappings,
           _sources: sources,
           _sourcesContent: sourcesContent,
-          _names: names
+          _names: names2
           // _originalScopes: originalScopes,
         } = cast23(map);
         const line = getIndex2(mappings, genLine);
@@ -59986,7 +60050,7 @@ var require_gen_mapping_umd = __commonJS({
         assert4(sourceLine);
         assert4(sourceColumn);
         const sourcesIndex = put2(sources, source2);
-        const namesIndex = name ? put2(names, name) : NO_NAME2;
+        const namesIndex = name ? put2(names2, name) : NO_NAME2;
         if (sourcesIndex === sourcesContent.length) sourcesContent[sourcesIndex] = content != null ? content : null;
         if (skipable && skipSource2(line, index, sourcesIndex, sourceLine, sourceColumn, namesIndex)) {
           return;
@@ -67914,7 +67978,7 @@ var require_parse4 = __commonJS({
       isExpressionStatement: isExpressionStatement3,
       isFunction: isFunction3,
       isIdentifier: isIdentifier11,
-      isJSXIdentifier: isJSXIdentifier3,
+      isJSXIdentifier: isJSXIdentifier4,
       isNewExpression,
       isPlaceholder,
       isStatement,
@@ -67965,7 +68029,7 @@ var require_parse4 = __commonJS({
         hasSyntacticPlaceholders = true;
       } else if (hasSyntacticPlaceholders || state.syntacticPlaceholders) {
         return;
-      } else if (isIdentifier11(node2) || isJSXIdentifier3(node2)) {
+      } else if (isIdentifier11(node2) || isJSXIdentifier4(node2)) {
         name = node2.name;
       } else if (isStringLiteral11(node2)) {
         name = node2.value;
@@ -68242,12 +68306,12 @@ var require_literal = __commonJS({
     function literalTemplate(formatter, tpl, opts) {
       const {
         metadata,
-        names
+        names: names2
       } = buildLiteralData(formatter, tpl, opts);
       return (arg) => {
         const defaultReplacements = {};
         arg.forEach((replacement, i3) => {
-          defaultReplacements[names[i3]] = replacement;
+          defaultReplacements[names2[i3]] = replacement;
         });
         return (arg2) => {
           const replacements2 = (0, _options.normalizeReplacements)(arg2);
@@ -68269,31 +68333,31 @@ var require_literal = __commonJS({
         prefix2 = "$$" + prefix2;
       } while (raw.includes(prefix2));
       const {
-        names,
+        names: names2,
         code
       } = buildTemplateCode(tpl, prefix2);
       const metadata = (0, _parse.default)(formatter, formatter.code(code), {
         parser: opts.parser,
-        placeholderWhitelist: new Set(names.concat(opts.placeholderWhitelist ? Array.from(opts.placeholderWhitelist) : [])),
+        placeholderWhitelist: new Set(names2.concat(opts.placeholderWhitelist ? Array.from(opts.placeholderWhitelist) : [])),
         placeholderPattern: opts.placeholderPattern,
         preserveComments: opts.preserveComments,
         syntacticPlaceholders: opts.syntacticPlaceholders
       });
       return {
         metadata,
-        names
+        names: names2
       };
     }
     function buildTemplateCode(tpl, prefix2) {
-      const names = [];
+      const names2 = [];
       let code = tpl[0];
       for (let i3 = 1; i3 < tpl.length; i3++) {
         const value = `${prefix2}${i3 - 1}`;
-        names.push(value);
+        names2.push(value);
         code += value + tpl[i3];
       }
       return {
-        names,
+        names: names2,
         code
       };
     }
@@ -70667,16 +70731,16 @@ function isClassList(text4) {
   return words.length > 1 && words.every((w4) => /^!?[a-z0-9@][\w:\-\/\[\].%#()!,=&>*]*$/.test(w4) && (/[-:]/.test(w4) || PLAIN_UTILITIES.has(w4))) && words.some((w4) => /[-:]/.test(w4));
 }
 function metaHoldsText(attrs) {
-  const named = attrs.find((a) => a.name === "name" || a.name === "property")?.value;
-  return typeof named === "string" && META_TEXT.test(named.trim());
+  const named2 = attrs.find((a) => a.name === "name" || a.name === "property")?.value;
+  return typeof named2 === "string" && META_TEXT.test(named2.trim());
 }
 function versionValues(text4, taken = []) {
   const params = [];
-  const names = new Set(taken);
+  const names2 = new Set(taken);
   const name = (base) => {
     let n4 = base;
-    for (let i3 = 2; names.has(n4); i3++) n4 = `${base}${i3}`;
-    names.add(n4);
+    for (let i3 = 2; names2.has(n4); i3++) n4 = `${base}${i3}`;
+    names2.add(n4);
     return n4;
   };
   const value = (base, source2) => {
@@ -71912,8 +71976,8 @@ function scanActionStates(ast, add, hookFor, use, report) {
   traverse(ast, {
     CallExpression(path17) {
       const callee = path17.node.callee;
-      const named = t.isIdentifier(callee) ? callee.name : t.isMemberExpression(callee) && t.isIdentifier(callee.property) ? callee.property.name : "";
-      if (!/^use(ActionState|FormState)$/.test(named)) return;
+      const named2 = t.isIdentifier(callee) ? callee.name : t.isMemberExpression(callee) && t.isIdentifier(callee.property) ? callee.property.name : "";
+      if (!/^use(ActionState|FormState)$/.test(named2)) return;
       const decl = path17.parentPath;
       if (!decl.isVariableDeclarator() || !t.isArrayPattern(decl.node.id) || !t.isIdentifier(decl.node.id.elements[0])) return;
       const fnRef = path17.node.arguments[0];
@@ -72113,9 +72177,9 @@ function scanQwikHead(ast, code, ts, mode, add) {
           for (const tag2 of p.value.elements) {
             if (!t.isObjectExpression(tag2)) continue;
             const field = (k) => tag2.properties.find((q) => t.isObjectProperty(q) && !q.computed && (t.isIdentifier(q.key, { name: k }) || t.isStringLiteral(q.key, { value: k })));
-            const named = field("name")?.value ?? field("property")?.value;
+            const named2 = field("name")?.value ?? field("property")?.value;
             const content = field("content")?.value;
-            if (t.isStringLiteral(named) && META_TEXT.test(named.value) && content) take(content, "meta");
+            if (t.isStringLiteral(named2) && META_TEXT.test(named2.value) && content) take(content, "meta");
           }
         }
       };
@@ -72543,9 +72607,9 @@ var init_constants = __esm({
 });
 
 // ../../node_modules/svelte/src/compiler/utils/fuzzymatch.js
-function fuzzymatch(name, names) {
-  if (names.length === 0) return null;
-  const set3 = new FuzzySet(names);
+function fuzzymatch(name, names2) {
+  if (names2.length === 0) return null;
+  const set3 = new FuzzySet(names2);
   const matches = set3.get(name);
   return matches && matches[0][0] > 0.7 ? matches[0][1] : null;
 }
@@ -114662,7 +114726,7 @@ var init_magic_string_es = __esm({
       generateDecodedMap(options) {
         options = options || {};
         const sourceIndex = 0;
-        const names = Object.keys(this.storedNames);
+        const names2 = Object.keys(this.storedNames);
         const mappings = new Mappings2(options.hires);
         const locate = getLocator3(this.original);
         if (this.intro) {
@@ -114676,7 +114740,7 @@ var init_magic_string_es = __esm({
               sourceIndex,
               chunk.content,
               loc2,
-              chunk.storeName ? names.indexOf(chunk.original) : -1
+              chunk.storeName ? names2.indexOf(chunk.original) : -1
             );
           } else {
             mappings.addUneditedChunk(sourceIndex, chunk, this.original, loc2, this.sourcemapLocations);
@@ -114692,7 +114756,7 @@ var init_magic_string_es = __esm({
             options.source ? getRelativePath2(options.file || "", options.source) : options.file || ""
           ],
           sourcesContent: options.includeContent ? [this.original] : void 0,
-          names,
+          names: names2,
           mappings: mappings.raw,
           x_google_ignoreList: this.ignoreList ? [sourceIndex] : void 0
         };
@@ -115554,10 +115618,10 @@ var init_trace_mapping = __esm({
         const isString = typeof map === "string";
         if (!isString && map._decodedMemo) return map;
         const parsed = parse8(map);
-        const { version: version2, file: file2, names, sourceRoot, sources, sourcesContent } = parsed;
+        const { version: version2, file: file2, names: names2, sourceRoot, sources, sourcesContent } = parsed;
         this.version = version2;
         this.file = file2;
-        this.names = names || [];
+        this.names = names2 || [];
         this.sourceRoot = sourceRoot;
         this.sources = sources;
         this.sourcesContent = sourcesContent;
@@ -115639,7 +115703,7 @@ function toDecodedMap(map) {
     _mappings: mappings,
     _sources: sources,
     _sourcesContent: sourcesContent,
-    _names: names,
+    _names: names2,
     _ignoreList: ignoreList
     // _originalScopes: originalScopes,
     // _generatedRanges: generatedRanges,
@@ -115648,7 +115712,7 @@ function toDecodedMap(map) {
   return {
     version: 3,
     file: map.file || void 0,
-    names: names.array,
+    names: names2.array,
     sourceRoot: map.sourceRoot || void 0,
     sources: sources.array,
     sourcesContent,
@@ -115671,7 +115735,7 @@ function addSegmentInternal(skipable, map, genLine, genColumn, source2, sourceLi
     _mappings: mappings,
     _sources: sources,
     _sourcesContent: sourcesContent,
-    _names: names
+    _names: names2
     // _originalScopes: originalScopes,
   } = cast22(map);
   const line = getIndex(mappings, genLine);
@@ -115683,7 +115747,7 @@ function addSegmentInternal(skipable, map, genLine, genColumn, source2, sourceLi
   assert2(sourceLine);
   assert2(sourceColumn);
   const sourcesIndex = put(sources, source2);
-  const namesIndex = name ? put(names, name) : NO_NAME;
+  const namesIndex = name ? put(names2, name) : NO_NAME;
   if (sourcesIndex === sourcesContent.length) sourcesContent[sourcesIndex] = content != null ? content : null;
   if (skipable && skipSource(line, index, sourcesIndex, sourceLine, sourceColumn, namesIndex)) {
     return;
@@ -116151,12 +116215,12 @@ var init_mapped_code = __esm({
           m1.sources,
           m2.sources
         );
-        const [names, new_name_idx, names_changed, names_idx_changed] = merge_tables(
+        const [names2, new_name_idx, names_changed, names_idx_changed] = merge_tables(
           m1.names,
           m2.names
         );
         if (sources_changed) m1.sources = sources;
-        if (names_changed) m1.names = names;
+        if (names_changed) m1.names = names2;
         if (sources_idx_changed && names_idx_changed) {
           for (let line = 0; line < m2.mappings.length; line++) {
             const segment_list = m2.mappings[line];
@@ -129298,7 +129362,7 @@ var require_shared_cjs_prod = __commonJS({
     var toRawType = (value) => {
       return toTypeString(value).slice(8, -1);
     };
-    var isPlainObject3 = (val) => toTypeString(val) === "[object Object]";
+    var isPlainObject4 = (val) => toTypeString(val) === "[object Object]";
     var isIntegerKey = (key2) => isString(key2) && key2 !== "NaN" && key2[0] !== "-" && "" + parseInt(key2, 10) === key2;
     var isReservedProp = /* @__PURE__ */ makeMap(
       // the leading comma is intentional so empty string "" is also included
@@ -129795,7 +129859,7 @@ var require_shared_cjs_prod = __commonJS({
         };
       } else if (isSymbol(val)) {
         return stringifySymbol(val);
-      } else if (isObject3(val) && !isArray2(val) && !isPlainObject3(val)) {
+      } else if (isObject3(val) && !isArray2(val) && !isPlainObject4(val)) {
         return String(val);
       }
       return val;
@@ -129859,7 +129923,7 @@ var require_shared_cjs_prod = __commonJS({
     exports.isModelListener = isModelListener;
     exports.isObject = isObject3;
     exports.isOn = isOn;
-    exports.isPlainObject = isPlainObject3;
+    exports.isPlainObject = isPlainObject4;
     exports.isPromise = isPromise;
     exports.isRegExp = isRegExp;
     exports.isRenderableAttrValue = isRenderableAttrValue;
@@ -129938,7 +130002,7 @@ var require_shared_cjs = __commonJS({
     var toRawType = (value) => {
       return toTypeString(value).slice(8, -1);
     };
-    var isPlainObject3 = (val) => toTypeString(val) === "[object Object]";
+    var isPlainObject4 = (val) => toTypeString(val) === "[object Object]";
     var isIntegerKey = (key2) => isString(key2) && key2 !== "NaN" && key2[0] !== "-" && "" + parseInt(key2, 10) === key2;
     var isReservedProp = /* @__PURE__ */ makeMap(
       // the leading comma is intentional so empty string "" is also included
@@ -130435,7 +130499,7 @@ var require_shared_cjs = __commonJS({
         };
       } else if (isSymbol(val)) {
         return stringifySymbol(val);
-      } else if (isObject3(val) && !isArray2(val) && !isPlainObject3(val)) {
+      } else if (isObject3(val) && !isArray2(val) && !isPlainObject4(val)) {
         return String(val);
       }
       return val;
@@ -130507,7 +130571,7 @@ var require_shared_cjs = __commonJS({
     exports.isModelListener = isModelListener;
     exports.isObject = isObject3;
     exports.isOn = isOn;
-    exports.isPlainObject = isPlainObject3;
+    exports.isPlainObject = isPlainObject4;
     exports.isPromise = isPromise;
     exports.isRegExp = isRegExp;
     exports.isRenderableAttrValue = isRenderableAttrValue;
@@ -132419,7 +132483,7 @@ var require_source_map_consumer = __commonJS({
       }
       var sourceRoot = this.sourceRoot;
       var boundCallback = aCallback.bind(context);
-      var names = this._names;
+      var names2 = this._names;
       var sources = this._sources;
       var sourceMapURL = this._sourceMapURL;
       for (var i3 = 0, n4 = mappings.length; i3 < n4; i3++) {
@@ -132434,7 +132498,7 @@ var require_source_map_consumer = __commonJS({
           generatedColumn: mapping.generatedColumn,
           originalLine: mapping.originalLine,
           originalColumn: mapping.originalColumn,
-          name: mapping.name === null ? null : names.at(mapping.name)
+          name: mapping.name === null ? null : names2.at(mapping.name)
         });
       }
     };
@@ -132492,7 +132556,7 @@ var require_source_map_consumer = __commonJS({
       }
       var version2 = util.getArg(sourceMap, "version");
       var sources = util.getArg(sourceMap, "sources");
-      var names = util.getArg(sourceMap, "names", []);
+      var names2 = util.getArg(sourceMap, "names", []);
       var sourceRoot = util.getArg(sourceMap, "sourceRoot", null);
       var sourcesContent = util.getArg(sourceMap, "sourcesContent", null);
       var mappings = util.getArg(sourceMap, "mappings");
@@ -132506,7 +132570,7 @@ var require_source_map_consumer = __commonJS({
       sources = sources.map(String).map(util.normalize).map(function(source2) {
         return sourceRoot && util.isAbsolute(sourceRoot) && util.isAbsolute(source2) ? util.relative(sourceRoot, source2) : source2;
       });
-      this._names = ArraySet.fromArray(names.map(String), true);
+      this._names = ArraySet.fromArray(names2.map(String), true);
       this._sources = ArraySet.fromArray(sources, true);
       this._absoluteSources = this._sources.toArray().map(function(s) {
         return util.computeSourceURL(sourceRoot, s, aSourceMapURL);
@@ -132537,7 +132601,7 @@ var require_source_map_consumer = __commonJS({
     };
     BasicSourceMapConsumer.fromSourceMap = function SourceMapConsumer_fromSourceMap(aSourceMap, aSourceMapURL) {
       var smc = Object.create(BasicSourceMapConsumer.prototype);
-      var names = smc._names = ArraySet.fromArray(aSourceMap._names.toArray(), true);
+      var names2 = smc._names = ArraySet.fromArray(aSourceMap._names.toArray(), true);
       var sources = smc._sources = ArraySet.fromArray(aSourceMap._sources.toArray(), true);
       smc.sourceRoot = aSourceMap._sourceRoot;
       smc.sourcesContent = aSourceMap._generateSourcesContent(
@@ -132562,7 +132626,7 @@ var require_source_map_consumer = __commonJS({
           destMapping.originalLine = srcMapping.originalLine;
           destMapping.originalColumn = srcMapping.originalColumn;
           if (srcMapping.name) {
-            destMapping.name = names.indexOf(srcMapping.name);
+            destMapping.name = names2.indexOf(srcMapping.name);
           }
           destOriginalMappings.push(destMapping);
         }
@@ -156507,8 +156571,8 @@ function generateTemporaries(ops) {
   }
   return generatedStatements;
 }
-function assignName(names, expr) {
-  const name = names.get(expr.xref);
+function assignName(names2, expr) {
+  const name = names2.get(expr.xref);
   if (name === void 0) {
     throw new Error(`Found xref with unassigned name: ${expr.xref}`);
   }
@@ -176934,16 +176998,16 @@ If '${name}' is a directive input, make sure the directive is imported by the cu
       _isPlaceholderOnlyAttributeValue(ast) {
         if (!isAttrNode(ast)) return false;
         const tokens2 = ast[0].valueTokens ?? [];
-        const interpolations = tokens2.filter((token2) => token2.type === 18);
+        const interpolations2 = tokens2.filter((token2) => token2.type === 18);
         const plainText = tokens2.filter((token2) => token2.type === 17).map((token2) => token2.parts[0].trim()).join("");
-        return interpolations.length === 1 && plainText === "";
+        return interpolations2.length === 1 && plainText === "";
       }
       _isPlaceholderOnlyMessage(ast) {
         if (!isTextNode(ast)) return false;
         const tokens2 = ast[0].tokens;
-        const interpolations = tokens2.filter((token2) => token2.type === 8);
+        const interpolations2 = tokens2.filter((token2) => token2.type === 8);
         const plainText = tokens2.filter((token2) => token2.type === 5).map((token2) => token2.parts[0].trim()).join("");
-        return interpolations.length === 1 && plainText === "";
+        return interpolations2.length === 1 && plainText === "";
       }
       _translateMessage(el, message) {
         if (message && this._mode === _VisitorMode.Merge) {
@@ -187519,8 +187583,8 @@ var init_es = __esm({
     };
     EntityParser = class {
       named;
-      constructor(named) {
-        this.named = named;
+      constructor(named2) {
+        this.named = named2;
       }
       parse(entity) {
         if (!entity) return;
@@ -190396,11 +190460,11 @@ var init_es = __esm({
           named: NamedArguments.empty(loc2)
         });
       }
-      static named(named) {
+      static named(named2) {
         return new _Args({
-          loc: named.loc,
-          positional: PositionalArguments.empty(named.loc.collapse("end")),
-          named
+          loc: named2.loc,
+          positional: PositionalArguments.empty(named2.loc.collapse("end")),
+          named: named2
         });
       }
       nth(offset2) {
@@ -190768,11 +190832,11 @@ var init_es = __esm({
         return index;
       }
       allocateNamed(name) {
-        let named = this.named[name];
-        if (!named) {
-          named = this.named[name] = this.allocate(name);
+        let named2 = this.named[name];
+        if (!named2) {
+          named2 = this.named[name] = this.allocate(name);
         }
-        return named;
+        return named2;
       }
       allocateBlock(name) {
         if (name === "inverse") {
@@ -190830,10 +190894,10 @@ var init_es = __esm({
       getDebugInfo() {
         const locals = this.getLocalsMap();
         const root = this.root();
-        const named = root.named;
+        const named2 = root.named;
         return [{
           ...locals,
-          ...named
+          ...named2
         }, Object.fromEntries(root.upvars.map((s, i3) => [s, i3]))];
       }
       allocateFree(name, resolution) {
@@ -190891,11 +190955,11 @@ var init_es = __esm({
           chars: chars2
         });
       }
-      args(positional, named, loc2) {
+      args(positional, named2, loc2) {
         return new Args({
           loc: loc2,
           positional,
-          named
+          named: named2
         });
       }
       positional(exprs, loc2) {
@@ -191262,7 +191326,7 @@ var init_es = __esm({
         let namedLoc = this.block.loc(hash2.loc);
         let argsLoc = SpanList.range([paramLoc, namedLoc]);
         let positional = this.block.builder.positional(paramList2, paramLoc);
-        let named = this.block.builder.named(hash2.pairs.map((p) => this.namedArgument(p)), this.block.loc(hash2.loc));
+        let named2 = this.block.builder.named(hash2.pairs.map((p) => this.namedArgument(p)), this.block.loc(hash2.loc));
         switch (callee.type) {
           case "Literal":
             throw generateSyntaxError(`Invalid invocation of a literal value (\`${callee.value}\`)`, loc2);
@@ -191272,7 +191336,7 @@ var init_es = __esm({
         }
         return {
           callee,
-          args: this.block.builder.args(positional, named, argsLoc)
+          args: this.block.builder.args(positional, named2, argsLoc)
         };
       }
       namedArgument(pair) {
@@ -191798,11 +191862,11 @@ var init_es = __esm({
           throw generateSyntaxError(`Unexpected block params in <${name.chars}>: simple elements cannot have block params`, this.loc);
         }
         if (isPresentArray(this.namedBlocks)) {
-          let names = this.namedBlocks.map((b4) => b4.name);
-          if (names.length === 1) {
+          let names2 = this.namedBlocks.map((b4) => b4.name);
+          if (names2.length === 1) {
             throw generateSyntaxError(`Unexpected named block <:foo> inside <${name.chars}> HTML element`, this.loc);
           } else {
-            let printedNames = names.map((n4) => `<:${n4.chars}>`).join(", ");
+            let printedNames = names2.map((n4) => `<:${n4.chars}>`).join(", ");
             throw generateSyntaxError(`Unexpected named blocks inside <${name.chars}> HTML element (${printedNames})`, this.loc);
           }
         }
@@ -192164,9 +192228,9 @@ function scriptLiterals(script, offset2) {
           if (!seo && key2 === "meta" && t2.isArrayExpression(p.value)) {
             for (const tag2 of p.value.elements) {
               if (!t2.isObjectExpression(tag2)) continue;
-              const named = field(tag2, "name")?.value ?? field(tag2, "property")?.value;
+              const named2 = field(tag2, "name")?.value ?? field(tag2, "property")?.value;
               const content = field(tag2, "content")?.value;
-              if (content && t2.isStringLiteral(named) && metaHoldsText([{ name: "name", value: named.value }])) values.push(content);
+              if (content && t2.isStringLiteral(named2) && metaHoldsText([{ name: "name", value: named2.value }])) values.push(content);
             }
           }
           for (const v2 of values) {
@@ -192638,8 +192702,8 @@ async function transformAngular(code, filePath, keys, opts) {
     const core2 = /import\s*\{([^}]*)\}\s*from\s*['"]@angular\/core['"]/.exec(code);
     const lines = [];
     if (core2 && !/\binject\b/.test(core2[1])) {
-      const names = core2[1].trimEnd();
-      s.appendLeft(core2.index + core2[0].indexOf("{") + 1 + names.length, names.endsWith(",") ? " inject" : ", inject");
+      const names2 = core2[1].trimEnd();
+      s.appendLeft(core2.index + core2[0].indexOf("{") + 1 + names2.length, names2.endsWith(",") ? " inject" : ", inject");
     } else if (!core2) lines.push("import { inject } from '@angular/core';");
     if (!/import\s*\{[^}]*\bTranslateService\b[^}]*\}\s*from\s*['"]@ngx-translate\/core['"]/.test(code)) lines.push("import { TranslateService } from '@ngx-translate/core';");
     const imports2 = [...code.matchAll(/^import\b[\s\S]*?from\s*['"][^'"]+['"];?[ \t]*$/gm)];
@@ -192932,8 +192996,8 @@ function transformLit(code, filePath, keys, opts) {
   }
   if (replacements2.length) {
     if (!/new I18nController\(this\)/.test(code)) for (const body of bodies) s.appendLeft(body, "\n  i18n = new I18nController(this);");
-    const names = ["t", ...bodies.size ? ["I18nController"] : []];
-    const line = `import { ${names.join(", ")} } from '${opts.litModule ?? "./i18n"}';`;
+    const names2 = ["t", ...bodies.size ? ["I18nController"] : []];
+    const line = `import { ${names2.join(", ")} } from '${opts.litModule ?? "./i18n"}';`;
     if (!code.includes(line)) {
       const imports2 = [...code.matchAll(/^import\b[\s\S]*?from\s*['"][^'"]+['"];?[ \t]*$/gm)];
       const last = imports2[imports2.length - 1];
@@ -193111,9 +193175,9 @@ function scanDart(code, filePath) {
   let n4 = 0;
   for (const lit of literals) {
     const before2 = code.slice(Math.max(0, lit.start - 80), lit.start);
-    const named = /([A-Za-z_]\w*)\s*:\s*$/.exec(before2);
+    const named2 = /([A-Za-z_]\w*)\s*:\s*$/.exec(before2);
     const isText = TEXT_WIDGETS.test(before2);
-    if (!isText && !(named && DART_ATTRIBUTES.has(named[1]))) continue;
+    if (!isText && !(named2 && DART_ATTRIBUTES.has(named2[1]))) continue;
     const after = code.slice(lit.end).trimStart();
     if (!/^[,)]/.test(after)) continue;
     const run = buildRun(lit.parts, { counts: true });
@@ -193157,12 +193221,12 @@ function scanDart(code, filePath) {
     strings2.push({
       id: id3,
       originalText: run.text,
-      nodeType: named ? "JSXAttribute" : "JSXText",
-      ...named ? { attributeName: named[1] } : {},
+      nodeType: named2 ? "JSXAttribute" : "JSXText",
+      ...named2 ? { attributeName: named2[1] } : {},
       filePath,
       loc: lineOf(code, lit.start),
       component,
-      element: named ? named[1] : "Text",
+      element: named2 ? named2[1] : "Text",
       ...run.params.length ? { params: run.params.map((p) => p.name) } : {},
       ...run.plural ? { plural: run.plural } : {}
     });
@@ -193296,9 +193360,9 @@ function scanAndroid(code, filePath, _opts) {
     }
     const toast = TOAST.exec(before2);
     if (java && !toast) continue;
-    const named = java ? null : COMPOSE_NAMED.exec(before2);
+    const named2 = java ? null : COMPOSE_NAMED.exec(before2);
     const isText = !java && COMPOSE_TEXT.test(before2);
-    if (!toast && !named && !isText) continue;
+    if (!toast && !named2 && !isText) continue;
     if (!/^[,)]/.test(code.slice(lit.end).trimStart())) continue;
     const run = buildRun(
       lit.parts.map((p) => p.kind === "expr" ? { ...p, source: kotlinChoice(p.source) } : p),
@@ -193316,7 +193380,7 @@ function scanAndroid(code, filePath, _opts) {
     add(
       run.text,
       { kind: "run", start: lit.start, end: lit.end, params: run.params, text: run.text, ...run.plural ? { plural: true } : {}, ...toast ? { context: "script", attrName: toast[1] } : {} },
-      { element: toast ? "Toast" : named ? named[1] : "Text", ...run.plural ? { plural: run.plural } : {} }
+      { element: toast ? "Toast" : named2 ? named2[1] : "Text", ...run.plural ? { plural: run.plural } : {} }
     );
   }
   return { strings: strings2, warnings: warnings2, sites };
@@ -209164,9 +209228,9 @@ function mask(value, tokens2) {
         if (!byToken.has(token2)) byToken.set(token2, unique(`code${++spans}`));
         return `{${byToken.get(token2)}}`;
       }
-      const named = nameOf(token2);
-      if (named) {
-        if (!byToken.has(token2)) byToken.set(token2, unique(named));
+      const named2 = nameOf(token2);
+      if (named2) {
+        if (!byToken.has(token2)) byToken.set(token2, unique(named2));
         return `{${byToken.get(token2)}}`;
       }
       n4 += 1;
@@ -209211,8 +209275,8 @@ var init_placeholders = __esm({
       if (xliff) return xliff[1].replace(/[^\w]/g, "_").toLowerCase();
       const entity = /^&(#?\w+);$/.exec(token2);
       if (entity) return `entity_${entity[1].replace("#", "n")}`;
-      const named = /^(?:\{\{\s*([A-Za-z_][\w.-]*)|%\{(\w+)\}|%<(\w+)>|%\((\w+)\)|\$([A-Za-z_]\w*)\$|:([A-Za-z_]\w*))/.exec(token2);
-      const name = named?.slice(1).find(Boolean);
+      const named2 = /^(?:\{\{\s*([A-Za-z_][\w.-]*)|%\{(\w+)\}|%<(\w+)>|%\((\w+)\)|\$([A-Za-z_]\w*)\$|:([A-Za-z_]\w*))/.exec(token2);
+      const name = named2?.slice(1).find(Boolean);
       if (name) return name.replace(/[^\w]/g, "_").toLowerCase();
       const numbered = /^%(\d+)\$|^\$(\d+)$|^\{(\d+)\}$/.exec(token2);
       if (numbered) return `arg${numbered.slice(1).find(Boolean)}`;
@@ -209713,11 +209777,11 @@ ${base.slice(end2)}`;
           const entry = catalog.strings[key2] ??= {};
           if (locale === sourceLocale && !plural) continue;
           const src = source2[encoded];
-          const names = [...String(isPluralForms(src) ? src.other : src ?? "").matchAll(/\{(\w+)\}/g)].map((m2) => m2[1]);
+          const names2 = [...String(isPluralForms(src) ? src.other : src ?? "").matchAll(/\{(\w+)\}/g)].map((m2) => m2[1]);
           const formats = [...key2.matchAll(/%(?:lld|@)/g)].map((m2) => m2[0].slice(1));
           const localize = (text4) => text4.replace(/\{(\w+)\}/g, (m2, name) => {
-            const i3 = names.indexOf(name);
-            return i3 === -1 ? m2 : names.length > 1 ? `%${i3 + 1}$${formats[i3] ?? "@"}` : `%${formats[i3] ?? "@"}`;
+            const i3 = names2.indexOf(name);
+            return i3 === -1 ? m2 : names2.length > 1 ? `%${i3 + 1}$${formats[i3] ?? "@"}` : `%${formats[i3] ?? "@"}`;
           });
           entry.localizations ??= {};
           entry.localizations[locale] = plural ? { variations: { plural: Object.fromEntries(PLURAL_CATEGORIES.filter((c) => value[c] !== void 0).map((c) => [c, { stringUnit: { state: "translated", value: localize(value[c]) } }])) } } : { stringUnit: { state: "translated", value: localize(value) } };
@@ -210369,12 +210433,12 @@ function matchBrace(code, open3) {
   }
   return code.length;
 }
-function mergeNamedImport(code, names, spec) {
+function mergeNamedImport(code, names2, spec) {
   const quoted = spec.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const m2 = new RegExp(`^import\\s*\\{([^}]*)\\}\\s*from\\s*(['"])${quoted}\\2;?`, "m").exec(code);
   if (!m2) return null;
   const have = m2[1].split(",").map((n4) => n4.trim()).filter(Boolean);
-  const merged = [...have, ...names.filter((n4) => !have.includes(n4))];
+  const merged = [...have, ...names2.filter((n4) => !have.includes(n4))];
   return { start: m2.index, end: m2.index + m2[0].length, text: `import { ${merged.join(", ")} } from ${m2[2]}${spec}${m2[2]};` };
 }
 function toCharOffsets(code, root) {
@@ -211064,10 +211128,10 @@ function followCopy(template4, constants3, flavor) {
         (u) => u[1] !== void 0 && (u[2] === void 0 || !fieldsOf(c).has(u[2]) || new RegExp(`^${escape(c.name)}\\[[^\\]]+\\]\\.${u[2]}$`).test(e2))
       );
       const loops = expressions.filter((e2) => mentions(c.name).test(e2) && e2 !== c.name && !indexed(e2));
-      const names = loops.map((e2) => loop.exec(e2)?.[1]);
-      ok = names.every(Boolean);
-      if (ok) ok = [...new Set(names)].every((alias) => onlyAs(alias, (e2) => loop.test(e2) || fieldRead(alias, fieldsOf(c))(e2)));
-      if (ok) for (const alias of names) aliases.set(alias, c.name);
+      const names2 = loops.map((e2) => loop.exec(e2)?.[1]);
+      ok = names2.every(Boolean);
+      if (ok) ok = [...new Set(names2)].every((alias) => onlyAs(alias, (e2) => loop.test(e2) || fieldRead(alias, fieldsOf(c))(e2)));
+      if (ok) for (const alias of names2) aliases.set(alias, c.name);
     }
     if (!ok || !expressions.some((e2) => mentions(c.name).test(e2))) usable.delete(c.name);
   }
@@ -212304,7 +212368,7 @@ ${hook2.indent}}`);
       lines.push(`import { Trans } from '${importSource === "react-i18next" ? "react-i18next/TransWithoutContext" : importSource}';`);
     }
   } else {
-    const names = [
+    const names2 = [
       ...[...hooks.values()].some((h) => !h.mode.startsWith("class") && h.mode !== "qwikHead" && !h.wrap) && !scan.imports.hasUseTranslation ? ["useTranslation"] : [],
       ...[...hooks.values()].some((h) => h.mode === "classRender") && !/\bTranslation\b/.test(code.slice(0, scan.imports.lastImportEnd ?? 0)) ? ["Translation"] : [],
       ...wrapped.size && !/\bwithTranslation\b/.test(code.slice(0, scan.imports.lastImportEnd ?? 0)) ? ["withTranslation"] : [],
@@ -212313,7 +212377,7 @@ ${hook2.indent}}`);
       ...usesRich && !/\brich\b/.test(code.slice(0, scan.imports.lastImportEnd ?? 0)) ? ["rich"] : [],
       ...usesHead ? ["translator", "langOf"].filter((n4) => !new RegExp(`\\b${n4}\\b`).test(code.slice(0, scan.imports.lastImportEnd ?? 0))) : []
     ];
-    if (names.length) lines.push(`import { ${names.join(", ")} } from '${importSource}';`);
+    if (names2.length) lines.push(`import { ${names2.join(", ")} } from '${importSource}';`);
     if (([...hooks.values()].some((h) => h.mode === "classGlobal") || usesGlobalT) && !i18nextDefault) lines.push("import i18next from 'i18next';");
   }
   if (lines.length) {
@@ -212517,6 +212581,7 @@ function localizeFormats(code, filePath, opts) {
         return;
       }
       if (expressions.length !== 1 || quasis[1].value.cooked !== "") return;
+      if (inUrlAttribute(path17)) return;
       const symbol = quasis[0].value.cooked ?? "";
       const currency = currencyOf(symbol);
       if (!currency) return;
@@ -212558,7 +212623,7 @@ ${opts.importLine}`);
   }
   return { code: s.toString(), changes, warnings: warnings2.map((w4) => ({ ...w4, filePath })) };
 }
-var import_parser11, import_traverse8, t8, traverse9, TO_LOCALE, INTL, CURRENCY, SYMBOL_AT_END;
+var import_parser11, import_traverse8, t8, traverse9, TO_LOCALE, INTL, CURRENCY, SYMBOL_AT_END, URL_ATTRIBUTES, inUrlAttribute;
 var init_locale_formats = __esm({
   "src/ast/locale-formats.ts"() {
     "use strict";
@@ -212593,34 +212658,128 @@ var init_locale_formats = __esm({
       "\u20AA": "ILS"
     };
     SYMBOL_AT_END = new RegExp(`(${[...Object.keys(CURRENCY), "$"].sort((a, b4) => b4.length - a.length).map((k) => k.replace(/\$/g, "\\$")).join("|")})$`);
+    URL_ATTRIBUTES = /* @__PURE__ */ new Set(["href", "src", "srcset", "action", "formaction", "poster", "data", "cite", "background", "ping", "to", "url"]);
+    inUrlAttribute = (path17) => {
+      const attr2 = path17.findParent((p) => p.isJSXAttribute());
+      if (!attr2 || !attr2.isJSXAttribute()) return false;
+      const name = attr2.node.name;
+      return URL_ATTRIBUTES.has((t8.isJSXIdentifier(name) ? name.name : name.name.name).toLowerCase());
+    };
   }
 });
 
 // src/ast/template-formats.ts
+function interpolations(markup, open3, close2) {
+  const out = [];
+  const vue = open3 === "{{";
+  const skipJs = (i4, stopAt) => {
+    let depth = 0;
+    while (i4 < markup.length) {
+      const c = markup[i4];
+      if (c === "'" || c === '"') {
+        i4++;
+        while (i4 < markup.length && markup[i4] !== c) i4 += markup[i4] === "\\" ? 2 : 1;
+        i4++;
+        continue;
+      }
+      if (c === "`") {
+        i4++;
+        while (i4 < markup.length && markup[i4] !== "`") {
+          if (markup[i4] === "\\") i4 += 2;
+          else if (markup[i4] === "$" && markup[i4 + 1] === "{") i4 = skipJs(i4 + 2, (j, d3) => d3 === 0 && markup[j] === "}") + 1;
+          else i4++;
+        }
+        i4++;
+        continue;
+      }
+      if (stopAt(i4, depth)) return i4;
+      if (c === "{") depth++;
+      else if (c === "}") depth--;
+      i4++;
+    }
+    return markup.length;
+  };
+  const expression = (at2, attribute2) => {
+    const from = at2 + open3.length;
+    const to = skipJs(from, (j, d3) => d3 === 0 && markup.startsWith(close2, j));
+    out.push({ start: at2, end: Math.min(markup.length, to + close2.length), expr: markup.slice(from, to), attribute: attribute2 });
+    return to + close2.length;
+  };
+  let i3 = 0;
+  while (i3 < markup.length) {
+    if (markup.startsWith("<!--", i3)) {
+      const e2 = markup.indexOf("-->", i3);
+      i3 = e2 < 0 ? markup.length : e2 + 3;
+    } else if (/^<style\b/i.test(markup.slice(i3, i3 + 7))) {
+      const e2 = markup.toLowerCase().indexOf("</style>", i3);
+      i3 = e2 < 0 ? markup.length : e2 + 8;
+    } else if (markup[i3] === "<" && /[A-Za-z]/.test(markup[i3 + 1] ?? "")) {
+      i3++;
+      while (i3 < markup.length && markup[i3] !== ">") {
+        const name = /^[^\s=>/{]+/.exec(markup.slice(i3));
+        if (name) {
+          const attribute2 = name[0].replace(/^(?:[:@#]|v-bind:|bind:)/, "").toLowerCase();
+          i3 += name[0].length;
+          const eq = /^\s*=\s*/.exec(markup.slice(i3));
+          if (!eq) continue;
+          i3 += eq[0].length;
+          const q = markup[i3];
+          if (q === '"' || q === "'") {
+            i3++;
+            while (i3 < markup.length && markup[i3] !== q) {
+              if (!vue && markup.startsWith(open3, i3)) i3 = expression(i3, attribute2);
+              else i3++;
+            }
+            i3++;
+          } else if (!vue && markup.startsWith(open3, i3)) i3 = expression(i3, attribute2);
+          continue;
+        }
+        if (!vue && markup.startsWith(open3, i3)) i3 = expression(i3, "{\u2026}");
+        else i3++;
+      }
+      i3++;
+    } else if (markup.startsWith(open3, i3)) {
+      i3 = expression(i3, null);
+    } else i3++;
+  }
+  return out;
+}
 function localizeTemplateFormats(markup, o) {
   const changes = [];
   const line = (at2) => o.lineOf?.((o.offset ?? 0) + at2) ?? 0;
-  const open3 = o.open.replace(/[{}]/g, "\\$&");
-  const close2 = o.close.replace(/[{}]/g, "\\$&");
-  let out = markup.replace(new RegExp(`${open3}([\\s\\S]*?)${close2}`, "g"), (whole2, expr, at2) => {
-    const withLang = (_m, call7, locale, at22, str) => {
+  const root = o.langRoot ?? o.lang;
+  const symbol = new RegExp(`(?<![\\w$])(${SYMBOLS})$`);
+  let out = "";
+  let last = 0;
+  for (const it of interpolations(markup, o.open, o.close)) {
+    let before2 = markup.slice(last, it.start);
+    let replacement = markup.slice(it.start, it.end);
+    const withLang = (_m, call7, locale, at2, str) => {
       if (locale) return `${call7}${o.lang}`;
-      const rest2 = str.slice(at22 + _m.length).trimStart();
-      if (rest2.startsWith(o.lang)) return _m;
+      const rest2 = str.slice(at2 + _m.length).trimStart();
+      if (rest2.startsWith(root)) return _m;
       return `${call7}${o.lang}${rest2.startsWith(")") ? "" : ", "}`;
     };
-    let next2 = expr.replace(new RegExp(`(\\.toLocale(?:Date|Time)?String\\()${LOCALE_ARG}`, "g"), withLang);
-    next2 = next2.replace(new RegExp(`(new\\s+Intl\\.(?:DateTimeFormat|NumberFormat|RelativeTimeFormat|ListFormat|PluralRules)\\()${LOCALE_ARG}`, "g"), withLang);
-    if (next2 !== expr) changes.push({ line: line(at2), before: whole2.trim(), after: "(the app's language)" });
-    return `${o.open}${next2}${o.close}`;
-  });
-  out = out.replace(new RegExp(`(?<![\\w$])(${SYMBOLS})${open3}\\s*([\\s\\S]*?)\\s*${close2}`, "g"), (whole2, symbol, amount, at2) => {
-    const currency = CURRENCY2[symbol] ?? (symbol === "$" ? o.currency ?? "USD" : void 0);
-    if (!currency || /\bIntl\b/.test(amount)) return whole2;
-    changes.push({ line: line(at2), before: whole2, after: `(${currency} in the app's language)` });
-    return `${o.open} new Intl.NumberFormat(${o.lang}, { style: 'currency', currency: '${currency}' }).format(${amount.replace(/\.toFixed\(\d*\)\s*$/, "")}) ${o.close}`;
-  });
-  return { markup: out, changes };
+    let expr = it.expr.replace(new RegExp(`(\\.toLocale(?:Date|Time)?String\\()${LOCALE_ARG}`, "g"), withLang);
+    expr = expr.replace(new RegExp(`(new\\s+Intl\\.(?:DateTimeFormat|NumberFormat|RelativeTimeFormat|ListFormat|PluralRules)\\()${LOCALE_ARG}`, "g"), withLang);
+    if (expr !== it.expr) {
+      changes.push({ line: line(it.start), before: replacement.trim(), after: "(the app's language)" });
+      replacement = `${o.open}${expr}${o.close}`;
+    }
+    const sym = symbol.exec(before2);
+    if (sym && !(it.attribute && URL_ATTRIBUTES2.has(it.attribute)) && it.attribute !== "{\u2026}") {
+      const currency = CURRENCY2[sym[1]] ?? (sym[1] === "$" ? o.currency ?? "USD" : void 0);
+      const amount = expr.trim();
+      if (currency && amount && !/\bIntl\b/.test(amount)) {
+        changes.push({ line: line(it.start), before: `${sym[1]}${markup.slice(it.start, it.end)}`, after: `(${currency} in the app's language)` });
+        before2 = before2.slice(0, -sym[1].length);
+        replacement = `${o.open} new Intl.NumberFormat(${o.lang}, { style: 'currency', currency: '${currency}' }).format(${amount.replace(/\.toFixed\(\d*\)\s*$/, "")}) ${o.close}`;
+      }
+    }
+    out += before2 + replacement;
+    last = it.end;
+  }
+  return { markup: out + markup.slice(last), changes };
 }
 function localizeComponentFormats(code, file2, o) {
   const changes = [];
@@ -212628,7 +212787,10 @@ function localizeComponentFormats(code, file2, o) {
   let out = code;
   const scripts = [...code.matchAll(/(<script\b[^>]*>)([\s\S]*?)(<\/script>)/g)];
   const markup = (text4, at2) => {
-    const done2 = o.kind === "vue" ? localizeTemplateFormats(text4, { lang: "$i18n.locale", open: "{{", close: "}}", currency: o.currency, offset: at2, lineOf: lineOf2 }) : localizeTemplateFormats(text4, { lang: "$locale", open: "{", close: "}", currency: o.currency, offset: at2, lineOf: lineOf2 });
+    const done2 = o.kind === "vue" ? localizeTemplateFormats(text4, { lang: "$i18n.locale", open: "{{", close: "}}", currency: o.currency, offset: at2, lineOf: lineOf2 }) : (
+      // svelte-i18n's $locale can be null, which Intl and toLocale*String don't take.
+      localizeTemplateFormats(text4, { lang: "$locale ?? undefined", langRoot: "$locale", open: "{", close: "}", currency: o.currency, offset: at2, lineOf: lineOf2 })
+    );
     changes.push(...done2.changes);
     return done2.markup;
   };
@@ -212638,7 +212800,7 @@ function localizeComponentFormats(code, file2, o) {
   for (const m2 of scripts) {
     rebuilt += markup(code.slice(last, m2.index), last);
     const [, open3, body, close2] = m2;
-    const lang = o.kind === "vue" ? o.vueModule ? "i18n.global.locale.value" : null : "$locale";
+    const lang = o.kind === "vue" ? o.vueModule ? "i18n.global.locale.value" : null : "$locale ?? undefined";
     const importLine = o.kind === "vue" ? `import { i18n } from '${o.vueModule}';` : "import { locale } from 'svelte-i18n';";
     const done2 = lang && !/context=["']module["']/.test(open3) ? localizeFormats(body, file2, { lang, importLine, currency: o.currency }) : null;
     if (done2?.changes.length) {
@@ -212661,7 +212823,7 @@ ${out}`;
   }
   return { code: out, changes };
 }
-var CURRENCY2, SYMBOLS, LOCALE_ARG;
+var CURRENCY2, SYMBOLS, LOCALE_ARG, URL_ATTRIBUTES2;
 var init_template_formats = __esm({
   "src/ast/template-formats.ts"() {
     "use strict";
@@ -212691,6 +212853,7 @@ var init_template_formats = __esm({
     };
     SYMBOLS = [...Object.keys(CURRENCY2), "$"].sort((a, b4) => b4.length - a.length).map((k) => k.replace(/\$/g, "\\$")).join("|");
     LOCALE_ARG = `\\s*(['"][a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*['"])?`;
+    URL_ATTRIBUTES2 = /* @__PURE__ */ new Set(["href", "src", "srcset", "action", "formaction", "poster", "data", "cite", "background", "ping", "xlink:href", "to", "url"]);
   }
 });
 
@@ -212749,13 +212912,19 @@ async function findPhysicalStyles(cwd, srcDir) {
   }
   return out;
 }
-var import_fast_glob3, RTL_LANGUAGES, isRtl, TAILWIND_SAFE, TAILWIND_REPORT, CSS_SAFE, CSS_REPORT, STYLES, MARKUP, SCRIPTS, CSS_IN_JS, IGNORE, CLASS_STRINGS;
+var import_fast_glob3, RTL_LANGUAGES, RTL_SCRIPTS, isRtl, TAILWIND_SAFE, TAILWIND_REPORT, CSS_SAFE, CSS_REPORT, STYLES, MARKUP, SCRIPTS, CSS_IN_JS, IGNORE, CLASS_STRINGS;
 var init_rtl = __esm({
   "src/rtl.ts"() {
     "use strict";
     import_fast_glob3 = __toESM(require_out4(), 1);
-    RTL_LANGUAGES = ["ar", "he", "fa", "ur", "ps", "yi", "dv", "ckb", "sd", "ug"];
-    isRtl = (locale) => RTL_LANGUAGES.includes(locale.split("-")[0].toLowerCase());
+    RTL_LANGUAGES = ["ae", "aeb", "ar", "arc", "arq", "ars", "ary", "arz", "bal", "bej", "bgn", "bqi", "brh", "chg", "ckb", "dv", "fa", "gbz", "glk", "he", "jpr", "jrb", "khw", "ks", "lad", "lah", "lrc", "mde", "mzn", "nqo", "ota", "pal", "phn", "ps", "rhg", "sam", "sd", "sdh", "shu", "sog", "swb", "syc", "syr", "trw", "ug", "ur", "yi"];
+    RTL_SCRIPTS = /^(Arab|Aran|Hebr|Thaa|Syrc|Syre|Syrj|Syrn|Nkoo|Adlm|Rohg|Mand|Samr|Mend|Yezi|Avst|Phnx|Armi|Prti|Phli|Phlp|Sogd|Sogo|Chrs|Elym|Hatr|Khar|Lydi|Mani|Narb|Nbat|Orkh|Palm|Sarb|Hung|Ougr|Cprt|Mero|Merc)$/;
+    isRtl = (locale) => {
+      const [language, ...rest2] = locale.split(/[-_]/);
+      const script = rest2.find((p) => /^[A-Za-z]{4}$/.test(p));
+      if (script) return RTL_SCRIPTS.test(script[0].toUpperCase() + script.slice(1).toLowerCase());
+      return RTL_LANGUAGES.includes(language.toLowerCase());
+    };
     TAILWIND_SAFE = [
       [/^(-?)ml-/, "$1ms-"],
       [/^(-?)mr-/, "$1me-"],
@@ -212861,7 +213030,7 @@ function renderPage(html, o) {
           if (value2 !== void 0) setAttr(el, a.name.slice("data-i18n-".length), value2);
         } else if (el.tagName === "a" && a.name === "href" && o.pages && rootPage(a.value, o.pages)) {
           setAttr(el, "href", `/${o.lang}${a.value}`);
-        } else if (o.depth && URL_ATTRIBUTES.has(a.name) && movesWithPage(a.value)) {
+        } else if (o.depth && URL_ATTRIBUTES3.has(a.name) && movesWithPage(a.value)) {
           setAttr(el, a.name, moved(a.value));
         } else if (o.depth && a.name === "srcset") {
           setAttr(el, a.name, a.value.replace(/(^|,\s*)(\S+)/g, (m2, sep6, url) => movesWithPage(url) ? `${sep6}${moved(url)}` : m2));
@@ -212899,7 +213068,7 @@ function richHtml(html, el, value) {
     return single ? part.open : `${part.open}${escapeText2(inner ?? "")}${part.close}`;
   });
 }
-var escapeText2, escapeAttr, URL_ATTRIBUTES, movesWithPage, ALTERNATES_START, ALTERNATES_END;
+var escapeText2, escapeAttr, URL_ATTRIBUTES3, movesWithPage, ALTERNATES_START, ALTERNATES_END;
 var init_html_pages = __esm({
   "src/formats/html-pages.ts"() {
     "use strict";
@@ -212908,7 +213077,7 @@ var init_html_pages = __esm({
     init_dictionary();
     escapeText2 = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     escapeAttr = (s) => escapeText2(s).replace(/"/g, "&quot;");
-    URL_ATTRIBUTES = /* @__PURE__ */ new Set(["href", "src", "poster", "action", "data"]);
+    URL_ATTRIBUTES3 = /* @__PURE__ */ new Set(["href", "src", "poster", "action", "data"]);
     movesWithPage = (url) => !!url && !/^(?:[a-z][a-z\d+.-]*:|\/|#|\?|\{)/i.test(url) && !/\.html?(?:[?#]|$)/i.test(url) && !url.endsWith("/");
     ALTERNATES_START = "<!-- localize-dev: languages -->";
     ALTERNATES_END = "<!-- /localize-dev -->";
@@ -213140,14 +213309,15 @@ function svelteRichPath(cwd, config) {
   if (svelteMajor(cwd) < 3) return null;
   return deps["@sveltejs/kit"] ? "src/lib/I18nT.svelte" : `${config.srcDir}/I18nT.svelte`;
 }
-function svelteRichSource(legacy = false) {
+function svelteRichSource(legacy = false, ts = false) {
+  const valuesType = "Record<string, string | number | boolean | Date | null | undefined>";
   return legacy ? [
     `<!-- ${GENERATED}: a message whose {placeholders} render the slot, told which one by \`is\`. -->`,
-    "<script>",
+    ts ? '<script lang="ts">' : "<script>",
     "	import { _ } from 'svelte-i18n';",
     "",
-    "	export let key;",
-    "	export let values = {};",
+    ts ? "	export let key: string;" : "	export let key;",
+    ts ? `	export let values: ${valuesType} = {};` : "	export let values = {};",
     "	export let slots = '';",
     "",
     "	$: names = slots.split(' ').filter(Boolean);",
@@ -213159,17 +213329,18 @@ function svelteRichSource(legacy = false) {
     ""
   ].join("\n") : [
     `<!-- ${GENERATED}: a message whose {placeholders} render the snippets of the same name. -->`,
-    "<script>",
+    ts ? '<script lang="ts">' : "<script>",
+    ...ts ? ["	import type { Snippet } from 'svelte';"] : [],
     "	import { _ } from 'svelte-i18n';",
     "",
-    "	let { key, values = {}, ...snippets } = $props();",
+    ts ? `	let { key, values = {}, ...snippets }: { key: string; values?: ${valuesType}; [name: string]: unknown } = $props();` : "	let { key, values = {}, ...snippets } = $props();",
     "	// Each snippet's placeholder becomes a marker the translated message is split on.",
     "	const parts = $derived(",
-    "		$_(key, { values: { ...values, ...Object.fromEntries(Object.keys(snippets).map((name) => [name, `\\u0000${name}\\u0000`])) } }).split('\\u0000'),",
+    `		$_(key, { values: { ...values, ...Object.fromEntries(Object.keys(snippets).map((name) => [name, \`\\u0000\${name}\\u0000\`])) } }).split('\\u0000'),`,
     "	);",
     "</script>",
     "",
-    "{#each parts as part, i}{#if i % 2}{@render snippets[part]?.()}{:else}{part}{/if}{/each}",
+    `{#each parts as part, i}{#if i % 2}{@render ${ts ? "(snippets[part] as Snippet | undefined)" : "snippets[part]"}?.()}{:else}{part}{/if}{/each}`,
     ""
   ].join("\n");
 }
@@ -213178,7 +213349,7 @@ function planSvelteRich(ctx) {
   if (!file2) return;
   const existing = readText(ctx.cwd, file2, ctx.changed);
   if (existing !== void 0 && !isGenerated(existing)) return;
-  ctx.out(file2, svelteRichSource(svelteMajor(ctx.cwd) < 5));
+  ctx.out(file2, svelteRichSource(svelteMajor(ctx.cwd) < 5, fs7.existsSync(path6.join(ctx.cwd, "tsconfig.json"))));
 }
 function planSvelteSetup(ctx) {
   const { cwd, config, result } = ctx;
@@ -213296,8 +213467,22 @@ function planSvelteKitRendering(ctx, ext, ts) {
   }
   const layout = "src/routes/+layout.svelte";
   const runes2 = svelteMajor(cwd) >= 5;
-  const set3 = "  // This request's language, set as the page renders: rendering never awaits, so no other request gets in between.\n  locale.set(data.lang);";
-  const code = readText(cwd, layout, ctx.changed);
+  const set3 = runes2 ? [
+    "  // This request's language, set as the page renders: rendering never awaits, so no other request",
+    "  // gets in between. On the client it follows data.lang after a navigation or invalidate().",
+    "  const requestLang = () => data.lang;",
+    "  locale.set(requestLang());",
+    "  $effect.pre(() => {",
+    "    locale.set(requestLang());",
+    "  });"
+  ].join("\n") : "  // This request's language, set as the page renders, and again whenever data.lang changes.\n  $: locale.set(data.lang);";
+  const earlier = "  // This request's language, set as the page renders: rendering never awaits, so no other request gets in between.\n  locale.set(data.lang);";
+  let code = readText(cwd, layout, ctx.changed);
+  if (code?.includes(earlier)) {
+    code = code.replace(earlier, set3);
+    ctx.out(layout, code);
+    return;
+  }
   if (code === void 0) {
     ctx.out(
       layout,
@@ -213321,14 +213506,14 @@ ${set3}
     );
     return;
   }
-  if (/locale\.set\(\s*data\.lang\s*\)/.test(code)) return;
+  if (/locale\.set\(\s*(?:data\.lang|requestLang\(\))\s*\)/.test(code)) return;
   const script = /<script\b[^>]*>/.exec(code);
   const props = /let\s*\{([^}]*)\}\s*=\s*\$props\(\)\s*;?/.exec(code);
   const exported = /export\s+let\s+data\b[^;\n]*;?/.exec(code);
   let next2 = null;
   if (runes2 && props) {
-    const names = props[1].split(",").map((n4) => n4.trim()).filter(Boolean);
-    const withData = names.some((n4) => /^data\b/.test(n4)) ? props[0] : props[0].replace(props[1], ` ${["data", ...names].join(", ")} `);
+    const names2 = props[1].split(",").map((n4) => n4.trim()).filter(Boolean);
+    const withData = names2.some((n4) => /^data\b/.test(n4)) ? props[0] : props[0].replace(props[1], ` ${["data", ...names2].join(", ")} `);
     next2 = `${code.slice(0, props.index)}${withData}
 ${set3}${code.slice(props.index + props[0].length)}`;
   } else if (!runes2 && exported) next2 = `${code.slice(0, exported.index + exported[0].length)}
@@ -213698,6 +213883,15 @@ function angularMajor(cwd, changed) {
     return void 0;
   }
 }
+function ngxTranslateMajor(cwd, changed) {
+  try {
+    const pkg = JSON.parse(changed?.get("package.json") ?? fs7.readFileSync(path6.join(cwd, "package.json"), "utf8"));
+    const major = /(\d+)/.exec({ ...pkg.dependencies, ...pkg.devDependencies }["@ngx-translate/core"] ?? "")?.[1];
+    return major ? Number(major) : void 0;
+  } catch {
+    return void 0;
+  }
+}
 function addStandaloneImports(code, wanted, from, major) {
   const decorator = /@Component\s*\(\s*\{/.exec(code);
   if (!decorator) return null;
@@ -213705,15 +213899,15 @@ function addStandaloneImports(code, wanted, from, major) {
   const flag = /\bstandalone\s*:\s*(true|false)\b/.exec(body.slice(0, 2e3))?.[1];
   if (flag === "false" || !flag && major !== void 0 && major < 19) return "ngmodule";
   const bare = code.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, "");
-  const names = wanted.filter((n4) => !new RegExp(`\\b${n4}\\b`).test(bare));
-  if (!names.length) return null;
+  const names2 = wanted.filter((n4) => !new RegExp(`\\b${n4}\\b`).test(bare));
+  if (!names2.length) return null;
   let next2 = code;
   const imports2 = /(\bimports\s*:\s*\[)(\s*)/.exec(body);
   const open3 = decorator.index + decorator[0].length;
-  next2 = imports2 ? `${code.slice(0, decorator.index + imports2.index + imports2[1].length)}${names.join(", ")}${/^\s*\]/.test(body.slice(imports2.index + imports2[0].length)) ? "" : ", "}${code.slice(decorator.index + imports2.index + imports2[1].length)}` : `${code.slice(0, open3)}
-  imports: [${names.join(", ")}],${code.slice(open3)}`;
+  next2 = imports2 ? `${code.slice(0, decorator.index + imports2.index + imports2[1].length)}${names2.join(", ")}${/^\s*\]/.test(body.slice(imports2.index + imports2[0].length)) ? "" : ", "}${code.slice(decorator.index + imports2.index + imports2[1].length)}` : `${code.slice(0, open3)}
+  imports: [${names2.join(", ")}],${code.slice(open3)}`;
   const at2 = afterLastImport(next2);
-  const line = `import { ${names.join(", ")} } from '${from}';`;
+  const line = `import { ${names2.join(", ")} } from '${from}';`;
   return `${next2.slice(0, at2)}${at2 ? "\n" : ""}${line}${at2 ? "" : "\n"}${next2.slice(at2)}`;
 }
 function addToDeclaringModule(ctx, component, wanted) {
@@ -213724,9 +213918,12 @@ function addToDeclaringModule(ctx, component, wanted) {
   for (const file2 of modules) {
     let next2 = readText(ctx.cwd, file2, ctx.changed) ?? "";
     if (!new RegExp(`declarations\\s*:\\s*\\[[^\\]]*\\b${cls}\\b`).test(next2)) continue;
-    for (const { names, from } of wanted) {
+    if (wanted.some((w4) => w4.names.includes("TranslatePipe")) && (ngxTranslateMajor(ctx.cwd, ctx.changed) ?? 18) >= 18 && /import\s*\{[^}]*\bTranslateModule\b[^}]*\}\s*from\s*['"]@ngx-translate\/core['"]/.test(next2) && !/\bTranslateModule\s*\./.test(next2)) {
+      next2 = next2.replace(/\bTranslateModule\b/g, "TranslatePipe");
+    }
+    for (const { names: names2, from } of wanted) {
       const spec = typeof from === "string" ? from : from(file2);
-      const missing = names.filter((n4) => !new RegExp(`\\b${n4}\\b`).test(next2));
+      const missing = names2.filter((n4) => !new RegExp(`import\\s*(?:type\\s*)?\\{[^}]*\\b${n4}\\b[^}]*\\}\\s*from`).test(next2));
       if (!missing.length) continue;
       const decorator = /@NgModule\s*\(\s*\{/.exec(next2);
       if (!decorator) continue;
@@ -213893,6 +214090,7 @@ function planAngularSetup(ctx) {
     if (current2 === void 0 || isGenerated(current2)) ctx.out(pluralFile, angularPluralLines(legacy).join("\n"));
   }
   const modules = [];
+  const pipeForModules = ngModulePipe(ngxTranslateMajor(cwd, ctx.changed));
   for (const changed of [...ctx.files]) {
     const candidates = changed.path.endsWith(".ts") ? [changed.path] : (() => {
       const dir = path6.posix.dirname(changed.path);
@@ -213904,7 +214102,7 @@ function planAngularSetup(ctx) {
       if (!code) continue;
       const rich = changed.content.includes("<i18n-t ");
       const plural = changed.content.includes("| pluralForm");
-      let next2 = addTranslatePipe(code, major);
+      let next2 = addTranslatePipe(code, major, pipeForModules);
       if (next2 !== "ngmodule" && rich) {
         const spec = relFrom(component, richFile).replace(/\.ts$/, "");
         next2 = addStandaloneImports(next2 ?? code, ["I18nT", "I18nSlot"], spec, major) ?? next2;
@@ -213914,7 +214112,7 @@ function planAngularSetup(ctx) {
       }
       if (next2 === "ngmodule") {
         const module = addToDeclaringModule(ctx, component, [
-          { names: ["TranslateModule"], from: "@ngx-translate/core" },
+          { names: [pipeForModules], from: "@ngx-translate/core" },
           ...rich ? [{ names: legacy ? ["I18nTModule"] : ["I18nT", "I18nSlot"], from: (m2) => relFrom(m2, richFile).replace(/\.ts$/, "") }] : [],
           ...plural ? [{ names: legacy ? ["PluralFormModule"] : ["PluralForm"], from: (m2) => relFrom(m2, pluralFile).replace(/\.ts$/, "") }] : []
         ]);
@@ -213924,7 +214122,7 @@ function planAngularSetup(ctx) {
   }
   if (modules.length) {
     const rich = legacy ? " (and I18nTModule from i18n-t.ts, where <i18n-t> is used)" : "";
-    result.notes.push(`Add TranslateModule${rich} to the NgModule declaring ${modules.map((m2) => `\`${m2}\``).join(", ")}.`);
+    result.notes.push(`Add ${pipeForModules}${rich} to the NgModule declaring ${modules.map((m2) => `\`${m2}\``).join(", ")}.`);
   }
   result.notes.push(`Switch language with \`setLanguage(${major !== void 0 && major < 14 ? "translate" : "inject(TranslateService)"}, code)\` from \`${file2}\`.`);
   return result;
@@ -214046,8 +214244,8 @@ ${codeLine ? `${codeLine}
 ` : ""}---
 ${code}`;
   let body = front[1];
-  const named = /^import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"];?$/.exec(importLine);
-  const merge2 = named && mergeNamedImport(body, named[1].split(",").map((n4) => n4.trim()).filter(Boolean), named[2]);
+  const named2 = /^import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"];?$/.exec(importLine);
+  const merge2 = named2 && mergeNamedImport(body, named2[1].split(",").map((n4) => n4.trim()).filter(Boolean), named2[2]);
   if (merge2) body = body.slice(0, merge2.start) + merge2.text + body.slice(merge2.end);
   else if (!body.includes(importLine)) {
     const imports2 = [...body.matchAll(/^import\b[^\n]*?['"][^'"]+['"];?[ \t]*$/gm)];
@@ -214693,7 +214891,7 @@ function planServerSetup(ctx) {
     const settings = candidates.find((f2) => /\/(base|common|defaults)\.py$/.test(f2)) ?? candidates.find((f2) => f2.endsWith("/settings.py") || f2 === "settings.py") ?? candidates[0];
     let code = settings ? read2(settings) : void 0;
     if (settings && code) {
-      const names = (l2) => {
+      const names2 = (l2) => {
         try {
           return new Intl.DisplayNames(["en"], { type: "language" }).of(l2) ?? l2;
         } catch {
@@ -214706,7 +214904,7 @@ USE_I18N = True
       if (!/^LANGUAGES\s*=/m.test(code)) code = `${code.trimEnd()}
 
 # ${GENERATED}: the languages this site is translated into.
-LANGUAGES = [${all.map((l2) => `('${l2}', '${names(l2)}')`).join(", ")}]
+LANGUAGES = [${all.map((l2) => `('${l2}', '${names2(l2)}')`).join(", ")}]
 `;
       if (!/^LOCALE_PATHS\s*=/m.test(code)) code = `${code.trimEnd()}
 LOCALE_PATHS = [${/^BASE_DIR\s*=/m.test(code) ? "BASE_DIR / 'locale'" : "'locale'"}]
@@ -214799,10 +214997,11 @@ ${all.map((l2) => `    <locale android:name="${l2}" />`).join("\n")}
   }
   return result;
 }
-var import_fast_glob4, toPosix, GENERATED, isGenerated, VUE_I18N, SVELTE_I18N, NUXT_I18N, locales, ident, relFrom, RTL, rtlLine, documentLines, rememberLines, pluralRuleLines, detectLines, bestLanguage, BROWSER_LANGUAGES, pickLanguage, firstExisting, hasDep, I18NEXT, ngxTranslateFor, addTranslatePipe, angularPluralLines, angularRichModuleLines, angularRichLines, EMBER_INTL, EMBER_RICH;
+var import_fast_glob4, toPosix, GENERATED, isGenerated, VUE_I18N, SVELTE_I18N, NUXT_I18N, locales, ident, relFrom, RTL, rtlLine, documentLines, rememberLines, pluralRuleLines, detectLines, bestLanguage, BROWSER_LANGUAGES, pickLanguage, firstExisting, hasDep, I18NEXT, ngxTranslateFor, ngModulePipe, addTranslatePipe, angularPluralLines, angularRichModuleLines, angularRichLines, EMBER_INTL, EMBER_RICH;
 var init_setup_frameworks = __esm({
   "src/setup-frameworks.ts"() {
     "use strict";
+    init_rtl();
     import_fast_glob4 = __toESM(require_out4(), 1);
     init_dictionary();
     init_html_pages();
@@ -214820,7 +215019,7 @@ var init_setup_frameworks = __esm({
       const rel = path6.posix.relative(path6.posix.dirname(fromFile), target);
       return rel.startsWith(".") ? rel : `./${rel}`;
     };
-    RTL = ["ar", "ckb", "dv", "fa", "he", "ps", "sd", "ug", "ur", "yi"];
+    RTL = RTL_LANGUAGES;
     rtlLine = `const RTL = ${JSON.stringify(RTL).replace(/"/g, "'").replace(/,/g, ", ")};`;
     documentLines = (ts, dict2) => [
       rtlLine,
@@ -214870,7 +215069,8 @@ var init_setup_frameworks = __esm({
     };
     I18NEXT = { i18next: "^26.5.0" };
     ngxTranslateFor = (major) => ({ "@ngx-translate/core": major === void 0 || major >= 16 ? "^18.1.0" : major >= 13 ? "^14.0.0" : "^13.0.0" });
-    addTranslatePipe = (code, major) => addStandaloneImports(code, ["TranslatePipe"], "@ngx-translate/core", major);
+    ngModulePipe = (ngxMajor) => ngxMajor === void 0 || ngxMajor >= 16 ? "TranslatePipe" : "TranslateModule";
+    addTranslatePipe = (code, major, pipe3 = "TranslatePipe") => addStandaloneImports(code, [pipe3], "@ngx-translate/core", major);
     angularPluralLines = (legacy) => [
       `// ${GENERATED}: the plural form of a count in the current language, for choosing a message's key.`,
       `import { ${legacy ? "NgModule, " : "inject, "}Pipe, PipeTransform } from '@angular/core';`,
@@ -215074,8 +215274,132 @@ function readText(cwd, file2, changed) {
   return fs8.existsSync(abs) ? fs8.readFileSync(abs, "utf8") : void 0;
 }
 function writeJsonLike(original, value) {
-  const indent2 = /^([ \t]+)"/m.exec(original)?.[1] ?? "  ";
-  return `${JSON.stringify(value, null, indent2)}${original.endsWith("\n") ? "\n" : ""}`;
+  try {
+    return editJson(original, value);
+  } catch {
+    const indent2 = /^([ \t]+)"/m.exec(original)?.[1] ?? "  ";
+    return `${JSON.stringify(value, null, indent2)}${original.endsWith("\n") ? "\n" : ""}`;
+  }
+}
+function parseJsonNodes(text4) {
+  let i3 = 0;
+  const ws = () => {
+    while (/\s/.test(text4[i3] ?? "")) i3++;
+  };
+  const string2 = () => {
+    const start2 = i3++;
+    while (text4[i3] !== '"') {
+      if (i3 >= text4.length) throw new Error("unterminated string");
+      i3 += text4[i3] === "\\" ? 2 : 1;
+    }
+    i3++;
+    return { start: start2, end: i3 };
+  };
+  const value = () => {
+    ws();
+    const start2 = i3;
+    if (text4[i3] === "{") {
+      i3++;
+      const entries = [];
+      ws();
+      if (text4[i3] === "}") return { kind: "object", start: start2, end: ++i3, entries };
+      for (; ; ) {
+        ws();
+        const k = string2();
+        ws();
+        if (text4[i3++] !== ":") throw new Error("expected :");
+        entries.push({ key: JSON.parse(text4.slice(k.start, k.end)), keyStart: k.start, value: value() });
+        ws();
+        if (text4[i3] === ",") i3++;
+        else if (text4[i3] === "}") return { kind: "object", start: start2, end: ++i3, entries };
+        else throw new Error("expected , or }");
+      }
+    }
+    if (text4[i3] === "[") {
+      let depth = 0;
+      do {
+        if (text4[i3] === '"') string2();
+        else {
+          if (text4[i3] === "[" || text4[i3] === "{") depth++;
+          if (text4[i3] === "]" || text4[i3] === "}") depth--;
+          i3++;
+        }
+      } while (depth > 0 && i3 < text4.length);
+      return { kind: "array", start: start2, end: i3 };
+    }
+    if (text4[i3] === '"') return { kind: "scalar", ...string2() };
+    while (i3 < text4.length && !/[\s,}\]]/.test(text4[i3])) i3++;
+    if (i3 === start2) throw new Error("expected a value");
+    return { kind: "scalar", start: start2, end: i3 };
+  };
+  const root = value();
+  ws();
+  if (i3 !== text4.length) throw new Error("trailing text");
+  return root;
+}
+function editJson(original, value) {
+  const root = parseJsonNodes(original);
+  const unit = /^([ \t]+)"/m.exec(original)?.[1] ?? "  ";
+  const edits = [];
+  const lineIndent = (at2) => /^[ \t]*/.exec(original.slice(original.lastIndexOf("\n", at2 - 1) + 1))[0];
+  const render2 = (v2, indent2, inline) => {
+    if (!v2 || typeof v2 !== "object") return JSON.stringify(v2);
+    if (inline) {
+      if (Array.isArray(v2)) return `[${v2.map((x) => render2(x, indent2, true)).join(", ")}]`;
+      const parts = Object.entries(v2).map(([k, x]) => `${JSON.stringify(k)}: ${render2(x, indent2, true)}`);
+      return parts.length ? `{ ${parts.join(", ")} }` : "{}";
+    }
+    return JSON.stringify(v2, null, unit).replace(/\n/g, `
+${indent2}`);
+  };
+  const diff2 = (node2, v2, parentInline = false) => {
+    const text4 = original.slice(node2.start, node2.end);
+    if (sameJson(JSON.parse(text4), v2)) return;
+    if (node2.kind !== "object" || !isPlainObject3(v2)) {
+      edits.push({ start: node2.start, end: node2.end, text: render2(v2, lineIndent(node2.start), !text4.includes("\n")) });
+      return;
+    }
+    const { entries } = node2;
+    const inline = !text4.includes("\n");
+    const colon = entries.length ? original.slice(entries[0].keyStart, entries[0].value.start).replace(/^"(?:[^"\\]|\\.)*"/, "") : ": ";
+    const between = (a) => original.slice(entries[a].value.end, entries[a + 1].keyStart);
+    const sep6 = entries.length > 1 ? between(entries.length - 2) : inline ? ", " : `,
+${entries.length ? lineIndent(entries[0].keyStart) : lineIndent(node2.start) + unit}`;
+    const entryIndent = entries.length ? lineIndent(entries[0].keyStart) : lineIndent(node2.start) + unit;
+    const line = (k) => `${JSON.stringify(k)}${colon}${render2(v2[k], entryIndent, inline)}`;
+    if (!entries.length) {
+      const keys = Object.keys(v2);
+      edits.push({
+        start: node2.start,
+        end: node2.end,
+        text: parentInline ? `{ ${keys.map(line).join(", ")} }` : `{
+${entryIndent}${keys.map(line).join(`,
+${entryIndent}`)}
+${lineIndent(node2.start)}}`
+      });
+      return;
+    }
+    entries.forEach((e2, n4) => {
+      if (e2.key in v2) return;
+      if (n4 > 0) edits.push({ start: entries[n4 - 1].value.end, end: e2.value.end, text: "" });
+      else if (entries.length > 1) edits.push({ start: e2.keyStart, end: entries[1].keyStart, text: "" });
+      else edits.push({ start: node2.start + 1, end: node2.end - 1, text: "" });
+    });
+    for (const e2 of entries) if (e2.key in v2) diff2(e2.value, v2[e2.key], inline);
+    const kept = entries.filter((e2) => e2.key in v2);
+    const sorted = kept.every((e2, n4) => n4 === 0 || kept[n4 - 1].key.localeCompare(e2.key) <= 0);
+    for (const k of Object.keys(v2).filter((key2) => !entries.some((e2) => e2.key === key2))) {
+      const after = sorted ? [...kept].reverse().find((e2) => e2.key.localeCompare(k) < 0) : kept[kept.length - 1];
+      if (after) edits.push({ start: after.value.end, end: after.value.end, text: `${sep6}${line(k)}` });
+      else edits.push({ start: kept[0].keyStart, end: kept[0].keyStart, text: `${line(k)}${sep6}` });
+    }
+  };
+  diff2(root, value);
+  let out = original;
+  const order = edits.map((e2, n4) => ({ ...e2, n: n4 })).sort((a, b4) => b4.start - a.start || b4.n - a.n);
+  for (const e2 of order) out = `${out.slice(0, e2.start)}${e2.text}${out.slice(e2.end)}`;
+  JSON.parse(out);
+  return out;
 }
 function majorOf(range) {
   const m2 = /(\d+)(?:\.(\d+))?/.exec(range ?? "");
@@ -215827,7 +216151,7 @@ function mergeFiles(files, extra) {
   for (const f2 of extra) byPath.set(f2.path, f2);
   return [...byPath.values()];
 }
-var import_fast_glob5, t9, I18N_PACKAGES, ICU_PACKAGES, toPosix2, ENTRY_NAMES, EXTS, SELF_VERSION, isLegacySwitcher, LOCKFILES, LOCK_ONLY;
+var import_fast_glob5, t9, I18N_PACKAGES, ICU_PACKAGES, toPosix2, sameJson, isPlainObject3, ENTRY_NAMES, EXTS, SELF_VERSION, isLegacySwitcher, LOCKFILES, LOCK_ONLY;
 var init_setup = __esm({
   "src/setup.ts"() {
     "use strict";
@@ -215847,9 +216171,11 @@ var init_setup = __esm({
       "intl-messageformat": "^12.1.0"
     };
     toPosix2 = (p) => p.split(path7.sep).join("/");
+    sameJson = (a, b4) => JSON.stringify(a) === JSON.stringify(b4);
+    isPlainObject3 = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION = true ? "0.21.0" : "0.6.0";
+    SELF_VERSION = true ? "0.22.0" : "0.6.0";
     isLegacySwitcher = (code) => isGenerated(code) && code.includes("function nameOf(") && code.includes("<select") && !code.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -217192,12 +217518,12 @@ async function scanProject(cwd, config, log) {
     });
     if (!importedElsewhere) byModule.set(abs, [...byModule.get(abs) ?? [], name]);
   }
-  for (const [abs, names] of byModule) {
+  for (const [abs, names2] of byModule) {
     const code = fs13.readFileSync(abs, "utf8");
     const file2 = toPosix3(path12.relative(cwd, abs));
     const strings2 = [];
     const sites = /* @__PURE__ */ new Map();
-    for (const name of names) {
+    for (const name of names2) {
       for (const l2 of copyIn(abs).get(name).literals) {
         const id3 = `str_${strings2.length + 1}`;
         strings2.push({ id: id3, originalText: l2.text, nodeType: "StringLiteral", filePath: file2, loc: { line: code.slice(0, l2.start).split("\n").length, column: 0 }, component: name, element: l2.field });
@@ -218373,11 +218699,11 @@ function merge(defaults, route, options) {
 }
 function addQueryParameters(url, parameters) {
   const separator = /\?/.test(url) ? "&" : "?";
-  const names = Object.keys(parameters);
-  if (names.length === 0) {
+  const names2 = Object.keys(parameters);
+  if (names2.length === 0) {
     return url;
   }
-  return url + separator + names.map((name) => {
+  return url + separator + names2.map((name) => {
     if (name === "q") {
       return "q=" + parameters.q.split("+").map(encodeURIComponent).join("+");
     }
