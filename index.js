@@ -70790,12 +70790,14 @@ function parseAndScanComponent(code, filePath, options = {}) {
   const keyUsages = [];
   const externalCopy = [];
   const constantStrings = /* @__PURE__ */ new Set();
+  const metadataStrings = /* @__PURE__ */ new Set();
   if (options.server) {
     scanMetadata(ast, code, (literal5, text4, params, hook2) => {
       const id3 = `str_${extractedStrings.length + 1}`;
       const loc2 = literal5.loc?.start ?? { line: 0, column: 0 };
       extractedStrings.push({ id: id3, originalText: text4, nodeType: "StringLiteral", filePath, loc: { line: loc2.line, column: loc2.column }, component: "metadata", element: "title", ...params.length ? { params: params.map((p) => p.name) } : {} });
       sites.set(id3, { id: id3, start: literal5.start, end: literal5.end, kind: "expression", params, hook: hook2 });
+      metadataStrings.add(literal5);
     });
   }
   scanConstants(
@@ -70814,6 +70816,7 @@ function parseAndScanComponent(code, filePath, options = {}) {
     },
     (read2, hook2, ids) => keyUsages.push({ start: read2.node.start, end: read2.node.end, source: code.slice(read2.node.start, read2.node.end), hook: hook2, ids }),
     (literal5, text4, reason) => {
+      if (metadataStrings.has(literal5)) return;
       const loc2 = literal5.loc?.start ?? { line: 0, column: 0 };
       warnings2.push({ filePath, loc: { line: loc2.line, column: loc2.column }, text: text4, reason });
     },
@@ -208970,11 +208973,13 @@ function tokens(code, engine) {
     add(/<%-?=\s*([\s\S]*?)\s*-?%>/g, "output", 1);
     add(/<%(?![=#])-?[\s\S]*?-?%>/g, "other");
   } else if (engine === "django") {
+    add(/\{%-?\s*(comment|verbatim|blocktranslate|blocktrans)\b[^%]*%\}[\s\S]*?\{%-?\s*end\1\s*-?%\}/g, "other");
     add(/\{#[\s\S]*?#\}/g, "other");
     add(/\{%[\s\S]*?%\}/g, "other");
     add(/\{\{\s*([\s\S]*?)\s*\}\}/g, "output", 1);
   } else {
     add(/\{\{--[\s\S]*?--\}\}/g, "other");
+    add(/@(verbatim|php)\b(?!\s*\()[\s\S]*?@end\1\b/g, "other");
     add(/\{!!\s*([\s\S]*?)\s*!!\}/g, "output", 1);
     add(/(?<!@)\{\{\s*([\s\S]*?)\s*\}\}/g, "output", 1);
     for (const m2 of code.matchAll(BLADE_DIRECTIVES)) {
@@ -209229,7 +209234,7 @@ var init_server_templates = __esm({
     init_dictionary();
     init_stores();
     init_markup();
-    BLADE_DIRECTIVES = /@(?:if|elseif|else|endif|unless|endunless|isset|endisset|empty|endempty|auth|endauth|guest|endguest|foreach|endforeach|forelse|endforelse|for|endfor|while|endwhile|switch|case|break|default|endswitch|section|endsection|show|yield|extends|include|includeIf|includeWhen|each|component|endcomponent|slot|endslot|push|endpush|stack|php|endphp|csrf|method|error|enderror|props|class|style|checked|selected|disabled|readonly|required|once|endonce|env|endenv|production|endproduction|can|endcan|cannot|endcannot|json|vite|livewire\w*)\b/g;
+    BLADE_DIRECTIVES = /@(?:if|elseif|else|endif|unless|endunless|isset|endisset|empty|endempty|auth|endauth|guest|endguest|foreach|endforeach|forelse|endforelse|for|endfor|while|endwhile|switch|case|break|default|endswitch|section|endsection|show|yield|extends|include|includeIf|includeWhen|each|component|endcomponent|slot|endslot|push|endpush|stack|php|endphp|verbatim|endverbatim|csrf|method|error|enderror|props|class|style|checked|selected|disabled|readonly|required|once|endonce|env|endenv|production|endproduction|can|endcan|cannot|endcannot|json|vite|livewire\w*)\b/g;
     RAW2 = /* @__PURE__ */ new Set([...IGNORED_ELEMENTS2, "script", "style"]);
     forJs = (source2, engine) => {
       if (engine === "rails") return source2.replace(/@(\w)/g, "__ivar_$1");
@@ -209492,6 +209497,7 @@ var astro_exports = {};
 __export(astro_exports, {
   astroAdapter: () => astroAdapter,
   matchBrace: () => matchBrace,
+  mergeNamedImport: () => mergeNamedImport,
   scanAstro: () => scanAstro,
   transformAstro: () => transformAstro
 });
@@ -209517,9 +209523,41 @@ function matchBrace(code, open3) {
   }
   return code.length;
 }
+function mergeNamedImport(code, names, spec) {
+  const quoted = spec.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const m2 = new RegExp(`^import\\s*\\{([^}]*)\\}\\s*from\\s*(['"])${quoted}\\2;?`, "m").exec(code);
+  if (!m2) return null;
+  const have = m2[1].split(",").map((n4) => n4.trim()).filter(Boolean);
+  const merged = [...have, ...names.filter((n4) => !have.includes(n4))];
+  return { start: m2.index, end: m2.index + m2[0].length, text: `import { ${merged.join(", ")} } from ${m2[2]}${spec}${m2[2]};` };
+}
+function toCharOffsets(code, root) {
+  if (!/[^\x00-\x7f]/.test(code)) return;
+  const map = [];
+  let byte = 0;
+  for (let i3 = 0; i3 < code.length; i3++) {
+    const c = code.codePointAt(i3);
+    const width = c < 128 ? 1 : c < 2048 ? 2 : c < 65536 ? 3 : 4;
+    for (let b4 = 0; b4 < width; b4++) map[byte + b4] = i3;
+    byte += width;
+    if (c >= 65536) i3++;
+  }
+  map[byte] = code.length;
+  const fix = (pos) => {
+    if (pos && map[pos.offset] !== void 0) pos.offset = map[pos.offset];
+  };
+  const visit = (node2) => {
+    fix(node2.position?.start);
+    fix(node2.position?.end);
+    for (const a of node2.attributes ?? []) fix(a.position?.start);
+    for (const c of node2.children ?? []) visit(c);
+  };
+  visit(root);
+}
 async function scanAstro(code, filePath, opts) {
   const { parse: parse21 } = await loadOptional("@astrojs/compiler");
   const { ast } = await parse21(code, { position: true });
+  toCharOffsets(code, ast);
   const strings2 = [];
   const warnings2 = [];
   const sites = /* @__PURE__ */ new Map();
@@ -209562,7 +209600,13 @@ async function scanAstro(code, filePath, opts) {
     };
     for (const node2 of nodes) {
       const start2 = node2.position?.start.offset;
-      if (start2 === void 0) continue;
+      if (start2 === void 0) {
+        if (node2.type === "element" && !RAW4.has(node2.name ?? "")) {
+          flush();
+          walk3(node2.children ?? [], node2.name ?? element3);
+        }
+        continue;
+      }
       if (node2.type === "text") {
         const value = node2.value ?? "";
         if (code.startsWith(value, start2)) parts.push({ kind: "text", start: start2, end: start2 + value.length, raw: value });
@@ -209633,7 +209677,9 @@ ${tLine}
       const front = code.slice(0, close2);
       const imports2 = [...front.matchAll(/^import\b[^\n]*?(?:from\s*)?['"][^'"]+['"];?[ \t]*$/gm)];
       const last = imports2[imports2.length - 1];
-      if (last) s.appendLeft(last.index + last[0].length, `
+      const merge2 = mergeNamedImport(front, ["getLangFromUrl", "useTranslations"], opts.astroModule ?? "../i18n");
+      if (merge2) s.overwrite(merge2.start, merge2.end, merge2.text);
+      else if (last) s.appendLeft(last.index + last[0].length, `
 ${importLine}`);
       else s.appendLeft(code.indexOf("\n", code.indexOf("---")) + 1, `${importLine}
 `);
@@ -210166,7 +210212,8 @@ async function scanVue(code, filePath, opts) {
     return id3;
   };
   const literal5 = (lit, context, nested = false) => add(lit.text, { kind: "literal", start: lit.start, end: lit.end, params: lit.params, context, ...nested ? { nested } : {} }, { nodeType: "StringLiteral", element: lit.sink });
-  const ignored = (el) => IGNORED_ELEMENTS2.has(el.tag) || el.props.some((p) => p.type === NodeTypes.ATTRIBUTE && IGNORE_ATTRIBUTES2.has(p.name) || p.type === NodeTypes.DIRECTIVE && (p.name === "pre" || p.name === "html" || p.name === "text"));
+  const ignored = (el) => IGNORED_ELEMENTS2.has(el.tag) || // The parser drops v-pre from props (it only switches to raw parsing), so read the opening tag.
+  /^<[\w-]+(?:\s[^>]*?)?\sv-pre(?=[\s/>=])/.test(el.loc.source) || el.props.some((p) => p.type === NodeTypes.ATTRIBUTE && IGNORE_ATTRIBUTES2.has(p.name) || p.type === NodeTypes.DIRECTIVE && (p.name === "pre" || p.name === "html" || p.name === "text"));
   const build3 = (children, depth) => {
     const isBlank = (c) => c.type === NodeTypes.TEXT && !c.content.trim();
     const significant = children.filter((c) => !isBlank(c) && c.type !== NodeTypes.COMMENT);
@@ -212723,7 +212770,10 @@ ${codeLine ? `${codeLine}
 ` : ""}---
 ${code}`;
   let body = front[1];
-  if (!body.includes(importLine)) {
+  const named = /^import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"];?$/.exec(importLine);
+  const merge2 = named && mergeNamedImport(body, named[1].split(",").map((n4) => n4.trim()).filter(Boolean), named[2]);
+  if (merge2) body = body.slice(0, merge2.start) + merge2.text + body.slice(merge2.end);
+  else if (!body.includes(importLine)) {
     const imports2 = [...body.matchAll(/^import\b[^\n]*?['"][^'"]+['"];?[ \t]*$/gm)];
     const last = imports2[imports2.length - 1];
     body = last ? `${body.slice(0, last.index + last[0].length)}
@@ -213452,6 +213502,7 @@ var init_setup_frameworks = __esm({
     import_fast_glob4 = __toESM(require_out4(), 1);
     init_dictionary();
     init_html_pages();
+    init_astro();
     init_setup();
     toPosix = (p) => p.split(path6.sep).join("/");
     GENERATED = "Generated by localize.dev";
@@ -214454,7 +214505,7 @@ var init_setup = __esm({
     toPosix2 = (p) => p.split(path7.sep).join("/");
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION = true ? "0.16.0" : "0.6.0";
+    SELF_VERSION = true ? "0.17.0" : "0.6.0";
     isLegacySwitcher = (code) => isGenerated(code) && code.includes("function nameOf(") && code.includes("<select") && !code.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -220365,15 +220416,140 @@ init_pipeline();
 init_setup();
 
 // src/check.ts
-var import_fast_glob9 = __toESM(require_out4(), 1);
+var import_fast_glob10 = __toESM(require_out4(), 1);
 init_dictionary();
 init_pipeline();
 init_stores();
 init_sync();
 init_lock();
 init_rtl();
+import * as fs15 from "node:fs";
+import * as path14 from "node:path";
+
+// src/workspaces.ts
+var import_fast_glob9 = __toESM(require_out4(), 1);
+init_framework();
+init_stores();
 import * as fs14 from "node:fs";
 import * as path13 from "node:path";
+function workspacePatterns(root) {
+  try {
+    const pkg = JSON.parse(fs14.readFileSync(path13.join(root, "package.json"), "utf8"));
+    const ws = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages;
+    if (Array.isArray(ws) && ws.length) return ws;
+  } catch {
+  }
+  const yaml = path13.join(root, "pnpm-workspace.yaml");
+  if (!fs14.existsSync(yaml)) return null;
+  const list4 = /^packages:\s*\n((?:[ \t]+-.*\n?|[ \t]*#.*\n?|[ \t]*\n)*)/m.exec(fs14.readFileSync(yaml, "utf8"))?.[1] ?? "";
+  const patterns = [...list4.matchAll(/^[ \t]+-[ \t]*['"]?([^'"#\n]+?)['"]?[ \t]*(?:#.*)?$/gm)].map((m2) => m2[1]);
+  return patterns.length ? patterns : null;
+}
+function workspaceApps(root) {
+  const patterns = workspacePatterns(root);
+  if (!patterns) return null;
+  const manifests = import_fast_glob9.default.sync(
+    patterns.map((p) => p.startsWith("!") ? `!${p.slice(1).replace(/\/+$/, "")}/package.json` : `${p.replace(/\/+$/, "")}/package.json`),
+    { cwd: root, ignore: ["**/node_modules/**"] }
+  );
+  const apps = [];
+  const libraries = [];
+  const skipped = [];
+  for (const manifest of manifests.sort()) {
+    const dir = path13.posix.dirname(manifest);
+    const pkg = JSON.parse(fs14.readFileSync(path13.join(root, manifest), "utf8"));
+    const library = !pkg.scripts?.dev && !pkg.scripts?.start;
+    let framework;
+    try {
+      framework = detectFramework(path13.join(root, dir));
+    } catch (err) {
+      if (!(err instanceof UnsupportedFrameworkError)) throw err;
+      skipped.push({ dir, reason: library ? "a library without a UI framework" : err.message.split(":")[0] });
+      continue;
+    }
+    if (framework === "html" && !import_fast_glob9.default.sync("**/*.html", { cwd: path13.join(root, dir), ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"], deep: 6 }).length) {
+      skipped.push({ dir, reason: library ? "a library without a UI framework" : "no UI framework or HTML pages" });
+      continue;
+    }
+    if (library) libraries.push({ dir, framework, ...pkg.name ? { name: pkg.name } : {} });
+    else apps.push({ dir, framework, ...pkg.name ? { name: pkg.name } : {}, deps: Object.keys({ ...pkg.dependencies, ...pkg.devDependencies, ...pkg.peerDependencies }) });
+  }
+  const withUses = apps.map(({ deps, ...app }) => ({ ...app, uses: libraries.filter((l2) => l2.name && deps.includes(l2.name)).map((l2) => l2.dir) }));
+  const used = new Set(withUses.flatMap((a) => a.uses));
+  for (const l2 of libraries.filter((l3) => !used.has(l3.dir))) skipped.push({ dir: l2.dir, reason: "a library no app in the workspace depends on" });
+  return { apps: withUses, libraries: libraries.filter((l2) => used.has(l2.dir)), skipped };
+}
+function mergeLibraryLocales(root, lib, app, write, pending = /* @__PURE__ */ new Map()) {
+  const from = storeFor(lib.config);
+  const to = storeFor(app.config);
+  const read2 = (dir, file2) => {
+    const rel = path13.posix.join(dir, file2);
+    if (pending.has(rel)) return pending.get(rel);
+    const abs = path13.join(root, rel);
+    return fs14.existsSync(abs) ? fs14.readFileSync(abs, "utf8") : void 0;
+  };
+  const merge2 = (into, add) => {
+    let changed = false;
+    for (const [k, v2] of Object.entries(add)) {
+      if (into[k] === void 0) {
+        into[k] = v2;
+        changed = true;
+      } else if (typeof into[k] === "object" && typeof v2 === "object") changed = merge2(into[k], v2) || changed;
+    }
+    return changed;
+  };
+  const files = [];
+  const appSource = to.read(read2(app.dir, to.path(app.config.sourceLocale)), app.config.sourceLocale);
+  for (const locale of [app.config.sourceLocale, ...app.config.targetLocales.filter((l2) => l2 !== app.config.sourceLocale)]) {
+    const libText = read2(lib.dir, from.path(locale));
+    if (libText === void 0) continue;
+    const target = to.path(locale);
+    const original = read2(app.dir, target);
+    const dict2 = to.read(original, locale);
+    if (!merge2(dict2, from.read(libText, locale))) continue;
+    if (locale === app.config.sourceLocale) merge2(appSource, dict2);
+    const content = to.serialize(dict2, locale, original, appSource);
+    if (content === null || content === original) continue;
+    const file2 = path13.posix.join(app.dir, target);
+    if (write) {
+      fs14.mkdirSync(path13.dirname(path13.join(root, file2)), { recursive: true });
+      fs14.writeFileSync(path13.join(root, file2), content);
+    }
+    files.push({ path: file2, content });
+  }
+  return files;
+}
+function mergeResults(results) {
+  const at2 = (dir, p) => path13.posix.join(dir, p);
+  const merged = {
+    files: [],
+    replacements: /* @__PURE__ */ new Map(),
+    warnings: [],
+    setup: { files: [], addedDependencies: {}, notes: [] },
+    formats: /* @__PURE__ */ new Map(),
+    stats: { filesScanned: 0, stringsReplaced: 0, newKeys: 0, reusedKeys: 0, translations: {}, formatsLocalized: 0 }
+  };
+  for (const { dir, result } of results) {
+    merged.files.push(...result.files.map((f2) => ({ ...f2, path: at2(dir, f2.path) })));
+    for (const [file2, reps] of result.replacements) merged.replacements.set(at2(dir, file2), reps);
+    for (const [file2, changes] of result.formats ?? []) merged.formats.set(at2(dir, file2), changes);
+    merged.warnings.push(...result.warnings.map((w4) => ({ ...w4, filePath: at2(dir, w4.filePath) })));
+    merged.setup.notes.push(...result.setup.notes.map((n4) => `${dir}: ${n4}`));
+    Object.assign(merged.setup.addedDependencies, result.setup.addedDependencies);
+    const s = result.stats;
+    merged.stats.filesScanned += s.filesScanned;
+    merged.stats.stringsReplaced += s.stringsReplaced;
+    merged.stats.newKeys += s.newKeys;
+    merged.stats.reusedKeys += s.reusedKeys;
+    merged.stats.formatsLocalized += s.formatsLocalized ?? 0;
+    for (const [l2, n4] of Object.entries(s.translations)) merged.stats.translations[l2] = (merged.stats.translations[l2] ?? 0) + n4;
+    if (result.incomplete && !merged.incomplete) merged.incomplete = result.incomplete;
+    else if (result.incomplete) merged.incomplete.strings += result.incomplete.strings;
+  }
+  return merged;
+}
+
+// src/check.ts
 var QUOTED_KEYS = /* @__PURE__ */ new Set([void 0, "react", "react-native", "vue", "svelte", "angular", "astro", "solid", "qwik", "lit", "ember", "html"]);
 var CODE = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,astro,html,hbs,gjs,gts}";
 var IGNORE3 = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.nuxt/**", "**/.svelte-kit/**", "**/.output/**", "**/coverage/**", "**/*.d.ts"];
@@ -220381,13 +220557,13 @@ async function unusedKeys(cwd, config) {
   const store = storeFor(config);
   const file2 = store.path(config.sourceLocale);
   if (!QUOTED_KEYS.has(config.framework) || store.textKeys) return { file: file2, keys: [] };
-  const abs = path13.join(cwd, file2);
-  if (!fs14.existsSync(abs)) return { file: file2, keys: [] };
-  const flat = [...flatten(store.read(fs14.readFileSync(abs, "utf8"), config.sourceLocale)).keys()];
+  const abs = path14.join(cwd, file2);
+  if (!fs15.existsSync(abs)) return { file: file2, keys: [] };
+  const flat = [...flatten(store.read(fs15.readFileSync(abs, "utf8"), config.sourceLocale)).keys()];
   const keys = [...new Set(flat.map(messageKeyIn(flat)))];
-  const sources = await (0, import_fast_glob9.default)(CODE, { cwd: path13.join(cwd, config.srcDir), ignore: IGNORE3 });
+  const sources = await (0, import_fast_glob10.default)(CODE, { cwd: path14.join(cwd, config.srcDir), ignore: IGNORE3 });
   let code = "";
-  for (const f2 of sources) code += `${fs14.readFileSync(path13.join(cwd, config.srcDir, f2), "utf8")}
+  for (const f2 of sources) code += `${fs15.readFileSync(path14.join(cwd, config.srcDir, f2), "utf8")}
 `;
   const prefixes = [...code.matchAll(/`([\w.-]*)\$\{/g)].map((m2) => m2[1]).filter((p) => p.includes(".") || p.length > 2);
   const used = (key2) => code.includes(`'${key2}'`) || code.includes(`"${key2}"`) || code.includes(`\`${key2}\``) || prefixes.some((p) => key2.startsWith(p));
@@ -220405,10 +220581,21 @@ function messageKeyIn(sourceKeys) {
     return base !== key2 && plurals.has(base) ? base : key2;
   };
 }
+function localizedInPlace(cwd, config) {
+  const store = storeFor(config);
+  const flat = flatOf(cwd, store, config.sourceLocale);
+  if (!flat) return () => false;
+  const has = (key2) => flat.has(key2) || flat.has(`${key2}.other`);
+  return (s) => {
+    if (s.fixedKey) return flat.get(s.fixedKey) === s.originalText;
+    if (config.framework === "ios" && s.element !== "UIKit") return has(encodeKey(textKeyFor(s.originalText, config.interpolation, s.plural)));
+    return false;
+  };
+}
 function flatOf(cwd, store, locale) {
-  const file2 = path13.join(cwd, store.path(locale));
-  if (!fs14.existsSync(file2)) return null;
-  return flatten(store.read(fs14.readFileSync(file2, "utf8"), locale));
+  const file2 = path14.join(cwd, store.path(locale));
+  if (!fs15.existsSync(file2)) return null;
+  return flatten(store.read(fs15.readFileSync(file2, "utf8"), locale));
 }
 function pluralCategoriesOf(locale) {
   try {
@@ -220418,9 +220605,9 @@ function pluralCategoriesOf(locale) {
   }
 }
 function keysOf(cwd, store, locale, toMessage = messageKey) {
-  const file2 = path13.join(cwd, store.path(locale));
-  if (!fs14.existsSync(file2)) return null;
-  const dict2 = store.read(fs14.readFileSync(file2, "utf8"), locale);
+  const file2 = path14.join(cwd, store.path(locale));
+  if (!fs15.existsSync(file2)) return null;
+  const dict2 = store.read(fs15.readFileSync(file2, "utf8"), locale);
   return new Set([...flatten(dict2)].filter(([, v2]) => v2.trim() !== "").map(([k]) => toMessage(k)));
 }
 async function checkProject(cwd, config, log, only) {
@@ -220429,7 +220616,8 @@ async function checkProject(cwd, config, log, only) {
   if (only !== "translations") {
     const scan = await scanProject(cwd, config, log);
     filesScanned = scan.filesScanned;
-    for (const s of scan.scanned) for (const str of s.strings) hardcoded.push({ file: s.file, line: str.loc.line, text: str.originalText });
+    const inPlace = localizedInPlace(cwd, config);
+    for (const s of scan.scanned) for (const str of s.strings) if (!inPlace(str)) hardcoded.push({ file: s.file, line: str.loc.line, text: str.originalText });
   }
   const missing = [];
   if (only !== "strings") {
@@ -220469,8 +220657,8 @@ async function checkProject(cwd, config, log, only) {
   const rawValues = [];
   if (only !== "translations") {
     const store = storeFor(config);
-    const abs = path13.join(cwd, store.path(config.sourceLocale));
-    const source2 = fs14.existsSync(abs) ? flatten(store.read(fs14.readFileSync(abs, "utf8"), config.sourceLocale)) : /* @__PURE__ */ new Map();
+    const abs = path14.join(cwd, store.path(config.sourceLocale));
+    const source2 = fs15.existsSync(abs) ? flatten(store.read(fs15.readFileSync(abs, "utf8"), config.sourceLocale)) : /* @__PURE__ */ new Map();
     for (const [key2, text4] of source2) {
       const value = RAW_VALUE.exec(text4);
       if (value) rawValues.push({ file: store.path(config.sourceLocale), line: 0, text: `${messageKey(key2)}: "${text4}" shows {${value[1]}} as stored` });
@@ -220479,6 +220667,36 @@ async function checkProject(cwd, config, log, only) {
   const unknown = only === "translations" ? [] : await unknownKeys(cwd, config);
   const fonts = await fontCoverage(cwd, config);
   return { filesScanned, hardcoded, missing, outdated, unused, rtl, cssText, rawValues, unknownKeys: unknown, fonts, ok: !hardcoded.length && !missing.length && !outdated.length && !unknown.length };
+}
+async function checkWorkspaces(root, load2, log, only) {
+  const found2 = workspaceApps(root);
+  if (!found2) return null;
+  const configs = new Map(found2.apps.map((a) => [a.dir, load2(path14.join(root, a.dir))]));
+  const targets = [
+    ...found2.libraries.map((l2) => {
+      const users = found2.apps.filter((a) => a.uses?.includes(l2.dir));
+      return { dir: l2.dir, config: load2(path14.join(root, l2.dir), { targetLocales: [...new Set(users.flatMap((a) => configs.get(a.dir).targetLocales))] }) };
+    }),
+    ...found2.apps.map((a) => ({ dir: a.dir, config: configs.get(a.dir) }))
+  ];
+  const packages = [];
+  for (const { dir, config } of targets) packages.push({ dir, result: withDir(await checkProject(path14.join(root, dir), config, log, only), dir) });
+  return { packages, skipped: found2.skipped, ok: packages.every((p) => p.result.ok) };
+}
+function withDir(r, dir) {
+  const at2 = (x) => ({ ...x, file: x.file ? path14.posix.join(dir, x.file) : x.file });
+  return {
+    ...r,
+    hardcoded: r.hardcoded.map(at2),
+    missing: r.missing.map(at2),
+    outdated: r.outdated.map(at2),
+    unused: at2(r.unused),
+    rtl: r.rtl.map(at2),
+    cssText: r.cssText.map(at2),
+    rawValues: r.rawValues.map(at2),
+    unknownKeys: r.unknownKeys.map(at2),
+    fonts: r.fonts.map(at2)
+  };
 }
 var KEY_USES = [
   /(?<![\w$.])(?:t|\$t|\$_|i18n\.t|this\.\$t)\(\s*(['"`])([\w-]+(?:\.[\w-]+)+)\1/g,
@@ -220489,17 +220707,18 @@ var KEY_USES = [
 async function unknownKeys(cwd, config) {
   const store = storeFor(config);
   if (!QUOTED_KEYS.has(config.framework) || store.textKeys) return [];
-  const abs = path13.join(cwd, store.path(config.sourceLocale));
-  if (!fs14.existsSync(abs)) return [];
-  const known = new Set([...flatten(store.read(fs14.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].flatMap((k) => [k, messageKey(k), k.replace(/_(?:male|female|other)$/, "")]));
+  const abs = path14.join(cwd, store.path(config.sourceLocale));
+  if (!fs15.existsSync(abs)) return [];
+  const known = new Set([...flatten(store.read(fs15.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].flatMap((k) => [k, messageKey(k), k.replace(/_(?:male|female|other)$/, "")]));
   const out = [];
-  for (const f2 of await (0, import_fast_glob9.default)(CODE, { cwd: path13.join(cwd, config.srcDir), ignore: IGNORE3 })) {
-    const text4 = fs14.readFileSync(path13.join(cwd, config.srcDir, f2), "utf8");
+  for (const f2 of await (0, import_fast_glob10.default)(CODE, { cwd: path14.join(cwd, config.srcDir), ignore: IGNORE3 })) {
+    const text4 = fs15.readFileSync(path14.join(cwd, config.srcDir, f2), "utf8");
     for (const re of KEY_USES) {
       for (const m2 of text4.matchAll(re)) {
         const key2 = m2[2];
         if (known.has(key2) || [...known].some((k) => k.startsWith(`${key2}.`))) continue;
-        out.push({ file: path13.posix.join(config.srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: key2 });
+        if (new RegExp(`exists\\(\\s*(['"\`])${key2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\1`).test(text4)) continue;
+        out.push({ file: path14.posix.join(config.srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: key2 });
       }
     }
   }
@@ -220536,8 +220755,8 @@ async function fontCoverage(cwd, config) {
   const langs = config.targetLocales.map((l2) => l2.split("-")[0].toLowerCase());
   if (!langs.some((l2) => SUBSET[l2] || SCRIPT[l2])) return [];
   const out = [];
-  for (const f2 of await (0, import_fast_glob9.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE3 })) {
-    const text4 = fs14.readFileSync(path13.join(cwd, f2), "utf8");
+  for (const f2 of await (0, import_fast_glob10.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE3 })) {
+    const text4 = fs15.readFileSync(path14.join(cwd, f2), "utf8");
     if (!/from\s*['"]next\/font\/google['"]/.test(text4)) continue;
     for (const m2 of text4.matchAll(/\b([A-Z]\w*)\(\s*\{([^}]*)\}\s*\)/g)) {
       const subsets = /subsets\s*:\s*\[([^\]]*)\]/.exec(m2[2]);
@@ -220554,13 +220773,13 @@ async function fontCoverage(cwd, config) {
 }
 var RAW_VALUE = /\{\{?\s*(status|state|type|role|kind|category|level|priority|plan|tier|stage|mode|gender)\s*\}?\}/i;
 async function cssContentText(cwd, srcDir) {
-  const root = path13.join(cwd, srcDir);
+  const root = path14.join(cwd, srcDir);
   const out = [];
-  for (const f2 of await (0, import_fast_glob9.default)("**/*.{css,scss,sass,less,vue,svelte}", { cwd: root, ignore: IGNORE3 })) {
-    const text4 = fs14.readFileSync(path13.join(root, f2), "utf8");
+  for (const f2 of await (0, import_fast_glob10.default)("**/*.{css,scss,sass,less,vue,svelte}", { cwd: root, ignore: IGNORE3 })) {
+    const text4 = fs15.readFileSync(path14.join(root, f2), "utf8");
     for (const m2 of text4.matchAll(new RegExp(`\\bcontent\\s*:\\s*(["'])((?:(?!\\1).)*\\p{L}(?:(?!\\1).)*)\\1`, "gu"))) {
       if (/^\\[0-9a-f]+$/i.test(m2[2])) continue;
-      out.push({ file: path13.posix.join(srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: m2[2] });
+      out.push({ file: path14.posix.join(srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: m2[2] });
     }
   }
   return out;
@@ -220701,125 +220920,6 @@ function buildTranslatePrBody(result) {
 
 // src/action/main.ts
 init_sync();
-
-// src/workspaces.ts
-var import_fast_glob10 = __toESM(require_out4(), 1);
-init_framework();
-init_stores();
-import * as fs15 from "node:fs";
-import * as path14 from "node:path";
-function workspacePatterns(root) {
-  try {
-    const pkg = JSON.parse(fs15.readFileSync(path14.join(root, "package.json"), "utf8"));
-    const ws = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages;
-    if (Array.isArray(ws) && ws.length) return ws;
-  } catch {
-  }
-  const yaml = path14.join(root, "pnpm-workspace.yaml");
-  if (!fs15.existsSync(yaml)) return null;
-  const list4 = /^packages:\s*\n((?:[ \t]+-.*\n?|[ \t]*#.*\n?|[ \t]*\n)*)/m.exec(fs15.readFileSync(yaml, "utf8"))?.[1] ?? "";
-  const patterns = [...list4.matchAll(/^[ \t]+-[ \t]*['"]?([^'"#\n]+?)['"]?[ \t]*(?:#.*)?$/gm)].map((m2) => m2[1]);
-  return patterns.length ? patterns : null;
-}
-function workspaceApps(root) {
-  const patterns = workspacePatterns(root);
-  if (!patterns) return null;
-  const manifests = import_fast_glob10.default.sync(
-    patterns.map((p) => p.startsWith("!") ? `!${p.slice(1).replace(/\/+$/, "")}/package.json` : `${p.replace(/\/+$/, "")}/package.json`),
-    { cwd: root, ignore: ["**/node_modules/**"] }
-  );
-  const apps = [];
-  const libraries = [];
-  const skipped = [];
-  for (const manifest of manifests.sort()) {
-    const dir = path14.posix.dirname(manifest);
-    const pkg = JSON.parse(fs15.readFileSync(path14.join(root, manifest), "utf8"));
-    const library = !pkg.scripts?.dev && !pkg.scripts?.start;
-    let framework;
-    try {
-      framework = detectFramework(path14.join(root, dir));
-    } catch (err) {
-      if (!(err instanceof UnsupportedFrameworkError)) throw err;
-      skipped.push({ dir, reason: library ? "a library without a UI framework" : err.message.split(":")[0] });
-      continue;
-    }
-    if (library) libraries.push({ dir, framework, ...pkg.name ? { name: pkg.name } : {} });
-    else apps.push({ dir, framework, ...pkg.name ? { name: pkg.name } : {}, deps: Object.keys({ ...pkg.dependencies, ...pkg.devDependencies, ...pkg.peerDependencies }) });
-  }
-  const withUses = apps.map(({ deps, ...app }) => ({ ...app, uses: libraries.filter((l2) => l2.name && deps.includes(l2.name)).map((l2) => l2.dir) }));
-  const used = new Set(withUses.flatMap((a) => a.uses));
-  for (const l2 of libraries.filter((l3) => !used.has(l3.dir))) skipped.push({ dir: l2.dir, reason: "a library no app in the workspace depends on" });
-  return { apps: withUses, libraries: libraries.filter((l2) => used.has(l2.dir)), skipped };
-}
-function mergeLibraryLocales(root, lib, app, write, pending = /* @__PURE__ */ new Map()) {
-  const from = storeFor(lib.config);
-  const to = storeFor(app.config);
-  const read2 = (dir, file2) => {
-    const rel = path14.posix.join(dir, file2);
-    if (pending.has(rel)) return pending.get(rel);
-    const abs = path14.join(root, rel);
-    return fs15.existsSync(abs) ? fs15.readFileSync(abs, "utf8") : void 0;
-  };
-  const merge2 = (into, add) => {
-    let changed = false;
-    for (const [k, v2] of Object.entries(add)) {
-      if (into[k] === void 0) {
-        into[k] = v2;
-        changed = true;
-      } else if (typeof into[k] === "object" && typeof v2 === "object") changed = merge2(into[k], v2) || changed;
-    }
-    return changed;
-  };
-  const files = [];
-  const appSource = to.read(read2(app.dir, to.path(app.config.sourceLocale)), app.config.sourceLocale);
-  for (const locale of [app.config.sourceLocale, ...app.config.targetLocales.filter((l2) => l2 !== app.config.sourceLocale)]) {
-    const libText = read2(lib.dir, from.path(locale));
-    if (libText === void 0) continue;
-    const target = to.path(locale);
-    const original = read2(app.dir, target);
-    const dict2 = to.read(original, locale);
-    if (!merge2(dict2, from.read(libText, locale))) continue;
-    if (locale === app.config.sourceLocale) merge2(appSource, dict2);
-    const content = to.serialize(dict2, locale, original, appSource);
-    if (content === null || content === original) continue;
-    const file2 = path14.posix.join(app.dir, target);
-    if (write) {
-      fs15.mkdirSync(path14.dirname(path14.join(root, file2)), { recursive: true });
-      fs15.writeFileSync(path14.join(root, file2), content);
-    }
-    files.push({ path: file2, content });
-  }
-  return files;
-}
-function mergeResults(results) {
-  const at2 = (dir, p) => path14.posix.join(dir, p);
-  const merged = {
-    files: [],
-    replacements: /* @__PURE__ */ new Map(),
-    warnings: [],
-    setup: { files: [], addedDependencies: {}, notes: [] },
-    formats: /* @__PURE__ */ new Map(),
-    stats: { filesScanned: 0, stringsReplaced: 0, newKeys: 0, reusedKeys: 0, translations: {}, formatsLocalized: 0 }
-  };
-  for (const { dir, result } of results) {
-    merged.files.push(...result.files.map((f2) => ({ ...f2, path: at2(dir, f2.path) })));
-    for (const [file2, reps] of result.replacements) merged.replacements.set(at2(dir, file2), reps);
-    for (const [file2, changes] of result.formats ?? []) merged.formats.set(at2(dir, file2), changes);
-    merged.warnings.push(...result.warnings.map((w4) => ({ ...w4, filePath: at2(dir, w4.filePath) })));
-    merged.setup.notes.push(...result.setup.notes.map((n4) => `${dir}: ${n4}`));
-    Object.assign(merged.setup.addedDependencies, result.setup.addedDependencies);
-    const s = result.stats;
-    merged.stats.filesScanned += s.filesScanned;
-    merged.stats.stringsReplaced += s.stringsReplaced;
-    merged.stats.newKeys += s.newKeys;
-    merged.stats.reusedKeys += s.reusedKeys;
-    merged.stats.formatsLocalized += s.formatsLocalized ?? 0;
-    for (const [l2, n4] of Object.entries(s.translations)) merged.stats.translations[l2] = (merged.stats.translations[l2] ?? 0) + n4;
-    if (result.incomplete && !merged.incomplete) merged.incomplete = result.incomplete;
-    else if (result.incomplete) merged.incomplete.strings += result.incomplete.strings;
-  }
-  return merged;
-}
 
 // src/tms/index.ts
 init_sync();
@@ -221350,10 +221450,19 @@ async function checkMode(cwd, locales2) {
     localesPath: getInput("locales_path") || void 0,
     targetLocales: locales2 ? locales2.split(",").map((l2) => l2.trim()).filter(Boolean) : void 0
   });
-  const result = await checkProject(cwd, config, { info: () => {
-  }, warn: warning });
-  for (const line of annotations(result)) process.stdout.write(`${line}
+  const quiet = { info: () => {
+  }, warn: warning };
+  const found2 = getInput("workspaces") === "true" ? await checkWorkspaces(cwd, loadConfig, quiet) : null;
+  const results = found2 ? found2.packages.map((p) => p.result) : [await checkProject(cwd, config, quiet)];
+  for (const r of results) for (const line of annotations(r)) process.stdout.write(`${line}
 `);
+  const result = {
+    ok: results.every((r) => r.ok),
+    filesScanned: results.reduce((n4, r) => n4 + r.filesScanned, 0),
+    hardcoded: results.flatMap((r) => r.hardcoded),
+    missing: results.flatMap((r) => r.missing),
+    outdated: results.flatMap((r) => r.outdated)
+  };
   setOutput("strings_count", String(result.hardcoded.length));
   if (result.ok) {
     info(`Everything is localized (${result.filesScanned} files scanned).`);

@@ -6,7 +6,7 @@ for translation calls and adds the locale files. On every push, new copy gets th
 
 Works with React, Next.js, React Native, Vue, Nuxt, Svelte, Angular, Astro, Solid, Qwik, Lit,
 Ember, Flutter, Android, iOS, Rails, Django, Laravel and static HTML; each gets the i18n library
-its framework expects. Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.16.0.
+its framework expects. Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.17.0.
 Docs: [https://uselocalize.dev/docs](https://uselocalize.dev/docs).
 
 ## Setup
@@ -48,7 +48,7 @@ Docs: [https://uselocalize.dev/docs](https://uselocalize.dev/docs).
 | `src_dir` | the framework's own | Directory to scan. |
 | `locales_path` | the framework's own | Where locale files go; `{locale}` is replaced. |
 | `base_branch` | the triggering branch | Branch the PR targets. |
-| `workspaces` | `false` | Monorepo: localize every app, each with its own locale files. |
+| `workspaces` | `false` | Monorepo: localize (or check) every app, each with its own locale files. |
 | `tms_pull` / `tms_push` | `false` | Pull translations from, or push sources to, Crowdin, Phrase, Lokalise or Transifex. |
 | `tms_token` | | The translation platform's API token. |
 | `api_url` | `https://uselocalize.dev` | API base URL, for staging deployments. |

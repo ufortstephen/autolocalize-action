@@ -34,7 +34,7 @@ inputs:
     description: 'Branch to open the PR against (default: PR head branch or pushed branch)'
     required: false
   workspaces:
-    description: 'Monorepo: localize every app in the workspaces (package.json "workspaces" or pnpm-workspace.yaml), each with its own locale files'
+    description: 'Monorepo: localize (or, with mode: check, check) every app in the workspaces (package.json "workspaces" or pnpm-workspace.yaml), each with its own locale files'
     required: false
     default: 'false'
   tms_pull:
