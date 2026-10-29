@@ -1,6 +1,6 @@
-name: 'Localize.dev i18n Auto-Refactor'
+name: 'localize.dev i18n Auto-Refactor'
 description: 'Finds hardcoded UI strings in web, mobile and desktop apps, translates them with context, and opens one pull request.'
-author: 'Localize.dev'
+author: 'localize.dev'
 branding:
   icon: 'globe'
   color: 'blue'
@@ -9,10 +9,10 @@ inputs:
     description: 'GitHub Token for creating PRs (needs contents: write, pull-requests: write)'
     required: true
   api_key:
-    description: 'Localize.dev API key (store it as a secret). Create one at https://uselocalize.dev/dashboard/keys'
+    description: 'localize.dev API key (store it as a secret). Create one at https://uselocalize.dev/dashboard/keys'
     required: false
   api_url:
-    description: 'Localize.dev API base URL (override for staging or self-hosted deployments)'
+    description: 'localize.dev API base URL (override for staging or self-hosted deployments)'
     required: false
     default: 'https://uselocalize.dev'
   mode:

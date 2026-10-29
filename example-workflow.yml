@@ -1,5 +1,5 @@
 # Copy to .github/workflows/localize.yml in the repository you want to localize.
-# Needs the repository secret LOCALIZEDEV_API_KEY (create a key in the Localize.dev dashboard).
+# Needs the repository secret LOCALIZEDEV_API_KEY (create a key in the localize.dev dashboard).
 name: Localize
 
 on:
@@ -22,7 +22,7 @@ jobs:
   localize:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # Skip Localize.dev's own branches, and fork PRs (their token is read-only).
+    # Skip localize.dev's own branches, and fork PRs (their token is read-only).
     if: >-
       !startsWith(github.head_ref || github.ref_name, 'localize-dev/') &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
