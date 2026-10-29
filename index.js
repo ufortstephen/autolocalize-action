@@ -209800,6 +209800,7 @@ __export(server_templates_exports, {
   bladeAdapter: () => bladeAdapter,
   djangoAdapter: () => djangoAdapter,
   erbAdapter: () => erbAdapter,
+  rubyArg: () => rubyArg,
   scanServerTemplate: () => scanServerTemplate,
   transformServerTemplate: () => transformServerTemplate
 });
@@ -209883,17 +209884,99 @@ function scanServerTemplate(engine) {
       });
       return id3;
     };
+    const links = /* @__PURE__ */ new Map();
     const partsOf = (start2, end2) => {
       const parts = [];
       let at2 = start2;
-      for (const t10 of outputs2) {
-        if (t10.end <= start2 || t10.start >= end2) continue;
+      const text4 = (to) => {
+        if (to > at2) parts.push({ kind: "text", start: at2, end: to, raw: code.slice(at2, to) });
+        at2 = Math.max(at2, to);
+      };
+      const outputsIn = (from, to) => outputs2.filter((t10) => t10.end > from && t10.start < to);
+      for (const t10 of [...outputsIn(start2, end2), ...[...links.values()].filter((l2) => l2.start >= start2 && l2.end <= end2)].sort((x, y3) => x.start - y3.start)) {
+        if (t10.start < at2) continue;
+        text4(t10.start);
+        if (!("href" in t10)) {
+          parts.push({ kind: "expr", start: t10.start, end: t10.end, source: forJs(t10.source ?? "", engine) });
+          at2 = t10.end;
+          continue;
+        }
+        parts.push(...linkParts(t10));
+        at2 = t10.end;
+      }
+      text4(end2);
+      return parts;
+    };
+    const linkParts = (l2) => {
+      if (engine === "rails") {
+        const inner = l2.innerOutput ?? (() => {
+          const text4 = cleanAttr(code.slice(l2.innerStart, l2.innerEnd));
+          const id3 = add(text4, { kind: "run", start: 0, end: 0, params: [], nested: true }, { element: "a" });
+          return `${id3}${rubyString(text4)}`;
+        })();
+        const options = l2.attrs.map((a) => `, ${/^[a-z_]\w*$/.test(a.name) ? a.name : rubyString(a.name)}: ${rubyString(a.value)}`).join("");
+        const href2 = l2.href.kind === "static" ? rubyString(l2.href.value) : l2.href.kind === "output" ? rubyArg(l2.href.source) : rubyString("#");
+        return [{ kind: "expr", start: l2.start, end: l2.end, source: `link_to(${inner}, ${href2}${options})`, name: "link" }];
+      }
+      const attrs = l2.attrs.map((a) => ` ${a.name}="${a.value}"`).join("");
+      const href = l2.href.kind === "static" ? { kind: "expr", start: l2.start, end: l2.start, source: engine === "django" ? JSON.stringify(l2.href.value) : phpString(l2.href.value), name: "link_url" } : l2.href.kind === "url" ? { kind: "expr", start: l2.start, end: l2.start, source: `${l2.href.args}`, name: "link_url" } : { kind: "expr", start: l2.start, end: l2.start, source: l2.href.source, name: "link_url" };
+      const parts = [{ kind: "text", start: l2.start, end: l2.start, raw: `<a${attrs} href="` }, href, { kind: "text", start: l2.start, end: l2.start, raw: '">' }];
+      let at2 = l2.innerStart;
+      for (const t10 of outputs2.filter((o) => o.start >= l2.innerStart && o.end <= l2.innerEnd)) {
         if (t10.start > at2) parts.push({ kind: "text", start: at2, end: t10.start, raw: code.slice(at2, t10.start) });
         parts.push({ kind: "expr", start: t10.start, end: t10.end, source: forJs(t10.source ?? "", engine) });
         at2 = t10.end;
       }
-      if (at2 < end2) parts.push({ kind: "text", start: at2, end: end2, raw: code.slice(at2, end2) });
+      if (l2.innerEnd > at2) parts.push({ kind: "text", start: at2, end: l2.innerEnd, raw: code.slice(at2, l2.innerEnd) });
+      parts.push({ kind: "text", start: l2.end, end: l2.end, raw: "</a>" });
       return parts;
+    };
+    const inlineLink = (child, siblings) => {
+      const loc2 = child.sourceCodeLocation;
+      if (child.tagName !== "a" || !loc2?.startTag || !loc2.endTag) return null;
+      const attrs = child.attrs ?? [];
+      if (!attrs.some((a) => a.name === "href") || attrs.some((a) => !LINK_ATTRIBUTES.has(a.name))) return null;
+      const tokensIn = (from, to) => toks.filter((t10) => t10.start >= from && t10.end <= to);
+      let href = null;
+      const plain = [];
+      for (const a of attrs) {
+        const aloc = loc2.startTag.attrs?.[a.name];
+        if (!aloc) return null;
+        const raw = code.slice(aloc.startOffset, aloc.endOffset);
+        const m2 = /^([^=\s]+)\s*=\s*(["'])([\s\S]*)\2$/.exec(raw);
+        if (!m2) return null;
+        const valueStart = aloc.startOffset + raw.indexOf(m2[2]) + 1;
+        const inside = tokensIn(valueStart, valueStart + m2[3].length);
+        if (a.name !== "href") {
+          if (inside.length) return null;
+          plain.push({ name: a.name, value: m2[3] });
+          continue;
+        }
+        if (!inside.length) href = { kind: "static", value: m2[3] };
+        else if (inside.length === 1 && code.slice(inside[0].start, inside[0].end).trim() === m2[3].trim()) {
+          const url = engine === "django" ? /^\{%-?\s*url\s+([\s\S]*?)\s*-?%\}$/.exec(m2[3].trim()) : null;
+          if (inside[0].kind === "output") href = { kind: "output", source: inside[0].source ?? "" };
+          else if (url && !/\sas\s+\w+\s*$/.test(url[1])) href = { kind: "url", args: url[1] };
+          else return null;
+        } else return null;
+      }
+      if (!href) return null;
+      const innerStart = loc2.startTag.endOffset;
+      const innerEnd = loc2.endTag.startOffset;
+      if (/[<>]/.test(masked.slice(innerStart, innerEnd)) || !code.slice(innerStart, innerEnd).trim()) return null;
+      const innerOutputs = outputs2.filter((t10) => t10.start >= innerStart && t10.end <= innerEnd);
+      let innerOutput;
+      if (engine === "rails") {
+        const rest2 = innerOutputs.reduce((txt, t10) => txt.replace(code.slice(t10.start, t10.end), ""), code.slice(innerStart, innerEnd));
+        if (innerOutputs.length === 1 && !rest2.trim()) innerOutput = rubyArg(innerOutputs[0].source ?? "");
+        else if (innerOutputs.length || !translatableAttr(cleanAttr(rest2))) return null;
+      }
+      const words = siblings.some((n5) => {
+        const l2 = n5.sourceCodeLocation;
+        return n5 !== child && n5.nodeName === "#text" && !!l2 && new RegExp("\\p{L}", "u").test(masked.slice(l2.startOffset, l2.endOffset));
+      });
+      if (!words) return null;
+      return { start: loc2.startOffset, end: loc2.endOffset, href, attrs: plain, innerStart, innerEnd, ...innerOutput ? { innerOutput } : {} };
     };
     const run = (parts) => {
       const r = buildRun(parts, { counts: engine !== "django" });
@@ -209946,7 +210029,7 @@ function scanServerTemplate(engine) {
       const flush = () => {
         if (!pending) return;
         const r = run(partsOf(pending.start, pending.end));
-        const html = r ? railsLinks(r) : false;
+        const html = r ? railsLinks(r) || engine === "rails" && r.params.some((p) => railsHtml(p.source)) : false;
         if (r) add(r.text, { kind: "run", start: r.start, end: r.end, params: r.params, ...r.plural ? { plural: true, forms: { one: r.plural.one, other: r.plural.other } } : {} }, { element: element3, ...r.plural ? { plural: r.plural } : {}, ...html ? { keySuffix: "_html" } : {} });
         pending = null;
       };
@@ -209957,6 +210040,12 @@ function scanServerTemplate(engine) {
           continue;
         }
         if (child.nodeName === "#text" && loc2) {
+          pending = pending ? { start: pending.start, end: loc2.endOffset } : { start: loc2.startOffset, end: loc2.endOffset };
+          continue;
+        }
+        const link = loc2 ? inlineLink(child, node2.childNodes ?? []) : null;
+        if (link && loc2) {
+          links.set(link.start, link);
           pending = pending ? { start: pending.start, end: loc2.endOffset } : { start: loc2.startOffset, end: loc2.endOffset };
           continue;
         }
@@ -210005,9 +210094,29 @@ function scanServerTemplate(engine) {
     return { strings: strings2, warnings: warnings2, sites };
   };
 }
+function rubyArg(source2) {
+  const s = source2.trim();
+  if (/^[@$]?[\w.:?!]+$/.test(s) || /^(['"])(?:\\.|(?!\1).)*\1$/.test(s)) return s;
+  const call7 = /^[@$]?[\w.:?!]+\(/.exec(s);
+  if (call7 && s.endsWith(")")) {
+    let depth = 0;
+    let closes = -1;
+    for (let i3 = call7[0].length - 1; i3 < s.length; i3++) {
+      if (s[i3] === "(") depth++;
+      else if (s[i3] === ")" && --depth === 0) {
+        closes = i3;
+        break;
+      }
+    }
+    if (closes === s.length - 1) return s;
+  }
+  const command = /^([@$]?[A-Za-z_][\w]*[?!]?(?:\.[A-Za-z_]\w*[?!]?)*)\s+(?![-+*\/%<>=!&|?:^.,)\]}]|(?:if|unless|and|or|do|then|rescue)\b)(\S[\s\S]*)$/.exec(s);
+  if (command && !/\s(?:if|unless|do)\s/.test(command[2])) return `${command[1]}(${command[2]})`;
+  return `(${s})`;
+}
 function render(engine, key2, params, inAttr, forms) {
   if (engine === "rails") {
-    const args = params.map((p) => `, ${p.name}: ${p.source}`).join("");
+    const args = params.map((p) => `, ${p.name}: ${rubyArg(p.source)}`).join("");
     return `<%= t(${rubyString(key2)}${args}) %>`;
   }
   if (engine === "laravel") {
@@ -210018,8 +210127,10 @@ function render(engine, key2, params, inAttr, forms) {
       const args2 = rest2.length ? `, [${rest2.map((p) => `${phpString(p.name)} => ${p.source}`).join(", ")}]` : "";
       return `{{ trans_choice(${phpString(text4)}, ${count.source}${args2}) }}`;
     }
-    const args = params.length ? `, [${params.map((p) => `${phpString(p.name)} => ${p.source}`).join(", ")}]` : "";
-    return `{{ __(${phpString(text4)}${args}) }}`;
+    const rich = /<a\b[^>]*href=":link_url/.test(text4);
+    const value = (p) => rich && !/^(['"])(?:\\.|(?!\1).)*\1$/.test(p.source.trim()) ? `e(${p.source})` : p.source;
+    const args = params.length ? `, [${params.map((p) => `${phpString(p.name)} => ${value(p)}`).join(", ")}]` : "";
+    return rich ? `{!! __(${phpString(text4)}${args}) !!}` : `{{ __(${phpString(text4)}${args}) }}`;
   }
   if (forms) {
     const body2 = (text4) => toDictFormat(text4, "gettext").replace(/%\((\w+)\)s/g, "{{ $1 }}").replace(/%%/g, "%");
@@ -210031,8 +210142,10 @@ function render(engine, key2, params, inAttr, forms) {
   const quote3 = inAttr === '"' ? "'" : '"';
   if (!params.length && !msgid.includes("%") && !msgid.includes(quote3)) return `{% translate ${quote3}${msgid}${quote3} %}`;
   const body = msgid.replace(/%\((\w+)\)s/g, "{{ $1 }}").replace(/%%/g, "%");
-  const withs = params.filter((p) => p.name !== p.source).map((p) => `${p.name}=${p.source}`);
-  return `{% blocktranslate${withs.length ? ` with ${withs.join(" ")}` : ""} %}${body}{% endblocktranslate %}`;
+  const urls = params.filter((p) => p.source.startsWith(""));
+  const before2 = urls.map((p) => `{% url ${p.source.slice(1)} as ${p.name} %}`).join("");
+  const withs = params.filter((p) => p.name !== p.source && !urls.includes(p)).map((p) => `${p.name}=${p.source}`);
+  return `${before2}{% blocktranslate${withs.length ? ` with ${withs.join(" ")}` : ""} %}${body}{% endblocktranslate %}`;
 }
 function transformServerTemplate(engine) {
   const scan = scanServerTemplate(engine);
@@ -210069,7 +210182,7 @@ function transformServerTemplate(engine) {
     return { code: s.toString(), changed: replacements2.length > 0, replacements: replacements2 };
   };
 }
-var BLADE_DIRECTIVES, RAW2, forJs, fromJs, RAILS_LINK, RAILS_HELPER_TEXT, rubyString, phpString, erbAdapter, djangoAdapter, bladeAdapter;
+var BLADE_DIRECTIVES, RAW2, forJs, fromJs, LINK_ATTRIBUTES, railsHtml, RAILS_LINK, RAILS_HELPER_TEXT, rubyString, phpString, erbAdapter, djangoAdapter, bladeAdapter;
 var init_server_templates = __esm({
   "src/formats/server-templates.ts"() {
     "use strict";
@@ -210096,6 +210209,8 @@ var init_server_templates = __esm({
       return plural ? `${plural[3]} === 1 ? ${JSON.stringify(plural[2])} : ${JSON.stringify(englishPlural(plural[2]))}` : php;
     };
     fromJs = (source2) => source2.replace(/__ivar_/g, "@").replace(/\.__arrow_/g, "->");
+    LINK_ATTRIBUTES = /* @__PURE__ */ new Set(["href", "class", "id", "target", "rel"]);
+    railsHtml = (source2) => /^\s*(?:link_to|button_to|mail_to|content_tag|image_tag|tag\.\w+|tag\b|raw\b|safe_join|render\b|sanitize\b)/.test(source2) || /\.html_safe\b/.test(source2);
     RAILS_LINK = /^(link_to|button_to|mail_to)\s*\(?\s*(['"])((?:\\.|(?!\2).)*)\2\s*,\s*([\s\S]+?)\)?\s*$/;
     RAILS_HELPER_TEXT = /<%=\s*(link_to|button_to|submit_tag|label_tag|mail_to|\w+\.submit|\w+\.label|\w+\.button)\s*\(?\s*(?:(?::\w+|\w+|'[^']*'|"[^"]*")\s*,\s*)??(['"])((?:\\.|(?!\2).)*)\2/;
     rubyString = (s) => `'${s.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
@@ -214744,6 +214859,25 @@ function planLitSetup(ctx) {
   result.notes.push(`Lit: switch language with \`setLanguage(code)\` from \`${file2}\`; components with an I18nController re-render.`);
   return result;
 }
+function addEmberIntlPeers(ctx) {
+  const text4 = readText(ctx.cwd, "package.json", ctx.changed);
+  if (!text4) return;
+  const pkg = JSON.parse(text4);
+  const deps = { ...pkg.dependencies, ...pkg.devDependencies, ...pkg.peerDependencies };
+  const ember = Number(/(\d+)/.exec(deps["ember-source"] ?? "")?.[1] ?? 6);
+  const missing = {};
+  if (!deps["@glimmer/tracking"]) missing["@glimmer/tracking"] = "^1.1.2";
+  if (!deps["@ember/test-helpers"]) missing["@ember/test-helpers"] = ember >= 5 ? "^5.2.0" : ember >= 4 ? "^4.0.0" : "^2.9.4";
+  if (!Object.keys(missing).length) return;
+  const sorted = (d3, add) => Object.fromEntries(Object.entries({ ...d3, ...add }).sort(([x], [y3]) => x.localeCompare(y3)));
+  const pick = (name) => missing[name] ? { [name]: missing[name] } : {};
+  const tracking = pick("@glimmer/tracking");
+  const helpers = pick("@ember/test-helpers");
+  const next2 = { ...pkg, ...Object.keys(tracking).length ? { dependencies: sorted(pkg.dependencies, tracking) } : {}, ...Object.keys(helpers).length ? { devDependencies: sorted(pkg.devDependencies, helpers) } : {} };
+  Object.assign(ctx.result.addedDependencies, missing);
+  ctx.out("package.json", writeJsonLike(text4, next2));
+  ctx.result.notes.push(`ember-intl needs ${Object.keys(missing).map((n4) => `\`${n4}\``).join(" and ")}, which this app didn't have: added to package.json.`);
+}
 function emberRichSource(modern = true) {
   return {
     js: [
@@ -214792,6 +214926,7 @@ function planEmberSetup(ctx) {
   const { cwd, config, result } = ctx;
   planEmberRich(ctx);
   addDependencies(ctx, EMBER_INTL);
+  addEmberIntlPeers(ctx);
   for (const l2 of locales(config)) {
     const f2 = toPosix(localePath(config.localesPath, l2));
     if (readText(cwd, f2, ctx.changed) === void 0) ctx.out(f2, "{}\n");
@@ -216175,7 +216310,7 @@ var init_setup = __esm({
     isPlainObject3 = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION = true ? "0.22.0" : "0.6.0";
+    SELF_VERSION = true ? "0.23.0" : "0.6.0";
     isLegacySwitcher = (code) => isGenerated(code) && code.includes("function nameOf(") && code.includes("<select") && !code.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -222124,6 +222259,8 @@ import * as path14 from "node:path";
 // src/workspaces.ts
 var import_fast_glob9 = __toESM(require_out4(), 1);
 init_framework();
+init_component_graph();
+init_setup();
 init_stores();
 import * as fs14 from "node:fs";
 import * as path13 from "node:path";
@@ -222214,6 +222351,62 @@ function mergeLibraryLocales(root, lib, app, write, pending = /* @__PURE__ */ ne
   }
   return files;
 }
+function declareLibraryImports(root, lib, apps, write) {
+  const pkgOf = (dir, files) => {
+    const text4 = files.find((f2) => f2.path === "package.json")?.content ?? (fs14.existsSync(path13.join(root, dir, "package.json")) ? fs14.readFileSync(path13.join(root, dir, "package.json"), "utf8") : void 0);
+    return text4 === void 0 ? null : { text: text4, pkg: JSON.parse(text4) };
+  };
+  const own = pkgOf(lib.dir, lib.files);
+  if (!own) return null;
+  const declared = (p) => ({ ...p.dependencies, ...p.devDependencies, ...p.peerDependencies, ...p.optionalDependencies });
+  const mine = declared(own.pkg);
+  const versions = {};
+  for (const app of apps) {
+    const found2 = pkgOf(app.dir, app.files);
+    if (found2) for (const [name, range] of Object.entries(declared(found2.pkg))) versions[name] ??= range;
+  }
+  const wanted = {};
+  for (const file3 of lib.files) {
+    if (!/\.(?:[cm]?[jt]sx?|vue|svelte|astro)$/.test(file3.path)) continue;
+    for (const m2 of file3.content.matchAll(/(?:\bfrom\s*|\bimport\s*\(?\s*)['"]([^'"./][^'"]*)['"]/g)) {
+      const name = m2[1].startsWith("@") ? m2[1].split("/").slice(0, 2).join("/") : m2[1].split("/")[0];
+      if (!mine[name] && !name.startsWith("node:") && versions[name]) wanted[name] = versions[name];
+    }
+  }
+  if (!Object.keys(wanted).length) return null;
+  const sorted = (deps) => Object.fromEntries(Object.entries({ ...deps, ...wanted }).sort(([a], [b4]) => a.localeCompare(b4)));
+  const next2 = { ...own.pkg, peerDependencies: sorted(own.pkg.peerDependencies), devDependencies: sorted(own.pkg.devDependencies) };
+  const content = writeJsonLike(own.text, next2);
+  const file2 = path13.posix.join(lib.dir, "package.json");
+  if (write) fs14.writeFileSync(path13.join(root, file2), content);
+  return { path: file2, content };
+}
+function libraryClientModules(root, lib, apps, write) {
+  const nextApp = apps.some((a) => {
+    try {
+      const pkg = JSON.parse(fs14.readFileSync(path13.join(root, a.dir, "package.json"), "utf8"));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      return !!deps.next && ["app", "src/app"].some((d3) => fs14.existsSync(path13.join(root, a.dir, d3)));
+    } catch {
+      return false;
+    }
+  });
+  if (!nextApp) return [];
+  const cannot = [];
+  for (const file2 of lib.files) {
+    if (!/\.[jt]sx?$/.test(file2.path) || !/from\s*['"]react-i18next['"]/.test(file2.content) || USE_CLIENT3.test(file2.content)) continue;
+    if (!canBeClientModule(file2.content)) {
+      cannot.push(path13.posix.join(lib.dir, file2.path));
+      continue;
+    }
+    file2.content = `'use client';
+
+${file2.content}`;
+    if (write) fs14.writeFileSync(path13.join(root, lib.dir, file2.path), file2.content);
+  }
+  return cannot;
+}
+var USE_CLIENT3 = /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*(['"])use client\1/;
 function mergeResults(results) {
   const at2 = (dir, p) => path13.posix.join(dir, p);
   const merged = {
@@ -223268,6 +223461,14 @@ async function main() {
       }
       results.push({ dir: app.dir, result: r });
       if (r.incomplete) break;
+    }
+    for (const lib of found2.libraries) {
+      const libResult = results.find((x) => x.dir === lib.dir)?.result;
+      if (!libResult) continue;
+      const users = found2.apps.filter((a) => a.uses?.includes(lib.dir)).map((a) => ({ dir: a.dir, files: results.find((x) => x.dir === a.dir)?.result.files ?? [] }));
+      for (const file2 of libraryClientModules(cwd, { dir: lib.dir, files: libResult.files }, users, false)) warning(`${file2} uses react-i18next and is rendered by a Next.js app, but can't be a client module: give it 'use client' or move the copy to a client component.`);
+      const pkg2 = declareLibraryImports(cwd, { dir: lib.dir, files: libResult.files }, users, false);
+      if (pkg2) libResult.files = mergeFiles(libResult.files, [{ ...pkg2, path: path16.posix.relative(lib.dir, pkg2.path) }]);
     }
     result = mergeResults(results);
   } else {
