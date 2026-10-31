@@ -216553,7 +216553,7 @@ var init_setup = __esm({
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION = true ? "0.24.1" : "0.6.0";
+    SELF_VERSION = true ? "0.24.2" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -217293,7 +217293,7 @@ function jsonCatalog(ctx, file2, at2, flat) {
     if (pipes.length > 1) {
       const [a, b4, c] = pipes;
       styles.set(key2, { kind: "vue", path: p });
-      messages.push({ key: key2, value: c !== void 0 ? { zero: a, one: b4, other: c } : { one: a, other: b4 }, context: p.join(".") });
+      messages.push({ key: key2, value: c !== void 0 ? { zero: a, one: b4, other: c } : { one: a, other: b4 }, context: p.join("."), formerly: [text4] });
       continue;
     }
     styles.set(key2, { kind: "plain", path: p });
@@ -217534,15 +217534,16 @@ function outdatedKeys(lock, catalog) {
   if (!known) return [];
   return catalog.messages.filter((m2) => {
     const was = known[displayKey(m2.key)];
-    return was !== void 0 && was !== fingerprint2(m2.value);
+    return was !== void 0 && !fingerprintMatches(was, m2);
   }).map((m2) => m2.key);
 }
-var LOCK_FILE, fingerprint2;
+var LOCK_FILE, fingerprint2, fingerprintMatches;
 var init_lock = __esm({
   "src/sync/lock.ts"() {
     "use strict";
     LOCK_FILE = "localize.lock.json";
     fingerprint2 = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 12);
+    fingerprintMatches = (was, m2) => was === fingerprint2(m2.value) || (m2.formerly ?? []).some((v2) => was === fingerprint2(v2));
   }
 });
 
@@ -217550,6 +217551,8 @@ var init_lock = __esm({
 var sync_exports = {};
 __export(sync_exports, {
   findCatalogs: () => findCatalogs,
+  localeFileGaps: () => localeFileGaps,
+  lockNewMessages: () => lockNewMessages,
   translateFiles: () => translateFiles,
   vuePluralsIn: () => vuePluralsIn
 });
@@ -217573,6 +217576,41 @@ function vuePluralsIn(cwd, interpolation) {
     return false;
   }
 }
+function catalogLocales(catalog, sourceLocale, wanted) {
+  let locales2 = (wanted ?? catalog.locales).filter((l2) => toBcp47(l2) !== toBcp47(sourceLocale));
+  if (catalog.fixedLocales) locales2 = locales2.filter((l2) => catalog.locales.includes(l2));
+  if (catalog.skipLocales) locales2 = locales2.filter((l2) => !catalog.skipLocales.includes(l2));
+  const unsupported = locales2.flatMap((l2) => catalog.unsupported?.(l2) ? [`${catalog.file}: ${catalog.unsupported(l2)}.`] : []);
+  return { locales: locales2.filter((l2) => !catalog.unsupported?.(l2)), unsupported };
+}
+function missingIn(catalog, locales2, current2, outdated) {
+  const missing = /* @__PURE__ */ new Map();
+  for (const locale of locales2) {
+    const present = catalog.present(current2(catalog.targetFile(locale)), locale);
+    for (const m2 of catalog.messages) if (!present.has(m2.key) || outdated.has(m2.key)) missing.set(m2.key, [...missing.get(m2.key) ?? [], locale]);
+  }
+  return missing;
+}
+async function localeFileGaps(cwd, opts) {
+  const read2 = (file2) => {
+    try {
+      return fs13.readFileSync(path12.join(cwd, file2), "utf8");
+    } catch {
+      return void 0;
+    }
+  };
+  const wanted = opts.targetLocales?.map((l2) => toBcp47(l2) ?? l2);
+  const out = [];
+  for (const catalog of await findCatalogs(cwd, opts.sourceLocale, { vuePlurals: opts.vuePlurals })) {
+    const { locales: locales2 } = catalogLocales(catalog, catalog.sourceLocale ?? opts.sourceLocale, wanted);
+    const missing = missingIn(catalog, locales2, read2, /* @__PURE__ */ new Set());
+    for (const locale of locales2) {
+      const keys = [...missing].filter(([, ls]) => ls.includes(locale)).map(([k]) => displayKey(k)).sort();
+      if (keys.length) out.push({ file: catalog.targetFile(locale), locale, keys, noFile: read2(catalog.targetFile(locale)) === void 0 });
+    }
+  }
+  return out;
+}
 async function findCatalogs(cwd, sourceLocale, opts = {}) {
   const cache = /* @__PURE__ */ new Map();
   const read2 = (file2) => {
@@ -217584,6 +217622,26 @@ async function findCatalogs(cwd, sourceLocale, opts = {}) {
   }), vuePlurals: !!opts.vuePlurals };
   const seen2 = /* @__PURE__ */ new Set();
   return FORMATS.flatMap((f2) => f2.find(ctx)).filter((c) => !seen2.has(`${c.file}\0${c.label}`) && !!seen2.add(`${c.file}\0${c.label}`));
+}
+async function lockNewMessages(cwd, opts) {
+  const read2 = (file2) => opts.overlay?.has(file2) ? opts.overlay.get(file2) : readText2(path12.join(cwd, file2));
+  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob8.default)(PATTERNS, { cwd, ignore: IGNORE2, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
+  const ctx = { cwd, sourceLocale: opts.sourceLocale, files, read: read2, warn: () => {
+  }, vuePlurals: !!opts.vuePlurals };
+  const lockText = read2(LOCK_FILE);
+  if (lockText === void 0) return null;
+  const lock = readLock(cwd);
+  if (opts.overlay?.has(LOCK_FILE)) lock.messages = JSON.parse(lockText).messages ?? {};
+  let changed = false;
+  for (const catalog of FORMATS.flatMap((f2) => f2.find(ctx)).filter((c) => opts.onlyFiles.includes(c.file))) {
+    const known = lock.messages[catalog.file] ??= {};
+    for (const m2 of catalog.messages) {
+      if (known[displayKey(m2.key)] !== void 0) continue;
+      known[displayKey(m2.key)] = fingerprint2(m2.value);
+      changed = true;
+    }
+  }
+  return changed ? serializeLock(lock) : null;
 }
 async function translateFiles(opts) {
   const { cwd, log } = opts;
@@ -217608,20 +217666,10 @@ async function translateFiles(opts) {
   const summary2 = [];
   for (const catalog of catalogs) {
     const sourceLocale = catalog.sourceLocale ?? opts.sourceLocale;
-    let locales2 = (wanted ?? catalog.locales).filter((l2) => toBcp47(l2) !== toBcp47(sourceLocale));
-    if (catalog.fixedLocales) locales2 = locales2.filter((l2) => catalog.locales.includes(l2));
-    if (catalog.skipLocales) locales2 = locales2.filter((l2) => !catalog.skipLocales.includes(l2));
-    for (const l2 of locales2) {
-      const why = catalog.unsupported?.(l2);
-      if (why) notes.push(`${catalog.file}: ${why}.`);
-    }
-    locales2 = locales2.filter((l2) => !catalog.unsupported?.(l2));
-    const missing = /* @__PURE__ */ new Map();
+    const { locales: locales2, unsupported } = catalogLocales(catalog, sourceLocale, wanted);
+    notes.push(...unsupported);
     const outdated = new Set(outdatedKeys(lock, catalog));
-    for (const locale of locales2) {
-      const present = catalog.present(current2(catalog.targetFile(locale)), locale);
-      for (const m2 of catalog.messages) if (!present.has(m2.key) || outdated.has(m2.key)) missing.set(m2.key, [...missing.get(m2.key) ?? [], locale]);
-    }
+    const missing = missingIn(catalog, locales2, current2, outdated);
     summary2.push({ file: catalog.file, label: catalog.label, locales: locales2, missing: missing.size, outdated: outdated.size });
     if (locales2.length && missing.size) plans.push({ catalog, sourceLocale, missing, outdated, locales: locales2 });
   }
@@ -217690,7 +217738,7 @@ async function translateFiles(opts) {
         if (!job.locales.includes(locale)) continue;
         const raw = m2.plurals?.[locale] ? m2.plurals[locale] : m2.translations[locale];
         if (!raw || plural && typeof raw === "string") {
-          warnings2.push(`${job.plan.catalog.file}: no ${locale} ${plural ? "plural forms" : "translation"} came back for "${displayKey(entry.key)}"; run translate again, or add it by hand.`);
+          retry.push({ plan: job.plan, request: job.strings.find((r) => r.id === m2.id), entry, locale, problem: plural ? "its plural forms were missing" : "it was missing", empty: true });
           continue;
         }
         const problem = translationProblem(entry.masked.value, raw, locale, { syntax: syntaxOf(job.plan.catalog) });
@@ -217735,6 +217783,11 @@ async function translateFiles(opts) {
         const raw = m2?.plurals?.[r.locale] ? m2.plurals[r.locale] : m2?.translations[r.locale];
         const problem = translationProblem(r.entry.masked.value, raw, r.locale, { syntax: syntaxOf(plan.catalog) });
         const value = problem ? null : r.entry.masked.restore(raw);
+        const plural = typeof r.entry.masked.value !== "string";
+        if (value === null && r.empty && (!raw || plural && typeof raw === "string")) {
+          warnings2.push(`${plan.catalog.file}: no ${r.locale} ${plural ? "plural forms" : "translation"} came back for "${displayKey(r.entry.key)}"; run translate again, or add it by hand.`);
+          continue;
+        }
         if (value === null) {
           warnings2.push(`${plan.catalog.file}: left out the ${r.locale} translation of "${displayKey(r.entry.key)}": ${problem ?? r.problem}.`);
           opts.translator.forget?.({ ...req, targetLocales: [r.locale], strings: [r.request] });
@@ -217752,6 +217805,7 @@ async function translateFiles(opts) {
   if (failure) log.warn(`Translation stopped after ${total - unfinished} of ${total} string(s): ${failure.error.message}`);
   else if (jobs.length) log.info(`\u2713 Translated ${total} string(s) in ${duration(Date.now() - started)}`);
   const changed = /* @__PURE__ */ new Set();
+  const filled = [];
   for (const plan of plans) {
     const byLocale = results.get(plan);
     if (!byLocale) continue;
@@ -217763,6 +217817,8 @@ async function translateFiles(opts) {
         contents.set(file2, plan.catalog.write(current2(file2), locale, values, plan.outdated));
         changed.add(file2);
         stats.translations[locale] = (stats.translations[locale] ?? 0) + values.size;
+        const keys = [...new Set([...values.keys()].map((k) => k.split("\0")[0]))];
+        filled.push({ file: file2, locale, keys: keys.filter((k) => !plan.outdated.has(k)).map(displayKey).sort(), redone: keys.filter((k) => plan.outdated.has(k)).map(displayKey).sort() });
       } catch (err) {
         warnings2.push(`${file2}: couldn't write ${locale}: ${err.message}`);
       }
@@ -217778,7 +217834,8 @@ async function translateFiles(opts) {
     const entries = {};
     for (const m2 of catalog.messages) {
       const redone = !stale.has(m2.key) || (plan?.missing.get(m2.key) ?? []).every((l2) => byLocale?.get(l2)?.has(m2.key));
-      const kept = redone ? fingerprint2(m2.value) : before2[displayKey(m2.key)];
+      const was = before2[displayKey(m2.key)];
+      const kept = redone ? was !== void 0 && fingerprintMatches(was, m2) ? was : fingerprint2(m2.value) : was;
       if (kept) entries[displayKey(m2.key)] = kept;
     }
     nextLock.messages[catalog.file] = entries;
@@ -217812,6 +217869,7 @@ async function translateFiles(opts) {
     files: out,
     catalogs: summary2,
     stats,
+    filled,
     warnings: warnings2,
     notes,
     ...failure ? { incomplete: { error: failure.error, strings: unfinished } } : {}
@@ -219085,6 +219143,12 @@ async function findSourceDirs(cwd, include = DEFAULT_CONFIG.include) {
   return [...counts].map(([dir, n4]) => ({ dir, files: n4 })).sort((a, b4) => b4.files - a.files || a.dir.localeCompare(b4.dir));
 }
 var SourceDirError = class extends Error {
+  /** No code to scan at all (not a wrong folder, not a monorepo root): a repository of locale files. */
+  constructor(message, noCode = false) {
+    super(message);
+    this.noCode = noCode;
+  }
+  noCode;
 };
 var kind = (config) => ({ vue: "Vue", svelte: "Svelte", html: "HTML", angular: "Angular", flutter: "Dart" })[config.framework ?? ""] ?? "JSX/TSX";
 function chosenSrcDir(cwd, flag) {
@@ -219119,7 +219183,7 @@ ${candidates2.map((c) => `  ${howToRun(c)}`).join("\n")}` : "")
 Or choose a folder with -d <dir>, or set "srcDir" in ${CONFIG_FILE}.`
       );
     }
-    throw new SourceDirError(`No ${config.srcDir}/ folder and no ${kind(config)} files found in ${cwd}. Run this in your app's folder, or pass -d <dir>.`);
+    throw new SourceDirError(`No ${config.srcDir}/ folder and no ${kind(config)} files found in ${cwd}. Run this in your app's folder, or pass -d <dir>.`, true);
   }
   const files = await (0, import_fast_glob3.default)(config.include, { cwd: path4.join(cwd, config.srcDir), ignore: config.ignore });
   if (files.length) return { config };
@@ -219588,6 +219652,7 @@ function mergeResults(results) {
     for (const [l2, n4] of Object.entries(s.translations)) merged.stats.translations[l2] = (merged.stats.translations[l2] ?? 0) + n4;
     if (result.incomplete && !merged.incomplete) merged.incomplete = result.incomplete;
     else if (result.incomplete) merged.incomplete.strings += result.incomplete.strings;
+    if (result.filled?.length) merged.filled = [...merged.filled ?? [], ...result.filled.map((f2) => ({ ...f2, file: at2(dir, f2.file) }))];
     if (result.rejected?.length) merged.rejected = [...merged.rejected ?? [], ...result.rejected.map((r) => ({ ...r, file: at2(dir, r.file) }))];
   }
   return merged;
@@ -219715,6 +219780,26 @@ async function checkProject(cwd, config, log, only) {
   const unknown = only === "translations" ? [] : await unknownKeys(cwd, config);
   const fonts = await fontCoverage(cwd, config);
   return { filesScanned, hardcoded, untranslatable, missing, outdated, unused, rtl, cssText, rawValues, unknownKeys: unknown, fonts, ok: !hardcoded.length && !untranslatable.length && !missing.length && !outdated.length && !unknown.length };
+}
+async function checkLocaleFiles(cwd, config) {
+  const vuePlurals = vuePluralsIn(cwd, config.interpolation);
+  const catalogs = await findCatalogs(cwd, config.sourceLocale, { vuePlurals });
+  if (!catalogs.length) return null;
+  const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
+  const missing = await localeFileGaps(cwd, { sourceLocale: config.sourceLocale, targetLocales: hasConfiguredLocales(cwd) ? targets : void 0, vuePlurals });
+  const lock = readLock(cwd);
+  const outdated = catalogs.flatMap((c) => {
+    const keys = outdatedKeys(lock, c).map(displayKey);
+    return keys.length ? [{ file: c.file, keys }] : [];
+  });
+  return { filesScanned: 0, hardcoded: [], untranslatable: [], missing, outdated, unused: { file: "", keys: [] }, rtl: [], cssText: [], rawValues: [], unknownKeys: [], fonts: [], ok: !missing.length && !outdated.length };
+}
+function hasConfiguredLocales(cwd) {
+  try {
+    return Array.isArray(JSON.parse(fs16.readFileSync(path15.join(cwd, "localize.config.json"), "utf8")).targetLocales);
+  } catch {
+    return false;
+  }
 }
 async function checkWorkspaces(root, load2, log, only) {
   const found2 = workspaceApps(root);
@@ -219883,8 +219968,11 @@ var cell = (s) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
 function buildPrTitle(result, branch) {
   const { stats } = result;
   const translations = Object.values(stats.translations).reduce((n4, c) => n4 + c, 0);
-  const what = stats.stringsReplaced ? `localize ${stats.stringsReplaced} UI string(s)` : result.setup.switcherFile ? "add a language switcher" : stats.formatsLocalized ? `make ${stats.formatsLocalized} format(s) follow the app's language` : translations ? `add ${translations} translation(s)` : "update the i18n setup";
+  const what = stats.stringsReplaced ? `localize ${stats.stringsReplaced} UI string(s)` : result.setup.switcherFile ? "add a language switcher" : stats.formatsLocalized ? `make ${stats.formatsLocalized} format(s) follow the app's language` : translations ? `add ${translations} translation(s)` : filledCount(result).filled ? `fill in ${filledCount(result).filled + filledCount(result).redone} translation(s)` : filledCount(result).redone ? `update ${filledCount(result).redone} translation(s)` : "update the i18n setup";
   return `i18n: ${what}${branch ? ` on ${branch}` : ""}`;
+}
+function filledCount(result) {
+  return (result.filled ?? []).reduce((n4, f2) => ({ filled: n4.filled + f2.keys.length, redone: n4.redone + f2.redone.length }), { filled: 0, redone: 0 });
 }
 function buildPrBody(result, targetLocales) {
   const { stats } = result;
@@ -219923,6 +220011,16 @@ function buildPrBody(result, targetLocales) {
     }
   }
   if (omitted) lines.push("", `_\u2026and ${omitted} more._`);
+  const filled = (result.filled ?? []).filter((f2) => f2.keys.length || f2.redone.length);
+  if (filled.length) {
+    const { filled: added2, redone } = filledCount(result);
+    if (!keys && !stats.stringsReplaced && !stats.formatsLocalized) {
+      lines.splice(2, 0, `No new strings in this run. ${[added2 ? `Fills in ${added2} translation(s) the locale files were missing` : "", redone ? `${added2 ? "and redoes" : "Redoes"} ${redone} whose source text changed` : ""].filter(Boolean).join(" ")}.`, "");
+    }
+    const list4 = (k) => k.length ? `${k.slice(0, 10).map((x) => `\`${cell(x)}\``).join(", ")}${k.length > 10 ? ` \u2026and ${k.length - 10} more` : ""}` : "\u2013";
+    lines.push(...lines[lines.length - 1] === "" ? [] : [""], "### Translations", "", "| Locale | File | Filled in | Redone (source changed) |", "| --- | --- | --- | --- |");
+    for (const f2 of filled.slice(0, MAX_ROWS)) lines.push(`| \`${f2.locale}\` | \`${f2.file}\` | ${list4(f2.keys)} | ${list4(f2.redone)} |`);
+  }
   if (result.formats?.size) {
     lines.push(...lines[lines.length - 1] === "" ? [] : [""], "### Dates, numbers and money", "", `${stats.formatsLocalized} format(s) hardcoded for one language now follow the app's language:`, "", "| File | Line | Before |", "| --- | --- | --- |");
     for (const [file2, changes] of result.formats) for (const c of changes.slice(0, 20)) lines.push(`| \`${file2}\` | ${c.line} | \`${cell(c.before)}\` |`);
@@ -219984,6 +220082,7 @@ function buildTranslatePrBody(result) {
 
 // src/action/main.ts
 init_sync();
+init_stores();
 
 // src/tms/index.ts
 init_sync();
@@ -220515,22 +220614,26 @@ async function withSourceDir(cwd, config, chosen) {
   return resolved;
 }
 async function checkMode(cwd, locales2) {
-  const config = await withSourceDir(
-    cwd,
-    loadConfig(cwd, {
-      srcDir: getInput("src_dir") || void 0,
-      localesPath: getInput("locales_path") || void 0,
-      targetLocales: locales2 ? locales2.split(",").map((l2) => l2.trim()).filter(Boolean) : void 0
-    }),
-    getInput("src_dir") || void 0
-  );
+  const loaded = loadConfig(cwd, {
+    srcDir: getInput("src_dir") || void 0,
+    localesPath: getInput("locales_path") || void 0,
+    targetLocales: locales2 ? locales2.split(",").map((l2) => l2.trim()).filter(Boolean) : void 0
+  });
+  let filesOnly = null;
+  const config = getInput("workspaces") === "true" ? loaded : await withSourceDir(cwd, loaded, getInput("src_dir") || void 0).catch(async (err) => {
+    filesOnly = err instanceof SourceDirError && err.noCode && getInput("check_only").trim() !== "strings" ? await checkLocaleFiles(cwd, loaded) : null;
+    if (!filesOnly) throw err;
+    info("No app code here, so checking the locale files only (missing and outdated translations).");
+    return loaded;
+  });
   const quiet = { info: () => {
   }, warn: warning };
   const onlyInput = getInput("check_only").trim();
   if (onlyInput && onlyInput !== "strings" && onlyInput !== "translations") throw new Error(`check_only must be "strings" or "translations", not "${onlyInput}"`);
-  const only = onlyInput || void 0;
+  let only = onlyInput || void 0;
   const found2 = getInput("workspaces") === "true" ? await checkWorkspaces(cwd, loadConfig, quiet, only) : null;
-  const results = found2 ? found2.packages.map((p) => p.result) : [await checkProject(cwd, config, quiet, only)];
+  if (filesOnly) only = "translations";
+  const results = found2 ? found2.packages.map((p) => p.result) : [filesOnly ?? await checkProject(cwd, config, quiet, only)];
   for (const r of results) for (const line of annotations(r)) process.stdout.write(`${line}
 `);
   const result = {
@@ -220637,6 +220740,8 @@ async function main() {
         const merged = mergeLibraryLocales(cwd, { dir: libDir, config: lib }, { dir: app.dir, config: appConfig }, false, pending);
         r.files = mergeFiles(r.files, merged.map((f2) => ({ ...f2, path: path17.posix.relative(app.dir, f2.path) })));
       }
+      const relock = await lockNewMessages(dir, { sourceLocale: appConfig.sourceLocale, onlyFiles: [storeFor(appConfig).path(appConfig.sourceLocale)], overlay: new Map(r.files.map((f2) => [f2.path, f2.content])), vuePlurals: vuePluralsIn(dir, appConfig.interpolation) });
+      if (relock) r.files = mergeFiles(r.files, [{ path: "localize.lock.json", content: relock }]);
       results.push({ dir: app.dir, result: r });
       if (r.incomplete) break;
     }
@@ -220653,6 +220758,7 @@ async function main() {
     result = await runPipeline({ cwd, config, translator, write: false, log });
     if (!offline && !result.incomplete) {
       const refresh = await refreshOutdated({ cwd, config, translator, write: false, log, files: result.files });
+      if (refresh.filled.length) result.filled = refresh.filled;
       const outdated = refresh.catalogs.reduce((n4, c) => n4 + c.outdated, 0);
       if (outdated) info(`Re-translated ${outdated} message(s) whose source text changed.`);
       result.files = mergeFiles(result.files, refresh.files);
