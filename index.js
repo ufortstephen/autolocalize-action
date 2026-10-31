@@ -191888,27 +191888,38 @@ async function loadOptional(spec) {
     const code2 = err.code;
     if (code2 !== "ERR_MODULE_NOT_FOUND" && code2 !== "MODULE_NOT_FOUND") throw err;
   }
-  const { pkg, version: version2, for: framework } = OPTIONAL[spec];
-  const dir = cacheDir();
-  const pkgDir = path5.join(dir, "node_modules", ...pkg.split("/"));
-  await (installing = installing.then(() => {
-    if (fs6.existsSync(path5.join(pkgDir, "package.json"))) return;
-    fs6.mkdirSync(dir, { recursive: true });
-    if (!fs6.existsSync(path5.join(dir, "package.json"))) fs6.writeFileSync(path5.join(dir, "package.json"), '{ "private": true }\n');
-    process.stderr.write(`\u{1F4E6} Installing ${pkg} for ${framework} templates (first time only, into ${dir})\u2026
-`);
-    const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-    const run = spawnSync(npm, ["install", `${pkg}@${version2}`, "--no-audit", "--no-fund", "--loglevel=error"], { cwd: dir, encoding: "utf8", shell: process.platform === "win32" });
-    if (run.status !== 0) {
-      throw new Error(`Couldn't install ${pkg} (needed for ${framework} templates): ${(run.stderr || run.error?.message || "").trim().split("\n").slice(-2).join(" ")}. Install it in your project: npm i -D ${pkg}`);
-    }
-  }));
+  const { pkg } = OPTIONAL[spec];
+  const pkgDir = await installInCache(spec);
   const subpath = spec.slice(pkg.length + 1);
   return await import(
     /* webpackIgnore: true */
     /* @vite-ignore */
     pathToFileURL(entryOf(pkgDir, subpath)).href
   );
+}
+async function installInCache(spec) {
+  const { pkg, version: version2, for: framework } = OPTIONAL[spec];
+  const dir = cacheDir();
+  const pkgDir = path5.join(dir, "node_modules", ...pkg.split("/"));
+  if (!fs6.existsSync(path5.join(pkgDir, "package.json")) && /^(1|true|yes)$/i.test(process.env.LOCALIZE_DEV_NO_INSTALL ?? "")) {
+    throw new Error(`Couldn't install ${pkg} (needed for ${framework} templates): LOCALIZE_DEV_NO_INSTALL is set. Install it in your project: npm i -D ${pkg}@${version2}`);
+  }
+  const run = installing.then(() => {
+    if (fs6.existsSync(path5.join(pkgDir, "package.json"))) return;
+    fs6.mkdirSync(dir, { recursive: true });
+    if (!fs6.existsSync(path5.join(dir, "package.json"))) fs6.writeFileSync(path5.join(dir, "package.json"), '{ "private": true }\n');
+    process.stderr.write(`\u{1F4E6} Installing ${pkg} for ${framework} templates (first time only, into ${dir})\u2026
+`);
+    const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+    const npmRun = spawnSync(npm, ["install", `${pkg}@${version2}`, "--ignore-scripts", "--no-audit", "--no-fund", "--loglevel=error"], { cwd: dir, encoding: "utf8", shell: process.platform === "win32" });
+    if (npmRun.status !== 0) {
+      throw new Error(`Couldn't install ${pkg} (needed for ${framework} templates): ${(npmRun.stderr || npmRun.error?.message || "").trim().split("\n").slice(-2).join(" ")}. Install it in your project: npm i -D ${pkg}`);
+    }
+  });
+  installing = run.catch(() => {
+  });
+  await run;
+  return pkgDir;
 }
 var OPTIONAL, cacheDir, installing;
 var init_optional = __esm({
@@ -209223,6 +209234,73 @@ var require_dist = __commonJS({
   }
 });
 
+// src/sync/plural-forms.ts
+function compilePluralForms(expression) {
+  const source2 = expression.trim();
+  const tokens2 = source2.match(/\s*(?:\d+|n|&&|\|\||==|!=|<=|>=|[-+*/%<>!?:()])/gy);
+  if (!tokens2 || tokens2.join("").length !== source2.length) throw new Error(`Unsupported Plural-Forms expression: ${source2}`);
+  const list4 = tokens2.map((t10) => t10.trim()).filter(Boolean);
+  let i3 = 0;
+  const peek = () => list4[i3];
+  const take = (t10) => {
+    const tok = list4[i3];
+    if (t10 !== void 0 && tok !== t10) throw new Error(`Expected "${t10}" in Plural-Forms expression: ${source2}`);
+    i3++;
+    return tok;
+  };
+  const bool = (b4) => b4 ? 1 : 0;
+  const ternary = () => {
+    const test = or();
+    if (peek() !== "?") return test;
+    take("?");
+    const yes = ternary();
+    take(":");
+    const no = ternary();
+    return (n4) => test(n4) ? yes(n4) : no(n4);
+  };
+  const binary3 = (next2, ops) => () => {
+    let left = next2();
+    while (peek() in ops) {
+      const op = ops[take()];
+      const l2 = left;
+      const right = next2();
+      left = (n4) => op(l2(n4), right(n4));
+    }
+    return left;
+  };
+  const unary4 = () => {
+    if (peek() === "!") return take(), /* @__PURE__ */ ((inner) => (n4) => bool(!inner(n4)))(unary4());
+    if (peek() === "-") return take(), /* @__PURE__ */ ((inner) => (n4) => -inner(n4))(unary4());
+    if (peek() === "(") {
+      take("(");
+      const inner = ternary();
+      take(")");
+      return inner;
+    }
+    const tok = take();
+    if (tok === "n") return (n4) => n4;
+    if (tok !== void 0 && /^\d+$/.test(tok)) {
+      const v2 = Number(tok);
+      return () => v2;
+    }
+    throw new Error(`Unexpected "${tok ?? "end"}" in Plural-Forms expression: ${source2}`);
+  };
+  const mul = binary3(unary4, { "*": (a, b4) => a * b4, "/": (a, b4) => b4 === 0 ? NaN : Math.trunc(a / b4), "%": (a, b4) => b4 === 0 ? NaN : a % b4 });
+  const add = binary3(mul, { "+": (a, b4) => a + b4, "-": (a, b4) => a - b4 });
+  const rel = binary3(add, { "<": (a, b4) => bool(a < b4), ">": (a, b4) => bool(a > b4), "<=": (a, b4) => bool(a <= b4), ">=": (a, b4) => bool(a >= b4) });
+  const eq = binary3(rel, { "==": (a, b4) => bool(a === b4), "!=": (a, b4) => bool(a !== b4) });
+  const and = binary3(eq, { "&&": (a, b4) => bool(!!a && !!b4) });
+  const or = binary3(and, { "||": (a, b4) => bool(!!a || !!b4) });
+  const fn2 = ternary();
+  if (i3 !== list4.length) throw new Error(`Unexpected "${list4[i3]}" in Plural-Forms expression: ${source2}`);
+  return fn2;
+}
+var init_plural_forms = __esm({
+  "src/sync/plural-forms.ts"() {
+    "use strict";
+  }
+});
+
 // src/sync/locale.ts
 function toBcp47(code2) {
   let c = code2;
@@ -209444,9 +209522,14 @@ function append(e2, f2, s) {
 }
 function slotCategories(header, locale) {
   const m2 = /nplurals\s*=\s*(\d+)\s*;\s*plural\s*=\s*([^;]+);?/.exec(header["Plural-Forms"] ?? "");
-  if (!m2 || !/^[\sn\d()?:<>=!&|%+\-*/]+$/.test(m2[2])) return null;
+  if (!m2) return null;
   const count = Number(m2[1]);
-  const fn2 = new Function("n", `return Number(${m2[2]});`);
+  let fn2;
+  try {
+    fn2 = compilePluralForms(m2[2]);
+  } catch {
+    return null;
+  }
   const rules = new Intl.PluralRules(locale);
   const slots = Array(count).fill(null);
   for (let n4 = 0; n4 <= 1e3 && slots.includes(null); n4++) {
@@ -209552,6 +209635,7 @@ var TOKENS, unquote2, quote2, keyOf, PLURAL_FORMS, poFormat;
 var init_po = __esm({
   "src/sync/formats/po.ts"() {
     "use strict";
+    init_plural_forms();
     init_locale();
     init_placeholders();
     init_shared();
@@ -216553,7 +216637,7 @@ var init_setup = __esm({
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION = true ? "0.24.2" : "0.6.0";
+    SELF_VERSION = true ? "0.24.3" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
