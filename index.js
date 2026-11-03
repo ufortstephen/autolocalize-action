@@ -19430,6 +19430,31 @@ var init_dictionary = __esm({
   }
 });
 
+// src/paths.ts
+function repoPath(p) {
+  const parts = [];
+  for (const part of p.replace(/\\/g, "/").split("/")) {
+    if (part === "" || part === ".") continue;
+    if (part === "..") {
+      if (!parts.length) throw new Error(`${p} is outside the repository`);
+      parts.pop();
+    } else parts.push(part);
+  }
+  if (/^([A-Za-z]:)?[\\/]/.test(p)) throw new Error(`${p} is an absolute path, not one in the repository`);
+  if (!parts.length) throw new Error(`"${p}" isn't a file path`);
+  return parts.join("/");
+}
+var srcPrefix;
+var init_paths = __esm({
+  "src/paths.ts"() {
+    "use strict";
+    srcPrefix = (config) => {
+      const dir = config.srcDir.replace(/\\/g, "/").replace(/^(\.\/)+/, "").replace(/\/+$/, "");
+      return dir === "" || dir === "." ? "" : `${dir}/`;
+    };
+  }
+});
+
 // ../../node_modules/fast-glob/out/utils/array.js
 var require_array = __commonJS({
   "../../node_modules/fast-glob/out/utils/array.js"(exports) {
@@ -25494,31 +25519,6 @@ var init_config = __esm({
       interpolation: "i18next"
     };
     CONFIG_FILE = "localize.config.json";
-  }
-});
-
-// src/paths.ts
-function repoPath(p) {
-  const parts = [];
-  for (const part of p.replace(/\\/g, "/").split("/")) {
-    if (part === "" || part === ".") continue;
-    if (part === "..") {
-      if (!parts.length) throw new Error(`${p} is outside the repository`);
-      parts.pop();
-    } else parts.push(part);
-  }
-  if (/^([A-Za-z]:)?[\\/]/.test(p)) throw new Error(`${p} is an absolute path, not one in the repository`);
-  if (!parts.length) throw new Error(`"${p}" isn't a file path`);
-  return parts.join("/");
-}
-var srcPrefix;
-var init_paths = __esm({
-  "src/paths.ts"() {
-    "use strict";
-    srcPrefix = (config) => {
-      const dir = config.srcDir.replace(/\\/g, "/").replace(/^(\.\/)+/, "").replace(/\/+$/, "");
-      return dir === "" || dir === "." ? "" : `${dir}/`;
-    };
   }
 });
 
@@ -216637,7 +216637,7 @@ var init_setup = __esm({
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION = true ? "0.24.4" : "0.6.0";
+    SELF_VERSION = true ? "0.24.5" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -218028,7 +218028,10 @@ async function scanProject(cwd, config, log) {
     const abs = resolver2(path13.join(cwd, fromFile), specifier);
     return abs && plainModule(abs) ? abs : null;
   };
+  const modules = new Set((await (0, import_fast_glob9.default)("**/*.{ts,tsx,js,jsx,mjs}", { cwd: root, ignore: [...config.ignore, "**/*.d.ts"] })).map((f2) => path13.join(root, f2)));
+  const ignored = (abs) => !path13.relative(root, abs).startsWith("..") && !modules.has(abs);
   const copyIn = (abs) => {
+    if (ignored(abs)) return null;
     if (!moduleCopy.has(abs)) moduleCopy.set(abs, exportedCopy(fs14.readFileSync(abs, "utf8")));
     return moduleCopy.get(abs);
   };
@@ -218100,7 +218103,7 @@ async function scanProject(cwd, config, log) {
     }
   }
   const componentFiles = new Set(scanned.map((s) => path13.join(cwd, s.file)));
-  const others = (await (0, import_fast_glob9.default)("**/*.{ts,tsx,js,jsx,mjs}", { cwd: root, ignore: [...config.ignore, "**/*.d.ts"] })).map((f2) => path13.join(root, f2)).filter((f2) => !componentFiles.has(f2));
+  const others = [...modules].filter((f2) => !componentFiles.has(f2));
   const byModule = /* @__PURE__ */ new Map();
   for (const [id3, followed] of copyUses) {
     const [abs, name] = id3.split("\0");
@@ -219133,6 +219136,10 @@ var CloudClient = class {
   async reportRun(report) {
     await this.request("POST", "/api/v1/runs", report, { attempts: 2, timeoutMs: 15e3 });
   }
+  /** Opens (or updates) the pull request as the localize.dev GitHub App, when it's on the repository. */
+  openPullRequest(pr) {
+    return this.request("POST", "/api/v1/pull-requests", pr, { attempts: 2, timeoutMs: 12e4 });
+  }
   async request(method2, route, body, limits = {}) {
     const attempts = limits.attempts ?? this.opts.maxAttempts ?? 4;
     const busyAttempts = Math.max(attempts, limits.attempts ?? BUSY_ATTEMPTS);
@@ -219163,7 +219170,7 @@ var CloudClient = class {
       const message = await errorMessage(res);
       if (res.status === 401) throw new CloudError(`Invalid API key. Run \`localize-dev login\` or set ${API_KEY_ENV}. (${message})`, 401);
       if (res.status === 402 || res.status === 403) throw new CloudError(message, res.status);
-      if (res.status === 400 || res.status === 413 || res.status === 422) throw new CloudError(message, res.status);
+      if (res.status === 400 || res.status === 404 || res.status === 409 || res.status === 413 || res.status === 422) throw new CloudError(message, res.status);
       lastError = new Error(`localize.dev API error ${res.status}: ${message}`);
       const n4 = BUSY.has(res.status) ? ++busy : ++failures;
       if (BUSY.has(res.status) ? busy >= busyAttempts : failures >= attempts) break;
@@ -219208,6 +219215,7 @@ var CloudTranslator = class {
 };
 
 // src/action/main.ts
+init_paths();
 init_config();
 
 // src/project.ts
@@ -220700,6 +220708,36 @@ function workingDirectory(root) {
   if (!fs18.statSync(path17.join(root, dir), { throwIfNoEntry: false })?.isDirectory()) throw new Error(`working_directory: ${dir} isn't a folder in the repository`);
   return dir;
 }
+async function openPullRequest(client2, githubToken, p) {
+  const newBranch = `${BRANCH_PREFIX}${p.baseBranch}`;
+  const apiUrl = process.env.GITHUB_API_URL;
+  if (client2 && (!apiUrl || apiUrl === "https://api.github.com")) {
+    try {
+      const pr = await client2.openPullRequest({
+        repo: `${p.owner}/${p.repo}`,
+        baseBranch: p.baseBranch,
+        newBranch,
+        title: p.title,
+        body: p.body,
+        files: p.files.map((f2) => ({ path: repoPath(f2.path), content: f2.content }))
+      });
+      info("Opened as the localize.dev GitHub App.");
+      return pr;
+    } catch (err) {
+      info(`Opening the pull request with the workflow's token instead: ${err.message}`);
+    }
+  }
+  try {
+    return await createLocalizationPullRequest({ githubToken, owner: p.owner, repo: p.repo, baseBranch: p.baseBranch, newBranch, prTitle: p.title, prBody: p.body, changedFiles: p.files, baseUrl: apiUrl });
+  } catch (err) {
+    if (err.status === 403 && /not permitted to create or approve pull requests/i.test(err.message)) {
+      throw new Error(
+        `GitHub doesn't let this workflow open pull requests. Install the localize.dev GitHub App on ${p.owner}/${p.repo} (connect it at https://uselocalize.dev/dashboard), or tick Settings \u2192 Actions \u2192 General \u2192 Workflow permissions \u2192 "Allow GitHub Actions to create and approve pull requests".`
+      );
+    }
+    throw err;
+  }
+}
 var inRepo = (files, workdir) => workdir ? files.map((f2) => ({ ...f2, path: path17.posix.join(workdir, f2.path) })) : files;
 async function withSourceDir(cwd, config, chosen) {
   const { config: resolved, note, empty: empty3 } = await resolveSourceDir(cwd, config, chosen);
@@ -220886,16 +220924,13 @@ async function main() {
       result.setup.notes.push(`The lockfile wasn't updated (${lock.error}). Run your package manager's install on this branch.`);
     }
   }
-  const pr = await createLocalizationPullRequest({
-    githubToken,
+  const pr = await openPullRequest(client2, githubToken, {
     owner,
     repo,
     baseBranch,
-    newBranch: `${BRANCH_PREFIX}${baseBranch}`,
-    prTitle: buildPrTitle(result, baseBranch),
-    prBody: buildPrBody(result, config.targetLocales),
-    changedFiles: [...inRepo(result.files, workdir), ...rootFiles],
-    baseUrl: process.env.GITHUB_API_URL
+    title: buildPrTitle(result, baseBranch),
+    body: buildPrBody(result, config.targetLocales),
+    files: [...inRepo(result.files, workdir), ...rootFiles]
   });
   setOutput("pr_url", pr.url);
   await tmsPush(cwd, baseBranch);
@@ -220961,16 +220996,13 @@ async function translateMode(o) {
     await tmsPush(o.cwd, o.baseBranch);
     return;
   }
-  const pr = await createLocalizationPullRequest({
-    githubToken: o.githubToken,
+  const pr = await openPullRequest(client2, o.githubToken, {
     owner: o.owner,
     repo: o.repo,
     baseBranch: o.baseBranch,
-    newBranch: `${BRANCH_PREFIX}${o.baseBranch}`,
-    prTitle: `i18n: fill in ${result.stats.strings} missing translation(s) on ${o.baseBranch}`,
-    prBody: buildTranslatePrBody(result),
-    changedFiles: inRepo(result.files, o.workdir),
-    baseUrl: process.env.GITHUB_API_URL
+    title: `i18n: fill in ${result.stats.strings} missing translation(s) on ${o.baseBranch}`,
+    body: buildTranslatePrBody(result),
+    files: inRepo(result.files, o.workdir)
   });
   setOutput("pr_url", pr.url);
   await tmsPush(o.cwd, o.baseBranch);

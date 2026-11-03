@@ -6,7 +6,7 @@ for translation calls and adds the locale files. On every push, new copy gets th
 
 Works with React, Next.js, React Native, Vue, Nuxt, Svelte, Angular, Astro, Solid, Qwik, Lit,
 Ember, Flutter, Android, iOS, Rails, Django, Laravel and static HTML; each gets the i18n library
-its framework expects. Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.24.4.
+its framework expects. Built from [`localize-dev`](https://www.npmjs.com/package/localize-dev) v0.24.5.
 Docs: [https://uselocalize.dev/docs](https://uselocalize.dev/docs).
 
 ## Setup
@@ -14,8 +14,10 @@ Docs: [https://uselocalize.dev/docs](https://uselocalize.dev/docs).
 1. Create an API key in the [localize.dev dashboard](https://uselocalize.dev/dashboard/keys).
 2. Add it to your repository as the secret `LOCALIZEDEV_API_KEY`
    (Settings → Secrets and variables → Actions).
-3. Allow Actions to open pull requests: Settings → Actions → General →
-   "Allow GitHub Actions to create and approve pull requests".
+3. Install the [localize.dev GitHub App](https://uselocalize.dev/dashboard) on the repository: it opens the
+   pull requests, and their checks run. Without it, the Action opens them with the workflow's
+   token, and you have to allow that: Settings → Actions → General → "Allow GitHub Actions to
+   create and approve pull requests".
 4. Save [`example-workflow.yml`](example-workflow.yml) as `.github/workflows/localize.yml`
    and set your default branch and languages.
 
