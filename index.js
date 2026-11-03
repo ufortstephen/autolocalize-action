@@ -216637,7 +216637,7 @@ var init_setup = __esm({
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION = true ? "0.24.5" : "0.6.0";
+    SELF_VERSION = true ? "0.24.6" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -219235,12 +219235,17 @@ async function findSourceDirs(cwd, include = DEFAULT_CONFIG.include) {
   return [...counts].map(([dir, n4]) => ({ dir, files: n4 })).sort((a, b4) => b4.files - a.files || a.dir.localeCompare(b4.dir));
 }
 var SourceDirError = class extends Error {
-  /** No code to scan at all (not a wrong folder, not a monorepo root): a repository of locale files. */
-  constructor(message, noCode = false) {
+  /**
+   * `noCode`: no code to scan at all (not a wrong folder, not a monorepo root): a repository of
+   * locale files. `apps`: at a monorepo's root, the folders with code, for the Action to name.
+   */
+  constructor(message, noCode = false, apps = []) {
     super(message);
     this.noCode = noCode;
+    this.apps = apps;
   }
   noCode;
+  apps;
 };
 var kind = (config) => ({ vue: "Vue", svelte: "Svelte", html: "HTML", angular: "Angular", flutter: "Dart" })[config.framework ?? ""] ?? "JSX/TSX";
 function chosenSrcDir(cwd, flag) {
@@ -219272,7 +219277,9 @@ ${candidates2.map((c) => `  ${howToRun(c)}`).join("\n")}` : "")
       throw new SourceDirError(
         `No ${config.srcDir}/ folder here. This looks like a monorepo; run localize.dev inside the app you want to translate:
 ` + packages.map((c) => `  ${howToRun(c)}`).join("\n") + `
-Or choose a folder with -d <dir>, or set "srcDir" in ${CONFIG_FILE}.`
+Or choose a folder with -d <dir>, or set "srcDir" in ${CONFIG_FILE}.`,
+        false,
+        packages
       );
     }
     throw new SourceDirError(`No ${config.srcDir}/ folder and no ${kind(config)} files found in ${cwd}. Run this in your app's folder, or pass -d <dir>.`, true);
@@ -220740,7 +220747,16 @@ async function openPullRequest(client2, githubToken, p) {
 }
 var inRepo = (files, workdir) => workdir ? files.map((f2) => ({ ...f2, path: path17.posix.join(workdir, f2.path) })) : files;
 async function withSourceDir(cwd, config, chosen) {
-  const { config: resolved, note, empty: empty3 } = await resolveSourceDir(cwd, config, chosen);
+  const { config: resolved, note, empty: empty3 } = await resolveSourceDir(cwd, config, chosen).catch((err) => {
+    if (!(err instanceof SourceDirError) || !err.apps.length) throw err;
+    const named2 = workingDirectory(process.env.GITHUB_WORKSPACE ?? process.cwd());
+    throw new SourceDirError(
+      `${named2 ? `${named2} has no app code to scan, and looks like a monorepo` : "This looks like a monorepo, and the Action runs at its root"}. Set working_directory to the app to localize:
+` + err.apps.map((a) => `  working_directory: ${named2 ? path17.posix.join(named2, a.dir) : a.dir}   (${a.files} files)`).join("\n") + "\nOr workspaces: true to localize every app in the workspace.",
+      false,
+      err.apps
+    );
+  });
   if (note) info(note);
   if (empty3) warning(empty3);
   return resolved;
