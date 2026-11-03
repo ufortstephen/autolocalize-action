@@ -23287,11 +23287,11 @@ var require_out = __commonJS({
       async.read(path18, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat2;
-    function statSync4(path18, optionsOrSettings) {
+    function statSync5(path18, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
       return sync.read(path18, settings);
     }
-    exports.statSync = statSync4;
+    exports.statSync = statSync5;
     function getSettings(settingsOrOptions = {}) {
       if (settingsOrOptions instanceof settings_1.default) {
         return settingsOrOptions;
@@ -216637,7 +216637,7 @@ var init_setup = __esm({
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION = true ? "0.24.3" : "0.6.0";
+    SELF_VERSION = true ? "0.24.4" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -220691,13 +220691,23 @@ async function pull(o) {
 
 // src/action/main.ts
 var BRANCH_PREFIX = "localize-dev/";
+function workingDirectory(root) {
+  const input = getInput("working_directory").trim();
+  if (!input) return "";
+  const dir = path17.posix.normalize(input.replace(/\\/g, "/")).replace(/\/+$/, "");
+  if (path17.posix.isAbsolute(dir) || dir === ".." || dir.startsWith("../")) throw new Error(`working_directory must be a folder inside the repository, not "${input}"`);
+  if (dir === ".") return "";
+  if (!fs18.statSync(path17.join(root, dir), { throwIfNoEntry: false })?.isDirectory()) throw new Error(`working_directory: ${dir} isn't a folder in the repository`);
+  return dir;
+}
+var inRepo = (files, workdir) => workdir ? files.map((f2) => ({ ...f2, path: path17.posix.join(workdir, f2.path) })) : files;
 async function withSourceDir(cwd, config, chosen) {
   const { config: resolved, note, empty: empty3 } = await resolveSourceDir(cwd, config, chosen);
   if (note) info(note);
   if (empty3) warning(empty3);
   return resolved;
 }
-async function checkMode(cwd, locales2) {
+async function checkMode(cwd, locales2, workdir) {
   const loaded = loadConfig(cwd, {
     srcDir: getInput("src_dir") || void 0,
     localesPath: getInput("locales_path") || void 0,
@@ -220717,7 +220727,8 @@ async function checkMode(cwd, locales2) {
   let only = onlyInput || void 0;
   const found2 = getInput("workspaces") === "true" ? await checkWorkspaces(cwd, loadConfig, quiet, only) : null;
   if (filesOnly) only = "translations";
-  const results = found2 ? found2.packages.map((p) => p.result) : [filesOnly ?? await checkProject(cwd, config, quiet, only)];
+  const checked = found2 ? found2.packages.map((p) => p.result) : [filesOnly ?? await checkProject(cwd, config, quiet, only)];
+  const results = workdir ? checked.map((r) => withDir(r, workdir)) : checked;
   for (const r of results) for (const line of annotations(r)) process.stdout.write(`${line}
 `);
   const result = {
@@ -220748,7 +220759,9 @@ async function main() {
   if (apiKey) setSecret(apiKey);
   const locales2 = getInput("target_locales");
   const offline = getBooleanInput("offline");
-  const cwd = process.env.GITHUB_WORKSPACE ?? process.cwd();
+  const root = process.env.GITHUB_WORKSPACE ?? process.cwd();
+  const workdir = workingDirectory(root);
+  const cwd = workdir ? path17.join(root, workdir) : root;
   const [owner, repo] = (process.env.GITHUB_REPOSITORY ?? "/").split("/");
   const baseBranch = getInput("base_branch") || process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
   if (!owner || !repo || !baseBranch) throw new Error("Could not determine repository or branch from the environment");
@@ -220757,14 +220770,14 @@ async function main() {
     return;
   }
   if (getInput("mode") === "check") {
-    await checkMode(cwd, locales2);
+    await checkMode(cwd, locales2, workdir);
     return;
   }
   if (!offline && !apiKey) {
     throw new Error("api_key is required (create one at https://uselocalize.dev/dashboard/keys), or set offline: true");
   }
   if (getInput("mode") === "translate") {
-    await translateMode({ githubToken, apiKey, offline, locales: locales2, cwd, owner, repo, baseBranch });
+    await translateMode({ githubToken, apiKey, offline, locales: locales2, cwd, workdir, owner, repo, baseBranch });
     return;
   }
   const workspaces = getInput("workspaces") === "true";
@@ -220849,7 +220862,7 @@ async function main() {
     }
   }
   setOutput("strings_count", result.stats.stringsReplaced);
-  result.files = withPulled(result.files, pulled);
+  result.files = withPulled(result.files, pulled, cwd);
   for (const w4 of result.warnings) info(`Skipped ${w4.filePath}:${w4.loc.line} "${w4.text}": ${w4.reason}`);
   if (result.incomplete) {
     warning(`Translation stopped partway (${result.incomplete.strings} string(s) left): ${result.incomplete.error.message}`);
@@ -220863,9 +220876,11 @@ async function main() {
   }
   const pkg = result.files.find((f2) => f2.path === "package.json");
   const manifests = workspaces ? result.files.filter((f2) => f2.path.endsWith("/package.json")) : pkg ? [pkg] : [];
+  const lockAtRoot = Boolean(workdir) && !detectPackageManager(cwd);
+  const rootFiles = [];
   if (manifests.length && Object.keys(result.setup.addedDependencies).length) {
-    const lock = updateLockfile(cwd, manifests, log);
-    if (lock && "file" in lock) result.files.push(lock.file);
+    const lock = lockAtRoot ? updateLockfile(root, inRepo(manifests, workdir), log) : updateLockfile(cwd, manifests, log);
+    if (lock && "file" in lock) (lockAtRoot ? rootFiles : result.files).push(lock.file);
     else if (lock) {
       warning(`Couldn't update the lockfile: ${lock.error}`);
       result.setup.notes.push(`The lockfile wasn't updated (${lock.error}). Run your package manager's install on this branch.`);
@@ -220879,7 +220894,7 @@ async function main() {
     newBranch: `${BRANCH_PREFIX}${baseBranch}`,
     prTitle: buildPrTitle(result, baseBranch),
     prBody: buildPrBody(result, config.targetLocales),
-    changedFiles: result.files,
+    changedFiles: [...inRepo(result.files, workdir), ...rootFiles],
     baseUrl: process.env.GITHUB_API_URL
   });
   setOutput("pr_url", pr.url);
@@ -220938,7 +220953,7 @@ async function translateMode(o) {
   for (const w4 of result.warnings) warning(w4);
   for (const n4 of result.notes) info(n4);
   setOutput("strings_count", result.stats.strings);
-  result.files = withPulled(result.files, pulled);
+  result.files = withPulled(result.files, pulled, o.cwd);
   if (!result.files.length) {
     if (result.incomplete) throw result.incomplete.error;
     info("No missing translations. Nothing to do.");
@@ -220954,7 +220969,7 @@ async function translateMode(o) {
     newBranch: `${BRANCH_PREFIX}${o.baseBranch}`,
     prTitle: `i18n: fill in ${result.stats.strings} missing translation(s) on ${o.baseBranch}`,
     prBody: buildTranslatePrBody(result),
-    changedFiles: result.files,
+    changedFiles: inRepo(result.files, o.workdir),
     baseUrl: process.env.GITHUB_API_URL
   });
   setOutput("pr_url", pr.url);
@@ -221020,9 +221035,9 @@ async function tmsPush(cwd, branch) {
   const done2 = await push({ cwd, client: client2, files, log: actionLog });
   info(`Pushed ${done2.sources} source file(s) to ${client2.name}.`);
 }
-var withPulled = (files, pulled) => {
+var withPulled = (files, pulled, cwd) => {
   const paths = new Set(files.map((f2) => f2.path));
-  return [...files, ...pulled.filter((f2) => !paths.has(f2.path)).map((f2) => ({ path: f2.path, content: fs18.readFileSync(path17.join(process.env.GITHUB_WORKSPACE ?? process.cwd(), f2.path), "utf8") }))];
+  return [...files, ...pulled.filter((f2) => !paths.has(f2.path)).map((f2) => ({ path: f2.path, content: fs18.readFileSync(path17.join(cwd, f2.path), "utf8") }))];
 };
 var reportFailure = null;
 main().catch(async (err) => {

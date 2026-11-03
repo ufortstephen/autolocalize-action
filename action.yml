@@ -27,6 +27,10 @@ inputs:
     description: "Source code directory to scan (default: localize.config.json, else the framework's own: src, app/views, resources/views, lib…)"
     required: false
     default: ''
+  working_directory:
+    description: "Monorepo: the one app to localize (e.g. apps/web), relative to the repository root; its localize.config.json, code and locale files are read there, and the pull request changes them in place"
+    required: false
+    default: ''
   locales_path:
     description: 'Dictionary path pattern; {locale} is replaced (default from localize.config.json, else locales/{locale}.json)'
     required: false
