@@ -60,6 +60,7 @@ Docs: [https://uselocalize.dev/docs](https://uselocalize.dev/docs).
 | `base_branch` | the triggering branch | Branch the PR targets. |
 | `check_only` | everything | With `mode: check`: `strings` (hardcoded copy) or `translations` (missing or out-of-date translations) only, as `check --only` does. |
 | `workspaces` | `false` | Monorepo: localize (or check) every app, each with its own locale files. |
+| `working_directory` | the repository root | Monorepo: localize (or check) just this app, e.g. `apps/web`; its config, code and locale files are read there, and the PR changes them in place. |
 | `tms_pull` / `tms_push` | `false` | Pull translations from, or push sources to, Crowdin, Phrase, Lokalise or Transifex. |
 | `tms_token` | | The translation platform's API token. |
 | `api_url` | `https://uselocalize.dev` | API base URL, for staging deployments. |
