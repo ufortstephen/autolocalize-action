@@ -5202,13 +5202,13 @@ var require_formdata_parser = __commonJS({
       }
       return true;
     }
-    function validateBoundary(boundary2) {
-      const length = boundary2.length;
+    function validateBoundary(boundary3) {
+      const length = boundary3.length;
       if (length < 27 || length > 70) {
         return false;
       }
       for (let i3 = 0; i3 < length; ++i3) {
-        const cp = boundary2.charCodeAt(i3);
+        const cp = boundary3.charCodeAt(i3);
         if (!(cp >= 48 && cp <= 57 || cp >= 65 && cp <= 90 || cp >= 97 && cp <= 122 || cp === 39 || cp === 45 || cp === 95)) {
           return false;
         }
@@ -5221,7 +5221,7 @@ var require_formdata_parser = __commonJS({
       if (boundaryString === void 0) {
         return "failure";
       }
-      const boundary2 = Buffer.from(`--${boundaryString}`, "utf8");
+      const boundary3 = Buffer.from(`--${boundaryString}`, "utf8");
       const entryList = [];
       const position2 = { position: 0 };
       while (input[position2.position] === 13 && input[position2.position + 1] === 10) {
@@ -5235,8 +5235,8 @@ var require_formdata_parser = __commonJS({
         input = input.subarray(0, trailing);
       }
       while (true) {
-        if (input.subarray(position2.position, position2.position + boundary2.length).equals(boundary2)) {
-          position2.position += boundary2.length;
+        if (input.subarray(position2.position, position2.position + boundary3.length).equals(boundary3)) {
+          position2.position += boundary3.length;
         } else {
           return "failure";
         }
@@ -5255,7 +5255,7 @@ var require_formdata_parser = __commonJS({
         position2.position += 2;
         let body;
         {
-          const boundaryIndex = input.indexOf(boundary2.subarray(2), position2.position);
+          const boundaryIndex = input.indexOf(boundary3.subarray(2), position2.position);
           if (boundaryIndex === -1) {
             return "failure";
           }
@@ -5509,10 +5509,10 @@ var require_body = __commonJS({
       } else if (ArrayBuffer.isView(object4)) {
         source2 = new Uint8Array(object4.buffer.slice(object4.byteOffset, object4.byteOffset + object4.byteLength));
       } else if (util.isFormDataLike(object4)) {
-        const boundary2 = `----formdata-undici-0${`${random(1e11)}`.padStart(11, "0")}`;
-        const prefix2 = `--${boundary2}\r
+        const boundary3 = `----formdata-undici-0${`${random(1e11)}`.padStart(11, "0")}`;
+        const prefix2 = `--${boundary3}\r
 Content-Disposition: form-data`;
-        const escape3 = (str2) => str2.replace(/\n/g, "%0A").replace(/\r/g, "%0D").replace(/"/g, "%22");
+        const escape4 = (str2) => str2.replace(/\n/g, "%0A").replace(/\r/g, "%0D").replace(/"/g, "%22");
         const normalizeLinefeeds = (value) => value.replace(/\r?\n|\r/g, "\r\n");
         const blobParts = [];
         const rn = new Uint8Array([13, 10]);
@@ -5520,14 +5520,14 @@ Content-Disposition: form-data`;
         let hasUnknownSizeValue = false;
         for (const [name, value] of object4) {
           if (typeof value === "string") {
-            const chunk2 = textEncoder2.encode(prefix2 + `; name="${escape3(normalizeLinefeeds(name))}"\r
+            const chunk2 = textEncoder2.encode(prefix2 + `; name="${escape4(normalizeLinefeeds(name))}"\r
 \r
 ${normalizeLinefeeds(value)}\r
 `);
             blobParts.push(chunk2);
             length += chunk2.byteLength;
           } else {
-            const chunk2 = textEncoder2.encode(`${prefix2}; name="${escape3(normalizeLinefeeds(name))}"` + (value.name ? `; filename="${escape3(value.name)}"` : "") + `\r
+            const chunk2 = textEncoder2.encode(`${prefix2}; name="${escape4(normalizeLinefeeds(name))}"` + (value.name ? `; filename="${escape4(value.name)}"` : "") + `\r
 Content-Type: ${value.type || "application/octet-stream"}\r
 \r
 `);
@@ -5539,7 +5539,7 @@ Content-Type: ${value.type || "application/octet-stream"}\r
             }
           }
         }
-        const chunk = textEncoder2.encode(`--${boundary2}--\r
+        const chunk = textEncoder2.encode(`--${boundary3}--\r
 `);
         blobParts.push(chunk);
         length += chunk.byteLength;
@@ -5556,7 +5556,7 @@ Content-Type: ${value.type || "application/octet-stream"}\r
             }
           }
         };
-        type = `multipart/form-data; boundary=${boundary2}`;
+        type = `multipart/form-data; boundary=${boundary3}`;
       } else if (isBlobLike(object4)) {
         source2 = object4;
         length = object4.size;
@@ -19186,14 +19186,14 @@ function splitPluralKey(key2) {
   const m2 = SUFFIX.exec(key2);
   return m2 ? { base: m2[1], category: m2[2] } : null;
 }
-function toIcuPlural(forms, ordinal = false) {
-  const parts = [...forms["=0"] !== void 0 && !ordinal ? [`=0 {${forms["=0"]}}`] : [], ...PLURAL_CATEGORIES.filter((c) => forms[c] !== void 0).map((c) => `${c} {${forms[c]}}`)];
+function toIcuPlural(forms2, ordinal = false) {
+  const parts = [...forms2["=0"] !== void 0 && !ordinal ? [`=0 {${forms2["=0"]}}`] : [], ...PLURAL_CATEGORIES.filter((c) => forms2[c] !== void 0).map((c) => `${c} {${forms2[c]}}`)];
   return `{count, ${ordinal ? "selectordinal" : "plural"}, ${parts.join(" ")}}`;
 }
 function fromIcuPlural(message) {
   const m2 = /^\{count, (?:plural|selectordinal), (.*)\}$/s.exec(message.trim());
   if (!m2) return null;
-  const forms = {};
+  const forms2 = {};
   let rest2 = m2[1];
   while (rest2.trim()) {
     const head = /^\s*(=0|zero|one|two|few|many|other) \{/.exec(rest2);
@@ -19205,33 +19205,33 @@ function fromIcuPlural(message) {
       else if (rest2[i3] === "}") depth--;
     }
     if (depth) return null;
-    forms[head[1]] = rest2.slice(head[0].length, i3 - 1);
+    forms2[head[1]] = rest2.slice(head[0].length, i3 - 1);
     rest2 = rest2.slice(i3);
   }
-  return forms.other === void 0 ? null : forms;
+  return forms2.other === void 0 ? null : forms2;
 }
-function toVuePlural(forms) {
-  return PLURAL_CATEGORIES.filter((c) => forms[c] !== void 0).map((c) => toDictFormat(forms[c], "vue")).join(" | ");
+function toVuePlural(forms2) {
+  return PLURAL_CATEGORIES.filter((c) => forms2[c] !== void 0).map((c) => toDictFormat(forms2[c], "vue")).join(" | ");
 }
-function writePlural(dict2, key2, forms, style, ordinal = false) {
+function writePlural(dict2, key2, forms2, style, ordinal = false) {
   if (ordinal && style === "icu") {
-    setNested(dict2, key2, toIcuPlural(forms, true));
+    setNested(dict2, key2, toIcuPlural(forms2, true));
     return;
   }
   if (ordinal) {
-    for (const c of PLURAL_CATEGORIES) if (forms[c] !== void 0) setNested(dict2, `${key2}_ordinal_${c}`, toDictFormat(forms[c], style));
+    for (const c of PLURAL_CATEGORIES) if (forms2[c] !== void 0) setNested(dict2, `${key2}_ordinal_${c}`, toDictFormat(forms2[c], style));
     return;
   }
   if (style === "icu" || style === "vue") {
-    setNested(dict2, key2, style === "icu" ? toIcuPlural(forms) : toVuePlural(forms));
+    setNested(dict2, key2, style === "icu" ? toIcuPlural(forms2) : toVuePlural(forms2));
     return;
   }
   if (style === "rails" || style === "android" || style === "apple" || style === "gettext" || style === "laravel") {
-    for (const c of PLURAL_CATEGORIES) if (forms[c] !== void 0) setNested(dict2, `${key2}.${c}`, toDictFormat(forms[c], style));
+    for (const c of PLURAL_CATEGORIES) if (forms2[c] !== void 0) setNested(dict2, `${key2}.${c}`, toDictFormat(forms2[c], style));
     return;
   }
   for (const c of PLURAL_CATEGORIES) {
-    const form = forms[c];
+    const form = forms2[c];
     if (form !== void 0) setNested(dict2, `${key2}_${c}`, toDictFormat(form, style));
   }
 }
@@ -19374,9 +19374,9 @@ var init_dictionary = __esm({
           const text4 = fromDictFormat(value);
           if (!this.byText.has(text4)) this.byText.set(text4, key2);
         }
-        for (const [base, forms] of plurals) {
+        for (const [base, forms2] of plurals) {
           this.keys.add(base);
-          const id3 = messageId(forms.other, { one: forms.one ?? forms.other, other: forms.other });
+          const id3 = messageId(forms2.other, { one: forms2.one ?? forms2.other, other: forms2.other });
           if (!this.byText.has(id3)) this.byText.set(id3, base);
         }
       }
@@ -26160,7 +26160,7 @@ var init_dist = __esm({
         const end2 = chunk.end;
         let i3 = chunk.start;
         if (this.hires) {
-          const boundary2 = this.hires === "boundary";
+          const boundary3 = this.hires === "boundary";
           const experimentalRange = this.hires === "experimental-range";
           const encoder = experimentalRange ? null : this.encoder;
           let charInHiresBoundary = false;
@@ -26182,7 +26182,7 @@ var init_dist = __esm({
               this.nextLine();
               charInHiresBoundary = false;
             } else {
-              if (boundary2) {
+              if (boundary3) {
                 if (isWordCode(code2)) {
                   if (!charInHiresBoundary) {
                     this.rawSegments.push([
@@ -71204,10 +71204,10 @@ function pluralTernary(expr) {
       return { count: n4, one: `${withCount}${single}`, other: `${withCount}${englishPlural(single)}`, node: expr, literals: [word] };
     }
     if (expr.arguments.length !== 3) return null;
-    const forms = expr.arguments.filter((a) => literalText(a) !== null);
+    const forms2 = expr.arguments.filter((a) => literalText(a) !== null);
     const counts = expr.arguments.filter((a) => literalText(a) === null);
-    if (forms.length !== 2 || counts.length !== 1 || !isSimpleExpression(counts[0])) return null;
-    return { count: counts[0], one: literalText(forms[0]), other: literalText(forms[1]), node: expr, literals: forms };
+    if (forms2.length !== 2 || counts.length !== 1 || !isSimpleExpression(counts[0])) return null;
+    return { count: counts[0], one: literalText(forms2[0]), other: literalText(forms2[1]), node: expr, literals: forms2 };
   }
   if (!t.isConditionalExpression(expr) || !t.isBinaryExpression(expr.test)) return null;
   const yes = literalText(expr.consequent);
@@ -75497,8 +75497,8 @@ var init_acorn = __esm({
         if (nextCh === 92) {
           return true;
         }
-        var ident2 = this.input.slice(start2, next2);
-        if (!keywordRelationalOperator.test(ident2)) {
+        var ident3 = this.input.slice(start2, next2);
+        if (!keywordRelationalOperator.test(ident3)) {
           return true;
         }
       }
@@ -119591,10 +119591,10 @@ function SvelteBoundary2(node2, context) {
     context.visit(failed_snippet, { ...context.state, init: init2 });
     props.properties.push(init("failed", failed_snippet.expression));
   }
-  const boundary2 = stmt(
+  const boundary3 = stmt(
     call("$$renderer.boundary", props, arrow([id("$$renderer")], children_body))
   );
-  context.state.template.push(init2.length > 0 ? block([...init2, boundary2]) : boundary2);
+  context.state.template.push(init2.length > 0 ? block([...init2, boundary3]) : boundary3);
 }
 function build_pending_attribute_block(attribute2, context) {
   const callee = build_attribute_value(
@@ -124633,11 +124633,11 @@ function SvelteBoundary3(node2, context) {
   if (!context.state.options.experimental.async) {
     block3.body.unshift(...const_tags);
   }
-  const boundary2 = stmt(
+  const boundary3 = stmt(
     call("$.boundary", context.state.node, props, arrow([id("$$anchor")], block3))
   );
   context.state.template.push_comment();
-  context.state.init.push(hoisted.length > 0 ? block([...hoisted, boundary2]) : boundary2);
+  context.state.init.push(hoisted.length > 0 ? block([...hoisted, boundary3]) : boundary3);
 }
 var init_SvelteBoundary3 = __esm({
   "../../node_modules/svelte/src/compiler/phases/3-transform/client/visitors/SvelteBoundary.js"() {
@@ -132315,7 +132315,7 @@ var require_binary_search = __commonJS({
 var require_quick_sort = __commonJS({
   "../../node_modules/source-map-js/lib/quick-sort.js"(exports) {
     function SortTemplate(comparator) {
-      function swap(ary, x, y3) {
+      function swap2(ary, x, y3) {
         var temp = ary[x];
         ary[x] = ary[y3];
         ary[y3] = temp;
@@ -132327,15 +132327,15 @@ var require_quick_sort = __commonJS({
         if (p < r) {
           var pivotIndex = randomIntInRange(p, r);
           var i3 = p - 1;
-          swap(ary, pivotIndex, r);
+          swap2(ary, pivotIndex, r);
           var pivot = ary[r];
           for (var j = p; j < r; j++) {
             if (comparator2(ary[j], pivot, false) <= 0) {
               i3 += 1;
-              swap(ary, i3, j);
+              swap2(ary, i3, j);
             }
           }
-          swap(ary, i3 + 1, j);
+          swap2(ary, i3 + 1, j);
           var q = i3 + 1;
           doQuickSort(ary, comparator2, p, q - 1);
           doQuickSort(ary, comparator2, q + 1, r);
@@ -193021,7 +193021,7 @@ function lexDart(code2) {
   const groups = [];
   const consts = [];
   const stack = [];
-  let boundary2 = 0;
+  let boundary3 = 0;
   const isIdent = (c) => !!c && /[\w$]/.test(c);
   const readString = (i4, raw) => {
     const triple = code2.startsWith(code2[i4].repeat(3), i4);
@@ -193110,14 +193110,14 @@ function lexDart(code2) {
       continue;
     }
     if (c === "(" || c === "[" || c === "{") {
-      stack.push({ open: c, start: i3, header: code2.slice(boundary2, i3) });
-      if (c === "{") boundary2 = i3 + 1;
+      stack.push({ open: c, start: i3, header: code2.slice(boundary3, i3) });
+      if (c === "{") boundary3 = i3 + 1;
     } else if (c === ")" || c === "]" || c === "}") {
       const g3 = stack.pop();
       if (g3) groups.push({ ...g3, end: i3 + 1 });
-      if (c === "}") boundary2 = i3 + 1;
+      if (c === "}") boundary3 = i3 + 1;
     } else if (c === ";") {
-      boundary2 = i3 + 1;
+      boundary3 = i3 + 1;
     } else if (c === "c" && code2.startsWith("const", i3) && !isIdent(code2[i3 - 1]) && !isIdent(code2[i3 + 5])) {
       consts.push(i3);
     }
@@ -193216,16 +193216,16 @@ function scanDart(code2, filePath) {
     const some = runOf(rest2);
     if (!none || !some || some.params.some((p) => p.sub)) return null;
     let params = some.params;
-    let forms;
+    let forms2;
     if (some.plural) {
       if (params[0]?.source.trim() !== count) return null;
-      forms = { one: some.plural.one, other: some.plural.other };
+      forms2 = { one: some.plural.one, other: some.plural.other };
     } else {
       const counted = params.find((p) => p.source.trim() === count);
       if (!counted) return null;
       const rename2 = (text5) => text5.replace(new RegExp(`\\{${counted.name}\\}`, "g"), "{count}");
       params = [{ ...counted, name: "count" }, ...params.filter((p) => p !== counted)];
-      forms = { one: rename2(some.text), other: rename2(some.text) };
+      forms2 = { one: rename2(some.text), other: rename2(some.text) };
     }
     let text4 = none.text;
     for (const p of none.params) {
@@ -193233,7 +193233,7 @@ function scanDart(code2, filePath) {
       if (!same2) return null;
       text4 = text4.replace(new RegExp(`\\{${p.name}\\}`, "g"), `{${same2}}`);
     }
-    return { text: forms.other, params, plural: { "=0": text4, ...forms } };
+    return { text: forms2.other, params, plural: { "=0": text4, ...forms2 } };
   };
   const COUNT = String.raw`[A-Za-z_$][\w$]*(?:\??\.[A-Za-z_$][\w$]*)*`;
   const BRANCHES = String.raw`\?\u0001(\d+)\u0001:\u0001(\d+)\u0001$`;
@@ -209352,8 +209352,8 @@ var init_locale = __esm({
 
 // src/sync/placeholders.ts
 function mask(value, tokens2) {
-  const forms = typeof value === "string" ? { other: value } : value;
-  const texts = Object.values(forms);
+  const forms2 = typeof value === "string" ? { other: value } : value;
+  const texts = Object.values(forms2);
   const code2 = texts.some((t10) => INLINE_CODE.test(t10));
   if (!tokens2 && !code2) return { value, restore: (v2) => v2 };
   const re = new RegExp([...code2 ? [INLINE_CODE.source] : [], ...tokens2 ? [tokens2.source] : []].join("|"), "g");
@@ -209388,7 +209388,7 @@ function mask(value, tokens2) {
       return `{${byToken.get(key2)}}`;
     });
   };
-  const masked = Object.fromEntries(Object.entries(forms).map(([k, t10]) => [k, maskText(t10)]));
+  const masked = Object.fromEntries(Object.entries(forms2).map(([k, t10]) => [k, maskText(t10)]));
   const back = new Map([...byToken].map(([token2, name]) => [name, token2.split("\0")[0]]));
   const known = /* @__PURE__ */ new Set([...taken]);
   const restoreText = (text4) => {
@@ -209571,9 +209571,9 @@ function pluralFormsFor(locale) {
   return rules.select(0) === "one" ? "nplurals=2; plural=(n > 1);" : "nplurals=2; plural=(n != 1);";
 }
 function blankPo(template4, locale, spelled) {
-  const forms = pluralFormsFor(locale);
-  if (!forms) return null;
-  const nplurals = Number(/nplurals=(\d+)/.exec(forms)[1]);
+  const forms2 = pluralFormsFor(locale);
+  if (!forms2) return null;
+  const nplurals = Number(/nplurals=(\d+)/.exec(forms2)[1]);
   const { entries, lines } = parsePo(template4);
   const out = [...lines];
   for (const e2 of [...entries].reverse()) {
@@ -209591,7 +209591,9 @@ function blankPo(template4, locale, spelled) {
 `);
   };
   setHeader("Language", spelled);
-  setHeader("Plural-Forms", forms);
+  setHeader("Plural-Forms", forms2);
+  const team = languageNameOf(locale);
+  if (team && /^"Language-Team:.*\\n"$/m.test(text4)) setHeader("Language-Team", team);
   return text4;
 }
 function poCatalog(o) {
@@ -209640,7 +209642,7 @@ function poCatalog(o) {
     }
   };
 }
-var TOKENS, unquote2, quote2, keyOf, PLURAL_FORMS, poFormat;
+var TOKENS, unquote2, quote2, keyOf, PLURAL_FORMS, languageNameOf, poFormat;
 var init_po = __esm({
   "src/sync/formats/po.ts"() {
     "use strict";
@@ -209668,6 +209670,13 @@ var init_po = __esm({
       sl: "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);",
       ar: "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);",
       ga: "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
+    };
+    languageNameOf = (locale) => {
+      try {
+        return new Intl.DisplayNames(["en"], { type: "language" }).of(locale) ?? null;
+      } catch {
+        return null;
+      }
     };
     poFormat = {
       find(ctx) {
@@ -209722,13 +209731,13 @@ function poPluralEntries(text4, locale) {
   const out = /* @__PURE__ */ new Map();
   const slots = poSlots(locale);
   for (const m2 of text4.matchAll(/^msgid ((?:".*"\s*\n)+)msgid_plural (?:".*"\s*\n)+((?:msgstr\[\d+\] (?:".*"\s*\n?)+)+)/gm)) {
-    const forms = {};
+    const forms2 = {};
     for (const s of m2[2].matchAll(/msgstr\[(\d+)\] ((?:".*"\s*\n?)+)/g)) {
       const value = poJoin(s[2]);
       const cat = slots[Number(s[1])];
-      if (value && cat) forms[cat] = value;
+      if (value && cat) forms2[cat] = value;
     }
-    if (forms.other) out.set(poJoin(m2[1]), forms);
+    if (forms2.other) out.set(poJoin(m2[1]), forms2);
   }
   return out;
 }
@@ -209888,8 +209897,8 @@ ${added.join("\n\n")}
         const arg = (s) => androidUnescape(s).replace(/%(\d+)\$[sd]/g, (_2, n4) => `{arg${n4}}`);
         for (const m2 of (text4 ?? "").matchAll(/<string\s+name="([^"]+)"[^>]*>([\s\S]*?)<\/string>/g)) out[m2[1]] = arg(m2[2]);
         for (const m2 of (text4 ?? "").matchAll(/<plurals\s+name="([^"]+)"[^>]*>([\s\S]*?)<\/plurals>/g)) {
-          const forms = Object.fromEntries([...m2[2].matchAll(/<item\s+quantity="(\w+)"\s*>([\s\S]*?)<\/item>/g)].map((i3) => [i3[1], arg(i3[2])]));
-          if (forms.other !== void 0) out[m2[1]] = forms;
+          const forms2 = Object.fromEntries([...m2[2].matchAll(/<item\s+quantity="(\w+)"\s*>([\s\S]*?)<\/item>/g)].map((i3) => [i3[1], arg(i3[2])]));
+          if (forms2.other !== void 0) out[m2[1]] = forms2;
         }
         return out;
       },
@@ -210283,14 +210292,14 @@ function rubyArg(source2) {
   if (command && !/\s(?:if|unless|do)\s/.test(command[2])) return `${command[1]}(${command[2]})`;
   return `(${s})`;
 }
-function render(engine, key2, params, inAttr, forms) {
+function render(engine, key2, params, inAttr, forms2) {
   if (engine === "rails") {
     const args = params.map((p) => `, ${p.name}: ${rubyArg(p.source)}`).join("");
     return `<%= t(${rubyString(key2)}${args}) %>`;
   }
   if (engine === "laravel") {
     const text4 = decodeKey(key2);
-    if (forms) {
+    if (forms2) {
       const count = params.find((p) => p.name === "count");
       const rest2 = params.filter((p) => p !== count);
       const args2 = rest2.length ? `, [${rest2.map((p) => `${phpString(p.name)} => ${p.source}`).join(", ")}]` : "";
@@ -210301,11 +210310,11 @@ function render(engine, key2, params, inAttr, forms) {
     const args = params.length ? `, [${params.map((p) => `${phpString(p.name)} => ${value(p)}`).join(", ")}]` : "";
     return rich ? `{!! __(${phpString(text4)}${args}) !!}` : `{{ __(${phpString(text4)}${args}) }}`;
   }
-  if (forms) {
+  if (forms2) {
     const body2 = (text4) => toDictFormat(text4, "gettext").replace(/%\((\w+)\)s/g, "{{ $1 }}").replace(/%%/g, "%");
     const count = params.find((p) => p.name === "count");
     const withs2 = params.filter((p) => p !== count && p.name !== p.source).map((p) => `${p.name}=${p.source}`);
-    return `{% blocktranslate${withs2.length ? ` with ${withs2.join(" ")}` : ""} count count=${count.source} %}${body2(forms.one)}{% plural %}${body2(forms.other)}{% endblocktranslate %}`;
+    return `{% blocktranslate${withs2.length ? ` with ${withs2.join(" ")}` : ""} count count=${count.source} %}${body2(forms2.one)}{% plural %}${body2(forms2.other)}{% endblocktranslate %}`;
   }
   const msgid = decodeKey(key2);
   const quote3 = inAttr === '"' ? "'" : '"';
@@ -214737,6 +214746,44 @@ function astroRichSource(ts) {
     ""
   ].join("\n");
 }
+function astroPageCopies(ctx) {
+  const { cwd, config, result } = ctx;
+  const pagesDir = `${srcPrefix(config)}pages`;
+  const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
+  const pages = import_fast_glob5.default.sync("**/*.astro", { cwd: path7.join(cwd, pagesDir) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)) && !isGenerated(readText(cwd, `${pagesDir}/${p}`, ctx.changed) ?? ""));
+  const routed = [];
+  for (const page of pages) {
+    if (/\[(\.\.\.)?(lang|locale|language)\]/.test(page)) {
+      routed.push(page);
+      continue;
+    }
+    const dynamic = /\[/.test(page);
+    for (const lang of targets) {
+      const copy = `${pagesDir}/${lang}/${page}`;
+      if (readText(cwd, copy, ctx.changed) !== void 0) continue;
+      const spec2 = relFrom(copy, `${pagesDir}/${page}`);
+      ctx.out(
+        copy,
+        dynamic ? `---
+// ${GENERATED}: the ${lang} version of this page; its language comes from the URL.
+import Page from '${spec2}';
+export { getStaticPaths } from '${spec2}';
+---
+<Page {...Astro.props} />
+` : `---
+// ${GENERATED}: the ${lang} version of this page; its language comes from the URL.
+import Page from '${spec2}';
+---
+<Page />
+`
+      );
+    }
+  }
+  if (routed.length) {
+    result.notes.push(`Astro: ${routed.slice(0, 3).join(", ")}${routed.length > 3 ? "\u2026" : ""} already route by language, so they weren't copied; pass the language to useTranslations().`);
+  }
+  return pagesDir;
+}
 function planAstroSetup(ctx) {
   const { cwd, config, result } = ctx;
   const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
@@ -214801,40 +214848,7 @@ function planAstroSetup(ctx) {
   const rich = `${path7.posix.dirname(file2)}/I18nT.astro`;
   const richCode = readText(cwd, rich, ctx.changed);
   if (ctx.files.some((f2) => f2.content.includes("<I18nT ")) && (richCode === void 0 || isGenerated(richCode))) ctx.out(rich, astroRichSource(ts));
-  const pagesDir = `${srcPrefix(config)}pages`;
-  const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
-  const pages = import_fast_glob5.default.sync("**/*.astro", { cwd: path7.join(cwd, pagesDir) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)));
-  const routed = [];
-  for (const page of pages) {
-    if (/\[(\.\.\.)?(lang|locale|language)\]/.test(page)) {
-      routed.push(page);
-      continue;
-    }
-    const dynamic = /\[/.test(page);
-    for (const lang of targets) {
-      const copy = `${pagesDir}/${lang}/${page}`;
-      if (readText(cwd, copy, ctx.changed) !== void 0) continue;
-      const spec2 = relFrom(copy, `${pagesDir}/${page}`);
-      ctx.out(
-        copy,
-        dynamic ? `---
-// ${GENERATED}: the ${lang} version of this page; its language comes from the URL.
-import Page from '${spec2}';
-export { getStaticPaths } from '${spec2}';
----
-<Page {...Astro.props} />
-` : `---
-// ${GENERATED}: the ${lang} version of this page; its language comes from the URL.
-import Page from '${spec2}';
----
-<Page />
-`
-      );
-    }
-  }
-  if (routed.length) {
-    result.notes.push(`Astro: ${routed.slice(0, 3).join(", ")}${routed.length > 3 ? "\u2026" : ""} already route by language, so they weren't copied; pass the language to useTranslations().`);
-  }
+  const pagesDir = astroPageCopies(ctx);
   const modulePath = file2.replace(/\/index\.[jt]s$/, "");
   const islandsFile = planAstroIslands(ctx, modulePath, ts);
   for (const f2 of import_fast_glob5.default.sync("**/*.astro", { cwd: path7.join(cwd, config.srcDir) }).map((p) => `${srcPrefix(config)}${p}`)) {
@@ -215074,6 +215088,23 @@ function translatorLines(ctx, file2, ts) {
     "}"
   ];
 }
+function qwikRouteCopies(ctx) {
+  const { cwd, config } = ctx;
+  const routes = `${srcPrefix(config)}routes`;
+  const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
+  const pages = import_fast_glob5.default.sync("**/index.{tsx,jsx,ts,js}", { cwd: path7.join(cwd, routes) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)) && !isGenerated(readText(cwd, `${routes}/${p}`, ctx.changed) ?? ""));
+  for (const page of pages) {
+    for (const lang of targets) {
+      const copy = `${routes}/${lang}/${page}`;
+      if (readText(cwd, copy, ctx.changed) !== void 0) continue;
+      const spec2 = relFrom(copy, `${routes}/${page}`).replace(/\.[jt]sx?$/, "");
+      ctx.out(copy, `// ${GENERATED}: the ${lang} version of this route; its language comes from the URL.
+export { default } from '${spec2}';
+export * from '${spec2}';
+`);
+    }
+  }
+}
 function planQwikSetup(ctx) {
   const { cwd, config, result } = ctx;
   const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
@@ -215113,20 +215144,7 @@ function planQwikSetup(ctx) {
   result.i18nFile = file2;
   if (ts) enableJsonImports(cwd, ctx.changed, ctx.out);
   if (city) {
-    const routes = `${srcPrefix(config)}routes`;
-    const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
-    const pages = import_fast_glob5.default.sync("**/index.{tsx,jsx,ts,js}", { cwd: path7.join(cwd, routes) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)));
-    for (const page of pages) {
-      for (const lang of targets) {
-        const copy = `${routes}/${lang}/${page}`;
-        if (readText(cwd, copy, ctx.changed) !== void 0) continue;
-        const spec2 = relFrom(copy, `${routes}/${page}`).replace(/\.[jt]sx?$/, "");
-        ctx.out(copy, `// ${GENERATED}: the ${lang} version of this route; its language comes from the URL.
-export { default } from '${spec2}';
-export * from '${spec2}';
-`);
-      }
-    }
+    qwikRouteCopies(ctx);
     result.notes.push("Qwik: set `lang` and `dir` on <html> in src/root.tsx from the URL if you serve right-to-left languages; link languages with localizePath().");
   } else {
     result.notes.push("Qwik: the language comes from the URL's first segment; set up routes per language to switch.");
@@ -215484,7 +215502,7 @@ var init_setup_frameworks = __esm({
     init_paths();
     toPosix = (p) => p.split(path7.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.26.2" : "0.6.0";
+    SELF_VERSION = true ? "0.26.3" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -215665,6 +215683,256 @@ var init_setup_frameworks = __esm({
     ];
     EMBER_INTL = { "ember-intl": "^7.1.0" };
     EMBER_RICH = "app/components/i18n-t";
+  }
+});
+
+// src/react/languages.ts
+function flagOf(region) {
+  if (!region || !/^[A-Za-z]{2}$/.test(region)) return "";
+  return String.fromCodePoint(...[...region.toUpperCase()].map((c) => 127462 + c.charCodeAt(0) - 65));
+}
+function displayName(code2, inLocale) {
+  try {
+    const name = new Intl.DisplayNames([inLocale], { type: "language" }).of(code2);
+    if (name && name !== code2) return name[0].toLocaleUpperCase(inLocale) + name.slice(1);
+  } catch {
+  }
+  return code2;
+}
+function getLanguageInfo(code2, regions = DEFAULT_REGIONS) {
+  let base = code2.split("-")[0].toLowerCase();
+  let region;
+  try {
+    const locale = new Intl.Locale(code2);
+    base = locale.language;
+    region = locale.region;
+  } catch {
+    region = code2.split("-").find((part, i3) => i3 > 0 && /^[A-Za-z]{2}$/.test(part));
+  }
+  let dir = RTL2.has(base) || RTL2.has(code2) ? "rtl" : "ltr";
+  try {
+    const info2 = new Intl.Locale(code2);
+    const direction = info2.getTextInfo?.().direction ?? info2.textInfo?.direction;
+    if (direction === "rtl" || direction === "ltr") dir = direction;
+  } catch {
+  }
+  return {
+    code: code2,
+    name: displayName(code2, "en"),
+    nativeName: displayName(code2, code2),
+    flag: flagOf(region ?? regions[code2] ?? regions[base]),
+    dir
+  };
+}
+var DEFAULT_REGIONS, RTL2;
+var init_languages2 = __esm({
+  "src/react/languages.ts"() {
+    "use strict";
+    DEFAULT_REGIONS = {
+      af: "ZA",
+      am: "ET",
+      ar: "SA",
+      az: "AZ",
+      be: "BY",
+      bg: "BG",
+      bn: "BD",
+      bs: "BA",
+      ca: "ES",
+      cs: "CZ",
+      cy: "GB",
+      da: "DK",
+      de: "DE",
+      el: "GR",
+      en: "US",
+      es: "ES",
+      et: "EE",
+      eu: "ES",
+      fa: "IR",
+      fi: "FI",
+      fil: "PH",
+      fr: "FR",
+      ga: "IE",
+      gl: "ES",
+      gu: "IN",
+      ha: "NG",
+      he: "IL",
+      hi: "IN",
+      hr: "HR",
+      hu: "HU",
+      hy: "AM",
+      id: "ID",
+      ig: "NG",
+      is: "IS",
+      it: "IT",
+      ja: "JP",
+      ka: "GE",
+      kk: "KZ",
+      km: "KH",
+      kn: "IN",
+      ko: "KR",
+      ky: "KG",
+      lo: "LA",
+      lt: "LT",
+      lv: "LV",
+      mk: "MK",
+      ml: "IN",
+      mn: "MN",
+      mr: "IN",
+      ms: "MY",
+      mt: "MT",
+      my: "MM",
+      nb: "NO",
+      ne: "NP",
+      nl: "NL",
+      nn: "NO",
+      no: "NO",
+      pa: "IN",
+      pl: "PL",
+      ps: "AF",
+      pt: "PT",
+      ro: "RO",
+      ru: "RU",
+      si: "LK",
+      sk: "SK",
+      sl: "SI",
+      so: "SO",
+      sq: "AL",
+      sr: "RS",
+      sv: "SE",
+      sw: "KE",
+      ta: "IN",
+      te: "IN",
+      th: "TH",
+      tl: "PH",
+      tr: "TR",
+      uk: "UA",
+      ur: "PK",
+      uz: "UZ",
+      vi: "VN",
+      xh: "ZA",
+      yo: "NG",
+      zh: "CN",
+      zu: "ZA"
+    };
+    RTL2 = /* @__PURE__ */ new Set(["ar", "arc", "ckb", "dv", "fa", "ha-Arab", "he", "khw", "ks", "ku-Arab", "ps", "sd", "syr", "ug", "ur", "yi"]);
+  }
+});
+
+// src/setup-languages.ts
+async function addNewLanguages(ctx) {
+  const all = locales(ctx.config);
+  if (all.length < 3) return;
+  const files = /* @__PURE__ */ new Set([...await (0, import_fast_glob6.default)(SOURCES, { cwd: ctx.cwd, ignore: IGNORE2 }), ...ctx.planned]);
+  for (const file2 of files) {
+    const code2 = ctx.readText(file2);
+    if (!code2 || !isGenerated(code2)) continue;
+    const updated = withLanguages(code2, all);
+    if (updated !== code2) ctx.out(file2, updated);
+  }
+}
+function withLanguages(code2, all) {
+  for (; ; ) {
+    const present = all.filter((l2) => occurrences(code2, [l2]).length);
+    const missing = all.slice(1).find((l2) => !present.includes(l2));
+    if (!missing || present.length < 2) return code2;
+    const next2 = addLanguage(code2, present, missing);
+    if (next2 === code2) return code2;
+    code2 = next2;
+  }
+}
+function occurrences(code2, list4) {
+  const byForm = new Map(list4.flatMap((l2) => forms(l2).map((f2) => [f2, l2])));
+  return [...code2.matchAll(boundary2([...byForm.keys()]))].map((m2) => {
+    const q = code2[m2.index - 1];
+    const quoted = /['"`]/.test(q ?? "") && code2[m2.index + m2[1].length] === q;
+    return { index: m2.index - (quoted ? 1 : 0), locale: byForm.get(m2[1]), form: quoted ? `${q}${m2[1]}${q}` : m2[1], quoted };
+  });
+}
+function swap(text4, from, to, line = text4) {
+  const fromForms = [from.code, from.code.toLowerCase(), ident2(from.code), ident2(from.code).toLowerCase()];
+  const toForms = [to.code, to.code.toLowerCase(), ident2(to.code), ident2(to.code).toLowerCase()];
+  const symbols = /%[iw]\[/.test(line);
+  const quote3 = /"/.test(line) && !/'/.test(line) ? '"' : "'";
+  let out = text4.replace(boundary2(fromForms), (m2, _form, offset2, whole2) => {
+    if (from.code !== ident2(from.code)) return toForms[fromForms.indexOf(m2)];
+    const before2 = whole2[offset2 - 1] ?? "";
+    const after = whole2.slice(offset2 + m2.length);
+    if (symbols || /['"`/.:]/.test(before2) || /^['"`.]/.test(after)) return to.code;
+    if (/^\s*:(?!:)/.test(after) && to.code !== ident2(to.code)) return `${quote3}${to.code}${quote3}`;
+    return toForms[2];
+  });
+  const keys = from.name && from.name === from.nativeName ? ["nativeName", "flag"] : ["name", "nativeName", "flag"];
+  if (keys.length === 2) out = out.replace(from.name, to.name);
+  for (const key2 of keys) {
+    if (from[key2]) out = out.split(from[key2]).join(to[key2]);
+  }
+  const rtl = to.dir === "rtl";
+  return out.replace(/(["'])(ltr|rtl)\1/g, (_m, q) => `${q}${to.dir}${q}`).replace(/\b(isRTL|isRtl|rtl)(\s*[:=]\s*)(true|false)\b/g, (_m, k, sep5) => `${k}${sep5}${rtl}`);
+}
+function addLanguage(code2, present, added) {
+  const info2 = (l2) => getLanguageInfo(l2);
+  const found2 = occurrences(code2, present).filter((o) => !commented(code2, o.index));
+  const edits = [];
+  for (let i3 = 0; i3 < found2.length; i3++) {
+    const sameEntry = (x, y3) => found2[x]?.locale === found2[y3]?.locale && !code2.slice(found2[x].index, found2[y3].index).includes("\n");
+    if (i3 > 0 && sameEntry(i3 - 1, i3)) continue;
+    let k = 1;
+    while (i3 + k < found2.length && sameEntry(i3, i3 + k)) k++;
+    const blocks = [i3];
+    const periods = [];
+    for (; ; ) {
+      const start2 = blocks.at(-1) + k;
+      const entry = found2.slice(start2, start2 + k);
+      const locale = entry[0]?.locale;
+      if (entry.length < k || entry.some((o) => o.locale !== locale) || found2[start2 + k]?.locale === locale) break;
+      if (blocks.some((s) => found2[s].locale === locale)) break;
+      const period = code2.slice(found2[blocks.at(-1)].index, entry[0].index);
+      const lines = period.split("\n").length;
+      if (period.length > 400 || lines > 3) break;
+      const before2 = periods.at(-1);
+      if (before2 !== void 0 && (before2.split("\n").length !== lines || period.length > 2 * before2.length || 2 * period.length < before2.length)) break;
+      periods.push(period);
+      blocks.push(start2);
+    }
+    const end2 = blocks.at(-1) + k;
+    if (blocks.length < 2) continue;
+    i3 = end2 - 1;
+    const entries = blocks.map((s) => found2[s]);
+    const prev = found2[blocks[0] - 1];
+    const gap = prev && code2.slice(prev.index, entries[0].index);
+    if (gap && gap.split("\n").length === periods[0].split("\n").length && gap.length <= 2 * periods[0].length) continue;
+    const alike = periods.every((p, j) => j === 0 || unquoted(swap(periods[j - 1], info2(entries[j - 1].locale), info2(entries[j].locale), lineAt(code2, entries[j].index))) === unquoted(p));
+    if (!alike) continue;
+    const [a, b4] = entries.slice(-2);
+    const line = lineAt(code2, b4.index);
+    const bare = entries.some((e2) => !e2.quoted && /^\s*:(?!:)/.test(code2.slice(e2.index + e2.form.length)));
+    const style = (text4) => bare ? unquoted(text4) : text4;
+    const stop = code2.indexOf("\n", b4.index) === -1 ? code2.length : code2.indexOf("\n", b4.index);
+    const copy = style(swap(periods.at(-1), info2(a.locale), info2(b4.locale), line));
+    edits.push({ at: b4.index, end: stop, text: copy + style(lastEntry(code2.slice(b4.index, stop), info2(b4.locale), info2(added), k, line)) });
+  }
+  for (const e2 of edits.reverse()) code2 = code2.slice(0, e2.at) + e2.text + code2.slice(e2.end);
+  return code2;
+}
+function lastEntry(rest2, from, to, k, line) {
+  return occurrences(rest2, [from.code]).length < k ? rest2 : swap(rest2, from, to, line);
+}
+var import_fast_glob6, SOURCES, IGNORE2, forms, ident2, escape2, unquoted, lineAt, boundary2, commented;
+var init_setup_languages = __esm({
+  "src/setup-languages.ts"() {
+    "use strict";
+    import_fast_glob6 = __toESM(require_out4(), 1);
+    init_setup_frameworks();
+    init_languages2();
+    SOURCES = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,astro,rb,py,php,swift,kt,dart,hbs,erb,html,xml}";
+    IGNORE2 = ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.nuxt/**", "**/.output/**", "**/.svelte-kit/**", "**/.dart_tool/**", "**/vendor/**", "**/Pods/**", "**/venv/**", "**/.venv/**"];
+    forms = (locale) => [.../* @__PURE__ */ new Set([locale, locale.toLowerCase(), ident2(locale), ident2(locale).toLowerCase()])];
+    ident2 = (locale) => locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
+    escape2 = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    unquoted = (text4) => text4.replace(/(['"])([A-Za-z_$][\w$]*)\1(?=\s*:(?!:))/g, "$2");
+    lineAt = (code2, index) => code2.slice(code2.lastIndexOf("\n", index - 1) + 1, (code2.indexOf("\n", index) + 1 || code2.length + 1) - 1);
+    boundary2 = (alternatives) => new RegExp(`(?<![A-Za-z0-9_$]|[A-Za-z0-9]-)(${[...new Set(alternatives)].sort((a, b4) => b4.length - a.length).map(escape2).join("|")})(?![A-Za-z0-9_$]|-[A-Za-z0-9])`, "g");
+    commented = (code2, index) => /^\s*(\*|\/\/|\/\*|#|<!--|\{\{!)/.test(code2.slice(code2.lastIndexOf("\n", index - 1) + 1, index));
   }
 });
 
@@ -216315,138 +216583,6 @@ var init_setup_switchers = __esm({
   }
 });
 
-// src/react/languages.ts
-function flagOf(region) {
-  if (!region || !/^[A-Za-z]{2}$/.test(region)) return "";
-  return String.fromCodePoint(...[...region.toUpperCase()].map((c) => 127462 + c.charCodeAt(0) - 65));
-}
-function displayName(code2, inLocale) {
-  try {
-    const name = new Intl.DisplayNames([inLocale], { type: "language" }).of(code2);
-    if (name && name !== code2) return name[0].toLocaleUpperCase(inLocale) + name.slice(1);
-  } catch {
-  }
-  return code2;
-}
-function getLanguageInfo(code2, regions = DEFAULT_REGIONS) {
-  let base = code2.split("-")[0].toLowerCase();
-  let region;
-  try {
-    const locale = new Intl.Locale(code2);
-    base = locale.language;
-    region = locale.region;
-  } catch {
-    region = code2.split("-").find((part, i3) => i3 > 0 && /^[A-Za-z]{2}$/.test(part));
-  }
-  let dir = RTL2.has(base) || RTL2.has(code2) ? "rtl" : "ltr";
-  try {
-    const info2 = new Intl.Locale(code2);
-    const direction = info2.getTextInfo?.().direction ?? info2.textInfo?.direction;
-    if (direction === "rtl" || direction === "ltr") dir = direction;
-  } catch {
-  }
-  return {
-    code: code2,
-    name: displayName(code2, "en"),
-    nativeName: displayName(code2, code2),
-    flag: flagOf(region ?? regions[code2] ?? regions[base]),
-    dir
-  };
-}
-var DEFAULT_REGIONS, RTL2;
-var init_languages2 = __esm({
-  "src/react/languages.ts"() {
-    "use strict";
-    DEFAULT_REGIONS = {
-      af: "ZA",
-      am: "ET",
-      ar: "SA",
-      az: "AZ",
-      be: "BY",
-      bg: "BG",
-      bn: "BD",
-      bs: "BA",
-      ca: "ES",
-      cs: "CZ",
-      cy: "GB",
-      da: "DK",
-      de: "DE",
-      el: "GR",
-      en: "US",
-      es: "ES",
-      et: "EE",
-      eu: "ES",
-      fa: "IR",
-      fi: "FI",
-      fil: "PH",
-      fr: "FR",
-      ga: "IE",
-      gl: "ES",
-      gu: "IN",
-      ha: "NG",
-      he: "IL",
-      hi: "IN",
-      hr: "HR",
-      hu: "HU",
-      hy: "AM",
-      id: "ID",
-      ig: "NG",
-      is: "IS",
-      it: "IT",
-      ja: "JP",
-      ka: "GE",
-      kk: "KZ",
-      km: "KH",
-      kn: "IN",
-      ko: "KR",
-      ky: "KG",
-      lo: "LA",
-      lt: "LT",
-      lv: "LV",
-      mk: "MK",
-      ml: "IN",
-      mn: "MN",
-      mr: "IN",
-      ms: "MY",
-      mt: "MT",
-      my: "MM",
-      nb: "NO",
-      ne: "NP",
-      nl: "NL",
-      nn: "NO",
-      no: "NO",
-      pa: "IN",
-      pl: "PL",
-      ps: "AF",
-      pt: "PT",
-      ro: "RO",
-      ru: "RU",
-      si: "LK",
-      sk: "SK",
-      sl: "SI",
-      so: "SO",
-      sq: "AL",
-      sr: "RS",
-      sv: "SE",
-      sw: "KE",
-      ta: "IN",
-      te: "IN",
-      th: "TH",
-      tl: "PH",
-      tr: "TR",
-      uk: "UA",
-      ur: "PK",
-      uz: "UZ",
-      vi: "VN",
-      xh: "ZA",
-      yo: "NG",
-      zh: "CN",
-      zu: "ZA"
-    };
-    RTL2 = /* @__PURE__ */ new Set(["ar", "arc", "ckb", "dv", "fa", "ha-Arab", "he", "khw", "ks", "ku-Arab", "ps", "sd", "syr", "ug", "ur", "yi"]);
-  }
-});
-
 // src/setup-switchers-native.ts
 import * as path9 from "node:path";
 function write2(ctx, file2, content) {
@@ -216519,13 +216655,13 @@ function rails(ctx) {
 function django(ctx) {
   const read2 = (f2) => readText(ctx.cwd, f2, ctx.changed);
   const ignore = ["**/venv/**", "**/.venv/**", "**/site-packages/**", "**/node_modules/**"];
-  const settingsFiles = import_fast_glob6.default.sync(["**/settings.py", "**/settings/*.py"], { cwd: ctx.cwd, ignore, deep: 5 }).filter((f2) => /TEMPLATES\s*=/.test(read2(f2) ?? ""));
+  const settingsFiles = import_fast_glob7.default.sync(["**/settings.py", "**/settings/*.py"], { cwd: ctx.cwd, ignore, deep: 5 }).filter((f2) => /TEMPLATES\s*=/.test(read2(f2) ?? ""));
   const settings = settingsFiles.find((f2) => /\/(base|common|defaults)\.py$/.test(f2)) ?? settingsFiles[0];
   if (!settings) return null;
   const pkg = path9.posix.dirname(settings).replace(/\/settings$/, "");
   const module = `${pkg}/languages.py`;
   const dotted = `${pkg.replace(/\//g, ".")}.languages.languages`;
-  const dirs = import_fast_glob6.default.sync(["**/templates"], { cwd: ctx.cwd, ignore, onlyDirectories: true, deep: 4 }).sort((x, y3) => x.length - y3.length);
+  const dirs = import_fast_glob7.default.sync(["**/templates"], { cwd: ctx.cwd, ignore, onlyDirectories: true, deep: 4 }).sort((x, y3) => x.length - y3.length);
   const template4 = `${dirs[0] ?? "templates"}/language_switcher.html`;
   const row = (l2) => `    ${str(l2.code.toLowerCase())}: {"code": ${str(l2.code)}, "name": ${str(l2.name)}, "native_name": ${str(l2.nativeName)}, "flag": ${str(l2.flag)}, "dir": ${str(l2.dir)}},`;
   const a = write2(
@@ -216784,7 +216920,7 @@ function flutter(ctx) {
   );
   if (!written) return null;
   let wired = false;
-  for (const entry of import_fast_glob6.default.sync("lib/**/*.dart", { cwd: ctx.cwd, ignore: ["**/l10n/**", "**/generated/**"] })) {
+  for (const entry of import_fast_glob7.default.sync("lib/**/*.dart", { cwd: ctx.cwd, ignore: ["**/l10n/**", "**/generated/**"] })) {
     const code2 = readText(ctx.cwd, entry, ctx.changed) ?? "";
     const app = /(return|=>)\s*((?:const\s+)?(?:MaterialApp|CupertinoApp)(?:\.router)?\s*)\(/.exec(code2);
     if (!app || code2.includes("language.locale")) continue;
@@ -216933,7 +217069,7 @@ function ios(ctx) {
   );
   if (!written) return null;
   let wired = false;
-  for (const entry of import_fast_glob6.default.sync("**/*.swift", { cwd: ctx.cwd, ignore: ["**/.build/**", "**/Pods/**", "**/DerivedData/**"] })) {
+  for (const entry of import_fast_glob7.default.sync("**/*.swift", { cwd: ctx.cwd, ignore: ["**/.build/**", "**/Pods/**", "**/DerivedData/**"] })) {
     const code2 = readText(ctx.cwd, entry, ctx.changed) ?? "";
     const root = /(WindowGroup\s*\{\s*\n([ \t]*)[A-Z]\w*\([^()\n]*\))[ \t]*\n/.exec(code2);
     if (!root || !/@main\b/.test(code2) || code2.includes(".appLanguage()")) continue;
@@ -216953,7 +217089,7 @@ function android(ctx) {
   if (!namespace) return null;
   const gradleFile = ["app/build.gradle.kts", "app/build.gradle"].find((f2) => readText(ctx.cwd, f2, ctx.changed) !== void 0);
   const gradle = gradleFile ? readText(ctx.cwd, gradleFile, ctx.changed) : "";
-  const kotlinDir = ["app/src/main/kotlin", "app/src/main/java"].find((d3) => import_fast_glob6.default.sync(`${d3}/**/*.kt`, { cwd: ctx.cwd }).length) ?? "app/src/main/java";
+  const kotlinDir = ["app/src/main/kotlin", "app/src/main/java"].find((d3) => import_fast_glob7.default.sync(`${d3}/**/*.kt`, { cwd: ctx.cwd }).length) ?? "app/src/main/java";
   const file2 = `${kotlinDir}/${namespace.replace(/\./g, "/")}/LanguageSwitcher.kt`;
   const compose = /compose/.test(gradle);
   const material3 = /material3/.test(gradle);
@@ -217090,11 +217226,11 @@ ${indent2}</application>`
     note: `Language menu: ${compose ? "`LanguageSwitcher()` or " : ""}\`showLanguagePicker(context)\` from \`${file2}\`, and \`Languages.current\` for the language, its flag and names. Before Android 13, switching in the app needs the activity to extend AppCompatActivity.`
   };
 }
-var import_fast_glob6, DOCS2, SCRIPT, table, str, webScript;
+var import_fast_glob7, DOCS2, SCRIPT, table, str, webScript;
 var init_setup_switchers_native = __esm({
   "src/setup-switchers-native.ts"() {
     "use strict";
-    import_fast_glob6 = __toESM(require_out4(), 1);
+    import_fast_glob7 = __toESM(require_out4(), 1);
     init_languages2();
     init_setup();
     init_setup_frameworks();
@@ -217333,13 +217469,20 @@ function majorOf(range) {
   return m2 ? Number(m2[1]) + (m2[2] ? Number(m2[2]) / 100 : 0) : null;
 }
 async function planI18nSetup(opts) {
-  const { cwd, config } = opts;
   const result = { files: [], addedDependencies: {}, notes: [] };
   const changed = new Map(opts.files.map((f2) => [f2.path, f2.content]));
   const out = (file2, content) => {
     changed.set(file2, content);
-    result.files.push({ path: file2, content });
+    const planned = result.files.find((f2) => f2.path === file2);
+    if (planned) planned.content = content;
+    else result.files.push({ path: file2, content });
   };
+  await planSetup(opts, result, changed, out);
+  await addNewLanguages({ cwd: opts.cwd, config: opts.config, readText: (f2) => readText(opts.cwd, f2, changed), out, planned: result.files.map((f2) => f2.path) });
+  return result;
+}
+async function planSetup(opts, result, changed, out) {
+  const { cwd, config } = opts;
   const native = { cwd, config, files: opts.files, changed, out, result };
   if (config.framework === "flutter") {
     if (!opts.upgradeOnly) await planFlutterSetup(native);
@@ -217363,6 +217506,10 @@ async function planI18nSetup(opts) {
     const ctx = { cwd, config, files: opts.files, changed, out, result };
     if (opts.upgradeOnly) {
       planFrameworkSwitcher(ctx);
+      const ours2 = (file2) => isGenerated(readText(cwd, file2, changed) ?? "");
+      if (config.framework === "astro" && ours2(astroModulePath(cwd, config))) astroPageCopies(ctx);
+      const city = hasDep(ctx, "@builder.io/qwik-city") || hasDep(ctx, "@qwik.dev/router");
+      if (config.framework === "qwik" && city && ours2(solidModulePath(cwd, config))) qwikRouteCopies(ctx);
       return result;
     }
     if (config.framework === "angular") planAngularSetup(ctx);
@@ -217411,7 +217558,7 @@ async function planI18nSetup(opts) {
     await planNextAppRouter({ cwd, config, changed, out, result, appDir: next2.appDir, files: opts.files });
     return result;
   }
-  const sources = await (0, import_fast_glob7.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
+  const sources = await (0, import_fast_glob8.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
   const existing = sources.find((f2) => I18NEXT_INIT.test(readText(cwd, f2, /* @__PURE__ */ new Map()) ?? ""));
   if (existing) {
     if (isGenerated(readText(cwd, existing, changed) ?? "")) {
@@ -217617,7 +217764,7 @@ async function planNextAppRouter(ctx) {
   const write3 = (file2, lines) => {
     if (readText(cwd, file2, changed) === void 0) out(file2, quote3(lines.join("\n")));
   };
-  const sources = await (0, import_fast_glob7.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
+  const sources = await (0, import_fast_glob8.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
   const own = /* @__PURE__ */ new Set([resourcesFile, clientFile, serverFile, providerFile]);
   const initRe = /initReactI18next|i18next\s*\.\s*init\s*\(/;
   const existing = sources.find((f2) => !own.has(f2) && initRe.test(readText(cwd, f2, changed) ?? ""));
@@ -218096,14 +218243,15 @@ function mergeFiles(files, extra) {
   for (const f2 of extra) byPath.set(repoPath(f2.path), { ...f2, path: repoPath(f2.path) });
   return [...byPath.values()];
 }
-var import_fast_glob7, t9, I18N_PACKAGES, ICU_PACKAGES, toPosix2, I18NEXT_INIT, sameJson, isPlainObject, ENTRY_NAMES, EXTS, SELF_VERSION2, isLegacySwitcher, LOCKFILES, LOCK_ONLY;
+var import_fast_glob8, t9, I18N_PACKAGES, ICU_PACKAGES, toPosix2, I18NEXT_INIT, sameJson, isPlainObject, ENTRY_NAMES, EXTS, SELF_VERSION2, isLegacySwitcher, LOCKFILES, LOCK_ONLY;
 var init_setup = __esm({
   "src/setup.ts"() {
     "use strict";
-    import_fast_glob7 = __toESM(require_out4(), 1);
+    import_fast_glob8 = __toESM(require_out4(), 1);
     t9 = __toESM(require_lib4(), 1);
     init_dist();
     init_rtl();
+    init_setup_languages();
     init_setup_frameworks();
     init_setup_switchers();
     init_setup_switchers_native();
@@ -218124,7 +218272,7 @@ var init_setup = __esm({
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.26.2" : "0.6.0";
+    SELF_VERSION2 = true ? "0.26.3" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -218191,7 +218339,7 @@ function importSpecifiers(code2) {
 }
 function componentSides(cwd, appDir) {
   const resolve4 = createResolver(cwd);
-  const files = import_fast_glob8.default.sync("**/*.{tsx,ts,jsx,js,mjs}", {
+  const files = import_fast_glob9.default.sync("**/*.{tsx,ts,jsx,js,mjs}", {
     cwd,
     ignore: ["**/node_modules/**", "**/.next/**", "**/dist/**", "**/build/**", "**/out/**", "**/*.d.ts"]
   });
@@ -218236,11 +218384,11 @@ function canBeClientModule(code2) {
   if (/\bawait\b|\basync\s+function\b|\basync\s*\(/.test(code2)) return false;
   return !importSpecifiers(code2).some((s) => s === "server-only" || s === "next/headers" || s === "next/cache" || s.startsWith("node:"));
 }
-var import_fast_glob8, SOURCE2, EXTENSIONS, USE_CLIENT;
+var import_fast_glob9, SOURCE2, EXTENSIONS, USE_CLIENT;
 var init_component_graph = __esm({
   "src/component-graph.ts"() {
     "use strict";
-    import_fast_glob8 = __toESM(require_out4(), 1);
+    import_fast_glob9 = __toESM(require_out4(), 1);
     SOURCE2 = /\.(tsx|ts|jsx|js|mjs)$/;
     EXTENSIONS = ["", ".tsx", ".ts", ".jsx", ".js", ".mjs", "/index.tsx", "/index.ts", "/index.jsx", "/index.js"];
     USE_CLIENT = /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*(['"])use client\1/;
@@ -218293,7 +218441,7 @@ function parseStrings(text4) {
   for (const m2 of text4.matchAll(ENTRY)) out.set(keyText(m2[2]), { value: unescape4(m2[3]), ...m2[1]?.trim() ? { comment: m2[1].trim() } : {} });
   return out;
 }
-var TOKENS2, parseCatalog, done, xcstrings, ENTRY, unescape4, escape2, keyText, strings, appleFormats;
+var TOKENS2, parseCatalog, done, xcstrings, ENTRY, unescape4, escape3, keyText, strings, appleFormats;
 var init_apple = __esm({
   "src/sync/formats/apple.ts"() {
     "use strict";
@@ -218327,9 +218475,9 @@ var init_apple = __esm({
             const plural = own?.variations?.plural;
             let value;
             if (plural) {
-              const forms = Object.fromEntries(Object.entries(plural).map(([c, u]) => [c, u?.stringUnit?.value ?? ""]));
-              if (!forms.other) continue;
-              value = forms;
+              const forms2 = Object.fromEntries(Object.entries(plural).map(([c, u]) => [c, u?.stringUnit?.value ?? ""]));
+              if (!forms2.other) continue;
+              value = forms2;
             } else {
               value = own?.stringUnit?.value ?? key2;
             }
@@ -218376,7 +218524,7 @@ var init_apple = __esm({
       /\\(U[0-9a-fA-F]{4}|u[0-9a-fA-F]{4}|.)/g,
       (_2, c) => c.length === 5 ? String.fromCharCode(parseInt(c.slice(1), 16)) : c === "n" ? "\n" : c === "t" ? "	" : c === "r" ? "\r" : c
     );
-    escape2 = (s) => s.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n").replace(/\t/g, "\\t");
+    escape3 = (s) => s.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n").replace(/\t/g, "\\t");
     keyText = (k) => k.startsWith('"') ? unescape4(k.slice(1, -1)) : k;
     strings = {
       find(ctx) {
@@ -218410,7 +218558,7 @@ var init_apple = __esm({
               const lines = [...values].map(([key2, value]) => {
                 const comment = entries.get(key2)?.comment;
                 return `${comment ? `/* ${comment} */
-` : ""}"${escape2(key2)}" = "${escape2(typeof value === "string" ? value : value.other)}";`;
+` : ""}"${escape3(key2)}" = "${escape3(typeof value === "string" ? value : value.other)}";`;
               });
               const base = content ? content.replace(/\s*$/, "\n\n") : "";
               return `${base}${lines.join("\n\n")}
@@ -218465,23 +218613,23 @@ function parseIcuPlural(message) {
   const w4 = whole(message, "plural");
   const list4 = w4 && branches(w4.body);
   if (!w4 || !list4) return null;
-  const forms = {};
+  const forms2 = {};
   const exact = {};
   for (const [sel, text4] of list4) {
     if (/^=\d+$/.test(sel)) exact[sel] = text4;
-    else if (PLURAL_CATEGORIES.includes(sel)) forms[sel] = text4;
+    else if (PLURAL_CATEGORIES.includes(sel)) forms2[sel] = text4;
     else return null;
   }
-  if (forms.one === void 0 && exact["=1"] !== void 0) {
-    forms.one = exact["=1"];
+  if (forms2.one === void 0 && exact["=1"] !== void 0) {
+    forms2.one = exact["=1"];
     delete exact["=1"];
   }
-  return forms.other === void 0 ? null : { variable: w4.variable, forms, exact };
+  return forms2.other === void 0 ? null : { variable: w4.variable, forms: forms2, exact };
 }
-function formatIcuPlural(variable2, forms, exact = {}) {
+function formatIcuPlural(variable2, forms2, exact = {}) {
   const parts = [
     ...Object.entries(exact).map(([sel, t10]) => `${sel} {${t10}}`),
-    ...PLURAL_CATEGORIES.filter((c) => forms[c] !== void 0).map((c) => `${c} {${forms[c]}}`)
+    ...PLURAL_CATEGORIES.filter((c) => forms2[c] !== void 0).map((c) => `${c} {${forms2[c]}}`)
   ];
   return `{${variable2}, plural, ${parts.join(" ")}}`;
 }
@@ -218634,9 +218782,9 @@ function parse18(text4) {
   for (const m2 of text4.matchAll(PLURALS)) {
     const name = attr(m2[1], "name");
     if (!name || attr(m2[1], "translatable") === "false") continue;
-    const forms = {};
-    for (const it of m2[2].matchAll(ITEM2)) if (PLURAL_CATEGORIES.includes(it[1])) forms[it[1]] = it[2];
-    plurals.set(name, forms);
+    const forms2 = {};
+    for (const it of m2[2].matchAll(ITEM2)) if (PLURAL_CATEGORIES.includes(it[1])) forms2[it[1]] = it[2];
+    plurals.set(name, forms2);
   }
   return { strings: strings2, plurals };
 }
@@ -218674,9 +218822,9 @@ var init_android = __esm({
             if (/<!\[CDATA\[/.test(raw)) cdata.add(name2);
             messages.push({ key: `string:${name2}`, value, context: [name2, comment].filter(Boolean).join(": ") });
           }
-          for (const [name2, forms] of source2.plurals) {
-            if (forms.other === void 0) continue;
-            const decoded = Object.fromEntries(Object.entries(forms).map(([c, raw]) => [c, decode2(raw)]));
+          for (const [name2, forms2] of source2.plurals) {
+            if (forms2.other === void 0) continue;
+            const decoded = Object.fromEntries(Object.entries(forms2).map(([c, raw]) => [c, decode2(raw)]));
             messages.push({ key: `plurals:${name2}`, value: decoded, context: name2 });
           }
           if (!messages.length) continue;
@@ -219188,7 +219336,7 @@ async function findCatalogs(cwd, sourceLocale, opts = {}) {
     if (!cache.has(file2)) cache.set(file2, readText2(path14.join(cwd, file2)));
     return cache.get(file2);
   };
-  const files = (await (0, import_fast_glob9.default)(PATTERNS, { cwd, ignore: IGNORE2, dot: false })).sort();
+  const files = (await (0, import_fast_glob10.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false })).sort();
   const ctx = { cwd, sourceLocale, files, read: read2, warn: opts.warn ?? (() => {
   }), vuePlurals: !!opts.vuePlurals };
   const seen2 = /* @__PURE__ */ new Set();
@@ -219196,7 +219344,7 @@ async function findCatalogs(cwd, sourceLocale, opts = {}) {
 }
 async function lockNewMessages(cwd, opts) {
   const read2 = (file2) => opts.overlay?.has(file2) ? opts.overlay.get(file2) : readText2(path14.join(cwd, file2));
-  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob9.default)(PATTERNS, { cwd, ignore: IGNORE2, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
+  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob10.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
   const ctx = { cwd, sourceLocale: opts.sourceLocale, files, read: read2, warn: () => {
   }, vuePlurals: !!opts.vuePlurals };
   const lockText = read2(LOCK_FILE);
@@ -219224,7 +219372,7 @@ async function translateFiles(opts) {
     if (!cache.has(file2)) cache.set(file2, readText2(path14.join(cwd, file2)));
     return cache.get(file2);
   };
-  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob9.default)(PATTERNS, { cwd, ignore: IGNORE2, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
+  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob10.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
   const ctx = { cwd, sourceLocale: opts.sourceLocale, files, read: read2, warn: (m2) => warnings2.push(m2), vuePlurals: !!opts.vuePlurals };
   const syntaxOf = (catalog) => catalog.label === "Flutter ARB" ? arbSyntax(read2("l10n.yaml")) : "other";
   const seen2 = /* @__PURE__ */ new Set();
@@ -219256,9 +219404,9 @@ async function translateFiles(opts) {
       const masked = mask(m2.value, m2.tokens === void 0 ? plan.catalog.tokens : m2.tokens);
       if (!masked) continue;
       const v2 = masked.value;
-      const forms = typeof v2 === "string" ? null : v2;
-      const text4 = forms ? forms.other : v2;
-      if ([text4, forms?.one ?? ""].some((t10) => t10.length > MAX_TEXT)) {
+      const forms2 = typeof v2 === "string" ? null : v2;
+      const text4 = forms2 ? forms2.other : v2;
+      if ([text4, forms2?.one ?? ""].some((t10) => t10.length > MAX_TEXT)) {
         warnings2.push(`${plan.catalog.file}: "${m2.key}" is over ${MAX_TEXT} characters; translate it by hand.`);
         continue;
       }
@@ -219271,7 +219419,7 @@ async function translateFiles(opts) {
           id: id3,
           text: text4,
           ...m2.context ? { context: `${plan.catalog.label}: ${m2.context}`.slice(0, MAX_CONTEXT2) } : {},
-          ...forms ? { plural: { one: forms.one ?? forms.other, other: forms.other } } : {}
+          ...forms2 ? { plural: { one: forms2.one ?? forms2.other, other: forms2.other } } : {}
         }
       });
     }
@@ -219458,11 +219606,11 @@ async function translateFiles(opts) {
     ...failure ? { incomplete: { error: failure.error, strings: unfinished } } : {}
   };
 }
-var import_fast_glob9, FORMATS, PATTERNS, IGNORE2, MAX_TEXT, MAX_CONTEXT2;
+var import_fast_glob10, FORMATS, PATTERNS, IGNORE3, MAX_TEXT, MAX_CONTEXT2;
 var init_sync = __esm({
   "src/sync/index.ts"() {
     "use strict";
-    import_fast_glob9 = __toESM(require_out4(), 1);
+    import_fast_glob10 = __toESM(require_out4(), 1);
     init_pipeline();
     init_apple();
     init_arb();
@@ -219477,7 +219625,7 @@ var init_sync = __esm({
     init_validate();
     FORMATS = [jsonFormat, yamlFormat, poFormat, arbFormat, androidFormat, ...appleFormats, chromeFormat];
     PATTERNS = ["**/*.{json,yml,yaml,po,arb,xcstrings}", "**/res/values*/*.xml", "**/*.lproj/*.strings", "**/_locales/*/messages.json"];
-    IGNORE2 = [
+    IGNORE3 = [
       "**/node_modules/**",
       "**/.git/**",
       "**/dist/**",
@@ -219517,7 +219665,7 @@ function qwikHead(cwd, config) {
 }
 async function scanProject(cwd, config, log) {
   const root = path15.join(cwd, config.srcDir);
-  const files = (await (0, import_fast_glob10.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
+  const files = (await (0, import_fast_glob11.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
   const scanned = [];
   const moduleCopy = /* @__PURE__ */ new Map();
   const copyUses = /* @__PURE__ */ new Map();
@@ -219527,7 +219675,7 @@ async function scanProject(cwd, config, log) {
     const abs = resolver2(path15.join(cwd, fromFile), specifier);
     return abs && plainModule(abs) ? abs : null;
   };
-  const modules = new Set((await (0, import_fast_glob10.default)("**/*.{ts,tsx,js,jsx,mjs}", { cwd: root, ignore: [...config.ignore, "**/*.d.ts"] })).map((f2) => path15.join(root, f2)));
+  const modules = new Set((await (0, import_fast_glob11.default)("**/*.{ts,tsx,js,jsx,mjs}", { cwd: root, ignore: [...config.ignore, "**/*.d.ts"] })).map((f2) => path15.join(root, f2)));
   const ignored = (abs) => !path15.relative(root, abs).startsWith("..") && !modules.has(abs);
   const copyIn = (abs) => {
     if (ignored(abs)) return null;
@@ -219897,7 +220045,7 @@ ${result.code}`;
     }
     const ready = stats.stringsReplaced > 0 || (solid2 ? fs15.existsSync(path15.join(cwd, solidModulePath(cwd, config))) : component === "vue" ? "vue-i18n" in deps || "@nuxtjs/i18n" in deps : component === "svelte" ? "svelte-i18n" in deps : "i18next" in deps);
     const appRouter = nextAppRouter(cwd, config);
-    const all = ready && !appRouter ? (await (0, import_fast_glob10.default)(config.include, { cwd: path15.join(cwd, config.srcDir), ignore: config.ignore })).sort() : [];
+    const all = ready && !appRouter ? (await (0, import_fast_glob11.default)(config.include, { cwd: path15.join(cwd, config.srcDir), ignore: config.ignore })).sort() : [];
     localizeAllFormats = (vueModuleReady, again = false) => {
       for (const rel of all) {
         const file2 = toPosix3(path15.join(config.srcDir, rel));
@@ -219959,13 +220107,13 @@ ${result.code}`;
     ...messages.length ? { messages } : {}
   };
 }
-function withZero(forms, source2, zero) {
-  if (!forms || source2["=0"] === void 0) return forms;
-  return zero ? { "=0": zero, ...forms } : void 0;
+function withZero(forms2, source2, zero) {
+  if (!forms2 || source2["=0"] === void 0) return forms2;
+  return zero ? { "=0": zero, ...forms2 } : void 0;
 }
 async function checkTranslations(o) {
   const opts = { syntax: o.syntax };
-  const sourceOf = (s) => s.plural ? (({ ordinal: _2, ...forms }) => forms)(s.plural) : s.text;
+  const sourceOf = (s) => s.plural ? (({ ordinal: _2, ...forms2 }) => forms2)(s.plural) : s.text;
   const valueOf = (m2, s, locale) => s.plural ? m2.plurals?.[locale] : m2.translations[locale];
   const drop = (m2, locale) => {
     delete m2.translations[locale];
@@ -219977,8 +220125,8 @@ async function checkTranslations(o) {
     if (o.syntax === "icu") {
       for (const locale of locales2) {
         if (typeof m2.translations[locale] === "string") m2.translations[locale] = escapeIcuApostrophes(m2.translations[locale]);
-        const forms = m2.plurals?.[locale];
-        if (forms) m2.plurals[locale] = Object.fromEntries(Object.entries(forms).map(([c, t10]) => [c, typeof t10 === "string" ? escapeIcuApostrophes(t10) : t10]));
+        const forms2 = m2.plurals?.[locale];
+        if (forms2) m2.plurals[locale] = Object.fromEntries(Object.entries(forms2).map(([c, t10]) => [c, typeof t10 === "string" ? escapeIcuApostrophes(t10) : t10]));
       }
     }
     for (const locale of locales2) {
@@ -220046,7 +220194,8 @@ async function checkTranslations(o) {
 }
 async function refreshOutdated(o) {
   const { translateFiles: translateFiles2, vuePluralsIn: vuePluralsIn2 } = await Promise.resolve().then(() => (init_sync(), sync_exports));
-  const source2 = toPosix3(storeFor(o.config).path(o.config.sourceLocale));
+  const store = storeFor(o.config);
+  const catalogs = o.config.localesPath.endsWith(".po") ? o.config.targetLocales.map((l2) => toPosix3(store.path(l2))) : [toPosix3(store.path(o.config.sourceLocale))];
   return translateFiles2({
     cwd: o.cwd,
     sourceLocale: o.config.sourceLocale,
@@ -220054,18 +220203,18 @@ async function refreshOutdated(o) {
     translator: o.translator,
     write: o.write,
     log: o.log,
-    onlyFiles: [source2],
+    onlyFiles: catalogs,
     overlay: new Map(o.files.map((f2) => [f2.path, f2.content])),
     // `a | b` read as plural forms here too, as translate and check read them.
     vuePlurals: vuePluralsIn2(o.cwd, o.config.interpolation)
   });
 }
-var import_fast_glob10, USE_CLIENT2, duration, toPosix3, BATCH_SIZE, CONCURRENCY;
+var import_fast_glob11, USE_CLIENT2, duration, toPosix3, BATCH_SIZE, CONCURRENCY;
 var init_pipeline = __esm({
   "src/pipeline.ts"() {
     "use strict";
     init_dist();
-    import_fast_glob10 = __toESM(require_out4(), 1);
+    import_fast_glob11 = __toESM(require_out4(), 1);
     init_scanner();
     init_formats();
     init_transformer();
@@ -220922,7 +221071,7 @@ init_setup();
 
 // src/check.ts
 init_config();
-var import_fast_glob12 = __toESM(require_out4(), 1);
+var import_fast_glob13 = __toESM(require_out4(), 1);
 init_dictionary();
 init_pipeline();
 init_stores();
@@ -221102,7 +221251,7 @@ function regex(text4, i3, to) {
 init_rtl();
 
 // src/workspaces.ts
-var import_fast_glob11 = __toESM(require_out4(), 1);
+var import_fast_glob12 = __toESM(require_out4(), 1);
 init_framework();
 init_component_graph();
 init_setup();
@@ -221136,7 +221285,7 @@ function librariesOf(cwd) {
 function workspaceApps(root) {
   const patterns = workspacePatterns(root);
   if (!patterns) return null;
-  const manifests = import_fast_glob11.default.sync(
+  const manifests = import_fast_glob12.default.sync(
     patterns.map((p) => p.startsWith("!") ? `!${p.slice(1).replace(/\/+$/, "")}/package.json` : `${p.replace(/\/+$/, "")}/package.json`),
     { cwd: root, ignore: ["**/node_modules/**"] }
   );
@@ -221155,7 +221304,7 @@ function workspaceApps(root) {
       skipped.push({ dir, reason: library ? "a library without a UI framework" : err.message.split(":")[0] });
       continue;
     }
-    if (framework === "html" && !import_fast_glob11.default.sync("**/*.html", { cwd: path16.join(root, dir), ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"], deep: 6 }).length) {
+    if (framework === "html" && !import_fast_glob12.default.sync("**/*.html", { cwd: path16.join(root, dir), ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"], deep: 6 }).length) {
       skipped.push({ dir, reason: library ? "a library without a UI framework" : "no UI framework or HTML pages" });
       continue;
     }
@@ -221299,7 +221448,7 @@ function mergeResults(results) {
 // src/check.ts
 var QUOTED_KEYS = /* @__PURE__ */ new Set([void 0, "react", "react-native", "vue", "svelte", "angular", "astro", "solid", "qwik", "lit", "ember", "html"]);
 var CODE = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,astro,html,hbs,gjs,gts}";
-var IGNORE3 = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.nuxt/**", "**/.svelte-kit/**", "**/.output/**", "**/coverage/**", "**/*.d.ts"];
+var IGNORE4 = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.nuxt/**", "**/.svelte-kit/**", "**/.output/**", "**/coverage/**", "**/*.d.ts"];
 async function unusedKeys(cwd, config) {
   const store = storeFor(config);
   const file2 = store.path(config.sourceLocale);
@@ -221310,7 +221459,7 @@ async function unusedKeys(cwd, config) {
   const keys = [...new Set(flat.map(messageKeyIn(flat)))];
   let code2 = "";
   for (const dir of [path17.join(cwd, config.srcDir), ...librariesOf(cwd).map((lib) => path17.join(lib, loadConfig(lib).srcDir))]) {
-    for (const f2 of await (0, import_fast_glob12.default)(CODE, { cwd: dir, ignore: IGNORE3 })) code2 += `${withoutComments(fs17.readFileSync(path17.join(dir, f2), "utf8"), f2)}
+    for (const f2 of await (0, import_fast_glob13.default)(CODE, { cwd: dir, ignore: IGNORE4 })) code2 += `${withoutComments(fs17.readFileSync(path17.join(dir, f2), "utf8"), f2)}
 `;
   }
   const prefixes = [...code2.matchAll(/`([\w.-]*)\$\{/g)].map((m2) => m2[1]).filter((p) => p.includes(".") || p.length > 2);
@@ -221383,10 +221532,10 @@ async function checkProject(cwd, config, log, only) {
         const keys = [...source2].filter((k) => !have?.has(k));
         const target = have ? flatOf(cwd, store, locale) : null;
         if (target) {
-          const forms = pluralCategoriesOf(locale);
+          const forms2 = pluralCategoriesOf(locale);
           for (const base of pluralBases) {
             if (!have.has(base)) continue;
-            for (const form of forms) if (!target.get(`${base}_${form}`)?.trim()) keys.push(`${base}_${form}`);
+            for (const form of forms2) if (!target.get(`${base}_${form}`)?.trim()) keys.push(`${base}_${form}`);
           }
         }
         if (keys.length) missing.push({ locale, file: store.path(locale), keys: keys.sort(), noFile: !have });
@@ -221483,7 +221632,7 @@ async function unknownKeys(cwd, config) {
   if (!fs17.existsSync(abs)) return [];
   const known = new Set([...flatten(store.read(fs17.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].flatMap((k) => [k, messageKey(k), k.replace(/_(?:male|female|other)$/, "")]));
   const out = [];
-  for (const f2 of await (0, import_fast_glob12.default)(CODE, { cwd: path17.join(cwd, config.srcDir), ignore: IGNORE3 })) {
+  for (const f2 of await (0, import_fast_glob13.default)(CODE, { cwd: path17.join(cwd, config.srcDir), ignore: IGNORE4 })) {
     const text4 = withoutComments(fs17.readFileSync(path17.join(cwd, config.srcDir, f2), "utf8"), f2);
     for (const re of KEY_USES) {
       for (const m2 of text4.matchAll(re)) {
@@ -221527,7 +221676,7 @@ async function fontCoverage(cwd, config) {
   const langs = config.targetLocales.map((l2) => l2.split("-")[0].toLowerCase());
   if (!langs.some((l2) => SUBSET[l2] || SCRIPT2[l2])) return [];
   const out = [];
-  for (const f2 of await (0, import_fast_glob12.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE3 })) {
+  for (const f2 of await (0, import_fast_glob13.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE4 })) {
     const text4 = fs17.readFileSync(path17.join(cwd, f2), "utf8");
     if (!/from\s*['"]next\/font\/google['"]/.test(text4)) continue;
     for (const m2 of text4.matchAll(/\b([A-Z]\w*)\(\s*\{([^}]*)\}\s*\)/g)) {
@@ -221548,14 +221697,14 @@ var CSS_CONTENT = new RegExp(`\\bcontent\\s*:\\s*(["'])((?:(?!\\1).)*\\p{L}(?:(?
 async function cssContentText(cwd, srcDir) {
   const root = path17.join(cwd, srcDir);
   const out = [];
-  for (const f2 of await (0, import_fast_glob12.default)("**/*.{css,scss,sass,less,vue,svelte}", { cwd: root, ignore: IGNORE3 })) {
+  for (const f2 of await (0, import_fast_glob13.default)("**/*.{css,scss,sass,less,vue,svelte}", { cwd: root, ignore: IGNORE4 })) {
     const text4 = fs17.readFileSync(path17.join(root, f2), "utf8");
     for (const m2 of text4.matchAll(CSS_CONTENT)) {
       if (/^\\[0-9a-f]+$/i.test(m2[2])) continue;
       out.push({ file: path17.posix.join(srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: m2[2] });
     }
   }
-  for (const f2 of await (0, import_fast_glob12.default)("**/*.{ts,tsx,js,jsx,mjs,gjs,gts}", { cwd: root, ignore: [...IGNORE3] })) {
+  for (const f2 of await (0, import_fast_glob13.default)("**/*.{ts,tsx,js,jsx,mjs,gjs,gts}", { cwd: root, ignore: [...IGNORE4] })) {
     for (const { line, text: text4 } of cssInScript(fs17.readFileSync(path17.join(root, f2), "utf8"))) {
       for (const m2 of text4.matchAll(CSS_CONTENT)) if (!/^\\{1,2}[0-9a-f]+$/i.test(m2[2])) out.push({ file: path17.posix.join(srcDir, f2), line, text: m2[2] });
     }
