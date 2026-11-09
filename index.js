@@ -20096,7 +20096,7 @@ var require_fill_range = __commonJS({
     "use strict";
     var util = __require("util");
     var toRegexRange = require_to_regex_range();
-    var isObject3 = (val) => val !== null && typeof val === "object" && !Array.isArray(val);
+    var isObject4 = (val) => val !== null && typeof val === "object" && !Array.isArray(val);
     var transform2 = (toNumber) => {
       return (value) => toNumber === true ? Number(value) : String(value);
     };
@@ -20265,14 +20265,14 @@ var require_fill_range = __commonJS({
       if (typeof step === "function") {
         return fill(start2, end2, 1, { transform: step });
       }
-      if (isObject3(step)) {
+      if (isObject4(step)) {
         return fill(start2, end2, 0, step);
       }
       let opts = { ...options };
       if (opts.capture === true) opts.wrap = true;
       step = step || opts.step || 1;
       if (!isNumber2(step)) {
-        if (step != null && !isObject3(step)) return invalidStep(step, opts);
+        if (step != null && !isObject4(step)) return invalidStep(step, opts);
         return fill(start2, end2, 1, step);
       }
       if (isNumber2(start2) && isNumber2(end2)) {
@@ -22435,7 +22435,7 @@ var require_picomatch = __commonJS({
     var parse21 = require_parse3();
     var utils = require_utils3();
     var constants3 = require_constants7();
-    var isObject3 = (val) => val && typeof val === "object" && !Array.isArray(val);
+    var isObject4 = (val) => val && typeof val === "object" && !Array.isArray(val);
     var picomatch = (glob, options, returnState = false) => {
       if (Array.isArray(glob)) {
         const fns = glob.map((input) => picomatch(input, options, returnState));
@@ -22448,7 +22448,7 @@ var require_picomatch = __commonJS({
         };
         return arrayMatcher;
       }
-      const isState = isObject3(glob) && glob.tokens && glob.input;
+      const isState = isObject4(glob) && glob.tokens && glob.input;
       if (glob === "" || typeof glob !== "string" && !isState) {
         throw new TypeError("Expected pattern to be a non-empty string");
       }
@@ -25525,6 +25525,57 @@ var init_config = __esm({
   }
 });
 
+// src/merge-locales.ts
+import * as fs6 from "node:fs";
+import * as path5 from "node:path";
+function mergeLocaleJson(base, ours2, theirs, prefer = "ours") {
+  const parse21 = (text4) => text4.trim() ? JSON.parse(text4) : {};
+  const conflicts = [];
+  const merge = (b4, o, t10, at2) => {
+    if (same(o, t10)) return o;
+    if (same(b4, o)) return t10;
+    if (same(b4, t10)) return o;
+    if (isObject(o) && isObject(t10)) {
+      const out = {};
+      const keys = [...Object.keys(o), ...Object.keys(t10).filter((k) => !(k in o))];
+      for (const k of keys) {
+        const v2 = merge(isObject(b4) ? b4[k] : void 0, o[k], t10[k], at2 ? `${at2}.${k}` : k);
+        if (v2 !== void 0) out[k] = v2;
+      }
+      return out;
+    }
+    conflicts.push(at2 || "(root)");
+    return prefer === "ours" ? o : t10;
+  };
+  const merged = merge(parse21(base), parse21(ours2), parse21(theirs), "");
+  const indent2 = /\n([ \t]+)"/.exec(ours2)?.[1] ?? "  ";
+  return { text: `${JSON.stringify(merged, null, indent2)}${ours2.endsWith("\n") ? "\n" : ""}`, conflicts };
+}
+function localeAttributes(config) {
+  if (!/\.(json|arb)$/.test(config.localesPath)) return null;
+  return `${config.localesPath.replace(/\{locale\}/g, "*")} merge=localize-dev`;
+}
+function withLocaleAttributes(cwd, config) {
+  const line = localeAttributes(config);
+  if (!line) return null;
+  const file2 = path5.join(cwd, ".gitattributes");
+  const current2 = fs6.existsSync(file2) ? fs6.readFileSync(file2, "utf8") : "";
+  if (current2.includes("merge=localize-dev")) return null;
+  const head = "# Locale files merge key by key (localize-dev merge-locales), so branches adding keys don't conflict.";
+  return { path: ".gitattributes", content: `${current2}${current2 && !current2.endsWith("\n") ? "\n" : ""}${current2 ? "\n" : ""}${head}
+${line}
+` };
+}
+var isObject, same, MERGE_DRIVER_SETUP;
+var init_merge_locales = __esm({
+  "src/merge-locales.ts"() {
+    "use strict";
+    isObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
+    same = (a, b4) => JSON.stringify(a) === JSON.stringify(b4);
+    MERGE_DRIVER_SETUP = 'git config merge.localize-dev.driver "npx localize-dev merge-locales %O %A %B %P"';
+  }
+});
+
 // ../../node_modules/@jridgewell/sourcemap-codec/dist/sourcemap-codec.mjs
 function decodeInteger(reader) {
   let value = 0;
@@ -25769,7 +25820,7 @@ function guessIndent(code2) {
   }, Infinity);
   return " ".repeat(min);
 }
-function isObject(thing) {
+function isObject2(thing) {
   return toString.call(thing) === "[object Object]";
 }
 function writeVlq(pos, num) {
@@ -26493,7 +26544,7 @@ var init_dist = __esm({
       }
       indent(indentStr, options) {
         const pattern = /^[^\r\n]/gm;
-        if (isObject(indentStr)) {
+        if (isObject2(indentStr)) {
           options = indentStr;
           indentStr = void 0;
         }
@@ -62651,7 +62702,7 @@ var require_jsesc = __commonJS({
     var isBuffer = (value) => {
       return typeof Buffer === "function" && Buffer.isBuffer(value);
     };
-    var isObject3 = (value) => {
+    var isObject4 = (value) => {
       return toString4.call(value) == "[object Object]";
     };
     var isString = (value) => {
@@ -62811,7 +62862,7 @@ var require_jsesc = __commonJS({
             return JSON.stringify(Number(argument));
           }
           return argument + "n";
-        } else if (!isObject3(argument)) {
+        } else if (!isObject4(argument)) {
           if (json2) {
             return JSON.stringify(argument) || "null";
           }
@@ -71254,9 +71305,9 @@ function mergeTextRun(children, code2, ordinals = true) {
   const countBefore = (node2, count) => {
     const i3 = children.findIndex((c) => t.isJSXExpressionContainer(c) && c.expression === node2);
     const prev = children[i3 - 1];
-    const same2 = (c) => t.isJSXExpressionContainer(c) && sourceOf(c.expression) === sourceOf(count);
-    if (same2(prev)) return skip.add(prev), "";
-    if (t.isJSXText(prev) && /^[ \t]+$/.test(prev.value) && same2(children[i3 - 2])) return skip.add(prev), skip.add(children[i3 - 2]), " ";
+    const same3 = (c) => t.isJSXExpressionContainer(c) && sourceOf(c.expression) === sourceOf(count);
+    if (same3(prev)) return skip.add(prev), "";
+    if (t.isJSXText(prev) && /^[ \t]+$/.test(prev.value) && same3(children[i3 - 2])) return skip.add(prev), skip.add(children[i3 - 2]), " ";
     return null;
   };
   const params = [];
@@ -114302,7 +114353,7 @@ function getRelativePath2(from, to) {
   }
   return fromParts.concat(toParts).join("/");
 }
-function isObject2(thing) {
+function isObject3(thing) {
   return toString3.call(thing) === "[object Object]";
 }
 function getLocator3(source2) {
@@ -114733,7 +114784,7 @@ var init_magic_string_es = __esm({
       }
       indent(indentStr, options) {
         const pattern = /^[^\r\n]/gm;
-        if (isObject2(indentStr)) {
+        if (isObject3(indentStr)) {
           options = indentStr;
           indentStr = void 0;
         }
@@ -129307,9 +129358,9 @@ var require_shared_cjs_prod = __commonJS({
     var isFunction3 = (val) => typeof val === "function";
     var isString = (val) => typeof val === "string";
     var isSymbol = (val) => typeof val === "symbol";
-    var isObject3 = (val) => val !== null && typeof val === "object";
+    var isObject4 = (val) => val !== null && typeof val === "object";
     var isPromise = (val) => {
-      return (isObject3(val) || isFunction3(val)) && isFunction3(val.then) && isFunction3(val.catch);
+      return (isObject4(val) || isFunction3(val)) && isFunction3(val.then) && isFunction3(val.catch);
     };
     var objectToString = Object.prototype.toString;
     var toTypeString = (value) => objectToString.call(value);
@@ -129527,7 +129578,7 @@ var require_shared_cjs_prod = __commonJS({
           }
         }
         return res;
-      } else if (isString(value) || isObject3(value)) {
+      } else if (isString(value) || isObject4(value)) {
         return value;
       }
     }
@@ -129568,7 +129619,7 @@ var require_shared_cjs_prod = __commonJS({
             res += normalized + " ";
           }
         }
-      } else if (isObject3(value)) {
+      } else if (isObject4(value)) {
         for (const name in value) {
           if (value[name]) {
             res += name + " ";
@@ -129775,8 +129826,8 @@ var require_shared_cjs_prod = __commonJS({
       if (aValidType || bValidType) {
         return aValidType && bValidType ? looseCompareNested(a, b4, seen2, looseCompareArrays) : false;
       }
-      aValidType = isObject3(a);
-      bValidType = isObject3(b4);
+      aValidType = isObject4(a);
+      bValidType = isObject4(b4);
       if (aValidType || bValidType) {
         if (!aValidType || !bValidType) {
           return false;
@@ -129792,7 +129843,7 @@ var require_shared_cjs_prod = __commonJS({
       return !!(val && val["__v_isRef"] === true);
     };
     var toDisplayString = (val) => {
-      return isString(val) ? val : val == null ? "" : isArray2(val) || isObject3(val) && (val.toString === objectToString || !isFunction3(val.toString)) ? isRef(val) ? toDisplayString(val.value) : JSON.stringify(val, replacer, 2) : String(val);
+      return isString(val) ? val : val == null ? "" : isArray2(val) || isObject4(val) && (val.toString === objectToString || !isFunction3(val.toString)) ? isRef(val) ? toDisplayString(val.value) : JSON.stringify(val, replacer, 2) : String(val);
     };
     var replacer = (_key, val) => {
       if (isRef(val)) {
@@ -129813,7 +129864,7 @@ var require_shared_cjs_prod = __commonJS({
         };
       } else if (isSymbol(val)) {
         return stringifySymbol(val);
-      } else if (isObject3(val) && !isArray2(val) && !isPlainObject2(val)) {
+      } else if (isObject4(val) && !isArray2(val) && !isPlainObject2(val)) {
         return String(val);
       }
       return val;
@@ -129875,7 +129926,7 @@ var require_shared_cjs_prod = __commonJS({
     exports.isMap = isMap3;
     exports.isMathMLTag = isMathMLTag;
     exports.isModelListener = isModelListener;
-    exports.isObject = isObject3;
+    exports.isObject = isObject4;
     exports.isOn = isOn;
     exports.isPlainObject = isPlainObject2;
     exports.isPromise = isPromise;
@@ -129947,9 +129998,9 @@ var require_shared_cjs = __commonJS({
     var isFunction3 = (val) => typeof val === "function";
     var isString = (val) => typeof val === "string";
     var isSymbol = (val) => typeof val === "symbol";
-    var isObject3 = (val) => val !== null && typeof val === "object";
+    var isObject4 = (val) => val !== null && typeof val === "object";
     var isPromise = (val) => {
-      return (isObject3(val) || isFunction3(val)) && isFunction3(val.then) && isFunction3(val.catch);
+      return (isObject4(val) || isFunction3(val)) && isFunction3(val.then) && isFunction3(val.catch);
     };
     var objectToString = Object.prototype.toString;
     var toTypeString = (value) => objectToString.call(value);
@@ -130167,7 +130218,7 @@ var require_shared_cjs = __commonJS({
           }
         }
         return res;
-      } else if (isString(value) || isObject3(value)) {
+      } else if (isString(value) || isObject4(value)) {
         return value;
       }
     }
@@ -130208,7 +130259,7 @@ var require_shared_cjs = __commonJS({
             res += normalized + " ";
           }
         }
-      } else if (isObject3(value)) {
+      } else if (isObject4(value)) {
         for (const name in value) {
           if (value[name]) {
             res += name + " ";
@@ -130415,8 +130466,8 @@ var require_shared_cjs = __commonJS({
       if (aValidType || bValidType) {
         return aValidType && bValidType ? looseCompareNested(a, b4, seen2, looseCompareArrays) : false;
       }
-      aValidType = isObject3(a);
-      bValidType = isObject3(b4);
+      aValidType = isObject4(a);
+      bValidType = isObject4(b4);
       if (aValidType || bValidType) {
         if (!aValidType || !bValidType) {
           return false;
@@ -130432,7 +130483,7 @@ var require_shared_cjs = __commonJS({
       return !!(val && val["__v_isRef"] === true);
     };
     var toDisplayString = (val) => {
-      return isString(val) ? val : val == null ? "" : isArray2(val) || isObject3(val) && (val.toString === objectToString || !isFunction3(val.toString)) ? isRef(val) ? toDisplayString(val.value) : JSON.stringify(val, replacer, 2) : String(val);
+      return isString(val) ? val : val == null ? "" : isArray2(val) || isObject4(val) && (val.toString === objectToString || !isFunction3(val.toString)) ? isRef(val) ? toDisplayString(val.value) : JSON.stringify(val, replacer, 2) : String(val);
     };
     var replacer = (_key, val) => {
       if (isRef(val)) {
@@ -130453,7 +130504,7 @@ var require_shared_cjs = __commonJS({
         };
       } else if (isSymbol(val)) {
         return stringifySymbol(val);
-      } else if (isObject3(val) && !isArray2(val) && !isPlainObject2(val)) {
+      } else if (isObject4(val) && !isArray2(val) && !isPlainObject2(val)) {
         return String(val);
       }
       return val;
@@ -130523,7 +130574,7 @@ var require_shared_cjs = __commonJS({
     exports.isMap = isMap3;
     exports.isMathMLTag = isMathMLTag;
     exports.isModelListener = isModelListener;
-    exports.isObject = isObject3;
+    exports.isObject = isObject4;
     exports.isOn = isOn;
     exports.isPlainObject = isPlainObject2;
     exports.isPromise = isPromise;
@@ -191856,9 +191907,9 @@ var init_es = __esm({
 
 // src/optional.ts
 import { spawnSync } from "node:child_process";
-import * as fs6 from "node:fs";
+import * as fs7 from "node:fs";
 import * as os5 from "node:os";
-import * as path5 from "node:path";
+import * as path6 from "node:path";
 import { pathToFileURL } from "node:url";
 function importInstalled(spec2) {
   switch (spec2) {
@@ -191875,7 +191926,7 @@ function importInstalled(spec2) {
   }
 }
 function entryOf(pkgDir, subpath) {
-  const pkg = JSON.parse(fs6.readFileSync(path5.join(pkgDir, "package.json"), "utf8"));
+  const pkg = JSON.parse(fs7.readFileSync(path6.join(pkgDir, "package.json"), "utf8"));
   const pick = (v2) => {
     if (typeof v2 === "string") return v2;
     if (Array.isArray(v2)) return pick(v2[0]);
@@ -191888,7 +191939,7 @@ function entryOf(pkgDir, subpath) {
   const key2 = subpath ? `./${subpath}` : ".";
   const target = pkg.exports ? pick(typeof pkg.exports === "string" || !Object.keys(pkg.exports).some((k) => k.startsWith(".")) ? subpath ? void 0 : pkg.exports : pkg.exports[key2]) : subpath || pkg.module || pkg.main || "index.js";
   if (!target) throw new Error(`${pkg.name} has no entry for "${key2}"`);
-  return path5.join(pkgDir, target);
+  return path6.join(pkgDir, target);
 }
 async function loadOptional(spec2) {
   try {
@@ -191909,14 +191960,14 @@ async function loadOptional(spec2) {
 async function installInCache(spec2) {
   const { pkg, version: version2, for: framework } = OPTIONAL[spec2];
   const dir = cacheDir();
-  const pkgDir = path5.join(dir, "node_modules", ...pkg.split("/"));
-  if (!fs6.existsSync(path5.join(pkgDir, "package.json")) && /^(1|true|yes)$/i.test(process.env.LOCALIZE_DEV_NO_INSTALL ?? "")) {
+  const pkgDir = path6.join(dir, "node_modules", ...pkg.split("/"));
+  if (!fs7.existsSync(path6.join(pkgDir, "package.json")) && /^(1|true|yes)$/i.test(process.env.LOCALIZE_DEV_NO_INSTALL ?? "")) {
     throw new Error(`Couldn't install ${pkg} (needed for ${framework} templates): LOCALIZE_DEV_NO_INSTALL is set. Install it in your project: npm i -D ${pkg}@${version2}`);
   }
   const run = installing.then(() => {
-    if (fs6.existsSync(path5.join(pkgDir, "package.json"))) return;
-    fs6.mkdirSync(dir, { recursive: true });
-    if (!fs6.existsSync(path5.join(dir, "package.json"))) fs6.writeFileSync(path5.join(dir, "package.json"), '{ "private": true }\n');
+    if (fs7.existsSync(path6.join(pkgDir, "package.json"))) return;
+    fs7.mkdirSync(dir, { recursive: true });
+    if (!fs7.existsSync(path6.join(dir, "package.json"))) fs7.writeFileSync(path6.join(dir, "package.json"), '{ "private": true }\n');
     process.stderr.write(`\u{1F4E6} Installing ${pkg} for ${framework} templates (first time only, into ${dir})\u2026
 `);
     const npm = process.platform === "win32" ? "npm.cmd" : "npm";
@@ -191942,8 +191993,8 @@ var init_optional = __esm({
       "@glimmer/syntax": { pkg: "@glimmer/syntax", version: "^0.97.0", for: "Ember" }
     };
     cacheDir = () => {
-      const base = process.env.XDG_CACHE_HOME || (process.platform === "win32" ? process.env.LOCALAPPDATA : void 0) || path5.join(os5.homedir(), ".cache");
-      return path5.join(base, "localize-dev", "deps");
+      const base = process.env.XDG_CACHE_HOME || (process.platform === "win32" ? process.env.LOCALAPPDATA : void 0) || path6.join(os5.homedir(), ".cache");
+      return path6.join(base, "localize-dev", "deps");
     };
     installing = Promise.resolve();
   }
@@ -191970,13 +192021,13 @@ function buildRun(parts, opts = {}) {
   const ordinal = ordinals.filter(Boolean).length === 1 ? ordinals.find(Boolean) : null;
   const skip = /* @__PURE__ */ new Set();
   const countBefore = (i3, count) => {
-    const same2 = (k) => {
+    const same3 = (k) => {
       const p = parts[k];
       return p?.kind === "expr" && p.source.trim() === count.trim();
     };
-    if (same2(i3 - 1)) return skip.add(i3 - 1), "";
+    if (same3(i3 - 1)) return skip.add(i3 - 1), "";
     const between = parts[i3 - 1];
-    if (between?.kind === "text" && /^[ \t]+$/.test(between.raw) && same2(i3 - 2)) return skip.add(i3 - 1), skip.add(i3 - 2), " ";
+    if (between?.kind === "text" && /^[ \t]+$/.test(between.raw) && same3(i3 - 2)) return skip.add(i3 - 1), skip.add(i3 - 2), " ";
     return null;
   };
   const taken = new Set(plural || ordinal ? ["count"] : []);
@@ -193229,9 +193280,9 @@ function scanDart(code2, filePath) {
     }
     let text4 = none.text;
     for (const p of none.params) {
-      const same2 = p.source.trim() === count ? "count" : params.find((q) => q.source.trim() === p.source.trim())?.name;
-      if (!same2) return null;
-      text4 = text4.replace(new RegExp(`\\{${p.name}\\}`, "g"), `{${same2}}`);
+      const same3 = p.source.trim() === count ? "count" : params.find((q) => q.source.trim() === p.source.trim())?.name;
+      if (!same3) return null;
+      text4 = text4.replace(new RegExp(`\\{${p.name}\\}`, "g"), `{${same3}}`);
     }
     return { text: forms2.other, params, plural: { "=0": text4, ...forms2 } };
   };
@@ -212821,7 +212872,7 @@ function translationProblem(source2, translation, locale, opts) {
     const found2 = names2(text4);
     const extra = found2.filter((n4) => !allowed.has(n4));
     if (extra.length) return `${label2} has {${extra[0]}}, which the source doesn't`;
-    if (form === "other" && !same([...new Set(found2)], [...new Set(required)]) || !plural && !same(found2, required)) {
+    if (form === "other" && !same2([...new Set(found2)], [...new Set(required)]) || !plural && !same2(found2, required)) {
       const gone = required.filter((n4) => !found2.includes(n4));
       return gone.length ? `${label2} lost {${gone[0]}}` : `${label2} repeats a placeholder`;
     }
@@ -212843,7 +212894,7 @@ function translationProblem(source2, translation, locale, opts) {
   }
   return null;
 }
-var IcuSyntaxError, PLURAL_KINDS, escapeIcuApostrophes, names2, strayBraces, same;
+var IcuSyntaxError, PLURAL_KINDS, escapeIcuApostrophes, names2, strayBraces, same2;
 var init_validate = __esm({
   "src/validate.ts"() {
     "use strict";
@@ -212860,7 +212911,7 @@ var init_validate = __esm({
     escapeIcuApostrophes = (text4) => text4.replace(/(?<!')'(?=[{}])/g, "''");
     names2 = (text4) => [...text4.matchAll(/\{(\w+)\}/g)].map((m2) => m2[1]).sort();
     strayBraces = (text4) => (text4.replace(/\{\w+\}/g, "").match(/[{}]/g) ?? []).length;
-    same = (a, b4) => a.join("\0") === b4.join("\0");
+    same2 = (a, b4) => a.join("\0") === b4.join("\0");
   }
 });
 
@@ -213314,8 +213365,8 @@ var init_template_formats = __esm({
 });
 
 // src/rtl.ts
-import * as fs7 from "node:fs";
-import * as path6 from "node:path";
+import * as fs8 from "node:fs";
+import * as path7 from "node:path";
 function cssInScript(text4) {
   if (!/`/.test(text4)) return [];
   const out = [];
@@ -213327,31 +213378,31 @@ function cssInScript(text4) {
   return out;
 }
 async function findPhysicalStyles(cwd, srcDir) {
-  const root = path6.join(cwd, srcDir);
+  const root = path7.join(cwd, srcDir);
   const out = [];
   const lineOf2 = (text4, at2) => text4.slice(0, at2).split("\n").length;
   for (const f2 of await (0, import_fast_glob4.default)(STYLES, { cwd: root, ignore: IGNORE })) {
-    const text4 = fs7.readFileSync(path6.join(root, f2), "utf8");
+    const text4 = fs8.readFileSync(path7.join(root, f2), "utf8");
     text4.split("\n").forEach((line, i3) => {
       for (const [re, to] of CSS_SAFE) {
         const m2 = re.exec(line);
-        if (m2) out.push({ file: path6.posix.join(srcDir, f2), line: i3 + 1, found: m2[0], fix: m2[0].replace(re, to) });
+        if (m2) out.push({ file: path7.posix.join(srcDir, f2), line: i3 + 1, found: m2[0], fix: m2[0].replace(re, to) });
       }
       const r = CSS_REPORT.exec(line);
-      if (r) out.push({ file: path6.posix.join(srcDir, f2), line: i3 + 1, found: line.trim() });
+      if (r) out.push({ file: path7.posix.join(srcDir, f2), line: i3 + 1, found: line.trim() });
     });
   }
   for (const f2 of await (0, import_fast_glob4.default)(SCRIPTS, { cwd: root, ignore: [...IGNORE, "**/*.d.ts"] })) {
-    for (const { line, text: text4 } of cssInScript(fs7.readFileSync(path6.join(root, f2), "utf8"))) {
+    for (const { line, text: text4 } of cssInScript(fs8.readFileSync(path7.join(root, f2), "utf8"))) {
       for (const [re, to] of CSS_SAFE) {
         const m2 = re.exec(text4);
-        if (m2) out.push({ file: path6.posix.join(srcDir, f2), line, found: m2[0], fix: m2[0].replace(re, to), style: true });
+        if (m2) out.push({ file: path7.posix.join(srcDir, f2), line, found: m2[0], fix: m2[0].replace(re, to), style: true });
       }
-      if (CSS_REPORT.exec(text4)) out.push({ file: path6.posix.join(srcDir, f2), line, found: text4.trim(), style: true });
+      if (CSS_REPORT.exec(text4)) out.push({ file: path7.posix.join(srcDir, f2), line, found: text4.trim(), style: true });
     }
   }
   for (const f2 of await (0, import_fast_glob4.default)(MARKUP, { cwd: root, ignore: IGNORE })) {
-    const text4 = fs7.readFileSync(path6.join(root, f2), "utf8");
+    const text4 = fs8.readFileSync(path7.join(root, f2), "utf8");
     for (const m2 of text4.matchAll(CLASS_STRINGS)) {
       const value = m2[1] ?? m2[2] ?? m2[3] ?? m2[4] ?? "";
       let from = 0;
@@ -213361,8 +213412,8 @@ async function findPhysicalStyles(cwd, srcDir) {
         from = m2[0].indexOf(cls, from) + cls.length;
         const [variant, base] = /^(.*:)?([^:]+)$/.exec(cls).slice(1);
         const safe = TAILWIND_SAFE.find(([re]) => re.test(base));
-        if (safe) out.push({ file: path6.posix.join(srcDir, f2), line: lineOf2(text4, at2), found: cls, fix: `${variant ?? ""}${base.replace(safe[0], safe[1])}` });
-        else if (TAILWIND_REPORT.test(base)) out.push({ file: path6.posix.join(srcDir, f2), line: lineOf2(text4, at2), found: cls });
+        if (safe) out.push({ file: path7.posix.join(srcDir, f2), line: lineOf2(text4, at2), found: cls, fix: `${variant ?? ""}${base.replace(safe[0], safe[1])}` });
+        else if (TAILWIND_REPORT.test(base)) out.push({ file: path7.posix.join(srcDir, f2), line: lineOf2(text4, at2), found: cls });
       }
     }
   }
@@ -213541,8 +213592,8 @@ var init_html_pages = __esm({
 });
 
 // src/setup-frameworks.ts
-import * as fs8 from "node:fs";
-import * as path7 from "node:path";
+import * as fs9 from "node:fs";
+import * as path8 from "node:path";
 function localeImports(ctx, fromFile) {
   return locales(ctx.config).map((locale) => {
     const file2 = toPosix(localePath(ctx.config.localesPath, locale));
@@ -213563,7 +213614,7 @@ function addDependencies(ctx, wanted) {
 function spaShell(cwd, config) {
   if (!["react", "vue", "svelte", "solid", "angular", "lit", "qwik"].includes(config.framework ?? "react")) return null;
   try {
-    const pkg = JSON.parse(fs8.readFileSync(path7.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs9.readFileSync(path8.join(cwd, "package.json"), "utf8"));
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
     if (["next", "nuxt", "@sveltejs/kit", "@remix-run/react", "@react-router/dev", "gatsby", "astro", "react-native", "expo", "@builder.io/qwik-city"].some((d3) => d3 in deps)) return null;
   } catch {
@@ -213593,7 +213644,7 @@ function importInEntry(ctx, entry, spec2, edit) {
 function planVueSetup(ctx) {
   const { cwd, config, result } = ctx;
   if (hasDep(ctx, "nuxt")) return planNuxtSetup(ctx);
-  const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
+  const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
   const file2 = `${srcPrefix(config)}i18n.${ts ? "ts" : "js"}`;
   const elsewhere = existingSetup(ctx, (code2) => /\bcreateI18n\s*\(/.test(code2), [file2]);
   if (elsewhere) {
@@ -213748,7 +213799,7 @@ ${appCode}`
 }
 function svelteMajor(cwd) {
   try {
-    const pkg = JSON.parse(fs8.readFileSync(path7.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs9.readFileSync(path8.join(cwd, "package.json"), "utf8"));
     const major = /(\d+)/.exec({ ...pkg.dependencies, ...pkg.devDependencies }.svelte ?? "")?.[1];
     return major ? Number(major) : 5;
   } catch {
@@ -213758,7 +213809,7 @@ function svelteMajor(cwd) {
 function svelteRichPath(cwd, config) {
   let deps = {};
   try {
-    const pkg = JSON.parse(fs8.readFileSync(path7.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs9.readFileSync(path8.join(cwd, "package.json"), "utf8"));
     deps = { ...pkg.dependencies, ...pkg.devDependencies };
   } catch {
   }
@@ -213805,13 +213856,13 @@ function planSvelteRich(ctx) {
   if (!file2) return;
   const existing = readText(ctx.cwd, file2, ctx.changed);
   if (existing !== void 0 && !isGenerated(existing)) return;
-  ctx.out(file2, svelteRichSource(svelteMajor(ctx.cwd) < 5, fs8.existsSync(path7.join(ctx.cwd, "tsconfig.json"))));
+  ctx.out(file2, svelteRichSource(svelteMajor(ctx.cwd) < 5, fs9.existsSync(path8.join(ctx.cwd, "tsconfig.json"))));
 }
 function planSvelteSetup(ctx) {
   const { cwd, config, result } = ctx;
   planSvelteRich(ctx);
   const kit = hasDep(ctx, "@sveltejs/kit");
-  const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
+  const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
   const ext = ts ? "ts" : "js";
   const file2 = kit ? `src/lib/i18n.${ext}` : `${srcPrefix(config)}i18n.${ext}`;
   const hooks = firstExisting(ctx, ["src/hooks.server.ts", "src/hooks.server.js"]) ?? `src/hooks.server.${ext}`;
@@ -214080,7 +214131,7 @@ function writeLanguagePages(ctx, bundled) {
   const dir = config.srcDir === "." ? "" : `${config.srcDir}/`;
   const site = config.siteUrl?.replace(/\/+$/, "");
   const urlOf = (lang, rel) => `${site}/${lang === config.sourceLocale ? "" : `${lang}/`}${rel.replace(/(^|\/)index\.html?$/, "$1")}`;
-  const pages = import_fast_glob5.default.sync(config.include, { cwd: path7.join(cwd, config.srcDir), ignore: config.ignore }).sort();
+  const pages = import_fast_glob5.default.sync(config.include, { cwd: path8.join(cwd, config.srcDir), ignore: config.ignore }).sort();
   const pageSet = new Set(pages);
   for (const rel of pages) {
     let html = readText(cwd, `${dir}${rel}`, ctx.changed);
@@ -214243,7 +214294,7 @@ function htmlRuntime(o) {
 `;
 }
 function solidModulePath(cwd, config) {
-  const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
+  const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
   return `${srcPrefix(config)}i18n.${ts ? "ts" : "js"}`;
 }
 function richLines(type) {
@@ -214278,7 +214329,7 @@ function richLines(type) {
 }
 function planSolidSetup(ctx) {
   const { cwd, config, result } = ctx;
-  const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
+  const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
   const file2 = solidModulePath(cwd, config);
   const existing = readText(cwd, file2, ctx.changed);
   if (existing !== void 0 && !isGenerated(existing)) {
@@ -214339,7 +214390,7 @@ function planSolidSetup(ctx) {
 }
 function angularMajor(cwd, changed) {
   try {
-    const pkg = JSON.parse(changed?.get("package.json") ?? fs8.readFileSync(path7.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(changed?.get("package.json") ?? fs9.readFileSync(path8.join(cwd, "package.json"), "utf8"));
     const major = /(\d+)/.exec({ ...pkg.dependencies, ...pkg.devDependencies }["@angular/core"] ?? "")?.[1];
     return major ? Number(major) : void 0;
   } catch {
@@ -214348,7 +214399,7 @@ function angularMajor(cwd, changed) {
 }
 function ngxTranslateMajor(cwd, changed) {
   try {
-    const pkg = JSON.parse(changed?.get("package.json") ?? fs8.readFileSync(path7.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(changed?.get("package.json") ?? fs9.readFileSync(path8.join(cwd, "package.json"), "utf8"));
     const major = /(\d+)/.exec({ ...pkg.dependencies, ...pkg.devDependencies }["@ngx-translate/core"] ?? "")?.[1];
     return major ? Number(major) : void 0;
   } catch {
@@ -214377,7 +214428,7 @@ function addToDeclaringModule(ctx, component, wanted) {
   const code2 = readText(ctx.cwd, component, ctx.changed) ?? "";
   const cls = /@Component\s*\([\s\S]*?\)\s*export\s+class\s+(\w+)/.exec(code2)?.[1];
   if (!cls) return null;
-  const modules = import_fast_glob5.default.sync("**/*.module.ts", { cwd: path7.join(ctx.cwd, ctx.config.srcDir), ignore: ["**/node_modules/**"] }).map((f2) => path7.posix.join(ctx.config.srcDir, f2));
+  const modules = import_fast_glob5.default.sync("**/*.module.ts", { cwd: path8.join(ctx.cwd, ctx.config.srcDir), ignore: ["**/node_modules/**"] }).map((f2) => path8.posix.join(ctx.config.srcDir, f2));
   for (const file2 of modules) {
     let next2 = readText(ctx.cwd, file2, ctx.changed) ?? "";
     if (!new RegExp(`declarations\\s*:\\s*\\[[^\\]]*\\b${cls}\\b`).test(next2)) continue;
@@ -214410,7 +214461,7 @@ function addToDeclaringModule(ctx, component, wanted) {
 }
 function planAngularSetup(ctx) {
   const { cwd, config, result } = ctx;
-  const appDir = fs8.existsSync(path7.join(cwd, config.srcDir, "app")) ? `${srcPrefix(config)}app` : config.srcDir;
+  const appDir = fs9.existsSync(path8.join(cwd, config.srcDir, "app")) ? `${srcPrefix(config)}app` : config.srcDir;
   const file2 = `${appDir}/i18n.ts`;
   const existing = readText(cwd, file2, ctx.changed);
   if (existing !== void 0 && !isGenerated(existing)) {
@@ -214556,9 +214607,9 @@ function planAngularSetup(ctx) {
   const pipeForModules = ngModulePipe(ngxTranslateMajor(cwd, ctx.changed));
   for (const changed of [...ctx.files]) {
     const candidates = changed.path.endsWith(".ts") ? [changed.path] : (() => {
-      const dir = path7.posix.dirname(changed.path);
-      const name = path7.posix.basename(changed.path);
-      return import_fast_glob5.default.sync("*.ts", { cwd: path7.join(cwd, dir) }).map((f2) => `${dir}/${f2}`).filter((f2) => new RegExp(`templateUrl\\s*:\\s*['"\`]\\.?/?${name.replace(/\./g, "\\.")}['"\`]`).test(readText(cwd, f2, ctx.changed) ?? ""));
+      const dir = path8.posix.dirname(changed.path);
+      const name = path8.posix.basename(changed.path);
+      return import_fast_glob5.default.sync("*.ts", { cwd: path8.join(cwd, dir) }).map((f2) => `${dir}/${f2}`).filter((f2) => new RegExp(`templateUrl\\s*:\\s*['"\`]\\.?/?${name.replace(/\./g, "\\.")}['"\`]`).test(readText(cwd, f2, ctx.changed) ?? ""));
     })();
     for (const component of candidates) {
       const code2 = readText(cwd, component, ctx.changed);
@@ -214696,7 +214747,7 @@ ${plistText.slice(end2)}`);
   return result;
 }
 function astroModulePath(cwd, config) {
-  const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
+  const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
   return `${srcPrefix(config)}i18n/index.${ts ? "ts" : "js"}`;
 }
 function inFrontmatter(code2, importLine, codeLine) {
@@ -214750,7 +214801,7 @@ function astroPageCopies(ctx) {
   const { cwd, config, result } = ctx;
   const pagesDir = `${srcPrefix(config)}pages`;
   const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
-  const pages = import_fast_glob5.default.sync("**/*.astro", { cwd: path7.join(cwd, pagesDir) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)) && !isGenerated(readText(cwd, `${pagesDir}/${p}`, ctx.changed) ?? ""));
+  const pages = import_fast_glob5.default.sync("**/*.astro", { cwd: path8.join(cwd, pagesDir) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)) && !isGenerated(readText(cwd, `${pagesDir}/${p}`, ctx.changed) ?? ""));
   const routed = [];
   for (const page of pages) {
     if (/\[(\.\.\.)?(lang|locale|language)\]/.test(page)) {
@@ -214786,7 +214837,7 @@ import Page from '${spec2}';
 }
 function planAstroSetup(ctx) {
   const { cwd, config, result } = ctx;
-  const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
+  const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
   const file2 = astroModulePath(cwd, config);
   const existing = readText(cwd, file2, ctx.changed);
   if (existing !== void 0 && !isGenerated(existing)) {
@@ -214845,13 +214896,13 @@ function planAstroSetup(ctx) {
   );
   result.i18nFile = file2;
   if (ts) enableJsonImports(cwd, ctx.changed, ctx.out);
-  const rich = `${path7.posix.dirname(file2)}/I18nT.astro`;
+  const rich = `${path8.posix.dirname(file2)}/I18nT.astro`;
   const richCode = readText(cwd, rich, ctx.changed);
   if (ctx.files.some((f2) => f2.content.includes("<I18nT ")) && (richCode === void 0 || isGenerated(richCode))) ctx.out(rich, astroRichSource(ts));
   const pagesDir = astroPageCopies(ctx);
   const modulePath = file2.replace(/\/index\.[jt]s$/, "");
   const islandsFile = planAstroIslands(ctx, modulePath, ts);
-  for (const f2 of import_fast_glob5.default.sync("**/*.astro", { cwd: path7.join(cwd, config.srcDir) }).map((p) => `${srcPrefix(config)}${p}`)) {
+  for (const f2 of import_fast_glob5.default.sync("**/*.astro", { cwd: path8.join(cwd, config.srcDir) }).map((p) => `${srcPrefix(config)}${p}`)) {
     let next2 = readText(cwd, f2, ctx.changed) ?? "";
     if (!/<html\b/.test(next2)) continue;
     next2 = next2.replace(/<html\b([^>]*?)\s(?:lang|dir)=["'][^"']*["']([^>]*)>/, (_m, a, b4) => {
@@ -215092,7 +215143,7 @@ function qwikRouteCopies(ctx) {
   const { cwd, config } = ctx;
   const routes = `${srcPrefix(config)}routes`;
   const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
-  const pages = import_fast_glob5.default.sync("**/index.{tsx,jsx,ts,js}", { cwd: path7.join(cwd, routes) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)) && !isGenerated(readText(cwd, `${routes}/${p}`, ctx.changed) ?? ""));
+  const pages = import_fast_glob5.default.sync("**/index.{tsx,jsx,ts,js}", { cwd: path8.join(cwd, routes) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)) && !isGenerated(readText(cwd, `${routes}/${p}`, ctx.changed) ?? ""));
   for (const page of pages) {
     for (const lang of targets) {
       const copy = `${routes}/${lang}/${page}`;
@@ -215107,7 +215158,7 @@ export * from '${spec2}';
 }
 function planQwikSetup(ctx) {
   const { cwd, config, result } = ctx;
-  const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
+  const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
   const T = (s) => ts ? s : "";
   const file2 = solidModulePath(cwd, config);
   const existing = readText(cwd, file2, ctx.changed);
@@ -215153,7 +215204,7 @@ function planQwikSetup(ctx) {
 }
 function planLitSetup(ctx) {
   const { cwd, config, result } = ctx;
-  const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
+  const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
   const T = (s) => ts ? s : "";
   const file2 = solidModulePath(cwd, config);
   const existing = readText(cwd, file2, ctx.changed);
@@ -215288,7 +215339,7 @@ function planEmberSetup(ctx) {
     const f2 = toPosix(localePath(config.localesPath, l2));
     if (readText(cwd, f2, ctx.changed) === void 0) ctx.out(f2, "{}\n");
   }
-  const ts = fs8.existsSync(path7.join(cwd, "tsconfig.json"));
+  const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
   const route = firstExisting(ctx, ["app/routes/application.ts", "app/routes/application.js", "app/routes/application.gts", "app/routes/application.gjs"]);
   const code2 = route ? readText(cwd, route, ctx.changed) : void 0;
   const supported = JSON.stringify(locales(config)).replace(/"/g, "'").replace(/,/g, ", ");
@@ -215333,7 +215384,7 @@ function planEmberSetup(ctx) {
   return result;
 }
 function androidNamespace(cwd) {
-  const read2 = (f2) => fs8.existsSync(path7.join(cwd, f2)) ? fs8.readFileSync(path7.join(cwd, f2), "utf8") : "";
+  const read2 = (f2) => fs9.existsSync(path8.join(cwd, f2)) ? fs9.readFileSync(path8.join(cwd, f2), "utf8") : "";
   const gradle = ["app/build.gradle.kts", "app/build.gradle", "build.gradle.kts", "build.gradle"].map(read2).join("\n");
   return /\bnamespace\s*=?\s*["']([\w.]+)["']/.exec(gradle)?.[1] ?? /\bpackage="([\w.]+)"/.exec(read2("app/src/main/AndroidManifest.xml"))?.[1];
 }
@@ -215500,9 +215551,9 @@ var init_setup_frameworks = __esm({
     init_astro();
     init_setup();
     init_paths();
-    toPosix = (p) => p.split(path7.sep).join("/");
+    toPosix = (p) => p.split(path8.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.26.5" : "0.6.0";
+    SELF_VERSION = true ? "0.26.6" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -215510,7 +215561,7 @@ var init_setup_frameworks = __esm({
     locales = (config) => [config.sourceLocale, ...config.targetLocales.filter((l2) => l2 !== config.sourceLocale)];
     ident = (locale) => locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
     relFrom = (fromFile, target) => {
-      const rel = path7.posix.relative(path7.posix.dirname(fromFile), target);
+      const rel = path8.posix.relative(path8.posix.dirname(fromFile), target);
       return rel.startsWith(".") ? rel : `./${rel}`;
     };
     RTL = RTL_LANGUAGES;
@@ -215951,8 +216002,8 @@ var init_setup_languages = __esm({
 });
 
 // src/setup-switchers.ts
-import * as fs9 from "node:fs";
-import * as path8 from "node:path";
+import * as fs10 from "node:fs";
+import * as path9 from "node:path";
 function write(ctx, file2, lines) {
   if (readText(ctx.cwd, file2, ctx.changed) !== void 0) return false;
   ctx.out(file2, lines.join("\n"));
@@ -215960,7 +216011,7 @@ function write(ctx, file2, lines) {
 }
 function planFrameworkSwitcher(ctx) {
   const framework = ctx.config.framework;
-  const ts = fs9.existsSync(path8.join(ctx.cwd, "tsconfig.json"));
+  const ts = fs10.existsSync(path9.join(ctx.cwd, "tsconfig.json"));
   const planned = framework === "vue" ? hasDep(ctx, "nuxt") ? nuxt(ctx, ts) : vue(ctx, ts) : framework === "svelte" ? svelte(ctx, ts) : framework === "solid" ? solid(ctx, ts) : framework === "angular" ? angular(ctx) : framework === "astro" ? astro(ctx, ts) : framework === "qwik" ? qwik(ctx, ts) : framework === "lit" ? lit(ctx, ts) : framework === "ember" ? ember(ctx, ts) : null;
   if (!planned) return;
   ctx.result.switcherFile = planned.file;
@@ -216021,7 +216072,7 @@ function nuxt(ctx, tsconfig) {
   const config = ["ts", "js"].map((e2) => `i18n/i18n.config.${e2}`).find((f2) => ours(ctx, f2));
   if (!config) return null;
   const ts = tsconfig || config.endsWith(".ts");
-  const root = fs9.existsSync(path8.join(ctx.cwd, "app", "app.vue")) || fs9.existsSync(path8.join(ctx.cwd, "app", "pages")) ? "app/" : "";
+  const root = fs10.existsSync(path9.join(ctx.cwd, "app", "app.vue")) || fs10.existsSync(path9.join(ctx.cwd, "app", "pages")) ? "app/" : "";
   const ext = ts ? "ts" : "js";
   const T = (s) => ts ? s : "";
   const composable = `${root}composables/useLanguage.${ext}`;
@@ -216079,7 +216130,7 @@ function svelte(ctx, ts) {
   const ext = ts ? "ts" : "js";
   const i18n2 = kit ? `src/lib/i18n.${ext}` : `${srcPrefix(ctx.config)}i18n.${ext}`;
   if (!ours(ctx, i18n2)) return null;
-  const dir = path8.posix.dirname(i18n2);
+  const dir = path9.posix.dirname(i18n2);
   const store = `${dir}/language.${ext}`;
   const component = `${dir}/LanguageSwitcher.svelte`;
   const T = (s) => ts ? s : "";
@@ -216132,7 +216183,7 @@ function svelte(ctx, ts) {
 function solid(ctx, ts) {
   const i18n2 = solidModulePath(ctx.cwd, ctx.config);
   if (!ours(ctx, i18n2)) return null;
-  const file2 = `${path8.posix.dirname(i18n2)}/language-switcher.${ts ? "tsx" : "jsx"}`;
+  const file2 = `${path9.posix.dirname(i18n2)}/language-switcher.${ts ? "tsx" : "jsx"}`;
   const T = (s) => ts ? s : "";
   const written = write(ctx, file2, [
     ...header("<LanguageSwitcher /> and useLanguage() for this app."),
@@ -216187,7 +216238,7 @@ function solid(ctx, ts) {
   return written ? { file: file2, note: `Language menu: \`<LanguageSwitcher />\` and \`useLanguage()\` from \`${file2}\`.` } : null;
 }
 function angular(ctx) {
-  const appDir = fs9.existsSync(path8.join(ctx.cwd, ctx.config.srcDir, "app")) ? `${srcPrefix(ctx.config)}app` : ctx.config.srcDir;
+  const appDir = fs10.existsSync(path9.join(ctx.cwd, ctx.config.srcDir, "app")) ? `${srcPrefix(ctx.config)}app` : ctx.config.srcDir;
   const i18n2 = `${appDir}/i18n.ts`;
   if (!ours(ctx, i18n2)) return null;
   const major = angularMajor(ctx.cwd, ctx.changed);
@@ -216260,7 +216311,7 @@ function astro(ctx, ts) {
   if (!ours(ctx, i18n2)) return null;
   const dir = `${srcPrefix(ctx.config)}components`;
   const component = `${dir}/LanguageSwitcher.astro`;
-  const helper2 = `${path8.posix.dirname(i18n2)}/language.${ts ? "ts" : "js"}`;
+  const helper2 = `${path9.posix.dirname(i18n2)}/language.${ts ? "ts" : "js"}`;
   const T = (s) => ts ? s : "";
   const a = write(ctx, helper2, [
     ...header("useLanguage(Astro.url): the language of a page and the ones this site offers."),
@@ -216315,7 +216366,7 @@ function qwik(ctx, ts) {
   if (!ours(ctx, i18n2)) return null;
   const city = hasDep(ctx, "@builder.io/qwik-city") || hasDep(ctx, "@qwik.dev/router");
   const qwikModule = hasDep(ctx, "@qwik.dev/core") ? "@qwik.dev/core" : "@builder.io/qwik";
-  const file2 = `${path8.posix.dirname(i18n2)}/language-switcher.${ts ? "tsx" : "jsx"}`;
+  const file2 = `${path9.posix.dirname(i18n2)}/language-switcher.${ts ? "tsx" : "jsx"}`;
   const T = (s) => ts ? s : "";
   const written = write(ctx, file2, [
     ...header("<LanguageSwitcher /> and useLanguage() for this app."),
@@ -216365,7 +216416,7 @@ function qwik(ctx, ts) {
 function lit(ctx, ts) {
   const i18n2 = solidModulePath(ctx.cwd, ctx.config);
   if (!ours(ctx, i18n2)) return null;
-  const file2 = `${path8.posix.dirname(i18n2)}/language-switcher.${ts ? "ts" : "js"}`;
+  const file2 = `${path9.posix.dirname(i18n2)}/language-switcher.${ts ? "ts" : "js"}`;
   const T = (s) => ts ? s : "";
   const written = write(ctx, file2, [
     ...header("<app-language-switcher> and useLanguage() for this app."),
@@ -216500,8 +216551,8 @@ function ember(ctx, ts) {
   return a || b4 || c ? { file: component, note: `Language menu: \`<LanguageSwitcher />\` (\`${component}\`), and the \`language\` service (\`${service}\`) for the current language.` } : null;
 }
 function planNativeSwitcher(ctx) {
-  const ts = fs9.existsSync(path8.join(ctx.cwd, "tsconfig.json"));
-  const file2 = `${path8.posix.dirname(ctx.moduleFile)}/language-switcher.${ts ? "tsx" : "jsx"}`.replace(/^\.\//, "");
+  const ts = fs10.existsSync(path9.join(ctx.cwd, "tsconfig.json"));
+  const file2 = `${path9.posix.dirname(ctx.moduleFile)}/language-switcher.${ts ? "tsx" : "jsx"}`.replace(/^\.\//, "");
   if (readText(ctx.cwd, file2, ctx.changed) !== void 0) return false;
   const T = (s) => ts ? s : "";
   ctx.out(
@@ -216598,7 +216649,7 @@ var init_setup_switchers = __esm({
 });
 
 // src/setup-switchers-native.ts
-import * as path9 from "node:path";
+import * as path10 from "node:path";
 function write2(ctx, file2, content) {
   if (readText(ctx.cwd, file2, ctx.changed) !== void 0) return false;
   ctx.out(file2, content);
@@ -216672,7 +216723,7 @@ function django(ctx) {
   const settingsFiles = import_fast_glob7.default.sync(["**/settings.py", "**/settings/*.py"], { cwd: ctx.cwd, ignore, deep: 5 }).filter((f2) => /TEMPLATES\s*=/.test(read2(f2) ?? ""));
   const settings = settingsFiles.find((f2) => /\/(base|common|defaults)\.py$/.test(f2)) ?? settingsFiles[0];
   if (!settings) return null;
-  const pkg = path9.posix.dirname(settings).replace(/\/settings$/, "");
+  const pkg = path10.posix.dirname(settings).replace(/\/settings$/, "");
   const module = `${pkg}/languages.py`;
   const dotted = `${pkg.replace(/\//g, ".")}.languages.languages`;
   const dirs = import_fast_glob7.default.sync(["**/templates"], { cwd: ctx.cwd, ignore, onlyDirectories: true, deep: 4 }).sort((x, y3) => x.length - y3.length);
@@ -216955,7 +217006,7 @@ ${b22}animation: language,
 ${b22}builder: (context, _) => ${inner},
 ${b4})`;
     let next2 = `${code2.slice(0, app.index)}${app[1]} ${wrapped}${code2.slice(close2 + 1)}`;
-    const spec2 = `import '${path9.posix.relative(path9.posix.dirname(entry), file2)}';`;
+    const spec2 = `import '${path10.posix.relative(path10.posix.dirname(entry), file2)}';`;
     if (!next2.includes(spec2)) {
       const imports2 = [...next2.matchAll(/^import\s+['"][^'"]+['"][^;]*;[ \t]*$/gm)];
       const last = imports2[imports2.length - 1];
@@ -216975,7 +217026,7 @@ ${next2}`;
   };
 }
 function ios(ctx) {
-  const dir = path9.posix.dirname(ctx.config.localesPath);
+  const dir = path10.posix.dirname(ctx.config.localesPath);
   const file2 = `${dir === "." ? "" : `${dir}/`}LanguageSwitcher.swift`;
   const row = (l2) => `        Language(code: ${str(l2.code)}, name: ${str(l2.name)}, nativeName: ${str(l2.nativeName)}, flag: ${str(l2.flag)}, isRTL: ${l2.dir === "rtl"}),`;
   const written = write2(
@@ -217271,26 +217322,26 @@ var init_setup_switchers_native = __esm({
 
 // src/setup.ts
 import { spawnSync as spawnSync2 } from "node:child_process";
-import * as fs10 from "node:fs";
-import * as path10 from "node:path";
+import * as fs11 from "node:fs";
+import * as path11 from "node:path";
 function nextAppRouter(cwd, config) {
   let deps = {};
   try {
-    const pkg = JSON.parse(fs10.readFileSync(path10.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs11.readFileSync(path11.join(cwd, "package.json"), "utf8"));
     deps = { ...pkg.devDependencies, ...pkg.dependencies };
   } catch {
     return null;
   }
   if (!deps.next) return null;
-  const appDir = toPosix2(path10.posix.join(config.srcDir, "app"));
-  return fs10.existsSync(path10.join(cwd, appDir)) ? { appDir } : null;
+  const appDir = toPosix2(path11.posix.join(config.srcDir, "app"));
+  return fs11.existsSync(path11.join(cwd, appDir)) ? { appDir } : null;
 }
 function serverModulePath(cwd, config) {
-  const ts = fs10.existsSync(path10.join(cwd, "tsconfig.json"));
-  return toPosix2(path10.posix.join(config.srcDir, `i18n.server.${ts ? "ts" : "js"}`));
+  const ts = fs11.existsSync(path11.join(cwd, "tsconfig.json"));
+  return toPosix2(path11.posix.join(config.srcDir, `i18n.server.${ts ? "ts" : "js"}`));
 }
 function relativeImport(fromFile, target) {
-  let spec2 = path10.posix.relative(path10.posix.dirname(fromFile), target.replace(/\.[jt]sx?$/, ""));
+  let spec2 = path11.posix.relative(path11.posix.dirname(fromFile), target.replace(/\.[jt]sx?$/, ""));
   if (!spec2.startsWith(".")) spec2 = `./${spec2}`;
   return spec2;
 }
@@ -217347,8 +217398,8 @@ function addToTestSetup(o, i18nFile, lines) {
 }
 function readText(cwd, file2, changed) {
   if (changed.has(file2)) return changed.get(file2);
-  const abs = path10.join(cwd, file2);
-  return fs10.existsSync(abs) ? fs10.readFileSync(abs, "utf8") : void 0;
+  const abs = path11.join(cwd, file2);
+  return fs11.existsSync(abs) ? fs11.readFileSync(abs, "utf8") : void 0;
 }
 function writeJsonLike(original, value) {
   try {
@@ -217504,7 +217555,7 @@ async function planSetup(opts, result, changed, out) {
     return result;
   }
   if (config.framework === "ios") {
-    if (!opts.upgradeOnly && !fs10.existsSync(path10.join(cwd, config.localesPath))) {
+    if (!opts.upgradeOnly && !fs11.existsSync(path11.join(cwd, config.localesPath))) {
       result.notes.push(`Add ${config.localesPath} to your app target in Xcode (drag it into the project navigator), so the app bundles it.`);
     }
     planNativeFrameworkSwitcher(native);
@@ -217585,7 +217636,7 @@ async function planSetup(opts, result, changed, out) {
     }
     return result;
   }
-  const typescript = fs10.existsSync(path10.join(cwd, "tsconfig.json"));
+  const typescript = fs11.existsSync(path11.join(cwd, "tsconfig.json"));
   const i18nFile = `${srcPrefix(config)}i18n.${typescript ? "ts" : "js"}`;
   if (readText(cwd, i18nFile, changed) !== void 0) {
     result.notes.push(`\`${i18nFile}\` already exists, so i18next wasn't initialized; set it up there and import it once at startup.`);
@@ -217601,7 +217652,7 @@ async function planSetup(opts, result, changed, out) {
   for (const locale of locales2) {
     const file2 = toPosix2(localePath(config.localesPath, locale));
     if (readText(cwd, file2, changed) === void 0) out(file2, "{}\n");
-    let rel = path10.posix.relative(path10.posix.dirname(i18nFile), file2);
+    let rel = path11.posix.relative(path11.posix.dirname(i18nFile), file2);
     if (!rel.startsWith(".")) rel = `./${rel}`;
     const id3 = locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
     const name = /^[A-Za-z_$][\w$]*$/.test(locale) ? locale : `'${locale}'`;
@@ -217716,7 +217767,7 @@ async function planSetup(opts, result, changed, out) {
     result.notes.push(`Couldn't find the app's entry file; add \`import './i18n';\` to it so i18next starts before the app renders.`);
     return result;
   }
-  let spec2 = path10.posix.relative(path10.posix.dirname(entry), i18nFile.replace(/\.[jt]s$/, ""));
+  let spec2 = path11.posix.relative(path11.posix.dirname(entry), i18nFile.replace(/\.[jt]s$/, ""));
   if (!spec2.startsWith(".")) spec2 = `./${spec2}`;
   const code2 = readText(cwd, entry, changed);
   const insertAt = afterLastImport(code2);
@@ -217757,7 +217808,7 @@ function localeBundles(cwd, config, fromFile, changed, out) {
   for (const locale of locales2) {
     const file2 = toPosix2(localePath(config.localesPath, locale));
     if (readText(cwd, file2, changed) === void 0) out(file2, "{}\n");
-    let rel = path10.posix.relative(path10.posix.dirname(fromFile), file2);
+    let rel = path11.posix.relative(path11.posix.dirname(fromFile), file2);
     if (!rel.startsWith(".")) rel = `./${rel}`;
     const id3 = locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
     imports2.push(`import ${id3} from '${rel}';`);
@@ -217767,7 +217818,7 @@ function localeBundles(cwd, config, fromFile, changed, out) {
 }
 async function planNextAppRouter(ctx) {
   const { cwd, config, changed, out, result, appDir } = ctx;
-  const typescript = fs10.existsSync(path10.join(cwd, "tsconfig.json"));
+  const typescript = fs11.existsSync(path11.join(cwd, "tsconfig.json"));
   const ext = typescript ? "ts" : "js";
   const dir = config.srcDir === "." ? "" : `${config.srcDir}/`;
   const resourcesFile = `${dir}i18n.resources.${ext}`;
@@ -217955,7 +218006,7 @@ export function getDirection(lng${ts ? ": string" : ""})${ts ? `: ${quote3}ltr${
 function cacheComponents(cwd) {
   for (const name of ["next.config.ts", "next.config.mjs", "next.config.js", "next.config.cjs", "next.config.mts"]) {
     try {
-      if (/\b(?:cacheComponents|dynamicIO)\s*:\s*true\b/.test(fs10.readFileSync(path10.join(cwd, name), "utf8"))) return true;
+      if (/\b(?:cacheComponents|dynamicIO)\s*:\s*true\b/.test(fs11.readFileSync(path11.join(cwd, name), "utf8"))) return true;
     } catch {
     }
   }
@@ -217984,7 +218035,7 @@ function addSwitcher(ctx) {
     addSelfDependency(cwd, changed, out, result);
     return;
   }
-  const types2 = fs10.existsSync(path10.join(cwd, "tsconfig.json"));
+  const types2 = fs11.existsSync(path11.join(cwd, "tsconfig.json"));
   const dir = config.srcDir === "." ? "" : `${config.srcDir}/`;
   const file2 = `${dir}language-switcher.${types2 ? "tsx" : "jsx"}`;
   const current2 = readText(cwd, file2, changed);
@@ -218072,7 +218123,7 @@ function planNextProxy(ctx) {
   const { cwd, config, changed, out, result, dir, typescript, quote: quote3 } = ctx;
   let next2 = "";
   try {
-    const pkg = JSON.parse(fs10.readFileSync(path10.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs11.readFileSync(path11.join(cwd, "package.json"), "utf8"));
     next2 = { ...pkg.dependencies, ...pkg.devDependencies }.next ?? "";
   } catch {
   }
@@ -218258,19 +218309,19 @@ function afterLastImport(code2) {
   }
 }
 function detectPackageManager(cwd) {
-  if (fs10.existsSync(path10.join(cwd, "pnpm-lock.yaml"))) return "pnpm";
-  if (fs10.existsSync(path10.join(cwd, "yarn.lock"))) return "yarn";
-  if (fs10.existsSync(path10.join(cwd, "bun.lock")) || fs10.existsSync(path10.join(cwd, "bun.lockb"))) return "bun";
-  if (fs10.existsSync(path10.join(cwd, "package-lock.json"))) return "npm";
+  if (fs11.existsSync(path11.join(cwd, "pnpm-lock.yaml"))) return "pnpm";
+  if (fs11.existsSync(path11.join(cwd, "yarn.lock"))) return "yarn";
+  if (fs11.existsSync(path11.join(cwd, "bun.lock")) || fs11.existsSync(path11.join(cwd, "bun.lockb"))) return "bun";
+  if (fs11.existsSync(path11.join(cwd, "package-lock.json"))) return "npm";
   return null;
 }
 function updateLockfile(cwd, manifests, log) {
   const pm = detectPackageManager(cwd);
   if (!pm) return null;
   const lockfile = LOCKFILES[pm];
-  const before2 = fs10.existsSync(path10.join(cwd, lockfile)) ? fs10.readFileSync(path10.join(cwd, lockfile), "utf8") : "";
+  const before2 = fs11.existsSync(path11.join(cwd, lockfile)) ? fs11.readFileSync(path11.join(cwd, lockfile), "utf8") : "";
   for (const m2 of typeof manifests === "string" ? [{ path: "package.json", content: manifests }] : manifests) {
-    fs10.writeFileSync(path10.join(cwd, m2.path), m2.content);
+    fs11.writeFileSync(path11.join(cwd, m2.path), m2.content);
   }
   const [cmd, ...args] = LOCK_ONLY[pm];
   log.info(`Updating ${lockfile}: ${cmd} ${args.join(" ")}`);
@@ -218279,7 +218330,7 @@ function updateLockfile(cwd, manifests, log) {
     const detail = (run.error?.message ?? run.stderr ?? "").trim().split("\n").slice(-3).join(" ");
     return { error: `\`${cmd} ${args.join(" ")}\` failed: ${detail}` };
   }
-  const after = fs10.readFileSync(path10.join(cwd, lockfile), "utf8");
+  const after = fs11.readFileSync(path11.join(cwd, lockfile), "utf8");
   return after === before2 ? null : { file: { path: lockfile, content: after } };
 }
 function mergeFiles(files, extra) {
@@ -218310,13 +218361,13 @@ var init_setup = __esm({
       "i18next-icu": "^2.6.0",
       "intl-messageformat": "^12.1.0"
     };
-    toPosix2 = (p) => p.split(path10.sep).join("/");
+    toPosix2 = (p) => p.split(path11.sep).join("/");
     I18NEXT_INIT = /\binitReactI18next\b|\bi18n(?:ext)?\s*\.\s*init\s*\(|\bcreateInstance\s*\(/;
     sameJson = (a, b4) => JSON.stringify(a) === JSON.stringify(b4);
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.26.5" : "0.6.0";
+    SELF_VERSION2 = true ? "0.26.6" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -218329,11 +218380,11 @@ var init_setup = __esm({
 });
 
 // src/component-graph.ts
-import * as fs11 from "node:fs";
-import * as path11 from "node:path";
+import * as fs12 from "node:fs";
+import * as path12 from "node:path";
 function readJsonc(file2) {
   try {
-    const text4 = fs11.readFileSync(file2, "utf8");
+    const text4 = fs12.readFileSync(file2, "utf8");
     const stripped = text4.replace(/("(?:[^"\\]|\\.)*")|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (m2, str2) => str2 ?? "").replace(/,(\s*[}\]])/g, "$1");
     return JSON.parse(stripped);
   } catch {
@@ -218343,24 +218394,24 @@ function readJsonc(file2) {
 function createResolver(cwd) {
   const aliases = [];
   for (const name of ["tsconfig.json", "jsconfig.json"]) {
-    const config = readJsonc(path11.join(cwd, name));
+    const config = readJsonc(path12.join(cwd, name));
     const options = config?.compilerOptions ?? {};
     if (!options.paths) continue;
-    const base = path11.join(cwd, options.baseUrl ?? ".");
+    const base = path12.join(cwd, options.baseUrl ?? ".");
     for (const [pattern, targets] of Object.entries(options.paths)) {
       const star = pattern.indexOf("*");
       aliases.push({
         prefix: star < 0 ? pattern : pattern.slice(0, star),
         suffix: star < 0 ? "" : pattern.slice(star + 1),
         wildcard: star >= 0,
-        targets: targets.map((t10) => path11.join(base, t10))
+        targets: targets.map((t10) => path12.join(base, t10))
       });
     }
     break;
   }
-  const file2 = (candidate) => EXTENSIONS.map((e2) => `${candidate}${e2}`).find((f2) => SOURCE2.test(f2) && fs11.existsSync(f2) && fs11.statSync(f2).isFile()) ?? null;
+  const file2 = (candidate) => EXTENSIONS.map((e2) => `${candidate}${e2}`).find((f2) => SOURCE2.test(f2) && fs12.existsSync(f2) && fs12.statSync(f2).isFile()) ?? null;
   return (fromAbs, specifier) => {
-    if (specifier.startsWith(".")) return file2(path11.join(path11.dirname(fromAbs), specifier));
+    if (specifier.startsWith(".")) return file2(path12.join(path12.dirname(fromAbs), specifier));
     for (const a of aliases) {
       if (a.wildcard ? !(specifier.startsWith(a.prefix) && specifier.endsWith(a.suffix)) : specifier !== a.prefix) continue;
       const rest2 = a.wildcard ? specifier.slice(a.prefix.length, specifier.length - a.suffix.length) : "";
@@ -218391,7 +218442,7 @@ function componentSides(cwd, appDir) {
   const read2 = (abs) => {
     if (!code2.has(abs)) {
       try {
-        code2.set(abs, fs11.readFileSync(abs, "utf8"));
+        code2.set(abs, fs12.readFileSync(abs, "utf8"));
       } catch {
         code2.set(abs, "");
       }
@@ -218400,7 +218451,7 @@ function componentSides(cwd, appDir) {
   };
   const imports2 = (abs) => importSpecifiers(read2(abs)).map((s) => resolve4(abs, s)).filter((f2) => !!f2);
   const isClient = (abs) => USE_CLIENT.test(read2(abs));
-  const app = path11.join(cwd, appDir) + path11.sep;
+  const app = path12.join(cwd, appDir) + path12.sep;
   const server = /* @__PURE__ */ new Set();
   const client2 = /* @__PURE__ */ new Set();
   const walk3 = (start2, into, stopAtClient) => {
@@ -218413,11 +218464,11 @@ function componentSides(cwd, appDir) {
       queue.push(...imports2(abs));
     }
   };
-  const all = files.map((f2) => path11.join(cwd, f2));
+  const all = files.map((f2) => path12.join(cwd, f2));
   walk3(all.filter((f2) => f2.startsWith(app) && !isClient(f2)), server, true);
   walk3(all.filter(isClient), client2, false);
   return (file2) => {
-    const abs = path11.join(cwd, file2);
+    const abs = path12.join(cwd, file2);
     const s = server.has(abs);
     const c = client2.has(abs);
     return s && c ? "shared" : s ? "server" : c ? "client" : "none";
@@ -218436,32 +218487,6 @@ var init_component_graph = __esm({
     SOURCE2 = /\.(tsx|ts|jsx|js|mjs)$/;
     EXTENSIONS = ["", ".tsx", ".ts", ".jsx", ".js", ".mjs", "/index.tsx", "/index.ts", "/index.jsx", "/index.js"];
     USE_CLIENT = /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*(['"])use client\1/;
-  }
-});
-
-// src/merge-locales.ts
-import * as fs12 from "node:fs";
-import * as path12 from "node:path";
-function localeAttributes(config) {
-  if (!/\.(json|arb)$/.test(config.localesPath)) return null;
-  return `${config.localesPath.replace(/\{locale\}/g, "*")} merge=localize-dev`;
-}
-function withLocaleAttributes(cwd, config) {
-  const line = localeAttributes(config);
-  if (!line) return null;
-  const file2 = path12.join(cwd, ".gitattributes");
-  const current2 = fs12.existsSync(file2) ? fs12.readFileSync(file2, "utf8") : "";
-  if (current2.includes("merge=localize-dev")) return null;
-  const head = "# Locale files merge key by key (localize-dev merge-locales), so branches adding keys don't conflict.";
-  return { path: ".gitattributes", content: `${current2}${current2 && !current2.endsWith("\n") ? "\n" : ""}${current2 ? "\n" : ""}${head}
-${line}
-` };
-}
-var MERGE_DRIVER_SETUP;
-var init_merge_locales = __esm({
-  "src/merge-locales.ts"() {
-    "use strict";
-    MERGE_DRIVER_SETUP = 'git config merge.localize-dev.driver "npx localize-dev merge-locales %O %A %B %P"';
   }
 });
 
@@ -219993,10 +220018,10 @@ async function runPipeline(opts) {
       if (!variant && store.textKeys && !registry.keyForText(mid) && keyFor(s, mid)) registry.alias(mid, keyFor(s, mid));
       if (!variant && senseOf(s) && !registry.keyForText(mid)) {
         const fresh = Object.fromEntries([...targets].map(([l2]) => [l2, mapping?.translations[l2] && toDictFormat(mapping.translations[l2], config.interpolation)]));
-        const same2 = keysByText.get(s.originalText)?.find(
+        const same3 = keysByText.get(s.originalText)?.find(
           (k) => translationsAgree(Object.fromEntries([...targets].map(([l2, t10]) => [l2, getNested(t10.dict, k)])), fresh)
         );
-        if (same2) registry.alias(mid, same2);
+        if (same3) registry.alias(mid, same3);
       }
       const base = variant && selectBase.has(variant.group) ? `${selectBase.get(variant.group)}_${variant.value}` : s.fixedKey ?? (store.textKeys ? textKeyOf(s) : mapping?.key ?? fallbackKey(file2, s.originalText));
       const proposed = s.keySuffix && !base.endsWith(s.keySuffix) ? `${base}${s.keySuffix}` : base;
@@ -221021,6 +221046,7 @@ function startWatchdog(minutes) {
 }
 
 // src/github/pr_bot.ts
+init_merge_locales();
 init_paths();
 async function createLocalizationPullRequest(params) {
   const github = client(params.githubToken, params.baseUrl);
@@ -221028,29 +221054,33 @@ async function createLocalizationPullRequest(params) {
   const baseRef = await github("GET", `${repo}/git/ref/${refPath(`heads/${params.baseBranch}`)}`);
   const baseSha = baseRef.object.sha;
   const baseCommit = await github("GET", `${repo}/git/commits/${baseSha}`);
+  const branchSha = await github("GET", `${repo}/git/ref/${refPath(`heads/${params.newBranch}`)}`).then(
+    (ref2) => ref2.object.sha,
+    (err) => {
+      if (err.status !== 404) throw err;
+      return null;
+    }
+  );
+  const files = new Map(params.changedFiles.map((f2) => [repoPath(f2.path), f2.content]));
+  const edits = branchSha ? await keepEdits(github, repo, baseSha, branchSha, files) : { kept: [], replaced: [] };
   const tree = await github("POST", `${repo}/git/trees`, {
     base_tree: baseCommit.tree.sha,
-    // GitHub rejects `./x`, `/x` and `..` in a tree path ("malformed path component").
-    tree: params.changedFiles.map((f2) => ({ path: repoPath(f2.path), mode: "100644", type: "blob", content: f2.content }))
+    tree: [...files].map(([path20, content]) => ({ path: path20, mode: "100644", type: "blob", content }))
   });
   const commit = await github("POST", `${repo}/git/commits`, {
     message: params.commitMessage ?? `i18n(localize.dev): extract UI strings into translation keys`,
     tree: tree.sha,
     parents: [baseSha]
   });
-  try {
-    await github("GET", `${repo}/git/ref/${refPath(`heads/${params.newBranch}`)}`);
-    await github("PATCH", `${repo}/git/refs/${refPath(`heads/${params.newBranch}`)}`, { sha: commit.sha, force: true });
-  } catch (err) {
-    if (err.status !== 404) throw err;
-    await github("POST", `${repo}/git/refs`, { ref: `refs/heads/${params.newBranch}`, sha: commit.sha });
-  }
+  if (branchSha) await github("PATCH", `${repo}/git/refs/${refPath(`heads/${params.newBranch}`)}`, { sha: commit.sha, force: true });
+  else await github("POST", `${repo}/git/refs`, { ref: `refs/heads/${params.newBranch}`, sha: commit.sha });
+  const result = (r) => edits.kept.length || edits.replaced.length ? { ...r, keptEdits: edits.kept, replacedEdits: edits.replaced } : r;
   const query = new URLSearchParams({ head: `${params.owner}:${params.newBranch}`, base: params.baseBranch, state: "open" });
   const open3 = await github("GET", `${repo}/pulls?${query}`);
   if (open3.length) {
     const pr = open3[0];
     await github("PATCH", `${repo}/pulls/${pr.number}`, { title: params.prTitle, body: params.prBody });
-    return { url: pr.html_url, number: pr.number, created: false };
+    return result({ url: pr.html_url, number: pr.number, created: false });
   }
   const pullRequest = await github("POST", `${repo}/pulls`, {
     title: params.prTitle,
@@ -221058,7 +221088,41 @@ async function createLocalizationPullRequest(params) {
     head: params.newBranch,
     base: params.baseBranch
   });
-  return { url: pullRequest.html_url, number: pullRequest.number, created: true };
+  return result({ url: pullRequest.html_url, number: pullRequest.number, created: true });
+}
+async function keepEdits(github, repo, baseSha, branchSha, files) {
+  const kept = [];
+  const replaced = [];
+  const onBranch = await github("GET", `${repo}/compare/${baseSha}...${branchSha}`);
+  const proposal = onBranch.commits[0]?.sha;
+  if (!proposal || proposal === branchSha) return { kept, replaced };
+  const read2 = (path20, ref2) => github("GET", `${repo}/contents/${refPath(path20)}?ref=${ref2}`).then(
+    (file2) => file2.content === void 0 ? null : Buffer.from(file2.content, "base64").toString("utf8"),
+    (err) => {
+      if (err.status !== 404) throw err;
+      return null;
+    }
+  );
+  const changed = await github("GET", `${repo}/compare/${proposal}...${branchSha}`);
+  for (const { filename: path20 } of changed.files ?? []) {
+    const [before2, theirs, ours2] = await Promise.all([read2(path20, proposal), read2(path20, branchSha), files.has(path20) ? files.get(path20) : read2(path20, baseSha)]);
+    if (theirs === null || theirs === ours2) continue;
+    if (ours2 === before2) {
+      files.set(path20, theirs);
+      kept.push(path20);
+      continue;
+    }
+    if (/\.(json|arb)$/i.test(path20) && before2 !== null && ours2 !== null) {
+      try {
+        files.set(path20, mergeLocaleJson(before2, ours2, theirs, "theirs").text);
+        kept.push(path20);
+        continue;
+      } catch {
+      }
+    }
+    replaced.push(path20);
+  }
+  return { kept, replaced };
 }
 async function upsertPullRequestComment(p) {
   const github = client(p.githubToken, p.baseUrl);
@@ -222069,8 +222133,8 @@ var CrowdinClient = class {
     }
     const lower = locale.toLowerCase();
     const exact = this.languages.find((l2) => l2.toLowerCase() === lower);
-    const same2 = this.languages.find((l2) => l2.toLowerCase().split("-")[0] === lower.split("-")[0]);
-    const id3 = exact ?? same2;
+    const same3 = this.languages.find((l2) => l2.toLowerCase().split("-")[0] === lower.split("-")[0]);
+    const id3 = exact ?? same3;
     if (!id3) throw new Error(`Crowdin project ${this.opts.projectId} has no ${locale} target language; add it in the project settings.`);
     return id3;
   }
@@ -222529,6 +222593,11 @@ async function openPullRequest(client2, githubToken, p) {
     throw err;
   }
 }
+function logEdits(pr) {
+  if (pr.keptEdits?.length) info(`Kept the changes made in the pull request to ${pr.keptEdits.join(", ")}.`);
+  if (pr.replacedEdits?.length)
+    warning(`The new proposal also changed ${pr.replacedEdits.join(", ")}, so the changes made to them in the pull request were replaced. Make them again if they still apply.`);
+}
 async function commentTranslations(githubToken, p) {
   if (!p.rows?.length || p.project) return;
   try {
@@ -222783,6 +222852,7 @@ async function main() {
   setOutput("pr_url", pr.url);
   await tmsPush(cwd, baseBranch);
   info(`${pr.created ? "Opened" : "Updated"} pull request ${pr.url}`);
+  logEdits(pr);
   const filed = await report({
     status: pr.created ? "opened" : "updated",
     prUrl: pr.url,
@@ -222860,6 +222930,7 @@ async function translateMode(o) {
   setOutput("pr_url", pr.url);
   await tmsPush(o.cwd, o.baseBranch);
   info(`${pr.created ? "Opened" : "Updated"} pull request ${pr.url}`);
+  logEdits(pr);
   const filed = await report({
     status: pr.created ? "opened" : "updated",
     prUrl: pr.url,
