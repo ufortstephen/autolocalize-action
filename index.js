@@ -213700,6 +213700,10 @@ function importInEntry(ctx, entry, spec2, edit) {
   }
   ctx.out(entry, edit ? edit(code2) : code2);
 }
+function kitLib(ctx) {
+  const pkg = JSON.parse(readText(ctx.cwd, "package.json", ctx.changed) ?? "{}");
+  return pkg.imports?.["#lib/*"] ? "#lib" : "$lib";
+}
 function kitReroutes(ctx) {
   let version2;
   try {
@@ -213984,6 +213988,24 @@ function planSvelteSetup(ctx) {
         "  goto(`${path}${location.search}`, { replaceState: true, noScroll: true, keepFocus: true, invalidateAll: true });"
       ] : [],
       "}",
+      ...prefixed ? [
+        "",
+        "// On an address that carries the language, links to the app's own pages keep it (/es/about \u2192 /es/):",
+        "// the link's address is changed as it's followed, before SvelteKit's router reads it, then put back.",
+        "if (typeof document !== 'undefined') {",
+        `  const keepLanguage = (event${ts ? ": MouseEvent" : ""}) => {`,
+        `    const link = (event.target${ts ? " as Element | null" : ""})?.closest?.('a[href^="/"]:not([href^="//"])');`,
+        "    const [, current] = location.pathname.split('/');",
+        `    if (!link || current === '${config.sourceLocale}' || !supported.includes(current)) return;`,
+        `    const href = link.getAttribute('href')${ts ? "!" : ""};`,
+        "    if (supported.includes(href.split(/[/?#]/)[1])) return;",
+        "    link.setAttribute('href', `/${current}${href === '/' ? '' : href}`);",
+        "    setTimeout(() => link.setAttribute('href', href));",
+        "  };",
+        "  document.addEventListener('click', keepLanguage, true);",
+        "  document.addEventListener('auxclick', keepLanguage, true);",
+        "}"
+      ] : [],
       ...kit ? [
         "",
         "/**",
@@ -214002,8 +214024,9 @@ function planSvelteSetup(ctx) {
   if (ts) enableJsonImports(cwd, ctx.changed, ctx.out);
   if (kit) {
     const layout = firstExisting(ctx, ["src/routes/+layout.ts", "src/routes/+layout.js"]) ?? `src/routes/+layout.${ext}`;
-    if (readText(cwd, layout, ctx.changed) === void 0) ctx.out(layout, "import '$lib/i18n';\n");
-    else importInEntry(ctx, layout, "import '$lib/i18n';");
+    if (readText(cwd, layout, ctx.changed) === void 0) ctx.out(layout, `import '${kitLib(ctx)}/i18n';
+`);
+    else importInEntry(ctx, layout, `import '${kitLib(ctx)}/i18n';`, (code2) => kitLib(ctx) === "#lib" ? code2.replace("import '$lib/i18n';\n", "") : code2);
     planSvelteKitHooks(ctx, hooks, ts, supported, prefixed);
     planSvelteKitRendering(ctx, ext, ts);
     if (prefixed) planSvelteKitAddresses(ctx, ts);
@@ -214098,7 +214121,7 @@ ${set3}
   }
   if (/locale\.set\(\s*(?:data\.lang|requestLang\(\))\s*\)/.test(code2)) return;
   const script = /<script\b[^>]*>/.exec(code2);
-  const props = /let\s*\{([^}]*)\}\s*=\s*\$props\(\)\s*;?/.exec(code2);
+  const props = /let\s*\{([^}]*)\}\s*(?::\s*[\w.$<>\[\]| ]+?\s*)?=\s*\$props\(\)\s*;?/.exec(code2);
   const exported = /export\s+let\s+data\b[^;\n]*;?/.exec(code2);
   let next2 = null;
   if (runes2 && props) {
@@ -214146,7 +214169,7 @@ function planSvelteKitHooks(ctx, file2, ts, supported, prefixed = false) {
       ] : [`// ${GENERATED}. Renders each page in the visitor's language: their saved choice`, `// (the "lang" cookie), then the browser's Accept-Language, then ${source2}.`],
       ...prefixed ? ["// Pages get hreflang links to their address in each language, a canonical address and og:locale."] : [],
       ...ts ? ["import type { Handle } from '@sveltejs/kit';"] : [],
-      "import '$lib/i18n';",
+      `import '${kitLib(ctx)}/i18n';`,
       "",
       `const supported = ${supported};`,
       rtlLine,
@@ -214196,6 +214219,26 @@ function planSvelteKitHooks(ctx, file2, ts, supported, prefixed = false) {
     ].join("\n")
   );
 }
+function prerenderAtSite(ctx, site) {
+  const v3 = firstExisting(ctx, ["vite.config.ts", "vite.config.js", "vite.config.mts", "vite.config.mjs"]);
+  const v3code = v3 ? readText(ctx.cwd, v3, ctx.changed) ?? "" : "";
+  const v2 = firstExisting(ctx, ["svelte.config.js", "svelte.config.ts", "svelte.config.mjs"]);
+  const v2code = v2 ? readText(ctx.cwd, v2, ctx.changed) ?? "" : "";
+  if (v3code.includes(site) || v2code.includes(site)) return;
+  if (/\bsveltekit\(\s*\{/.test(v3code) && !/\bpaths\s*:/.test(v3code)) {
+    ctx.out(v3, v3code.replace(/\bsveltekit\(\s*\{/, (m2) => `${m2}
+			// Prerendered at the site's address: localize.dev's language pages and links are found from it.
+			paths: { origin: '${site}' },`));
+  } else if (/\bsveltekit\(\s*\)/.test(v3code) && !v2code) {
+    ctx.out(v3, v3code.replace(/\bsveltekit\(\s*\)/, `sveltekit({ paths: { origin: '${site}' } })`));
+  } else if (/\bkit\s*:\s*\{/.test(v2code) && !/\bprerender\s*:/.test(v2code)) {
+    ctx.out(v2, v2code.replace(/\bkit\s*:\s*\{/, (m2) => `${m2}
+		// Prerendered at the site's address: localize.dev's language pages and links are found from it.
+		prerender: { origin: '${site}' },`));
+  } else {
+    ctx.result.notes.push(`SvelteKit (static): set the prerender origin to ${site} (\`paths.origin\` in SvelteKit 3, \`kit.prerender.origin\` in 2), so every language's pages are written.`);
+  }
+}
 function planSvelteKitAddresses(ctx, ts) {
   const { cwd, config, result } = ctx;
   const ext = ts ? "ts" : "js";
@@ -214206,24 +214249,26 @@ function planSvelteKitAddresses(ctx, ts) {
   if (current2 !== void 0 && !isGenerated(current2)) {
     if (!/\breroute\b/.test(current2)) result.notes.push(`SvelteKit: \`${hooks}\` already exists; export a \`reroute\` there that takes the language off the address (/es/about \u2192 /about), so each language has its own address.`);
   } else {
-    ctx.out(
-      hooks,
-      [
-        `// ${GENERATED}: /es/about is the about page in Spanish. The language is taken off the`,
-        "// address before routing, so routes need no [lang] folder; hooks.server renders in it.",
-        ...ts ? ["import type { Reroute } from '@sveltejs/kit';", ""] : [],
-        `const prefixes = ${prefixes};`,
-        "",
-        ...ts ? [] : ["/** @type {import('@sveltejs/kit').Reroute} */"],
-        `export const reroute${S(": Reroute")} = ({ url }) => {`,
-        "  const [, first] = url.pathname.split('/');",
-        "  if (prefixes.includes(first)) return url.pathname.slice(first.length + 1) || '/';",
-        "};",
-        ""
-      ].join("\n")
-    );
+    const next2 = [
+      `// ${GENERATED}: /es/about is the about page in Spanish. The language is taken off the`,
+      "// address before routing, so routes need no [lang] folder; hooks.server renders in it.",
+      ...ts ? ["import type { Reroute } from '@sveltejs/kit';", ""] : [],
+      `const prefixes = ${prefixes};`,
+      "",
+      ...ts ? [] : ["/** @type {import('@sveltejs/kit').Reroute} */"],
+      `export const reroute${S(": Reroute")} = ({ url }) => {`,
+      "  const [, first] = url.pathname.split('/');",
+      "  if (prefixes.includes(first)) return url.pathname.slice(first.length + 1) || '/';",
+      "};",
+      ""
+    ].join("\n");
+    if (next2 !== current2) ctx.out(hooks, next2);
   }
   const has = (f2) => readText(cwd, f2, ctx.changed) !== void 0 || fs9.existsSync(path8.join(cwd, f2));
+  const prerendered = hasDep(ctx, "@sveltejs/adapter-static");
+  const prerender = prerendered ? ["", "export const prerender = true;"] : [];
+  if (prerendered && config.siteUrl) prerenderAtSite(ctx, config.siteUrl.replace(/\/+$/, ""));
+  if (prerendered && !config.siteUrl) result.notes.push('SvelteKit (static): set "siteUrl" in localize.config.json (https://your-site.com). A static build has no address of its own, and the sitemap and hreflang links need full ones.');
   const sitemap = `src/routes/sitemap.xml/+server.${ext}`;
   const sitemapCode = readText(cwd, sitemap, ctx.changed);
   const sitemapTaken = sitemapCode !== void 0 && !isGenerated(sitemapCode) || import_fast_glob5.default.sync("src/routes/**/sitemap*/+server.*", { cwd }).some((f2) => f2 !== sitemap) || import_fast_glob5.default.sync("static/sitemap*.xml", { cwd }).length > 0;
@@ -214237,6 +214282,7 @@ function planSvelteKitAddresses(ctx, ts) {
       `const languages = ${JSON.stringify(locales(config)).replace(/"/g, "'").replace(/,/g, ", ")};`,
       `const SITE${S(": string | null")} = ${config.siteUrl ? `'${config.siteUrl.replace(/\/+$/, "")}'` : "null"};`,
       `const PRIVATE = ${PRIVATE_SEGMENTS.toString()};`,
+      ...prerender.slice(1),
       "const paths = [",
       "  ...new Set(",
       "    Object.keys(import.meta.glob('/src/routes/**/+page.svelte')).flatMap((file) => {",
@@ -214275,7 +214321,10 @@ function planSvelteKitAddresses(ctx, ts) {
       [
         "// Written by localize.dev, and yours to edit: every crawler welcome, and where the sitemap is.",
         ...ts ? ["import type { RequestHandler } from './$types';", ""] : [],
-        `export const GET${S(": RequestHandler")} = ({ url }) => new Response(\`User-agent: *\\nAllow: /\\nSitemap: \${url.origin}/sitemap.xml\\n\`);`,
+        `const SITE${S(": string | null")} = ${config.siteUrl ? `'${config.siteUrl.replace(/\/+$/, "")}'` : "null"};`,
+        ...prerender,
+        "",
+        `export const GET${S(": RequestHandler")} = ({ url }) => new Response(\`User-agent: *\\nAllow: /\\nSitemap: \${SITE ?? url.origin}/sitemap.xml\\n\`);`,
         ""
       ].join("\n")
     );
@@ -215376,7 +215425,7 @@ function qwikRouteCopies(ctx) {
   const { cwd, config } = ctx;
   const routes = `${srcPrefix(config)}routes`;
   const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
-  const pages = import_fast_glob5.default.sync("**/index.{tsx,jsx,ts,js}", { cwd: path8.join(cwd, routes) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)) && !isGenerated(readText(cwd, `${routes}/${p}`, ctx.changed) ?? ""));
+  const pages = import_fast_glob5.default.sync("**/index.{tsx,jsx,ts,js}", { cwd: path8.join(cwd, routes) }).filter((p) => !targets.some((l2) => p.startsWith(`${l2}/`)) && !isGenerated(readText(cwd, `${routes}/${p}`, ctx.changed) ?? "")).filter((p) => !/(^|\/)[^/]+\.(txt|xml|json|webmanifest)\//.test(p));
   for (const page of pages) {
     for (const lang of targets) {
       const copy = `${routes}/${lang}/${page}`;
@@ -215787,7 +215836,7 @@ var init_setup_frameworks = __esm({
     init_seo();
     toPosix = (p) => p.split(path8.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.30.0" : "0.6.0";
+    SELF_VERSION = true ? "0.31.0" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -216453,7 +216502,10 @@ ${indent2}${tag2}${code2.slice(cut)}`;
   const sitemap = `${pagesDir}/sitemap.xml.${ext}`;
   const sitemapCode = readText(cwd, sitemap, changed);
   const sitemapTaken = sitemapCode !== void 0 && !isGenerated(sitemapCode) || hasDep(ctx, "@astrojs/sitemap") || import_fast_glob7.default.sync(["sitemap*", "sitemap*.*"], { cwd: path9.join(cwd, pagesDir) }).some((f2) => f2 !== `sitemap.xml.${ext}`) || import_fast_glob7.default.sync("sitemap*.xml", { cwd: path9.join(cwd, "public") }).length > 0;
+  const astroConfig = ["mjs", "ts", "js", "mts", "cjs"].map((e2) => readText(cwd, `astro.config.${e2}`, changed) ?? "").join("\n");
   if (!sitemapTaken) {
+    const trailing = /trailingSlash\s*:\s*['"](\w+)/.exec(astroConfig)?.[1];
+    const slash = trailing === "always" || trailing !== "never" && !/format\s*:\s*['"]file/.test(astroConfig) && !/output\s*:\s*['"]server/.test(astroConfig);
     const next2 = [
       `// ${GENERATED}: every page in every language, with hreflang links between them.`,
       "// Built from the pages folder, so new pages are listed without a run. Pages under a [param], a",
@@ -216478,7 +216530,7 @@ ${indent2}${tag2}${code2.slice(cut)}`;
       `export const GET${T(": APIRoute")} = ({ site }) => {`,
       "  const base = site?.href ?? SITE;",
       "  if (!base) return new Response('Set site in astro.config, or siteUrl in localize.config.json: a sitemap needs full addresses.', { status: 404 });",
-      `  const at = (page${T(": string")}, lang${T(": string")}) => new URL(localizePath(page, lang), base).href;`,
+      `  const at = (page${T(": string")}, lang${T(": string")}) => new URL(localizePath(page, lang)${slash ? ".replace(/\\/?$/, '/')" : ""}, base).href;`,
       "  const urls = paths.flatMap((page) =>",
       "    languages.map((lang) =>",
       "      [",
@@ -216496,7 +216548,6 @@ ${indent2}${tag2}${code2.slice(cut)}`;
       ""
     ].join("\n");
     if (sitemapCode !== next2) out(sitemap, next2);
-    const astroConfig = ["mjs", "ts", "js", "mts", "cjs"].map((e2) => readText(cwd, `astro.config.${e2}`, changed) ?? "").join("\n");
     if (!config.siteUrl && !/\bsite\s*:/.test(astroConfig)) result.notes.push(`Set \`site\` in astro.config (or "siteUrl" in localize.config.json): \`${sitemap}\` and the hreflang links need full addresses.`);
   }
   const robotsTaken = has("public/robots.txt") || import_fast_glob7.default.sync("robots.txt*", { cwd: path9.join(cwd, pagesDir) }).length > 0;
@@ -216514,6 +216565,141 @@ ${indent2}${tag2}${code2.slice(cut)}`;
         "  const base = site?.href ?? SITE;",
         "  const sitemap = base ? `Sitemap: ${new URL('/sitemap.xml', base).href}\\n` : '';",
         "  return new Response(`User-agent: *\\nAllow: /\\n${sitemap}`);",
+        "};",
+        ""
+      ].join("\n")
+    );
+  }
+}
+function addQwikSearch(ctx, moduleFile) {
+  const { cwd, config, changed, out } = ctx;
+  const ts = /\.tsx?$/.test(moduleFile);
+  const T = (s) => ts ? s : "";
+  const v2 = hasDep(ctx, "@qwik.dev/router");
+  const city = v2 ? "@qwik.dev/router" : "@builder.io/qwik-city";
+  const core2 = v2 ? "@qwik.dev/core" : "@builder.io/qwik";
+  const languages = locales(config);
+  const site = config.siteUrl ? `'${config.siteUrl.replace(/\/+$/, "")}'` : "null";
+  const viteConfig = ["ts", "js", "mts", "mjs"].map((e2) => readText(cwd, `vite.config.${e2}`, changed) ?? "").join("\n");
+  const slash = !/trailingSlash\s*:\s*false/.test(viteConfig);
+  const head = `${path9.posix.dirname(moduleFile)}/language-head.${ts ? "tsx" : "jsx"}`;
+  const headCode = readText(cwd, head, changed);
+  if (headCode === void 0 || isGenerated(headCode)) {
+    const next2 = [
+      `// ${GENERATED}: in <head>, this page in every language (hreflang), its canonical`,
+      "// address and og:locale, so search engines show each language its own page.",
+      `import { component$ } from '${core2}';`,
+      `import { useLocation } from '${city}';`,
+      `import { defaultLang, langOf, languages } from '${relFrom(head, moduleFile).replace(/\.[jt]sx?$/, "")}';`,
+      "",
+      `const OG_LOCALES${T(": Record<string, string>")} = { ${languages.map((l2) => `'${l2}': '${ogLocale(l2)}'`).join(", ")} };`,
+      "// Full addresses for search engines: siteUrl, else the address the request came to.",
+      `const SITE${T(": string | null")} = ${site};`,
+      "",
+      ...ts ? ["/** canonical: false when the app sets its own canonical link. */", "export const LanguageHead = component$((props: { canonical?: boolean }) => {"] : ["export const LanguageHead = component$((props) => {"],
+      "  const url = useLocation().url;",
+      "  const lang = langOf(url.pathname);",
+      "  const rest = (lang === defaultLang ? url.pathname : url.pathname.slice(lang.length + 1)).replace(/^\\/|\\/$/g, '');",
+      "  const slash = url.pathname.endsWith('/');",
+      `  const at = (l${T(": string")}) => {`,
+      "    const path = [l === defaultLang ? '' : l, rest].filter(Boolean).join('/');",
+      "    return `${SITE ?? url.origin}/${path}${path && slash ? '/' : ''}`;",
+      "  };",
+      "  return (",
+      "    <>",
+      '      {props.canonical !== false && <link rel="canonical" href={at(lang)} />}',
+      "      {languages.map((l) => (",
+      '        <link key={l} rel="alternate" hreflang={l} href={at(l)} />',
+      "      ))}",
+      '      <link rel="alternate" hreflang="x-default" href={at(defaultLang)} />',
+      '      <meta property="og:locale" content={OG_LOCALES[lang] ?? lang} />',
+      "      {languages",
+      "        .filter((l) => l !== lang)",
+      "        .map((l) => (",
+      '          <meta key={l} property="og:locale:alternate" content={OG_LOCALES[l] ?? l} />',
+      "        ))}",
+      "    </>",
+      "  );",
+      "});",
+      ""
+    ].join("\n");
+    if (headCode !== next2) out(head, next2);
+  }
+  const root = ["tsx", "jsx"].map((e2) => `src/root.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
+  const rootCode = root ? readText(cwd, root, changed) : "";
+  const open3 = /^([ \t]*)<head\b[^>]*>/m.exec(rootCode);
+  if (root && open3 && !rootCode.includes("<LanguageHead")) {
+    const routerHead = import_fast_glob7.default.sync(`${srcPrefix(config)}components/**/*.{tsx,jsx}`, { cwd }).map((f2) => readText(cwd, f2, changed) ?? "");
+    const ownCanonical = [rootCode, ...routerHead].some((code2) => /rel=["']canonical["']/.test(code2));
+    const indent2 = /\n([ \t]*)\S/.exec(rootCode.slice(open3.index + open3[0].length))?.[1] ?? `${open3[1]}  `;
+    const cut = open3.index + open3[0].length;
+    const body = `${rootCode.slice(0, cut)}
+${indent2}<LanguageHead${ownCanonical ? " canonical={false}" : ""} />${rootCode.slice(cut)}`;
+    const at2 = afterLastImport(body);
+    const q = prefersDoubleQuotes(rootCode) ? '"' : "'";
+    const line = `import { LanguageHead } from ${q}${relFrom(root, head).replace(/\.[jt]sx?$/, "")}${q};`;
+    out(root, `${body.slice(0, at2)}${at2 ? "\n" : ""}${line}${at2 ? "" : "\n"}${body.slice(at2)}`);
+  }
+  const routes = `${srcPrefix(config)}routes`;
+  const ext = ts ? "ts" : "js";
+  const sitemap = `${routes}/sitemap.xml/index.${ext}`;
+  const sitemapCode = readText(cwd, sitemap, changed);
+  const sitemapTaken = sitemapCode !== void 0 && !isGenerated(sitemapCode) || import_fast_glob7.default.sync("sitemap*/index.*", { cwd: path9.join(cwd, routes) }).some((f2) => `${routes}/${f2}` !== sitemap) || import_fast_glob7.default.sync("sitemap*.xml", { cwd: path9.join(cwd, "public") }).length > 0;
+  if (!sitemapTaken) {
+    const next2 = [
+      `// ${GENERATED}: every page in every language, with hreflang links between them.`,
+      "// Built from the routes folder, so new pages are listed without a run. Pages under a [param],",
+      "// (group) folders aside, signed-in areas (account, dashboard\u2026) and the language copies are left out.",
+      ...ts ? [`import type { RequestHandler } from '${city}';`] : [],
+      `import { defaultLang, languages } from '${relFrom(sitemap, moduleFile).replace(/\.[jt]sx?$/, "")}';`,
+      "",
+      `const SITE${T(": string | null")} = ${site};`,
+      `const PRIVATE = ${PRIVATE_SEGMENTS.toString()};`,
+      "const paths = [",
+      "  ...new Set(",
+      `    Object.keys(import.meta.glob('/${routes}/**/index.{tsx,jsx,md,mdx}')).flatMap((file) => {`,
+      `      const segments = file.replace(/^\\/${routes.replace(/\//g, "\\/")}\\/?/, '').split('/').slice(0, -1).filter((s) => !/^\\(.*\\)$/.test(s));`,
+      "      if (languages.includes(segments[0]) || segments.some((s) => s.startsWith('[') || PRIVATE.test(s))) return [];",
+      "      return [segments.join('/')];",
+      "    }),",
+      "  ),",
+      "].sort();",
+      "",
+      `export const onGet${T(": RequestHandler")} = ({ url, send }) => {`,
+      "  const site = SITE ?? url.origin;",
+      `  const at = (page${T(": string")}, lang${T(": string")}) => {`,
+      "    const path = [lang === defaultLang ? '' : lang, page].filter(Boolean).join('/');",
+      slash ? "    return `${site}/${path}${path ? '/' : ''}`;" : "    return `${site}/${path}`;",
+      "  };",
+      "  const urls = paths.flatMap((page) =>",
+      "    languages.map((lang) =>",
+      "      [",
+      "        '  <url>',",
+      "        `    <loc>${at(page, lang)}</loc>`,",
+      '        ...languages.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${at(page, l)}"/>`),',
+      '        `    <xhtml:link rel="alternate" hreflang="x-default" href="${at(page, defaultLang)}"/>`,',
+      "        '  </url>',",
+      "      ].join('\\n'),",
+      "    ),",
+      "  );",
+      '  const xml = `<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\\n${urls.join(\'\\n\')}\\n</urlset>\\n`;',
+      "  send(new Response(xml, { headers: { 'Content-Type': 'application/xml' } }));",
+      "};",
+      ""
+    ].join("\n");
+    if (sitemapCode !== next2) out(sitemap, next2);
+  }
+  const robotsTaken = fs10.existsSync(path9.join(cwd, "public/robots.txt")) || import_fast_glob7.default.sync("robots.txt/index.*", { cwd: path9.join(cwd, routes) }).length > 0;
+  if (!robotsTaken && !sitemapTaken) {
+    out(
+      `${routes}/robots.txt/index.${ext}`,
+      [
+        "// Written by localize.dev, and yours to edit: every crawler welcome, and where the sitemap is.",
+        ...ts ? [`import type { RequestHandler } from '${city}';`, ""] : [],
+        `const SITE${T(": string | null")} = ${site};`,
+        "",
+        `export const onGet${T(": RequestHandler")} = ({ url, send }) => {`,
+        `  send(new Response(\`User-agent: *\\nAllow: /\\nSitemap: \${SITE ?? url.origin}/sitemap.xml\\n\`));`,
         "};",
         ""
       ].join("\n")
@@ -216711,7 +216897,7 @@ function svelte(ctx, ts) {
     "></localize-language-switcher>",
     ""
   ]);
-  const where = kit ? "$lib/LanguageSwitcher.svelte" : component;
+  const where = kit ? `${kitLib(ctx)}/LanguageSwitcher.svelte` : component;
   return a || b4 ? { file: component, note: `Language menu: \`<LanguageSwitcher />\` from \`${where}\`, and the \`language\` store (\`useLanguage()\`) from \`${store}\`.` } : null;
 }
 function solid(ctx, ts) {
@@ -218107,17 +218293,22 @@ async function planSetup(opts, result, changed, out) {
       planFrameworkSwitcher(ctx);
       const ours2 = (file2) => isGenerated(readText(cwd, file2, changed) ?? "");
       const kitModule = ["ts", "js"].map((e2) => `src/lib/i18n.${e2}`).find(ours2);
-      if (config.framework === "svelte" && kitModule && !readText(cwd, kitModule, changed).includes("$app/navigation") && kitReroutes(ctx)) {
-        const notes = result.notes.length;
-        planSvelteSetup(ctx);
-        result.notes.splice(notes);
+      if (config.framework === "svelte" && kitModule && kitReroutes(ctx)) {
+        if (!readText(cwd, kitModule, changed).includes("keepLanguage")) {
+          const notes = result.notes.length;
+          planSvelteSetup(ctx);
+          result.notes.splice(notes);
+        } else planSvelteKitAddresses(ctx, kitModule.endsWith(".ts"));
       }
       if (config.framework === "astro" && ours2(astroModulePath(cwd, config))) {
         astroPageCopies(ctx);
         addAstroSearch(ctx, astroModulePath(cwd, config));
       }
       const city = hasDep(ctx, "@builder.io/qwik-city") || hasDep(ctx, "@qwik.dev/router");
-      if (config.framework === "qwik" && city && ours2(solidModulePath(cwd, config))) qwikRouteCopies(ctx);
+      if (config.framework === "qwik" && city && ours2(solidModulePath(cwd, config))) {
+        qwikRouteCopies(ctx);
+        addQwikSearch(ctx, solidModulePath(cwd, config));
+      }
       return result;
     }
     if (config.framework === "angular") planAngularSetup(ctx);
@@ -218125,8 +218316,12 @@ async function planSetup(opts, result, changed, out) {
       planAstroSetup(ctx);
       const module = astroModulePath(cwd, config);
       if (isGenerated(readText(cwd, module, changed) ?? "")) addAstroSearch(ctx, module);
-    } else if (config.framework === "qwik") planQwikSetup(ctx);
-    else if (config.framework === "ember") planEmberSetup(ctx);
+    } else if (config.framework === "qwik") {
+      planQwikSetup(ctx);
+      const module = solidModulePath(cwd, config);
+      const city = hasDep(ctx, "@builder.io/qwik-city") || hasDep(ctx, "@qwik.dev/router");
+      if (city && isGenerated(readText(cwd, module, changed) ?? "")) addQwikSearch(ctx, module);
+    } else if (config.framework === "ember") planEmberSetup(ctx);
     else if (config.framework === "vue") planVueSetup(ctx);
     else {
       const planned = config.framework === "lit" ? planLitSetup(ctx) : config.framework === "svelte" ? planSvelteSetup(ctx) : planSolidSetup(ctx);
@@ -218918,7 +219113,7 @@ var init_setup = __esm({
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS2 = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.30.0" : "0.6.0";
+    SELF_VERSION2 = true ? "0.31.0" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
