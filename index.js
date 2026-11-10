@@ -25410,6 +25410,38 @@ function astroDefaults(islands) {
   const interpolation = islands.includes("svelte") ? "icu" : islands.includes("vue") ? "vue" : "i18next";
   return { include, interpolation, islands };
 }
+function declaredSiteUrl(cwd) {
+  for (const name of ["CNAME", "public/CNAME", "static/CNAME"]) {
+    const file2 = path3.join(
+      /*turbopackIgnore: true*/
+      cwd,
+      name
+    );
+    if (!fs4.existsSync(
+      /*turbopackIgnore: true*/
+      file2
+    )) continue;
+    const domain = fs4.readFileSync(
+      /*turbopackIgnore: true*/
+      file2,
+      "utf8"
+    ).trim().split(/\s+/)[0];
+    if (/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(domain)) return `https://${domain.toLowerCase()}`;
+  }
+  try {
+    const pkg = JSON.parse(fs4.readFileSync(
+      /*turbopackIgnore: true*/
+      path3.join(cwd, "package.json"),
+      "utf8"
+    ));
+    const home = typeof pkg.homepage === "string" ? new URL(pkg.homepage) : null;
+    if (home && /^https?:$/.test(home.protocol) && !/(^|\.)(github\.com|gitlab\.com|bitbucket\.org|npmjs\.com|localhost)$/.test(home.hostname)) {
+      return `${home.origin}${home.pathname}`.replace(/\/+$/, "");
+    }
+  } catch {
+  }
+  return void 0;
+}
 function loadConfig(cwd, overrides = {}) {
   const file2 = path3.join(
     /*turbopackIgnore: true*/
@@ -25432,6 +25464,7 @@ function loadConfig(cwd, overrides = {}) {
   const framework = chosen.framework ?? detectFramework(cwd);
   const defaults = framework === "astro" ? { ...frameworkDefaults(framework), ...astroDefaults(astroIslands(cwd)) } : frameworkDefaults(framework);
   const config = { ...DEFAULT_CONFIG, ...defaults, ...chosen, framework };
+  config.siteUrl ??= declaredSiteUrl(cwd);
   if (framework === "ios" && !chosen.localesPath && !fs4.existsSync(path3.join(cwd, config.localesPath))) {
     const found2 = import_fast_glob2.default.sync("**/*.xcstrings", { cwd, ignore: ["**/Pods/**", "**/.build/**", "**/DerivedData/**", "**/node_modules/**"] }).sort((a, b4) => Number(!/Localizable/.test(a)) - Number(!/Localizable/.test(b4)))[0];
     if (found2) config.localesPath = found2;
@@ -70706,10 +70739,17 @@ var require_lib8 = __commonJS({
 });
 
 // src/ast/filters.ts
+function keptAsWritten(terms) {
+  const list4 = (terms ?? []).map((t10) => t10.trim()).filter(Boolean);
+  if (!list4.length) return null;
+  const alternatives = list4.sort((a, b4) => b4.length - a.length).map((t10) => t10.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const term = new RegExp(`(?<![\\p{L}\\p{N}])(?:${alternatives.join("|")})(?![\\p{L}\\p{N}])`, "gu");
+  return (text4) => !new RegExp("\\p{L}", "u").test(withoutValues(text4).replace(term, ""));
+}
 function isTranslatable(text4) {
   const s = text4.trim();
   if (!s) return false;
-  if (!new RegExp("\\p{L}", "u").test(s.replace(/\{\w+\}/g, ""))) return false;
+  if (!new RegExp("\\p{L}", "u").test(withoutValues(s))) return false;
   return ![
     URL_REGEX,
     HEX_COLOR_REGEX,
@@ -70764,7 +70804,7 @@ function decodeEntities(text4) {
     return ENTITIES[e2.toLowerCase()] ?? m2;
   });
 }
-var URL_REGEX, HEX_COLOR_REGEX, UUID_REGEX, PURE_SPEC_CHARS, CSS_UNIT_REGEX, EMAIL_REGEX, FILE_NAME_REGEX, FILE_PATH_REGEX, TECHNICAL_ID_REGEX, PLACEHOLDER_ONLY, VERSION_ONLY, PRICE_ONLY, PLAIN_UTILITIES, META_TEXT, ENTITIES;
+var URL_REGEX, HEX_COLOR_REGEX, UUID_REGEX, PURE_SPEC_CHARS, CSS_UNIT_REGEX, EMAIL_REGEX, FILE_NAME_REGEX, FILE_PATH_REGEX, TECHNICAL_ID_REGEX, PLACEHOLDER_ONLY, VERSION_ONLY, PRICE_ONLY, withoutValues, PLAIN_UTILITIES, META_TEXT, ENTITIES;
 var init_filters = __esm({
   "src/ast/filters.ts"() {
     "use strict";
@@ -70780,6 +70820,7 @@ var init_filters = __esm({
     PLACEHOLDER_ONLY = /^(\s*\{\w+\}\s*)+$/;
     VERSION_ONLY = /^v?\d+(?:\.\d+){1,3}(?:[-+][0-9A-Za-z.]+)?$/i;
     PRICE_ONLY = /^(?:(?:[A-Z]{1,3})?[$€£¥₹₦₩₱₺₴₫₪]\s*\{\w+\}|\{\w+\}\s*(?:[A-Z]{3}|[€£¥₹₦₩₱₺₴₫₪]))$/;
+    withoutValues = (text4) => text4.replace(/\{\w+\}/g, "").replace(/&(?:#\w+|[A-Za-z]+\d*);/g, "");
     PLAIN_UTILITIES = /* @__PURE__ */ new Set(["border", "flex", "grid", "block", "inline", "contents", "hidden", "table", "relative", "absolute", "fixed", "sticky", "static", "visible", "invisible", "rounded", "shadow", "ring", "outline", "truncate", "italic", "underline", "uppercase", "lowercase", "capitalize", "antialiased", "container", "transition", "transform", "grow", "shrink", "isolate", "blur", "grayscale", "invert", "sr-only", "group", "peer", "prose"]);
     META_TEXT = /^(description|(og|twitter):(title|description|site_name|image:alt))$/i;
     ENTITIES = {
@@ -210077,13 +210118,34 @@ function tokens(code2, engine) {
   for (const t10 of out) if (!kept.length || t10.start >= kept[kept.length - 1].end) kept.push(t10);
   return kept;
 }
+function tagsInMarkup(code2, toks) {
+  const inside = /* @__PURE__ */ new Set();
+  let inTag = false;
+  let quote3 = "";
+  let i3 = 0;
+  for (const t10 of [...toks, null]) {
+    const to = t10 ? t10.start : code2.length;
+    for (; i3 < to; i3++) {
+      const c = code2[i3];
+      if (!inTag) inTag = c === "<" && /[A-Za-z]/.test(code2[i3 + 1] ?? "");
+      else if (quote3) quote3 = c === quote3 ? "" : quote3;
+      else if (c === '"' || c === "'") quote3 = c;
+      else if (c === ">") inTag = false;
+    }
+    if (!t10) break;
+    if (inTag) inside.add(t10);
+    i3 = t10.end;
+  }
+  return inside;
+}
 function mask2(code2, toks) {
+  const inMarkup = tagsInMarkup(code2, toks);
   let out = "";
   let last = 0;
   for (const t10 of toks) {
     out += code2.slice(last, t10.start);
     const len = t10.end - t10.start;
-    out += t10.kind === "output" ? "\uE000".repeat(len) : len >= 4 ? `<br${" ".repeat(len - 4)}>` : " ".repeat(len);
+    out += t10.kind === "output" ? "\uE000".repeat(len) : len >= 4 && !inMarkup.has(t10) ? `<br${" ".repeat(len - 4)}>` : " ".repeat(len);
     last = t10.end;
   }
   return out + code2.slice(last);
@@ -210200,11 +210262,12 @@ function scanServerTemplate(engine) {
         if (innerOutputs.length === 1 && !rest2.trim()) innerOutput = rubyArg(innerOutputs[0].source ?? "");
         else if (innerOutputs.length || !translatableAttr(cleanAttr(rest2))) return null;
       }
-      const words = siblings.some((n5) => {
-        const l2 = n5.sourceCodeLocation;
-        return n5 !== child && n5.nodeName === "#text" && !!l2 && new RegExp("\\p{L}", "u").test(masked.slice(l2.startOffset, l2.endOffset));
-      });
-      if (!words) return null;
+      const words = (n5) => {
+        const l2 = n5?.nodeName === "#text" ? n5.sourceCodeLocation : null;
+        return !!l2 && new RegExp("\\p{L}", "u").test(masked.slice(l2.startOffset, l2.endOffset).replace(/&(?:#\w+|[A-Za-z]+\d*);/g, ""));
+      };
+      const at2 = siblings.indexOf(child);
+      if (!words(siblings[at2 - 1]) && !words(siblings[at2 + 1])) return null;
       return { start: loc2.startOffset, end: loc2.endOffset, href, attrs: plain, innerStart, innerEnd, ...innerOutput ? { innerOutput } : {} };
     };
     const run = (parts) => {
@@ -210285,6 +210348,7 @@ function scanServerTemplate(engine) {
         }
         const attrs = child.attrs ?? [];
         if (RAW2.has(child.tagName) || attrs.some((a) => IGNORE_ATTRIBUTES2.has(a.name))) continue;
+        if (child.tagName === "option" && !attrs.some((a) => a.name === "value")) continue;
         const metaText = child.tagName === "meta" && metaHoldsText(attrs);
         for (const a of attrs) {
           const aloc = loc2?.startTag?.attrs?.[a.name];
@@ -213364,6 +213428,33 @@ var init_template_formats = __esm({
   }
 });
 
+// src/text-ranges.ts
+function textRanges(code2, file2) {
+  if (!/\.[cm]?[jt]sx?$/.test(file2)) return [];
+  let ast;
+  try {
+    ast = parseCode(code2);
+  } catch {
+    return [];
+  }
+  const out = [];
+  const visit = (node2) => {
+    if (!node2 || typeof node2 !== "object") return;
+    if (Array.isArray(node2)) return node2.forEach(visit);
+    const n4 = node2;
+    if ((n4.type === "StringLiteral" || n4.type === "TemplateElement" || n4.type === "JSXText") && n4.start !== void 0 && n4.end !== void 0) out.push([n4.start, n4.end]);
+    for (const [k, v2] of Object.entries(node2)) if (k !== "loc" && k !== "extra" && typeof v2 === "object") visit(v2);
+  };
+  visit(ast);
+  return out;
+}
+var init_text_ranges = __esm({
+  "src/text-ranges.ts"() {
+    "use strict";
+    init_scanner();
+  }
+});
+
 // src/rtl.ts
 import * as fs8 from "node:fs";
 import * as path7 from "node:path";
@@ -213403,8 +213494,11 @@ async function findPhysicalStyles(cwd, srcDir) {
   }
   for (const f2 of await (0, import_fast_glob4.default)(MARKUP, { cwd: root, ignore: IGNORE })) {
     const text4 = fs8.readFileSync(path7.join(root, f2), "utf8");
+    const literal5 = textRanges(text4, f2);
     for (const m2 of text4.matchAll(CLASS_STRINGS)) {
+      if (literal5.some(([start2, end2]) => m2.index >= start2 && m2.index < end2)) continue;
       const value = m2[1] ?? m2[2] ?? m2[3] ?? m2[4] ?? "";
+      const centred = /(^|[\s'"`])-translate-(x-)?1\/2\b/.test(value) || /translate(?:X)?\(\s*(?:calc\(\s*)?-50%/.test(text4.slice(m2.index, m2.index + m2[0].length + 300));
       let from = 0;
       for (const cls of value.split(/[\s'",`]+/)) {
         if (!cls) continue;
@@ -213415,6 +213509,7 @@ async function findPhysicalStyles(cwd, srcDir) {
         const [variant, base] = parts.slice(1);
         const safe = TAILWIND_SAFE.find(([re]) => re.test(base));
         if (safe) out.push({ file: path7.posix.join(srcDir, f2), line: lineOf2(text4, at2), found: cls, fix: `${variant ?? ""}${base.replace(safe[0], safe[1])}` });
+        else if (centred && /^(left|right)-1\/2$/.test(base)) continue;
         else if (TAILWIND_REPORT.test(base)) out.push({ file: path7.posix.join(srcDir, f2), line: lineOf2(text4, at2), found: cls });
       }
     }
@@ -213426,6 +213521,7 @@ var init_rtl = __esm({
   "src/rtl.ts"() {
     "use strict";
     import_fast_glob4 = __toESM(require_out4(), 1);
+    init_text_ranges();
     RTL_LANGUAGES = ["ae", "aeb", "ar", "arc", "arq", "ars", "ary", "arz", "bal", "bej", "bgn", "bqi", "brh", "chg", "ckb", "dv", "fa", "gbz", "glk", "he", "jpr", "jrb", "khw", "ks", "lad", "lah", "lrc", "mde", "mzn", "nqo", "ota", "pal", "phn", "ps", "rhg", "sam", "sd", "sdh", "shu", "sog", "swb", "syc", "syr", "trw", "ug", "ur", "yi"];
     RTL_SCRIPTS = /^(Arab|Aran|Hebr|Thaa|Syrc|Syre|Syrj|Syrn|Nkoo|Adlm|Rohg|Mand|Samr|Mend|Yezi|Avst|Phnx|Armi|Prti|Phli|Phlp|Sogd|Sogo|Chrs|Elym|Hatr|Khar|Lydi|Mani|Narb|Nbat|Orkh|Palm|Sarb|Hung|Ougr|Cprt|Mero|Merc)$/;
     isRtl = (locale) => {
@@ -213599,6 +213695,15 @@ function ogLocale(lng) {
   const region = rest2.find((p) => /^[A-Za-z]{2}$|^\d{3}$/.test(p));
   if (region) return `${lang.toLowerCase()}_${region.toUpperCase()}`;
   return OG_TERRITORY[lang.toLowerCase()] ? `${lang.toLowerCase()}_${OG_TERRITORY[lang.toLowerCase()]}` : lang.toLowerCase();
+}
+function hostedSite(env) {
+  return [
+    `${env}.VERCEL_PROJECT_PRODUCTION_URL ? \`https://\${${env}.VERCEL_PROJECT_PRODUCTION_URL}\``,
+    `${env}.NETLIFY && ${env}.URL ? ${env}.URL`,
+    `${env}.RENDER_EXTERNAL_URL ? ${env}.RENDER_EXTERNAL_URL`,
+    `${env}.RAILWAY_PUBLIC_DOMAIN ? \`https://\${${env}.RAILWAY_PUBLIC_DOMAIN}\``,
+    "null"
+  ].join(" : ");
 }
 var OG_TERRITORY, PRIVATE_SEGMENTS;
 var init_seo = __esm({
@@ -215440,6 +215545,32 @@ export * from '${spec2}';
     }
   }
 }
+function qwikHtmlLang(ctx, moduleFile) {
+  const { cwd, changed, out, result } = ctx;
+  const entry = ["tsx", "jsx", "ts", "js"].map((e2) => `src/entry.ssr.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
+  const code2 = entry ? readText(cwd, entry, changed) : "";
+  const fn2 = /export\s+default\s+function\s*\w*\s*\(\s*opts[^)]*\)\s*\{/.exec(code2);
+  const lang = /(\n[ \t]*)lang:\s*(["'])[^"']*\2,/.exec(code2);
+  if (entry && !code2.includes("langOf(")) {
+    if (fn2 && lang) {
+      const q = prefersDoubleQuotes(code2) ? '"' : "'";
+      let next2 = code2.replace(lang[0], `${lang[1]}lang,${lang[1]}dir: dirOf(lang),`);
+      const at2 = next2.indexOf(fn2[0]) + fn2[0].length;
+      next2 = `${next2.slice(0, at2)}
+  // The page language, from its address (/es/about).
+  const lang = langOf(new URL(String(opts.serverData?.url ?? '/'), 'http://localhost').pathname);${next2.slice(at2)}`;
+      const after = afterLastImport(next2);
+      const line = `import { dirOf, langOf } from ${q}${relFrom(entry, moduleFile).replace(/\.[jt]sx?$/, "")}${q};`;
+      out(entry, `${next2.slice(0, after)}
+${line}${next2.slice(after)}`);
+    } else {
+      result.notes.push(`Qwik: set lang and dir on <html> from the address in \`${entry}\` (containerAttributes), with langOf() and dirOf() from \`${moduleFile}\`.`);
+    }
+  }
+  const root = ["tsx", "jsx"].map((e2) => `src/root.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
+  const rootCode = root ? readText(cwd, root, changed) : "";
+  if (root && /<body\s+lang=(["'])[^"']*\1/.test(rootCode)) out(root, rootCode.replace(/<body\s+lang=(["'])[^"']*\1/, "<body"));
+}
 function planQwikSetup(ctx) {
   const { cwd, config, result } = ctx;
   const ts = fs9.existsSync(path8.join(cwd, "tsconfig.json"));
@@ -215480,7 +215611,7 @@ function planQwikSetup(ctx) {
   if (ts) enableJsonImports(cwd, ctx.changed, ctx.out);
   if (city) {
     qwikRouteCopies(ctx);
-    result.notes.push("Qwik: set `lang` and `dir` on <html> in src/root.tsx from the URL if you serve right-to-left languages; link languages with localizePath().");
+    qwikHtmlLang(ctx, file2);
   } else {
     result.notes.push("Qwik: the language comes from the URL's first segment; set up routes per language to switch.");
   }
@@ -215838,7 +215969,7 @@ var init_setup_frameworks = __esm({
     init_seo();
     toPosix = (p) => p.split(path8.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.32.0" : "0.6.0";
+    SELF_VERSION = true ? "0.33.0" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -216303,7 +216434,7 @@ async function staticRoutes(cwd, appDir) {
 }
 function seoModule(o) {
   const T = (s) => o.typescript ? s : "";
-  const site = o.siteUrl ? `'${o.siteUrl.replace(/\/+$/, "")}'` : "process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null";
+  const site = o.siteUrl ? `'${o.siteUrl.replace(/\/+$/, "")}'` : hostedSite("process.env");
   return [
     ...o.typescript ? ["import type { Metadata, MetadataRoute } from 'next';"] : [],
     "import { headers } from 'next/headers';",
@@ -216316,7 +216447,7 @@ function seoModule(o) {
     " * links come from i18n-alternates.",
     " */",
     "",
-    '/** The address of the site: "siteUrl" in localize.config.json, else the Vercel production domain. Sitemaps need full URLs. */',
+    '/** The address of the site: "siteUrl" in localize.config.json, else the production address Vercel, Netlify, Render or Railway gives. Sitemaps need full URLs. */',
     `export const siteUrl${T(": string | null")} = ${site};`,
     "",
     `const OG_LOCALES${T(": Record<string, string>")} = { ${o.languages.map((l2) => `'${l2}': '${ogLocale(l2)}'`).join(", ")} };`,
@@ -216431,7 +216562,7 @@ async function addSearch(ctx) {
         ""
       ].join("\n")
     );
-    if (!config.siteUrl) result.notes.push(`Set "siteUrl" in localize.config.json (https://your-site.com): \`${sitemapFile}\` needs full addresses, and outside Vercel it has no other way to know them.`);
+    if (!config.siteUrl) result.notes.push(`Set "siteUrl" in localize.config.json (https://your-site.com): \`${sitemapFile}\` needs full addresses, and off Vercel, Netlify, Render and Railway it has no other way to know them.`);
   }
   const robotsTaken = ["ts", "js", "txt"].some((e2) => has(`${appDir}/robots.${e2}`)) || fs10.existsSync(path9.join(cwd, "public/robots.txt"));
   if (!robotsTaken && !sitemapTaken) {
@@ -216719,7 +216850,7 @@ var init_setup_seo = __esm({
     init_setup();
     init_seo();
     EXTS = ["tsx", "jsx", "ts", "js"];
-    siteLine = (config, T) => `const SITE${T(": string | null")} = ${config.siteUrl ? `'${config.siteUrl.replace(/\/+$/, "")}'` : "null"};`;
+    siteLine = (config, T) => `const SITE${T(": string | null")} = ${config.siteUrl ? `'${config.siteUrl.replace(/\/+$/, "")}'` : hostedSite("import.meta.env")};`;
   }
 });
 
@@ -216728,16 +216859,23 @@ import * as fs11 from "node:fs";
 import * as path10 from "node:path";
 function reactRouterApp(cwd, changed) {
   const pkg = JSON.parse(readText(cwd, "package.json", changed) ?? "{}");
-  if (!{ ...pkg.dependencies, ...pkg.devDependencies }["@react-router/dev"]) return null;
+  const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+  const remix = !deps["@react-router/dev"] && !!deps["@remix-run/dev"];
+  if (!deps["@react-router/dev"] && !remix) return null;
   const find = (name, exts) => exts.map((e2) => `app/${name}.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
   const root = find("root", ["tsx", "jsx"]);
-  const routes = find("routes", ["ts", "js", "mts", "mjs"]);
-  return root && routes ? { root, routes } : null;
+  return root ? { root, routes: find("routes", ["ts", "js", "mts", "mjs"]), remix } : null;
 }
 function planReactRouterAddresses(ctx, moduleFile) {
   const { cwd, config, changed, out, result } = ctx;
-  const app = reactRouterApp(cwd, changed);
-  if (!app) return;
+  const found2 = reactRouterApp(cwd, changed);
+  if (!found2) return;
+  if (!found2.routes) {
+    result.notes.push("Remix: for an address per language (/es/about), turn on future.v3_routeConfig in vite.config and list the routes in app/routes.ts (flatRoutes() keeps the routes folder), then run this again.");
+    return;
+  }
+  const app = { ...found2, routes: found2.routes };
+  const pkgs = app.remix ? { routes: "@remix-run/route-config", router: "@remix-run/react", build: "virtual:remix/server-build" } : { routes: "@react-router/dev/routes", router: "react-router", build: "virtual:react-router/server-build" };
   const ts = /\.tsx?$/.test(moduleFile);
   const T = (s) => ts ? s : "";
   const languages = locales(config);
@@ -216758,36 +216896,70 @@ function planReactRouterAddresses(ctx, moduleFile) {
   const addSitemap = !ownSitemap;
   const addRobots = !ownSitemap && (!ownRobots || has(robots));
   const routesFile = `app/i18n-routes.${ext}`;
+  const languageRoute = `app/i18n-language-route.${ts ? "tsx" : "jsx"}`;
   write3(
     routesFile,
     [
       `// ${GENERATED}: every page again under each language (/es/about), so each language has`,
-      "// its own address to share and to show in search results. routes.ts passes its routes through this.",
-      `import { route${ts ? ", type RouteConfig, type RouteConfigEntry" : ""} } from '@react-router/dev/routes';`,
+      "// its own address to share and to show in search results. Each language is inside a route",
+      "// (i18n-language-route) whose loader gets its messages ready before the page renders.",
+      "// routes.ts passes its routes through this.",
+      `import { route${ts ? ", type RouteConfig, type RouteConfigEntry" : ""} } from '${pkgs.routes}';`,
       "",
+      `const source = '${config.sourceLocale}';`,
       `const languages = ${list4(targets)};`,
       "",
-      "/** `routes` under `lang`: top-level paths (and those in pathless layouts) get the language in front. */",
-      `function localized(routes${T(": RouteConfigEntry[]")}, lang${T(": string")}, prefixed${T(": boolean")})${T(": RouteConfigEntry[]")} {`,
+      "/** A copy of `routes` for `lang`, under its /lang route: new ids, and top-level paths made relative to it. */",
+      `function localized(routes${T(": RouteConfigEntry[]")}, lang${T(": string")}, top${T(": boolean")})${T(": RouteConfigEntry[]")} {`,
       "  return routes.flatMap((r) => {",
       "    const own = r.path?.replace(/^\\/+|\\/+$/g, '');",
       "    // Files such as robots.txt keep one address.",
-      "    if (!prefixed && own?.includes('.')) return [];",
+      "    if (top && own?.includes('.')) return [];",
       "    const id = `${lang}/${r.id ?? r.file.replace(/^\\.\\//, '').replace(/\\.[^./]+$/, '')}`;",
-      "    if (prefixed) return [{ ...r, id, children: r.children && localized(r.children, lang, true) }];",
-      "    if (r.path === undefined && !r.index) return [{ ...r, id, children: r.children && localized(r.children, lang, false) }];",
-      "    return [{ ...r, id, path: own ? `${lang}/${own}` : lang, children: r.children && localized(r.children, lang, true) }];",
+      "    // Inside a pathless layout, paths are still top-level.",
+      "    const layout = r.path === undefined && !r.index;",
+      "    return [{ ...r, id, ...(top && own !== undefined ? { path: own } : {}), children: r.children && localized(r.children, lang, top && layout) }];",
       "  });",
       "}",
       "",
       `export async function withLanguageRoutes(routes${T(": RouteConfig")})${T(": Promise<RouteConfigEntry[]>")} {`,
       "  const base = await routes;",
+      `  const file = 'i18n-language-route.${ts ? "tsx" : "jsx"}';`,
       "  return [",
-      "    ...base,",
-      "    ...languages.flatMap((lang) => localized(base, lang, false)),",
+      "    { id: `i18n-${source}`, file, children: base },",
+      "    ...languages.map((lang) => ({ id: `i18n-${lang}`, path: lang, file, children: localized(base, lang, true) })),",
       ...addSitemap ? [`    route('sitemap.xml', 'i18n-sitemap.${ext}', { id: 'i18n-sitemap' }),`] : [],
       ...addRobots ? [`    route('robots.txt', 'i18n-robots.${ext}', { id: 'i18n-robots' }),`] : [],
       "  ];",
+      "}",
+      ""
+    ].join("\n")
+  );
+  write3(
+    languageRoute,
+    [
+      `// ${GENERATED}: the route around each language's pages. Its loader has the page language`,
+      "// ready before the page renders (a language not in the bundle is loaded and sent along with the",
+      "// page), and gives the address the request came to, for the links search engines read.",
+      `import { Outlet } from '${pkgs.router}';`,
+      `import i18n, { resources } from '${relativeImport(languageRoute, moduleFile)}';`,
+      `import { languageOf } from '${relativeImport(languageRoute, `app/i18n-language.${ts ? "tsx" : "jsx"}`)}';`,
+      "",
+      `export async function loader({ request }${T(": { request: Request }")}) {`,
+      "  const url = new URL(request.url);",
+      "  const lang = languageOf(url.pathname);",
+      "  const bundled = lang in resources;",
+      "  if (!bundled) await i18n.loadLanguages(lang);",
+      "  return { lang, origin: url.origin, messages: bundled ? null : (i18n.getResourceBundle(lang, 'translation') ?? {}) };",
+      "}",
+      "",
+      "// The language is the same until the address leaves this route, which loads the next one.",
+      "export function shouldRevalidate() {",
+      "  return false;",
+      "}",
+      "",
+      "export default function LanguageRoute() {",
+      "  return <Outlet />;",
       "}",
       ""
     ].join("\n")
@@ -216815,12 +216987,12 @@ function planReactRouterAddresses(ctx, moduleFile) {
       "// about the page in every language (hreflang), its canonical address and og:locale.",
       `import { useEffect, useMemo${ts ? ", type ReactNode" : ""} } from 'react';`,
       "import { I18nextProvider } from 'react-i18next';",
-      "import { useLocation, useNavigate } from 'react-router';",
+      `import { useLocation, useNavigate, useRouteLoaderData } from '${pkgs.router}';`,
       `import i18n, { device, supported } from '${module}';`,
       "",
       `const fallbackLng = '${config.sourceLocale}';`,
       `const OG_LOCALES${T(": Record<string, string>")} = { ${languages.map((l2) => `'${l2}': '${ogLocale(l2)}'`).join(", ")} };`,
-      "// Search engines want full addresses: siteUrl in localize.config.json.",
+      "// Search engines want full addresses: siteUrl in localize.config.json, else the one the request came to.",
       `const SITE${T(": string | null")} = ${site};`,
       "",
       `/** The language of an address: /es/about \u2192 es; without one, ${config.sourceLocale}. */`,
@@ -216842,6 +217014,11 @@ function planReactRouterAddresses(ctx, moduleFile) {
       "  return { lang, dir: i18n.dir(lang) };",
       "}",
       "",
+      "/** What the language route loaded for this page: its address, and the messages of a language not in the bundle. */",
+      `function useLanguageData(lang${T(": string")}) {`,
+      `  return useRouteLoaderData(\`i18n-\${lang}\`)${T(" as { origin: string; messages: Record<string, unknown> | null } | undefined")};`,
+      "}",
+      "",
       "let firstPage = true;",
       "",
       "/** Translations in the page language, around the app in root. */",
@@ -216849,8 +217026,12 @@ function planReactRouterAddresses(ctx, moduleFile) {
       "  const { pathname, search, hash } = useLocation();",
       "  const navigate = useNavigate();",
       "  const lang = languageOf(pathname);",
+      "  const data = useLanguageData(lang);",
       "  // One instance per language: pages the server renders at the same time keep their own.",
-      "  const instance = useMemo(() => i18n.cloneInstance({ lng: lang }), [lang]);",
+      "  const instance = useMemo(() => {",
+      "    if (data?.messages && !i18n.hasResourceBundle(lang, 'translation')) i18n.addResourceBundle(lang, 'translation', data.messages, true, true);",
+      "    return i18n.cloneInstance({ lng: lang });",
+      "  }, [lang, data]);",
       "",
       "  // Choosing a language (the switcher, or changeLanguage) opens this page in it.",
       "  useEffect(() => {",
@@ -216907,7 +217088,9 @@ function planReactRouterAddresses(ctx, moduleFile) {
       `export function LanguageLinks({ canonical = true }${T(": { canonical?: boolean }")}) {`,
       "  const { pathname } = useLocation();",
       "  const lang = languageOf(pathname);",
-      `  const at = (lng${T(": string")}) => \`\${SITE ?? ''}\${localizePath(pathname, lng)}\`;`,
+      "  const data = useLanguageData(lang);",
+      "  const origin = SITE ?? data?.origin ?? '';",
+      `  const at = (lng${T(": string")}) => \`\${origin}\${localizePath(pathname, lng)}\`;`,
       "  return (",
       "    <>",
       '      {canonical && <link rel="canonical" href={at(lang)} />}',
@@ -216927,7 +217110,6 @@ function planReactRouterAddresses(ctx, moduleFile) {
       ""
     ].join("\n")
   );
-  if (!config.siteUrl) result.notes.push('Set "siteUrl" in localize.config.json (https://your-site.com): the hreflang and canonical links need full addresses.');
   const rootCode = readText(cwd, app.root, changed);
   if (!rootCode.includes("LanguageRoot")) {
     let code2 = rootCode;
@@ -216966,7 +217148,10 @@ ${indent2}const { lang, dir } = usePageLanguage();${code2.slice(open3.index + op
         `// ${GENERATED}: every page in every language, with hreflang links between them.`,
         "// Built from the routes of the running app, so new pages are listed without a run. Pages with a",
         "// :param or *, signed-in areas (account, dashboard\u2026) and the language copies are left out.",
-        "import { routes } from 'virtual:react-router/server-build';",
+        ...app.remix ? [
+          ...ts ? ["// @ts-ignore: Remix declares no types for its server build"] : [],
+          `import { routes as built } from '${pkgs.build}';`
+        ] : [`import { routes } from '${pkgs.build}';`],
         "",
         `const languages = ${list4(languages)};`,
         `const defaultLang = '${config.sourceLocale}';`,
@@ -216974,6 +217159,8 @@ ${indent2}const { lang, dir } = usePageLanguage();${code2.slice(open3.index + op
         `const PRIVATE = ${PRIVATE_SEGMENTS.toString()};`,
         "",
         `function pages()${T(": string[]")} {`,
+        // The server build imports this file too: its routes are there by the time a request comes, not before.
+        ...app.remix ? [`  const routes = built${T(" as Record<string, { parentId?: string; path?: string; index?: boolean; module: { default?: unknown } } | undefined>")};`] : [],
         `  const full = (id${T(": string | undefined")})${T(": string")} => {`,
         "    const r = id ? routes[id] : undefined;",
         "    if (!r) return '';",
@@ -216981,7 +217168,7 @@ ${indent2}const { lang, dir } = usePageLanguage();${code2.slice(open3.index + op
         "  };",
         `  const found = new Set${T("<string>")}();`,
         "  for (const [id, r] of Object.entries(routes)) {",
-        "    if (!r || !r.module.default || (r.path === undefined && !r.index) || languages.some((l) => id.startsWith(`${l}/`))) continue;",
+        "    if (!r || !r.module.default || (r.path === undefined && !r.index) || id.startsWith('i18n-') || languages.some((l) => id.startsWith(`${l}/`))) continue;",
         "    const segments = full(id).split('/').filter(Boolean);",
         "    if (segments.some((s) => /^[:*]|[.?]/.test(s) || PRIVATE.test(s))) continue;",
         "    found.add(segments.join('/'));",
@@ -218623,6 +218810,7 @@ async function planSetup(opts, result, changed, out) {
       const city = hasDep(ctx, "@builder.io/qwik-city") || hasDep(ctx, "@qwik.dev/router");
       if (config.framework === "qwik" && city && ours2(solidModulePath(cwd, config))) {
         qwikRouteCopies(ctx);
+        qwikHtmlLang(ctx, solidModulePath(cwd, config));
         addQwikSearch(ctx, solidModulePath(cwd, config));
       }
       return result;
@@ -218660,7 +218848,13 @@ async function planSetup(opts, result, changed, out) {
         await addSearch({ cwd, config, changed, out, result, appDir: app.appDir, resourcesFile: nextResources });
       }
     } else if (client2) addSwitcher({ cwd, config, changed, out, result, next: false, moduleFile: client2, sample: readText(cwd, client2, changed) ?? "" });
-    const routerModule = reactRouterApp(cwd, changed) && ["ts", "js"].map((e2) => `app/i18n.${e2}`).find(ours2);
+    for (const module of [client2, ["ts", "js"].map((e2) => `app/i18n.${e2}`).find(ours2)]) {
+      const code3 = module && readText(cwd, module, changed);
+      if (code3 && code3.includes("partialBundledLanguages: true,") && !code3.includes("supportedLngs")) {
+        out(module, code3.replace(/(\n([ \t]*)partialBundledLanguages: true,)/, "$1\n$2supportedLngs: supported, // every language, loaded or not: the language menu lists these"));
+      }
+    }
+    const routerModule = reactRouterApp(cwd, changed)?.routes && ["ts", "js"].map((e2) => `app/i18n.${e2}`).find(ours2);
     if (routerModule && /export const supported/.test(readText(cwd, routerModule, changed))) {
       addSwitcher({ cwd, config, changed, out, result, next: false, moduleFile: routerModule, sample: "", dir: "app/" });
       planReactRouterAddresses({ cwd, config, files: opts.files, changed, out, result }, routerModule);
@@ -218691,9 +218885,10 @@ async function planSetup(opts, result, changed, out) {
     await planNextAppRouter({ cwd, config, changed, out, result, appDir: next2.appDir, files: opts.files });
     return result;
   }
-  const sources = await (0, import_fast_glob10.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
+  const sources = await (0, import_fast_glob10.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: NOT_SOURCE });
   const existing = sources.find((f2) => I18NEXT_INIT.test(readText(cwd, f2, /* @__PURE__ */ new Map()) ?? ""));
-  const router = reactRouterApp(cwd, changed);
+  const routerApp = reactRouterApp(cwd, changed);
+  const router = routerApp?.routes ? routerApp : null;
   if (existing) {
     const code3 = readText(cwd, existing, changed) ?? "";
     if (isGenerated(code3)) {
@@ -218706,7 +218901,7 @@ async function planSetup(opts, result, changed, out) {
     return result;
   }
   const typescript = fs13.existsSync(path13.join(cwd, "tsconfig.json"));
-  const i18nFile = `${router ? "app/" : srcPrefix(config)}i18n.${typescript ? "ts" : "js"}`;
+  const i18nFile = `${routerApp ? "app/" : srcPrefix(config)}i18n.${typescript ? "ts" : "js"}`;
   if (readText(cwd, i18nFile, changed) !== void 0) {
     result.notes.push(`\`${i18nFile}\` already exists, so i18next wasn't initialized; set it up there and import it once at startup.`);
     return result;
@@ -218714,7 +218909,7 @@ async function planSetup(opts, result, changed, out) {
   const locales2 = [config.sourceLocale, ...config.targetLocales.filter((l2) => l2 !== config.sourceLocale)];
   const imports2 = [];
   const entries = [];
-  const lazy = config.framework !== "react-native" && !("next" in deps) && (config.lazyLocales ?? (!router && config.targetLocales.filter((l2) => l2 !== config.sourceLocale).length > 3));
+  const lazy = config.framework !== "react-native" && !("next" in deps) && (config.lazyLocales ?? config.targetLocales.filter((l2) => l2 !== config.sourceLocale).length > 3);
   const tsModule = /\.tsx?$/.test(i18nFile);
   const ssr = ["@remix-run/react", "@react-router/dev"].some((d3) => d3 in deps);
   const loaders = [];
@@ -218733,7 +218928,7 @@ async function planSetup(opts, result, changed, out) {
     entries.push(`  ${name}: { translation: ${id3} },`);
   }
   const icu = config.interpolation === "icu";
-  const entry = router?.root ?? findEntry(cwd, config, changed);
+  const entry = routerApp?.root ?? findEntry(cwd, config, changed);
   const quote3 = prefersDoubleQuotes(entry ? readText(cwd, entry, changed) : opts.files[0]?.content ?? "") ? (code3) => code3.replace(/'/g, '"') : (code3) => code3;
   out(
     i18nFile,
@@ -218776,7 +218971,7 @@ async function planSetup(opts, result, changed, out) {
       "  .use(initReactI18next)",
       "  .init({",
       "    resources,",
-      ...lazy ? ["    partialBundledLanguages: true,", "    react: { useSuspense: false }, // shows the source language until a file arrives"] : [],
+      ...lazy ? ["    partialBundledLanguages: true,", "    supportedLngs: supported, // every language, loaded or not: the language menu lists these", "    react: { useSuspense: false }, // shows the source language until a file arrives"] : [],
       ssr ? `    lng: (typeof document !== 'undefined' && supported.includes(document.documentElement.lang) ? document.documentElement.lang : undefined) ?? '${config.sourceLocale}',` : `    lng: (saved && supported.includes(saved) ? saved : undefined) ?? device ?? '${config.sourceLocale}',`,
       `    fallbackLng: '${config.sourceLocale}',`,
       "    interpolation: { escapeValue: false }, // React already escapes",
@@ -218827,7 +219022,7 @@ async function planSetup(opts, result, changed, out) {
   if (!router && ["@remix-run/react", "@react-router/dev"].some((d3) => d3 in deps)) {
     result.notes.push('Server rendering: put the "lang" cookie on <html lang> in your root route (the language switcher sets it), so pages render in the visitor\u2019s language with no switch after loading.');
   }
-  addSwitcher({ cwd, config, changed, out, result, next: false, moduleFile: i18nFile, sample: entry ? readText(cwd, entry, changed) : opts.files[0]?.content ?? "", dir: router ? "app/" : void 0 });
+  addSwitcher({ cwd, config, changed, out, result, next: false, moduleFile: i18nFile, sample: entry ? readText(cwd, entry, changed) : opts.files[0]?.content ?? "", dir: routerApp ? "app/" : void 0 });
   if (config.framework === "react-native" && config.targetLocales.some(isRtl)) {
     result.notes.push("React Native: switching to or from a right-to-left language flips the layout on the next app start; restart it then (expo-updates reloadAsync, or react-native-restart).");
   }
@@ -218845,7 +219040,7 @@ async function planSetup(opts, result, changed, out) {
 ${code2}` : `${code2.slice(0, insertAt)}
 ${line}${code2.slice(insertAt)}`);
   result.entryFile = entry;
-  if (router) planReactRouterAddresses({ cwd, config, files: opts.files, changed, out, result }, i18nFile);
+  if (routerApp) planReactRouterAddresses({ cwd, config, files: opts.files, changed, out, result }, i18nFile);
   return result;
 }
 function findEntry(cwd, config, changed) {
@@ -218902,7 +219097,7 @@ async function planNextAppRouter(ctx) {
   const write3 = (file2, lines) => {
     if (readText(cwd, file2, changed) === void 0) out(file2, quote3(lines.join("\n")));
   };
-  const sources = await (0, import_fast_glob10.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
+  const sources = await (0, import_fast_glob10.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: NOT_SOURCE });
   const own = /* @__PURE__ */ new Set([resourcesFile, clientFile, serverFile, providerFile]);
   const initRe = /initReactI18next|i18next\s*\.\s*init\s*\(/;
   const existing = sources.find((f2) => !own.has(f2) && initRe.test(readText(cwd, f2, changed) ?? ""));
@@ -219409,7 +219604,7 @@ function mergeFiles(files, extra) {
   for (const f2 of extra) byPath.set(repoPath(f2.path), { ...f2, path: repoPath(f2.path) });
   return [...byPath.values()];
 }
-var import_fast_glob10, t9, I18N_PACKAGES, ICU_PACKAGES, toPosix2, I18NEXT_INIT, sameJson, isPlainObject, ENTRY_NAMES, EXTS2, SELF_VERSION2, isLegacySwitcher, LOCKFILES, LOCK_ONLY;
+var import_fast_glob10, t9, I18N_PACKAGES, ICU_PACKAGES, toPosix2, I18NEXT_INIT, sameJson, isPlainObject, NOT_SOURCE, ENTRY_NAMES, EXTS2, SELF_VERSION2, isLegacySwitcher, LOCKFILES, LOCK_ONLY;
 var init_setup = __esm({
   "src/setup.ts"() {
     "use strict";
@@ -219438,9 +219633,10 @@ var init_setup = __esm({
     I18NEXT_INIT = /\binitReactI18next\b|\bi18n(?:ext)?\s*\.\s*init\s*\(|\bcreateInstance\s*\(/;
     sameJson = (a, b4) => JSON.stringify(a) === JSON.stringify(b4);
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
+    NOT_SOURCE = ["**/node_modules/**", "**/*.d.ts", "**/{dist,build,out,coverage,.next,.react-router,.svelte-kit,.output,.astro,.vercel,.netlify}/**"];
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS2 = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.32.0" : "0.6.0";
+    SELF_VERSION2 = true ? "0.33.0" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -220366,7 +220562,7 @@ function displayKey(key2) {
   if (!key2.startsWith("[")) return key2;
   try {
     const parts = JSON.parse(key2);
-    return Array.isArray(parts) ? parts.join(".") : key2;
+    return Array.isArray(parts) ? parts.filter((p) => p !== null).join(".") : key2;
   } catch {
     return key2;
   }
@@ -220933,7 +221129,9 @@ async function scanProject(cwd, config, log) {
     take(description?.[1], "document.description", "meta description", description?.index ?? 0);
     if (strings2.length) scanned.push({ file: shell, code: code2, strings: strings2, server: false, keep: true });
   }
-  return { filesScanned: files.length, scanned, warnings: warnings2 };
+  const kept = keptAsWritten(config.doNotTranslate);
+  if (kept) for (const s of scanned) s.strings = s.strings.filter((str2) => !kept(str2.originalText));
+  return { filesScanned: files.length, scanned: kept ? scanned.filter((s) => s.strings.length) : scanned, warnings: warnings2 };
 }
 async function pool(items, limit, fn2) {
   let next2 = 0;
@@ -222429,6 +222627,7 @@ function regex(text4, i3, to) {
 }
 
 // src/check.ts
+init_text_ranges();
 init_rtl();
 
 // src/workspaces.ts
@@ -222721,6 +222920,9 @@ async function checkProject(cwd, config, log, only) {
         }
         if (keys.length) missing.push({ locale, file: store.path(locale), keys: keys.sort(), noFile: !have });
       }
+    } else if (!sourceFlat && config.localesPath.endsWith(".po")) {
+      const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
+      missing.push(...await localeFileGaps(cwd, { sourceLocale: config.sourceLocale, targetLocales: hasConfiguredLocales(cwd) ? targets : void 0 }));
     }
   }
   const outdated = [];
@@ -222815,11 +223017,13 @@ async function unknownKeys(cwd, config, only) {
   const out = [];
   for (const f2 of only ?? await (0, import_fast_glob15.default)(CODE, { cwd: path19.join(cwd, config.srcDir), ignore: IGNORE4 })) {
     const text4 = withoutComments(fs19.readFileSync(path19.join(cwd, config.srcDir, f2), "utf8"), f2);
+    const literal5 = textRanges(text4, f2);
     for (const re of KEY_USES) {
       for (const m2 of text4.matchAll(re)) {
         const key2 = m2[2];
         if (known.has(key2) || [...known].some((k) => k.startsWith(`${key2}.`))) continue;
         if (/[{(\[,]\s*["'`]$/.test(text4.slice(Math.max(0, m2.index - 20), m2.index))) continue;
+        if (literal5.some(([start2, end2]) => m2.index >= start2 && m2.index < end2)) continue;
         if (new RegExp(`exists\\(\\s*(['"\`])${key2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\1`).test(text4)) continue;
         out.push({ file: path19.posix.join(config.srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: key2 });
       }
@@ -222861,6 +223065,10 @@ async function fontCoverage(cwd, config) {
   for (const f2 of await (0, import_fast_glob15.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE4 })) {
     const text4 = fs19.readFileSync(path19.join(cwd, f2), "utf8");
     if (!/from\s*['"]next\/font\/google['"]/.test(text4)) continue;
+    const fonts = [...text4.matchAll(/\b([A-Z]\w*)\(\s*\{([^}]*)\}\s*\)/g)];
+    const covered = new Set(
+      Object.values(SCRIPT2).filter((script) => fonts.some((m2) => m2[1].split("_").includes(script) || new RegExp(`['"]${script.toLowerCase()}['"]`).test(m2[2])))
+    );
     for (const m2 of text4.matchAll(/\b([A-Z]\w*)\(\s*\{([^}]*)\}\s*\)/g)) {
       const subsets = /subsets\s*:\s*\[([^\]]*)\]/.exec(m2[2]);
       if (!subsets) continue;
@@ -222868,7 +223076,7 @@ async function fontCoverage(cwd, config) {
       const line = text4.slice(0, m2.index).split("\n").length;
       const need = [...new Set(langs.map((l2) => SUBSET[l2]).filter((s) => !!s && !has.includes(s)))];
       if (need.length) out.push({ file: f2, line, text: `${m2[1]} lacks the ${need.join(", ")} subset${need.length > 1 ? "s" : ""} (${langs.filter((l2) => need.includes(SUBSET[l2])).join(", ")}): add ${need.map((s) => `'${s}'`).join(", ")} to subsets if the font has ${need.length > 1 ? "them" : "it"}` });
-      const scripts = [...new Set(langs.map((l2) => SCRIPT2[l2]).filter(Boolean))];
+      const scripts = [...new Set(langs.map((l2) => SCRIPT2[l2]).filter((s) => s && !covered.has(s)))];
       if (scripts.length) out.push({ file: f2, line, text: `${m2[1]} has no ${scripts.join(", ")} letters: pair it with a font that does (e.g. Noto Sans ${scripts[0]}) for those languages` });
     }
   }
