@@ -21930,9 +21930,9 @@ var require_parse3 = __commonJS({
                 const idx = prev.value.lastIndexOf("[");
                 const pre = prev.value.slice(0, idx);
                 const rest3 = prev.value.slice(idx + 2);
-                const posix10 = POSIX_REGEX_SOURCE[rest3];
-                if (posix10) {
-                  prev.value = pre + posix10;
+                const posix11 = POSIX_REGEX_SOURCE[rest3];
+                if (posix11) {
+                  prev.value = pre + posix11;
                   state.backtrack = true;
                   advance3();
                   if (!bos.output && tokens2.indexOf(prev) === 1) {
@@ -22453,7 +22453,7 @@ var require_picomatch = __commonJS({
         throw new TypeError("Expected pattern to be a non-empty string");
       }
       const opts = options || {};
-      const posix10 = utils.isWindows(options);
+      const posix11 = utils.isWindows(options);
       const regex2 = isState ? picomatch.compileRe(glob, options) : picomatch.makeRe(glob, options, false, true);
       const state = regex2.state;
       delete regex2.state;
@@ -22463,8 +22463,8 @@ var require_picomatch = __commonJS({
         isIgnored2 = picomatch(opts.ignore, ignoreOpts, returnState);
       }
       const matcher = (input, returnObject = false) => {
-        const { isMatch, match: match2, output } = picomatch.test(input, regex2, options, { glob, posix: posix10 });
-        const result = { glob, state, regex: regex2, posix: posix10, input, output, match: match2, isMatch };
+        const { isMatch, match: match2, output } = picomatch.test(input, regex2, options, { glob, posix: posix11 });
+        const result = { glob, state, regex: regex2, posix: posix11, input, output, match: match2, isMatch };
         if (typeof opts.onResult === "function") {
           opts.onResult(result);
         }
@@ -22489,7 +22489,7 @@ var require_picomatch = __commonJS({
       }
       return matcher;
     };
-    picomatch.test = (input, regex2, options, { glob, posix: posix10 } = {}) => {
+    picomatch.test = (input, regex2, options, { glob, posix: posix11 } = {}) => {
       if (typeof input !== "string") {
         throw new TypeError("Expected input to be a string");
       }
@@ -22497,7 +22497,7 @@ var require_picomatch = __commonJS({
         return { isMatch: false, output: "" };
       }
       const opts = options || {};
-      const format = opts.format || (posix10 ? utils.toPosixSlashes : null);
+      const format = opts.format || (posix11 ? utils.toPosixSlashes : null);
       let match2 = input === glob;
       let output = match2 && format ? format(input) : input;
       if (match2 === false) {
@@ -22506,14 +22506,14 @@ var require_picomatch = __commonJS({
       }
       if (match2 === false || opts.capture === true) {
         if (opts.matchBase === true || opts.basename === true) {
-          match2 = picomatch.matchBase(input, regex2, options, posix10);
+          match2 = picomatch.matchBase(input, regex2, options, posix11);
         } else {
           match2 = regex2.exec(output);
         }
       }
       return { isMatch: Boolean(match2), match: match2, output };
     };
-    picomatch.matchBase = (input, glob, options, posix10 = utils.isWindows(options)) => {
+    picomatch.matchBase = (input, glob, options, posix11 = utils.isWindows(options)) => {
       const regex2 = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
       return regex2.test(path21.basename(input));
     };
@@ -22702,9 +22702,9 @@ var require_micromatch = __commonJS({
       return [].concat(patterns).every((p) => picomatch(p, options)(str2));
     };
     micromatch.capture = (glob, input, options) => {
-      let posix10 = utils.isWindows(options);
+      let posix11 = utils.isWindows(options);
       let regex2 = picomatch.makeRe(String(glob), { ...options, capture: true });
-      let match2 = regex2.exec(posix10 ? utils.toPosixSlashes(input) : input);
+      let match2 = regex2.exec(posix11 ? utils.toPosixSlashes(input) : input);
       if (match2) {
         return match2.slice(1).map((v2) => v2 === void 0 ? "" : v2);
       }
@@ -25156,19 +25156,19 @@ var require_out4 = __commonJS({
         return utils.path.convertPathToPattern(source2);
       }
       FastGlob2.convertPathToPattern = convertPathToPattern;
-      let posix10;
-      (function(posix11) {
+      let posix11;
+      (function(posix12) {
         function escapePath2(source2) {
           assertPatternsInput(source2);
           return utils.path.escapePosixPath(source2);
         }
-        posix11.escapePath = escapePath2;
+        posix12.escapePath = escapePath2;
         function convertPathToPattern2(source2) {
           assertPatternsInput(source2);
           return utils.path.convertPosixPathToPattern(source2);
         }
-        posix11.convertPathToPattern = convertPathToPattern2;
-      })(posix10 = FastGlob2.posix || (FastGlob2.posix = {}));
+        posix12.convertPathToPattern = convertPathToPattern2;
+      })(posix11 = FastGlob2.posix || (FastGlob2.posix = {}));
       let win32;
       (function(win322) {
         function escapePath2(source2) {
@@ -213591,6 +213591,65 @@ var init_html_pages = __esm({
   }
 });
 
+// src/seo.ts
+function ogLocale(lng) {
+  const [lang, ...rest2] = lng.split("-");
+  const region = rest2.find((p) => /^[A-Za-z]{2}$|^\d{3}$/.test(p));
+  if (region) return `${lang.toLowerCase()}_${region.toUpperCase()}`;
+  return OG_TERRITORY[lang.toLowerCase()] ? `${lang.toLowerCase()}_${OG_TERRITORY[lang.toLowerCase()]}` : lang.toLowerCase();
+}
+var OG_TERRITORY, PRIVATE_SEGMENTS;
+var init_seo = __esm({
+  "src/seo.ts"() {
+    "use strict";
+    OG_TERRITORY = {
+      en: "US",
+      es: "ES",
+      fr: "FR",
+      de: "DE",
+      it: "IT",
+      pt: "PT",
+      nl: "NL",
+      ja: "JP",
+      ko: "KR",
+      zh: "CN",
+      ar: "AR",
+      he: "IL",
+      ru: "RU",
+      pl: "PL",
+      tr: "TR",
+      sv: "SE",
+      da: "DK",
+      nb: "NO",
+      no: "NO",
+      fi: "FI",
+      cs: "CZ",
+      uk: "UA",
+      hi: "IN",
+      id: "ID",
+      vi: "VN",
+      th: "TH",
+      el: "GR",
+      ro: "RO",
+      hu: "HU",
+      fa: "IR",
+      ur: "PK",
+      bn: "IN",
+      ms: "MY",
+      sk: "SK",
+      bg: "BG",
+      hr: "HR",
+      sr: "RS",
+      sl: "SI",
+      lt: "LT",
+      lv: "LV",
+      et: "EE",
+      ca: "ES"
+    };
+    PRIVATE_SEGMENTS = /^(admin|dashboard|account|accounts|settings|profile|login|logout|signin|sign-in|signup|sign-up|register|onboarding|reset-password|forgot-password|verify|checkout|cart|api)$/;
+  }
+});
+
 // src/setup-frameworks.ts
 import * as fs9 from "node:fs";
 import * as path8 from "node:path";
@@ -213640,6 +213699,17 @@ function importInEntry(ctx, entry, spec2, edit) {
     code2 = `${code2.slice(0, at2)}${at2 ? "\n" : ""}${spec2}${at2 ? "" : "\n"}${code2.slice(at2)}`;
   }
   ctx.out(entry, edit ? edit(code2) : code2);
+}
+function kitReroutes(ctx) {
+  let version2;
+  try {
+    version2 = JSON.parse(fs9.readFileSync(path8.join(ctx.cwd, "node_modules/@sveltejs/kit/package.json"), "utf8")).version;
+  } catch {
+    const pkg = JSON.parse(readText(ctx.cwd, "package.json", ctx.changed) ?? "{}");
+    version2 = { ...pkg.dependencies, ...pkg.devDependencies }["@sveltejs/kit"];
+  }
+  const m2 = /(\d+)\.(\d+)/.exec(version2 ?? "");
+  return !m2 || Number(m2[1]) > 2 || Number(m2[1]) === 2 && (Number(m2[2]) >= 3 || /^\^/.test(version2.trim()));
 }
 function planVueSetup(ctx) {
   const { cwd, config, result } = ctx;
@@ -213881,9 +213951,11 @@ function planSvelteSetup(ctx) {
   }
   const bundles = localeImports(ctx, file2);
   const supported = JSON.stringify(locales(config)).replace(/"/g, "'").replace(/,/g, ", ");
+  const prefixed = kit && kitReroutes(ctx);
   ctx.out(
     file2,
     [
+      ...prefixed ? ["import { goto } from '$app/navigation';"] : [],
       kit ? "import { _, addMessages, init, locale } from 'svelte-i18n';" : "import { addMessages, init, locale } from 'svelte-i18n';",
       ...kit ? ["import { get } from 'svelte/store';"] : [],
       ...bundles.map((b4) => b4.line),
@@ -213902,6 +213974,15 @@ function planSvelteSetup(ctx) {
       `export function setLanguage(lang${ts ? ": string" : ""}) {`,
       "  locale.set(lang);",
       ...rememberLines,
+      ...prefixed ? [
+        "  // On an address that carries the language (/es/about), go to the page in the new one.",
+        "  if (typeof location === 'undefined') return;",
+        "  const [, first] = location.pathname.split('/');",
+        `  if (first === '${config.sourceLocale}' || !supported.includes(first)) return;`,
+        "  const bare = location.pathname.slice(first.length + 1) || '/';",
+        `  const path = lang === '${config.sourceLocale}' ? bare : \`/\${lang}\${bare === '/' ? '' : bare}\`;`,
+        "  goto(`${path}${location.search}`, { replaceState: true, noScroll: true, keepFocus: true, invalidateAll: true });"
+      ] : [],
       "}",
       ...kit ? [
         "",
@@ -213923,8 +214004,10 @@ function planSvelteSetup(ctx) {
     const layout = firstExisting(ctx, ["src/routes/+layout.ts", "src/routes/+layout.js"]) ?? `src/routes/+layout.${ext}`;
     if (readText(cwd, layout, ctx.changed) === void 0) ctx.out(layout, "import '$lib/i18n';\n");
     else importInEntry(ctx, layout, "import '$lib/i18n';");
-    planSvelteKitHooks(ctx, hooks, ts, supported);
+    planSvelteKitHooks(ctx, hooks, ts, supported, prefixed);
     planSvelteKitRendering(ctx, ext, ts);
+    if (prefixed) planSvelteKitAddresses(ctx, ts);
+    else result.notes.push("SvelteKit: every language shares each address, so search engines index one. Upgrade @sveltejs/kit to 2.3 or later and run again for /es/\u2026 addresses.");
   } else {
     const entry = firstExisting(ctx, ["ts", "js"].map((e2) => `${srcPrefix(config)}main.${e2}`));
     if (entry) importInEntry(ctx, entry, `import '${relFrom(entry, file2).replace(/\.[jt]s$/, "")}';`);
@@ -214040,7 +214123,7 @@ ${code2}` : null;
   if (next2) ctx.out(layout, next2);
   else result.notes.push(`SvelteKit: in \`${layout}\`, call svelte-i18n's \`locale.set(data.lang)\` at the top of its script, so each request renders in its own language.`);
 }
-function planSvelteKitHooks(ctx, file2, ts, supported) {
+function planSvelteKitHooks(ctx, file2, ts, supported, prefixed = false) {
   const { config, result } = ctx;
   const existing = readText(ctx.cwd, file2, ctx.changed);
   if (existing !== void 0 && !isGenerated(existing)) {
@@ -214051,32 +214134,152 @@ function planSvelteKitHooks(ctx, file2, ts, supported) {
     }
     return;
   }
+  const source2 = config.sourceLocale;
+  const S = (s) => ts ? s : "";
   ctx.out(
     file2,
     [
-      `// ${GENERATED}. Renders each page in the visitor's language: their saved choice`,
-      `// (the "lang" cookie), then the browser's Accept-Language, then ${config.sourceLocale}.`,
+      ...prefixed ? [
+        `// ${GENERATED}. Renders each page in the visitor's language: the one in its address`,
+        `// (/es/about), then their saved choice (the "lang" cookie), then the browser's Accept-Language,`,
+        `// then ${source2}.`
+      ] : [`// ${GENERATED}. Renders each page in the visitor's language: their saved choice`, `// (the "lang" cookie), then the browser's Accept-Language, then ${source2}.`],
+      ...prefixed ? ["// Pages get hreflang links to their address in each language, a canonical address and og:locale."] : [],
       ...ts ? ["import type { Handle } from '@sveltejs/kit';"] : [],
       "import '$lib/i18n';",
       "",
       `const supported = ${supported};`,
       rtlLine,
+      ...prefixed ? [
+        `const OG_LOCALES${S(": Record<string, string>")} = { ${locales(config).map((l2) => `'${l2}': '${ogLocale(l2)}'`).join(", ")} };`,
+        `// Full addresses for search engines: this, else the address the request came to.`,
+        `const SITE${S(": string | null")} = ${config.siteUrl ? `'${config.siteUrl.replace(/\/+$/, "")}'` : "null"};`,
+        "",
+        "/** The language an address carries (/es/about \u2192 es), if any. */",
+        `const fromAddress = (pathname${S(": string")}) => supported.find((l) => l !== '${source2}' && (pathname === \`/\${l}\` || pathname.startsWith(\`/\${l}/\`)));`,
+        "",
+        "/** <link>s and <meta>s for <head>: the page in every language, its canonical address, og:locale. */",
+        `function languageHead(url${S(": URL")}, lang${S(": string")}, html${S(": string")}) {`,
+        "  const prefix = fromAddress(url.pathname);",
+        "  const bare = prefix ? url.pathname.slice(prefix.length + 1) || '/' : url.pathname;",
+        "  const site = SITE ?? url.origin;",
+        `  const at = (l${S(": string")}) => \`\${site}\${l === '${source2}' ? bare : \`/\${l}\${bare === '/' ? '' : bare}\`}\`;`,
+        '  const tags = supported.map((l) => `<link rel="alternate" hreflang="${l}" href="${at(l)}">`);',
+        `  tags.push(\`<link rel="alternate" hreflang="x-default" href="\${at('${source2}')}">\`);`,
+        "  // A page that sets its own keeps it.",
+        '  if (!/rel="canonical"/.test(html)) tags.push(`<link rel="canonical" href="${at(lang)}">`);',
+        '  if (!/property="og:locale"/.test(html)) {',
+        '    tags.push(`<meta property="og:locale" content="${OG_LOCALES[lang] ?? lang}">`);',
+        '    for (const l of supported) if (l !== lang) tags.push(`<meta property="og:locale:alternate" content="${OG_LOCALES[l] ?? l}">`);',
+        "  }",
+        "  return tags.join('');",
+        "}"
+      ] : [],
       "",
       ...ts ? [] : ["/** @type {import('@sveltejs/kit').Handle} */"],
       `export const handle${ts ? ": Handle" : ""} = async ({ event, resolve }) => {`,
       "  const accepted = (event.request.headers.get('accept-language') ?? '').split(',').map((part) => part.split(';')[0].trim());",
       `  const saved = event.cookies.get('lang');`,
-      `  const lang = (saved && supported.includes(saved) ? saved : undefined) ?? ${bestLanguage("accepted", "supported")} ?? '${config.sourceLocale}';`,
+      `  const lang = ${prefixed ? "fromAddress(event.url.pathname) ?? " : ""}(saved && supported.includes(saved) ? saved : undefined) ?? ${bestLanguage("accepted", "supported")} ?? '${source2}';`,
       "  // Per request: svelte-i18n's own locale is shared by every request the server handles at once.",
       "  event.locals.lang = lang;",
       "  const dir = RTL.includes(lang) ? 'rtl' : 'ltr';",
       "  return resolve(event, {",
-      `    transformPageChunk: ({ html }) => html.replace(/<html([^>]*)>/, (_${ts ? ": string" : ""}, attrs${ts ? ": string" : ""}) => \`<html\${attrs.replace(/\\s(lang|dir)="[^"]*"/g, '')} lang="\${lang}" dir="\${dir}">\`),`,
+      prefixed ? `    transformPageChunk: ({ html }) => {
+      html = html.replace(/<html([^>]*)>/, (_${S(": string")}, attrs${S(": string")}) => \`<html\${attrs.replace(/\\s(lang|dir)="[^"]*"/g, '')} lang="\${lang}" dir="\${dir}">\`);
+      // Pages only: not an address no route matched.
+      return event.route.id && html.includes('</head>') ? html.replace('</head>', \`\${languageHead(event.url, lang, html)}</head>\`) : html;
+    },` : `    transformPageChunk: ({ html }) => html.replace(/<html([^>]*)>/, (_${S(": string")}, attrs${S(": string")}) => \`<html\${attrs.replace(/\\s(lang|dir)="[^"]*"/g, '')} lang="\${lang}" dir="\${dir}">\`),`,
       "  });",
       "};",
       ""
     ].join("\n")
   );
+}
+function planSvelteKitAddresses(ctx, ts) {
+  const { cwd, config, result } = ctx;
+  const ext = ts ? "ts" : "js";
+  const S = (s) => ts ? s : "";
+  const prefixes = JSON.stringify(locales(config).filter((l2) => l2 !== config.sourceLocale)).replace(/"/g, "'").replace(/,/g, ", ");
+  const hooks = firstExisting(ctx, ["src/hooks.ts", "src/hooks.js"]) ?? `src/hooks.${ext}`;
+  const current2 = readText(cwd, hooks, ctx.changed);
+  if (current2 !== void 0 && !isGenerated(current2)) {
+    if (!/\breroute\b/.test(current2)) result.notes.push(`SvelteKit: \`${hooks}\` already exists; export a \`reroute\` there that takes the language off the address (/es/about \u2192 /about), so each language has its own address.`);
+  } else {
+    ctx.out(
+      hooks,
+      [
+        `// ${GENERATED}: /es/about is the about page in Spanish. The language is taken off the`,
+        "// address before routing, so routes need no [lang] folder; hooks.server renders in it.",
+        ...ts ? ["import type { Reroute } from '@sveltejs/kit';", ""] : [],
+        `const prefixes = ${prefixes};`,
+        "",
+        ...ts ? [] : ["/** @type {import('@sveltejs/kit').Reroute} */"],
+        `export const reroute${S(": Reroute")} = ({ url }) => {`,
+        "  const [, first] = url.pathname.split('/');",
+        "  if (prefixes.includes(first)) return url.pathname.slice(first.length + 1) || '/';",
+        "};",
+        ""
+      ].join("\n")
+    );
+  }
+  const has = (f2) => readText(cwd, f2, ctx.changed) !== void 0 || fs9.existsSync(path8.join(cwd, f2));
+  const sitemap = `src/routes/sitemap.xml/+server.${ext}`;
+  const sitemapCode = readText(cwd, sitemap, ctx.changed);
+  const sitemapTaken = sitemapCode !== void 0 && !isGenerated(sitemapCode) || import_fast_glob5.default.sync("src/routes/**/sitemap*/+server.*", { cwd }).some((f2) => f2 !== sitemap) || import_fast_glob5.default.sync("static/sitemap*.xml", { cwd }).length > 0;
+  if (!sitemapTaken) {
+    const next2 = [
+      `// ${GENERATED}: every page in every language, with hreflang links between them.`,
+      "// Built from the routes folder, so new pages are listed without a run. Pages under a [param],",
+      "// (group) folders aside, and signed-in areas (account, dashboard\u2026) are left out.",
+      ...ts ? ["import type { RequestHandler } from './$types';"] : [],
+      "",
+      `const languages = ${JSON.stringify(locales(config)).replace(/"/g, "'").replace(/,/g, ", ")};`,
+      `const SITE${S(": string | null")} = ${config.siteUrl ? `'${config.siteUrl.replace(/\/+$/, "")}'` : "null"};`,
+      `const PRIVATE = ${PRIVATE_SEGMENTS.toString()};`,
+      "const paths = [",
+      "  ...new Set(",
+      "    Object.keys(import.meta.glob('/src/routes/**/+page.svelte')).flatMap((file) => {",
+      "      const segments = file.replace(/^\\/src\\/routes\\/?/, '').replace(/\\/?\\+page\\.svelte$/, '').split('/').filter((s) => s && !/^\\(.*\\)$/.test(s));",
+      "      if (segments.some((s) => s.startsWith('[') || PRIVATE.test(s))) return [];",
+      "      return [`/${segments.join('/')}`];",
+      "    }),",
+      "  ),",
+      "].sort();",
+      "",
+      `export const GET${S(": RequestHandler")} = ({ url }) => {`,
+      "  const site = SITE ?? url.origin;",
+      `  const at = (page${S(": string")}, lang${S(": string")}) => \`\${site}\${lang === '${config.sourceLocale}' ? page : \`/\${lang}\${page === '/' ? '' : page}\`}\`;`,
+      "  const urls = paths.flatMap((page) =>",
+      "    languages.map((lang) =>",
+      "      [",
+      "        '  <url>',",
+      "        `    <loc>${at(page, lang)}</loc>`,",
+      '        ...languages.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${at(page, l)}"/>`),',
+      `        \`    <xhtml:link rel="alternate" hreflang="x-default" href="\${at(page, '${config.sourceLocale}')}"/>\`,`,
+      "        '  </url>',",
+      "      ].join('\\n'),",
+      "    ),",
+      "  );",
+      '  const xml = `<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\\n${urls.join(\'\\n\')}\\n</urlset>\\n`;',
+      "  return new Response(xml, { headers: { 'Content-Type': 'application/xml' } });",
+      "};",
+      ""
+    ].join("\n");
+    if (sitemapCode !== next2) ctx.out(sitemap, next2);
+  }
+  const robotsTaken = has("static/robots.txt") || import_fast_glob5.default.sync("src/routes/robots.txt/+server.*", { cwd }).length > 0;
+  if (!robotsTaken && !sitemapTaken) {
+    ctx.out(
+      `src/routes/robots.txt/+server.${ext}`,
+      [
+        "// Written by localize.dev, and yours to edit: every crawler welcome, and where the sitemap is.",
+        ...ts ? ["import type { RequestHandler } from './$types';", ""] : [],
+        `export const GET${S(": RequestHandler")} = ({ url }) => new Response(\`User-agent: *\\nAllow: /\\nSitemap: \${url.origin}/sitemap.xml\\n\`);`,
+        ""
+      ].join("\n")
+    );
+  }
 }
 function planHtmlSetup(ctx, upgradeOnly = false) {
   const { cwd, config, result } = ctx;
@@ -215551,9 +215754,10 @@ var init_setup_frameworks = __esm({
     init_astro();
     init_setup();
     init_paths();
+    init_seo();
     toPosix = (p) => p.split(path8.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.28.0" : "0.6.0";
+    SELF_VERSION = true ? "0.29.0" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -216004,12 +216208,6 @@ var init_setup_languages = __esm({
 // src/setup-seo.ts
 import * as fs10 from "node:fs";
 import * as path9 from "node:path";
-function ogLocale(lng) {
-  const [lang, ...rest2] = lng.split("-");
-  const region = rest2.find((p) => /^[A-Za-z]{2}$|^\d{3}$/.test(p));
-  if (region) return `${lang.toLowerCase()}_${region.toUpperCase()}`;
-  return OG_TERRITORY[lang.toLowerCase()] ? `${lang.toLowerCase()}_${OG_TERRITORY[lang.toLowerCase()]}` : lang.toLowerCase();
-}
 async function staticRoutes(cwd, appDir) {
   const pages = await (0, import_fast_glob7.default)("**/page.{tsx,jsx,ts,js,mdx,md}", { cwd: path9.join(cwd, appDir), ignore: ["**/node_modules/**"] });
   const routes = /* @__PURE__ */ new Set();
@@ -216017,7 +216215,7 @@ async function staticRoutes(cwd, appDir) {
     const segments = page.split("/").slice(0, -1);
     if (segments.some((s) => s.startsWith("[") || s.startsWith("_") || s.startsWith("@") || /^\(\.+\)/.test(s))) continue;
     const kept = segments.filter((s) => !/^\(.*\)$/.test(s));
-    if (kept.some((s) => PRIVATE.test(s))) continue;
+    if (kept.some((s) => PRIVATE_SEGMENTS.test(s))) continue;
     routes.add(`/${kept.join("/")}`);
   }
   return [...routes].sort((a, b4) => a === "/" ? -1 : b4 === "/" ? 1 : a.localeCompare(b4));
@@ -216172,59 +216370,138 @@ async function addSearch(ctx) {
     );
   }
 }
-var import_fast_glob7, EXTS, OG_TERRITORY, PRIVATE;
+function addAstroSearch(ctx, moduleFile) {
+  const { cwd, config, changed, out, result } = ctx;
+  const ts = /\.ts$/.test(moduleFile);
+  const T = (s) => ts ? s : "";
+  const languages = locales(config);
+  const og = `{ ${languages.map((l2) => `'${l2}': '${ogLocale(l2)}'`).join(", ")} }`;
+  const moduleDir = moduleFile.replace(/\/index\.[jt]s$/, "").replace(/\.[jt]s$/, "");
+  const at2 = (from) => path9.posix.dirname(from) === path9.posix.dirname(moduleFile) ? `./${path9.posix.basename(moduleFile).replace(/\.[jt]s$/, "")}` : relFrom(from, moduleDir);
+  const head = `${path9.posix.dirname(moduleFile)}/I18nHead.astro`;
+  const headCode = readText(cwd, head, changed);
+  if (headCode === void 0 || isGenerated(headCode)) {
+    const next2 = [
+      "---",
+      `// ${GENERATED}: in <head>, this page in every language (hreflang), its canonical`,
+      "// address and og:locale, so search engines show each language its own page.",
+      `import { defaultLang, getLangFromUrl, languages, localizePath } from '${at2(head)}';`,
+      "",
+      ...ts ? ["interface Props {", "  /** false when the layout sets its own canonical link. */", "  canonical?: boolean;", "}", ""] : [],
+      `const OG_LOCALES${T(": Record<string, string>")} = ${og};`,
+      siteLine(config, T),
+      "const { canonical = true } = Astro.props;",
+      "const lang = getLangFromUrl(Astro.url);",
+      "// Search engines need full addresses: the site from astro.config, else siteUrl.",
+      "const site = Astro.site?.href ?? SITE;",
+      `const href = (l${T(": string")}) => (site ? new URL(localizePath(Astro.url.pathname, l), site).href : localizePath(Astro.url.pathname, l));`,
+      "---",
+      '{canonical && <link rel="canonical" href={href(lang)} />}',
+      '{languages.map((l) => <link rel="alternate" hreflang={l} href={href(l)} />)}',
+      '<link rel="alternate" hreflang="x-default" href={href(defaultLang)} />',
+      '<meta property="og:locale" content={OG_LOCALES[lang] ?? lang} />',
+      '{languages.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={OG_LOCALES[l] ?? l} />)}',
+      ""
+    ].join("\n");
+    if (headCode !== next2) out(head, next2);
+  }
+  for (const f2 of import_fast_glob7.default.sync("**/*.astro", { cwd: path9.join(cwd, config.srcDir), ignore: ["**/node_modules/**"] }).map((p) => `${srcPrefix(config)}${p}`)) {
+    if (f2 === head) continue;
+    const code2 = readText(cwd, f2, changed) ?? "";
+    const open3 = /^([ \t]*)<head\b[^>]*>/m.exec(code2);
+    if (!open3 || code2.includes("<I18nHead")) continue;
+    const indent2 = /\n([ \t]*)\S/.exec(code2.slice(open3.index + open3[0].length))?.[1] ?? `${open3[1]}  `;
+    const tag2 = /rel=["']canonical["']/.test(code2) ? "<I18nHead canonical={false} />" : "<I18nHead />";
+    const cut = open3.index + open3[0].length;
+    const body = `${code2.slice(0, cut)}
+${indent2}${tag2}${code2.slice(cut)}`;
+    out(f2, inFrontmatter(body, `import I18nHead from '${relFrom(f2, head)}';`));
+  }
+  const pagesDir = `${srcPrefix(config)}pages`;
+  const has = (f2) => readText(cwd, f2, changed) !== void 0 || fs10.existsSync(path9.join(cwd, f2));
+  const ext = ts ? "ts" : "js";
+  const sitemap = `${pagesDir}/sitemap.xml.${ext}`;
+  const sitemapCode = readText(cwd, sitemap, changed);
+  const sitemapTaken = sitemapCode !== void 0 && !isGenerated(sitemapCode) || hasDep(ctx, "@astrojs/sitemap") || import_fast_glob7.default.sync(["sitemap*", "sitemap*.*"], { cwd: path9.join(cwd, pagesDir) }).some((f2) => f2 !== `sitemap.xml.${ext}`) || import_fast_glob7.default.sync("sitemap*.xml", { cwd: path9.join(cwd, "public") }).length > 0;
+  if (!sitemapTaken) {
+    const next2 = [
+      `// ${GENERATED}: every page in every language, with hreflang links between them.`,
+      "// Built from the pages folder, so new pages are listed without a run. Pages under a [param], a",
+      "// signed-in area (account, dashboard\u2026) and the language copies themselves are left out.",
+      ...ts ? ["import type { APIRoute } from 'astro';"] : [],
+      `import { defaultLang, languages, localizePath } from '${at2(sitemap)}';`,
+      "",
+      siteLine(config, T),
+      `const PRIVATE = ${PRIVATE_SEGMENTS.toString()};`,
+      "const pages = Object.keys(import.meta.glob('./**/*.{astro,md,mdx,html}'));",
+      "const paths = [",
+      "  ...new Set(",
+      "    pages.flatMap((file) => {",
+      "      const segments = file.replace(/^\\.\\//, '').replace(/\\.\\w+$/, '').split('/');",
+      "      if (segments[segments.length - 1] === 'index') segments.pop();",
+      "      if (languages.includes(segments[0]) || segments.some((s) => s.startsWith('[') || s.startsWith('_') || PRIVATE.test(s))) return [];",
+      "      return [`/${segments.join('/')}`];",
+      "    }),",
+      "  ),",
+      "].sort();",
+      "",
+      `export const GET${T(": APIRoute")} = ({ site }) => {`,
+      "  const base = site?.href ?? SITE;",
+      "  if (!base) return new Response('Set site in astro.config, or siteUrl in localize.config.json: a sitemap needs full addresses.', { status: 404 });",
+      `  const at = (page${T(": string")}, lang${T(": string")}) => new URL(localizePath(page, lang), base).href;`,
+      "  const urls = paths.flatMap((page) =>",
+      "    languages.map((lang) =>",
+      "      [",
+      "        '  <url>',",
+      "        `    <loc>${at(page, lang)}</loc>`,",
+      '        ...languages.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${at(page, l)}"/>`),',
+      '        `    <xhtml:link rel="alternate" hreflang="x-default" href="${at(page, defaultLang)}"/>`,',
+      "        '  </url>',",
+      "      ].join('\\n'),",
+      "    ),",
+      "  );",
+      '  const xml = `<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\\n${urls.join(\'\\n\')}\\n</urlset>\\n`;',
+      "  return new Response(xml, { headers: { 'Content-Type': 'application/xml' } });",
+      "};",
+      ""
+    ].join("\n");
+    if (sitemapCode !== next2) out(sitemap, next2);
+    const astroConfig = ["mjs", "ts", "js", "mts", "cjs"].map((e2) => readText(cwd, `astro.config.${e2}`, changed) ?? "").join("\n");
+    if (!config.siteUrl && !/\bsite\s*:/.test(astroConfig)) result.notes.push(`Set \`site\` in astro.config (or "siteUrl" in localize.config.json): \`${sitemap}\` and the hreflang links need full addresses.`);
+  }
+  const robotsTaken = has("public/robots.txt") || import_fast_glob7.default.sync("robots.txt*", { cwd: path9.join(cwd, pagesDir) }).length > 0;
+  if (!robotsTaken && !sitemapTaken) {
+    const robots = `${pagesDir}/robots.txt.${ext}`;
+    out(
+      robots,
+      [
+        "// Written by localize.dev, and yours to edit: every crawler welcome, and where the sitemap is.",
+        ...ts ? ["import type { APIRoute } from 'astro';"] : [],
+        "",
+        siteLine(config, T),
+        "",
+        `export const GET${T(": APIRoute")} = ({ site }) => {`,
+        "  const base = site?.href ?? SITE;",
+        "  const sitemap = base ? `Sitemap: ${new URL('/sitemap.xml', base).href}\\n` : '';",
+        "  return new Response(`User-agent: *\\nAllow: /\\n${sitemap}`);",
+        "};",
+        ""
+      ].join("\n")
+    );
+  }
+}
+var import_fast_glob7, EXTS, siteLine;
 var init_setup_seo = __esm({
   "src/setup-seo.ts"() {
     "use strict";
     import_fast_glob7 = __toESM(require_out4(), 1);
+    init_paths();
+    init_seo();
     init_setup_frameworks();
     init_setup();
+    init_seo();
     EXTS = ["tsx", "jsx", "ts", "js"];
-    OG_TERRITORY = {
-      en: "US",
-      es: "ES",
-      fr: "FR",
-      de: "DE",
-      it: "IT",
-      pt: "PT",
-      nl: "NL",
-      ja: "JP",
-      ko: "KR",
-      zh: "CN",
-      ar: "AR",
-      he: "IL",
-      ru: "RU",
-      pl: "PL",
-      tr: "TR",
-      sv: "SE",
-      da: "DK",
-      nb: "NO",
-      no: "NO",
-      fi: "FI",
-      cs: "CZ",
-      uk: "UA",
-      hi: "IN",
-      id: "ID",
-      vi: "VN",
-      th: "TH",
-      el: "GR",
-      ro: "RO",
-      hu: "HU",
-      fa: "IR",
-      ur: "PK",
-      bn: "IN",
-      ms: "MY",
-      sk: "SK",
-      bg: "BG",
-      hr: "HR",
-      sr: "RS",
-      sl: "SI",
-      lt: "LT",
-      lv: "LV",
-      et: "EE",
-      ca: "ES"
-    };
-    PRIVATE = /^(admin|dashboard|account|accounts|settings|profile|login|logout|signin|sign-in|signup|sign-up|register|onboarding|reset-password|forgot-password|verify|checkout|cart|api)$/;
+    siteLine = (config, T) => `const SITE${T(": string | null")} = ${config.siteUrl ? `'${config.siteUrl.replace(/\/+$/, "")}'` : "null"};`;
   }
 });
 
@@ -217799,14 +218076,26 @@ async function planSetup(opts, result, changed, out) {
     if (opts.upgradeOnly) {
       planFrameworkSwitcher(ctx);
       const ours2 = (file2) => isGenerated(readText(cwd, file2, changed) ?? "");
-      if (config.framework === "astro" && ours2(astroModulePath(cwd, config))) astroPageCopies(ctx);
+      const kitModule = ["ts", "js"].map((e2) => `src/lib/i18n.${e2}`).find(ours2);
+      if (config.framework === "svelte" && kitModule && !readText(cwd, kitModule, changed).includes("$app/navigation") && kitReroutes(ctx)) {
+        const notes = result.notes.length;
+        planSvelteSetup(ctx);
+        result.notes.splice(notes);
+      }
+      if (config.framework === "astro" && ours2(astroModulePath(cwd, config))) {
+        astroPageCopies(ctx);
+        addAstroSearch(ctx, astroModulePath(cwd, config));
+      }
       const city = hasDep(ctx, "@builder.io/qwik-city") || hasDep(ctx, "@qwik.dev/router");
       if (config.framework === "qwik" && city && ours2(solidModulePath(cwd, config))) qwikRouteCopies(ctx);
       return result;
     }
     if (config.framework === "angular") planAngularSetup(ctx);
-    else if (config.framework === "astro") planAstroSetup(ctx);
-    else if (config.framework === "qwik") planQwikSetup(ctx);
+    else if (config.framework === "astro") {
+      planAstroSetup(ctx);
+      const module = astroModulePath(cwd, config);
+      if (isGenerated(readText(cwd, module, changed) ?? "")) addAstroSearch(ctx, module);
+    } else if (config.framework === "qwik") planQwikSetup(ctx);
     else if (config.framework === "ember") planEmberSetup(ctx);
     else if (config.framework === "vue") planVueSetup(ctx);
     else {
@@ -218599,7 +218888,7 @@ var init_setup = __esm({
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS2 = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.28.0" : "0.6.0";
+    SELF_VERSION2 = true ? "0.29.0" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
