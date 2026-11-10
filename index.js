@@ -1086,14 +1086,14 @@ var require_util = __commonJS({
         }
         const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
         let origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`;
-        let path20 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
+        let path21 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
         if (origin[origin.length - 1] === "/") {
           origin = origin.slice(0, origin.length - 1);
         }
-        if (path20 && path20[0] !== "/") {
-          path20 = `/${path20}`;
+        if (path21 && path21[0] !== "/") {
+          path21 = `/${path21}`;
         }
-        return new URL(`${origin}${path20}`);
+        return new URL(`${origin}${path21}`);
       }
       if (!isHttpOrHttpsPrefixed(url.origin || url.protocol)) {
         throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
@@ -1544,39 +1544,39 @@ var require_diagnostics = __commonJS({
       });
       diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
         const {
-          request: { method: method2, path: path20, origin }
+          request: { method: method2, path: path21, origin }
         } = evt;
-        debuglog("sending request to %s %s/%s", method2, origin, path20);
+        debuglog("sending request to %s %s/%s", method2, origin, path21);
       });
       diagnosticsChannel.channel("undici:request:headers").subscribe((evt) => {
         const {
-          request: { method: method2, path: path20, origin },
+          request: { method: method2, path: path21, origin },
           response: { statusCode }
         } = evt;
         debuglog(
           "received response to %s %s/%s - HTTP %d",
           method2,
           origin,
-          path20,
+          path21,
           statusCode
         );
       });
       diagnosticsChannel.channel("undici:request:trailers").subscribe((evt) => {
         const {
-          request: { method: method2, path: path20, origin }
+          request: { method: method2, path: path21, origin }
         } = evt;
-        debuglog("trailers received from %s %s/%s", method2, origin, path20);
+        debuglog("trailers received from %s %s/%s", method2, origin, path21);
       });
       diagnosticsChannel.channel("undici:request:error").subscribe((evt) => {
         const {
-          request: { method: method2, path: path20, origin },
+          request: { method: method2, path: path21, origin },
           error: error2
         } = evt;
         debuglog(
           "request to %s %s/%s errored - %s",
           method2,
           origin,
-          path20,
+          path21,
           error2.message
         );
       });
@@ -1625,9 +1625,9 @@ var require_diagnostics = __commonJS({
         });
         diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
           const {
-            request: { method: method2, path: path20, origin }
+            request: { method: method2, path: path21, origin }
           } = evt;
-          debuglog("sending request to %s %s/%s", method2, origin, path20);
+          debuglog("sending request to %s %s/%s", method2, origin, path21);
         });
       }
       diagnosticsChannel.channel("undici:websocket:open").subscribe((evt) => {
@@ -1690,7 +1690,7 @@ var require_request = __commonJS({
     var kHandler = /* @__PURE__ */ Symbol("handler");
     var Request = class {
       constructor(origin, {
-        path: path20,
+        path: path21,
         method: method2,
         body,
         headers,
@@ -1705,11 +1705,11 @@ var require_request = __commonJS({
         expectContinue,
         servername
       }, handler) {
-        if (typeof path20 !== "string") {
+        if (typeof path21 !== "string") {
           throw new InvalidArgumentError("path must be a string");
-        } else if (path20[0] !== "/" && !(path20.startsWith("http://") || path20.startsWith("https://")) && method2 !== "CONNECT") {
+        } else if (path21[0] !== "/" && !(path21.startsWith("http://") || path21.startsWith("https://")) && method2 !== "CONNECT") {
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        } else if (invalidPathRegex.test(path20)) {
+        } else if (invalidPathRegex.test(path21)) {
           throw new InvalidArgumentError("invalid request path");
         }
         if (typeof method2 !== "string") {
@@ -1775,7 +1775,7 @@ var require_request = __commonJS({
         this.completed = false;
         this.aborted = false;
         this.upgrade = upgrade || null;
-        this.path = query ? buildURL(path20, query) : path20;
+        this.path = query ? buildURL(path21, query) : path21;
         this.origin = origin;
         this.idempotent = idempotent == null ? method2 === "HEAD" || method2 === "GET" : idempotent;
         this.blocking = blocking == null ? false : blocking;
@@ -6468,7 +6468,7 @@ var require_client_h1 = __commonJS({
       return method2 !== "GET" && method2 !== "HEAD" && method2 !== "OPTIONS" && method2 !== "TRACE" && method2 !== "CONNECT";
     }
     function writeH1(client2, request) {
-      const { method: method2, path: path20, host, upgrade, blocking, reset: reset3 } = request;
+      const { method: method2, path: path21, host, upgrade, blocking, reset: reset3 } = request;
       let { body, headers, contentLength } = request;
       const expectsPayload = method2 === "PUT" || method2 === "POST" || method2 === "PATCH" || method2 === "QUERY" || method2 === "PROPFIND" || method2 === "PROPPATCH";
       if (util.isFormDataLike(body)) {
@@ -6549,7 +6549,7 @@ var require_client_h1 = __commonJS({
       if (blocking) {
         socket[kBlocking] = true;
       }
-      let header2 = `${method2} ${path20} HTTP/1.1\r
+      let header2 = `${method2} ${path21} HTTP/1.1\r
 `;
       if (typeof host === "string") {
         header2 += `host: ${host}\r
@@ -7078,7 +7078,7 @@ var require_client_h2 = __commonJS({
     }
     function writeH2(client2, request) {
       const session = client2[kHTTP2Session];
-      const { method: method2, path: path20, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
+      const { method: method2, path: path21, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
       let { body } = request;
       if (upgrade) {
         util.errorRequest(client2, request, new Error("Upgrade not supported for H2"));
@@ -7175,7 +7175,7 @@ var require_client_h2 = __commonJS({
         });
         return true;
       }
-      headers[HTTP2_HEADER_PATH] = path20;
+      headers[HTTP2_HEADER_PATH] = path21;
       headers[HTTP2_HEADER_SCHEME] = "https";
       const expectsPayload = method2 === "PUT" || method2 === "POST" || method2 === "PATCH";
       if (body && typeof body.read === "function") {
@@ -7528,9 +7528,9 @@ var require_redirect_handler = __commonJS({
           return this.handler.onHeaders(statusCode, headers, resume, statusText);
         }
         const { origin, pathname, search } = util.parseURL(new URL(this.location, this.opts.origin && new URL(this.opts.path, this.opts.origin)));
-        const path20 = search ? `${pathname}${search}` : pathname;
+        const path21 = search ? `${pathname}${search}` : pathname;
         this.opts.headers = cleanRequestHeaders(this.opts.headers, statusCode === 303, this.opts.origin !== origin);
-        this.opts.path = path20;
+        this.opts.path = path21;
         this.opts.origin = origin;
         this.opts.maxRedirections = 0;
         this.opts.query = null;
@@ -8769,10 +8769,10 @@ var require_proxy_agent = __commonJS({
         };
         const {
           origin,
-          path: path20 = "/",
+          path: path21 = "/",
           headers = {}
         } = opts;
-        opts.path = origin + path20;
+        opts.path = origin + path21;
         if (!("host" in headers) && !("Host" in headers)) {
           const { host } = new URL2(origin);
           headers.host = host;
@@ -10744,20 +10744,20 @@ var require_mock_utils = __commonJS({
       }
       return true;
     }
-    function safeUrl(path20) {
-      if (typeof path20 !== "string") {
-        return path20;
+    function safeUrl(path21) {
+      if (typeof path21 !== "string") {
+        return path21;
       }
-      const pathSegments = path20.split("?");
+      const pathSegments = path21.split("?");
       if (pathSegments.length !== 2) {
-        return path20;
+        return path21;
       }
       const qp = new URLSearchParams(pathSegments.pop());
       qp.sort();
       return [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path20, method: method2, body, headers }) {
-      const pathMatch = matchValue(mockDispatch2.path, path20);
+    function matchKey(mockDispatch2, { path: path21, method: method2, body, headers }) {
+      const pathMatch = matchValue(mockDispatch2.path, path21);
       const methodMatch = matchValue(mockDispatch2.method, method2);
       const bodyMatch = typeof mockDispatch2.body !== "undefined" ? matchValue(mockDispatch2.body, body) : true;
       const headersMatch = matchHeaders(mockDispatch2, headers);
@@ -10779,7 +10779,7 @@ var require_mock_utils = __commonJS({
     function getMockDispatch(mockDispatches, key2) {
       const basePath = key2.query ? buildURL(key2.path, key2.query) : key2.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
-      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path20 }) => matchValue(safeUrl(path20), resolvedPath));
+      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path21 }) => matchValue(safeUrl(path21), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
@@ -10817,9 +10817,9 @@ var require_mock_utils = __commonJS({
       }
     }
     function buildKey(opts) {
-      const { path: path20, method: method2, body, headers, query } = opts;
+      const { path: path21, method: method2, body, headers, query } = opts;
       return {
-        path: path20,
+        path: path21,
         method: method2,
         body,
         headers,
@@ -11282,10 +11282,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         const withPrettyHeaders = pendingInterceptors.map(
-          ({ method: method2, path: path20, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method: method2, path: path21, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method2,
             Origin: origin,
-            Path: path20,
+            Path: path21,
             "Status code": statusCode,
             Persistent: persist ? PERSISTENT : NOT_PERSISTENT,
             Invocations: timesInvoked,
@@ -16164,9 +16164,9 @@ var require_util6 = __commonJS({
         }
       }
     }
-    function validateCookiePath(path20) {
-      for (let i3 = 0; i3 < path20.length; ++i3) {
-        const code2 = path20.charCodeAt(i3);
+    function validateCookiePath(path21) {
+      for (let i3 = 0; i3 < path21.length; ++i3) {
+        const code2 = path21.charCodeAt(i3);
         if (code2 < 32 || // exclude CTLs (0-31)
         code2 > 126 || // exclude DEL and non-ascii
         code2 === 59) {
@@ -19086,11 +19086,11 @@ var require_undici = __commonJS({
           if (typeof opts.path !== "string") {
             throw new InvalidArgumentError("invalid opts.path");
           }
-          let path20 = opts.path;
+          let path21 = opts.path;
           if (!opts.path.startsWith("/")) {
-            path20 = `/${path20}`;
+            path21 = `/${path21}`;
           }
-          url = new URL(util.parseOrigin(url).origin + path20);
+          url = new URL(util.parseOrigin(url).origin + path21);
         } else {
           if (!opts) {
             opts = typeof url === "object" ? url : {};
@@ -19527,7 +19527,7 @@ var require_path = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
     var os6 = __require("os");
-    var path20 = __require("path");
+    var path21 = __require("path");
     var IS_WINDOWS_PLATFORM = os6.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
@@ -19539,7 +19539,7 @@ var require_path = __commonJS({
     }
     exports.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path20.resolve(cwd, filepath);
+      return path21.resolve(cwd, filepath);
     }
     exports.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -20836,7 +20836,7 @@ var require_braces = __commonJS({
 var require_constants7 = __commonJS({
   "../../node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
-    var path20 = __require("path");
+    var path21 = __require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DEFAULT_MAX_EXTGLOB_RECURSION = 0;
@@ -21010,7 +21010,7 @@ var require_constants7 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path20.sep,
+      SEP: path21.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -21037,7 +21037,7 @@ var require_constants7 = __commonJS({
 var require_utils3 = __commonJS({
   "../../node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
-    var path20 = __require("path");
+    var path21 = __require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -21066,7 +21066,7 @@ var require_utils3 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path20.sep === "\\";
+      return win32 === true || path21.sep === "\\";
     };
     exports.escapeLast = (input, char, lastIdx) => {
       const idx = input.lastIndexOf(char, lastIdx);
@@ -22430,7 +22430,7 @@ var require_parse3 = __commonJS({
 var require_picomatch = __commonJS({
   "../../node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
-    var path20 = __require("path");
+    var path21 = __require("path");
     var scan = require_scan();
     var parse21 = require_parse3();
     var utils = require_utils3();
@@ -22515,7 +22515,7 @@ var require_picomatch = __commonJS({
     };
     picomatch.matchBase = (input, glob, options, posix10 = utils.isWindows(options)) => {
       const regex2 = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
-      return regex2.test(path20.basename(input));
+      return regex2.test(path21.basename(input));
     };
     picomatch.isMatch = (str2, patterns, options) => picomatch(patterns, options)(str2);
     picomatch.parse = (pattern, options) => {
@@ -22742,7 +22742,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
-    var path20 = __require("path");
+    var path21 = __require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -22837,7 +22837,7 @@ var require_pattern = __commonJS({
     }
     exports.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename3 = path20.basename(pattern);
+      const basename3 = path21.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename3);
     }
     exports.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -22895,7 +22895,7 @@ var require_pattern = __commonJS({
     }
     exports.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute2(pattern) {
-      return path20.isAbsolute(pattern);
+      return path21.isAbsolute(pattern);
     }
     exports.isAbsolute = isAbsolute2;
   }
@@ -23070,10 +23070,10 @@ var require_utils4 = __commonJS({
     exports.array = array2;
     var errno = require_errno();
     exports.errno = errno;
-    var fs20 = require_fs();
-    exports.fs = fs20;
-    var path20 = require_path();
-    exports.path = path20;
+    var fs21 = require_fs();
+    exports.fs = fs21;
+    var path21 = require_path();
+    exports.path = path21;
     var pattern = require_pattern();
     exports.pattern = pattern;
     var stream = require_stream();
@@ -23185,8 +23185,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read2(path20, settings, callback) {
-      settings.fs.lstat(path20, (lstatError, lstat2) => {
+    function read2(path21, settings, callback) {
+      settings.fs.lstat(path21, (lstatError, lstat2) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -23195,7 +23195,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat2);
           return;
         }
-        settings.fs.stat(path20, (statError, stat2) => {
+        settings.fs.stat(path21, (statError, stat2) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -23227,13 +23227,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read2(path20, settings) {
-      const lstat2 = settings.fs.lstatSync(path20);
+    function read2(path21, settings) {
+      const lstat2 = settings.fs.lstatSync(path21);
       if (!lstat2.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat2;
       }
       try {
-        const stat2 = settings.fs.statSync(path20);
+        const stat2 = settings.fs.statSync(path21);
         if (settings.markSymbolicLink) {
           stat2.isSymbolicLink = () => true;
         }
@@ -23255,12 +23255,12 @@ var require_fs2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs20 = __require("fs");
+    var fs21 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs20.lstat,
-      stat: fs20.stat,
-      lstatSync: fs20.lstatSync,
-      statSync: fs20.statSync
+      lstat: fs21.lstat,
+      stat: fs21.stat,
+      lstatSync: fs21.lstatSync,
+      statSync: fs21.statSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -23277,12 +23277,12 @@ var require_settings = __commonJS({
   "../../node_modules/@nodelib/fs.stat/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var fs20 = require_fs2();
+    var fs21 = require_fs2();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLink = this._getValue(this._options.followSymbolicLink, true);
-        this.fs = fs20.createFileSystemAdapter(this._options.fs);
+        this.fs = fs21.createFileSystemAdapter(this._options.fs);
         this.markSymbolicLink = this._getValue(this._options.markSymbolicLink, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
       }
@@ -23304,17 +23304,17 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports.Settings = settings_1.default;
-    function stat2(path20, optionsOrSettingsOrCallback, callback) {
+    function stat2(path21, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path20, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path21, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path20, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path21, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat2;
-    function statSync5(path20, optionsOrSettings) {
+    function statSync5(path21, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path20, settings);
+      return sync.read(path21, settings);
     }
     exports.statSync = statSync5;
     function getSettings(settingsOrOptions = {}) {
@@ -23437,8 +23437,8 @@ var require_utils5 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.fs = void 0;
-    var fs20 = require_fs3();
-    exports.fs = fs20;
+    var fs21 = require_fs3();
+    exports.fs = fs21;
   }
 });
 
@@ -23530,16 +23530,16 @@ var require_async2 = __commonJS({
           return;
         }
         const tasks = names3.map((name) => {
-          const path20 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path21 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done2) => {
-            fsStat.stat(path20, settings.fsStatSettings, (error2, stats) => {
+            fsStat.stat(path21, settings.fsStatSettings, (error2, stats) => {
               if (error2 !== null) {
                 done2(error2);
                 return;
               }
               const entry = {
                 name,
-                path: path20,
+                path: path21,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -23633,14 +23633,14 @@ var require_fs4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs20 = __require("fs");
+    var fs21 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs20.lstat,
-      stat: fs20.stat,
-      lstatSync: fs20.lstatSync,
-      statSync: fs20.statSync,
-      readdir: fs20.readdir,
-      readdirSync: fs20.readdirSync
+      lstat: fs21.lstat,
+      stat: fs21.stat,
+      lstatSync: fs21.lstatSync,
+      statSync: fs21.statSync,
+      readdir: fs21.readdir,
+      readdirSync: fs21.readdirSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -23657,15 +23657,15 @@ var require_settings2 = __commonJS({
   "../../node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path20 = __require("path");
+    var path21 = __require("path");
     var fsStat = require_out();
-    var fs20 = require_fs4();
+    var fs21 = require_fs4();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
-        this.fs = fs20.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path20.sep);
+        this.fs = fs21.createFileSystemAdapter(this._options.fs);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path21.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -23692,17 +23692,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports.Settings = settings_1.default;
-    function scandir(path20, optionsOrSettingsOrCallback, callback) {
+    function scandir(path21, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path20, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path21, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path20, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path21, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.scandir = scandir;
-    function scandirSync(path20, optionsOrSettings) {
+    function scandirSync(path21, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path20, settings);
+      return sync.read(path21, settings);
     }
     exports.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -24350,7 +24350,7 @@ var require_settings3 = __commonJS({
   "../../node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path20 = __require("path");
+    var path21 = __require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -24360,7 +24360,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path20.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path21.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -24422,7 +24422,7 @@ var require_reader2 = __commonJS({
   "../../node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path20 = __require("path");
+    var path21 = __require("path");
     var fsStat = require_out();
     var utils = require_utils4();
     var Reader = class {
@@ -24435,7 +24435,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path20.resolve(this._settings.cwd, filepath);
+        return path21.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -24851,7 +24851,7 @@ var require_provider = __commonJS({
   "../../node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path20 = __require("path");
+    var path21 = __require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error();
@@ -24865,7 +24865,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path20.resolve(this._settings.cwd, task.base);
+        return path21.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -25046,16 +25046,16 @@ var require_settings4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = void 0;
-    var fs20 = __require("fs");
+    var fs21 = __require("fs");
     var os6 = __require("os");
     var CPU_COUNT = Math.max(os6.cpus().length, 1);
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = {
-      lstat: fs20.lstat,
-      lstatSync: fs20.lstatSync,
-      stat: fs20.stat,
-      statSync: fs20.statSync,
-      readdir: fs20.readdir,
-      readdirSync: fs20.readdirSync
+      lstat: fs21.lstat,
+      lstatSync: fs21.lstatSync,
+      stat: fs21.stat,
+      statSync: fs21.statSync,
+      readdir: fs21.readdir,
+      readdirSync: fs21.readdirSync
     };
     var Settings = class {
       constructor(_options = {}) {
@@ -56997,11 +56997,11 @@ var require_visitors = __commonJS({
       }
       visitor._verified = true;
     }
-    function validateVisitorMethods(path20, val) {
+    function validateVisitorMethods(path21, val) {
       const fns = [].concat(val);
       for (const fn2 of fns) {
         if (typeof fn2 !== "function") {
-          throw new TypeError(`Non-function found defined in ${path20} with type ${typeof fn2}`);
+          throw new TypeError(`Non-function found defined in ${path21} with type ${typeof fn2}`);
         }
       }
     }
@@ -57044,8 +57044,8 @@ var require_visitors = __commonJS({
         fns = fns.map(function(fn2) {
           let newFn = fn2;
           if (state) {
-            newFn = function(path20) {
-              fn2.call(state, path20, state);
+            newFn = function(path21) {
+              fn2.call(state, path21, state);
             };
           }
           if (wrapper) {
@@ -57078,8 +57078,8 @@ var require_visitors = __commonJS({
     function wrapCheck(nodeType, fn2) {
       const fnKey = `is${nodeType}`;
       const validator2 = virtualTypesValidators[fnKey];
-      const newFn = function(path20) {
-        if (validator2.call(path20)) {
+      const newFn = function(path21) {
+        if (validator2.call(path21)) {
           return fn2.apply(this, arguments);
         }
       };
@@ -57104,24 +57104,24 @@ var require_visitors = __commonJS({
       }
     }
     var _environmentVisitor = {
-      FunctionParent(path20) {
-        if (path20.isArrowFunctionExpression()) return;
-        path20.skip();
-        if (path20.isMethod()) {
-          if (!path20.requeueComputedKeyAndDecorators) {
-            _context.requeueComputedKeyAndDecorators.call(path20);
+      FunctionParent(path21) {
+        if (path21.isArrowFunctionExpression()) return;
+        path21.skip();
+        if (path21.isMethod()) {
+          if (!path21.requeueComputedKeyAndDecorators) {
+            _context.requeueComputedKeyAndDecorators.call(path21);
           } else {
-            path20.requeueComputedKeyAndDecorators();
+            path21.requeueComputedKeyAndDecorators();
           }
         }
       },
-      Property(path20) {
-        if (path20.isObjectProperty()) return;
-        path20.skip();
-        if (!path20.requeueComputedKeyAndDecorators) {
-          _context.requeueComputedKeyAndDecorators.call(path20);
+      Property(path21) {
+        if (path21.isObjectProperty()) return;
+        path21.skip();
+        if (!path21.requeueComputedKeyAndDecorators) {
+          _context.requeueComputedKeyAndDecorators.call(path21);
         } else {
-          path20.requeueComputedKeyAndDecorators();
+          path21.requeueComputedKeyAndDecorators();
         }
       }
     };
@@ -57155,18 +57155,18 @@ var require_renamer = __commonJS({
           node2.name = state.newName;
         }
       },
-      Scope(path20, state) {
-        if (!path20.scope.bindingIdentifierEquals(state.oldName, state.binding.identifier)) {
-          path20.skip();
-          if (path20.isMethod()) {
-            if (!path20.requeueComputedKeyAndDecorators) {
-              _context.requeueComputedKeyAndDecorators.call(path20);
+      Scope(path21, state) {
+        if (!path21.scope.bindingIdentifierEquals(state.oldName, state.binding.identifier)) {
+          path21.skip();
+          if (path21.isMethod()) {
+            if (!path21.requeueComputedKeyAndDecorators) {
+              _context.requeueComputedKeyAndDecorators.call(path21);
             } else {
-              path20.requeueComputedKeyAndDecorators();
+              path21.requeueComputedKeyAndDecorators();
             }
           }
-          if (path20.isSwitchStatement()) {
-            path20.context.maybeQueue(path20.get("discriminant"));
+          if (path21.isSwitchStatement()) {
+            path21.context.maybeQueue(path21.get("discriminant"));
           }
         }
       },
@@ -57183,9 +57183,9 @@ var require_renamer = __commonJS({
           if ((_node$extra = node2.extra) != null && _node$extra.shorthand) node2.extra.shorthand = false;
         }
       },
-      "AssignmentExpression|Declaration|VariableDeclarator"(path20, state) {
-        if (path20.isVariableDeclaration()) return;
-        const ids = path20.isAssignmentExpression() ? getAssignmentIdentifiers(path20.node) : path20.getOuterBindingIdentifiers();
+      "AssignmentExpression|Declaration|VariableDeclarator"(path21, state) {
+        if (path21.isVariableDeclaration()) return;
+        const ids = path21.isAssignmentExpression() ? getAssignmentIdentifiers(path21.node) : path21.getOuterBindingIdentifiers();
         for (const name in ids) {
           if (name === state.oldName) ids[name].name = state.newName;
         }
@@ -57215,11 +57215,11 @@ var require_renamer = __commonJS({
         }
         maybeExportDeclar.splitExportDeclaration();
       }
-      maybeConvertFromClassFunctionDeclaration(path20) {
-        return path20;
+      maybeConvertFromClassFunctionDeclaration(path21) {
+        return path21;
       }
-      maybeConvertFromClassFunctionExpression(path20) {
-        return path20;
+      maybeConvertFromClassFunctionExpression(path21) {
+        return path21;
       }
       rename() {
         const {
@@ -57229,9 +57229,9 @@ var require_renamer = __commonJS({
         } = this;
         const {
           scope,
-          path: path20
+          path: path21
         } = binding2;
-        const parentDeclar = path20.find((path21) => path21.isDeclaration() || path21.isFunctionExpression() || path21.isClassExpression());
+        const parentDeclar = path21.find((path22) => path22.isDeclaration() || path22.isFunctionExpression() || path22.isClassExpression());
         if (parentDeclar) {
           const bindingIds = parentDeclar.getOuterBindingIdentifiers();
           if (bindingIds[oldName] === binding2.identifier) {
@@ -57257,8 +57257,8 @@ var require_renamer = __commonJS({
           this.binding.identifier.name = newName;
         }
         if (parentDeclar) {
-          this.maybeConvertFromClassFunctionDeclaration(path20);
-          this.maybeConvertFromClassFunctionExpression(path20);
+          this.maybeConvertFromClassFunctionDeclaration(path21);
+          this.maybeConvertFromClassFunctionExpression(path21);
         }
       }
     };
@@ -57281,17 +57281,17 @@ var require_traverseForScope = __commonJS({
     var {
       VISITOR_KEYS: VISITOR_KEYS4
     } = _t;
-    function traverseForScope(path20, visitors6, state) {
+    function traverseForScope(path21, visitors6, state) {
       const exploded = (0, _visitors.explode)(visitors6);
       if (exploded.enter || exploded.exit) {
         throw new Error("Should not be used with enter/exit visitors.");
       }
-      _traverse9(path20.parentPath, path20.parent, path20.node, path20.container, path20.key, path20.listKey, path20.hub, path20);
+      _traverse9(path21.parentPath, path21.parent, path21.node, path21.container, path21.key, path21.listKey, path21.hub, path21);
       function _traverse9(parentPath, parent, node2, container, key2, listKey, hub, inPath) {
         if (!node2) {
           return;
         }
-        const path21 = inPath || _index.NodePath.get({
+        const path22 = inPath || _index.NodePath.get({
           hub,
           parentPath,
           parent,
@@ -57299,14 +57299,14 @@ var require_traverseForScope = __commonJS({
           listKey,
           key: key2
         });
-        _context._forceSetScope.call(path21);
+        _context._forceSetScope.call(path22);
         const visitor = exploded[node2.type];
         if (visitor != null && visitor.enter) {
           for (const visit of visitor.enter) {
-            visit.call(state, path21, state);
+            visit.call(state, path22, state);
           }
         }
-        if (path21.shouldSkip) {
+        if (path22.shouldSkip) {
           return;
         }
         const keys = VISITOR_KEYS4[node2.type];
@@ -57319,15 +57319,15 @@ var require_traverseForScope = __commonJS({
           if (Array.isArray(prop2)) {
             for (let i3 = 0; i3 < prop2.length; i3++) {
               const value = prop2[i3];
-              _traverse9(path21, node2, value, prop2, i3, key3);
+              _traverse9(path22, node2, value, prop2, i3, key3);
             }
           } else {
-            _traverse9(path21, node2, prop2, node2, key3, null);
+            _traverse9(path22, node2, prop2, node2, key3, null);
           }
         }
         if (visitor != null && visitor.exit) {
           for (const visit of visitor.exit) {
-            visit.call(state, path21, state);
+            visit.call(state, path22, state);
           }
         }
       }
@@ -57347,7 +57347,7 @@ var require_binding = __commonJS({
       constructor({
         identifier: identifier2,
         scope,
-        path: path20,
+        path: path21,
         kind: kind2
       }) {
         this.identifier = void 0;
@@ -57361,10 +57361,10 @@ var require_binding = __commonJS({
         this.references = 0;
         this.identifier = identifier2;
         this.scope = scope;
-        this.path = path20;
+        this.path = path21;
         this.kind = kind2;
-        if ((kind2 === "var" || kind2 === "hoisted") && isInitInLoop(path20)) {
-          this.reassign(path20);
+        if ((kind2 === "var" || kind2 === "hoisted") && isInitInLoop(path21)) {
+          this.reassign(path21);
         }
         this.clearValue();
       }
@@ -57382,20 +57382,20 @@ var require_binding = __commonJS({
         this.hasValue = false;
         this.value = null;
       }
-      reassign(path20) {
+      reassign(path21) {
         this.constant = false;
-        if (this.constantViolations.includes(path20)) {
+        if (this.constantViolations.includes(path21)) {
           return;
         }
-        this.constantViolations.push(path20);
+        this.constantViolations.push(path21);
       }
-      reference(path20) {
-        if (this.referencePaths.includes(path20)) {
+      reference(path21) {
+        if (this.referencePaths.includes(path21)) {
           return;
         }
         this.referenced = true;
         this.references++;
-        this.referencePaths.push(path20);
+        this.referencePaths.push(path21);
       }
       dereference() {
         this.references--;
@@ -57403,12 +57403,12 @@ var require_binding = __commonJS({
       }
     };
     exports.default = Binding2;
-    function isInitInLoop(path20) {
-      const isFunctionDeclarationOrHasInit = !path20.isVariableDeclarator() || path20.node.init;
+    function isInitInLoop(path21) {
+      const isFunctionDeclarationOrHasInit = !path21.isVariableDeclarator() || path21.node.init;
       for (let {
         parentPath,
         key: key2
-      } = path20; parentPath; {
+      } = path21; parentPath; {
         parentPath,
         key: key2
       } = parentPath) {
@@ -57447,11 +57447,11 @@ var require_cache2 = __commonJS({
     function clearScope() {
       exports.scope = scope = /* @__PURE__ */ new WeakMap();
     }
-    function getCachedPaths(path20) {
+    function getCachedPaths(path21) {
       const {
         parent,
         parentPath
-      } = path20;
+      } = path21;
       return pathsCache.get(parent);
     }
     function getOrCreateCachedPaths(node2, parentPath) {
@@ -57727,128 +57727,128 @@ var require_scope = __commonJS({
       scope.bindings = /* @__PURE__ */ Object.create(null);
       scope.globals = /* @__PURE__ */ Object.create(null);
     }
-    function isAnonymousFunctionExpression(path20) {
-      return path20.isFunctionExpression() && !path20.node.id || path20.isArrowFunctionExpression();
+    function isAnonymousFunctionExpression(path21) {
+      return path21.isFunctionExpression() && !path21.node.id || path21.isArrowFunctionExpression();
     }
     var NOT_LOCAL_BINDING = /* @__PURE__ */ Symbol.for("should not be considered a local binding");
     var collectorVisitor = {
-      ForStatement(path20) {
-        const declar = path20.get("init");
+      ForStatement(path21) {
+        const declar = path21.get("init");
         if (declar.isVar()) {
           const {
             scope
-          } = path20;
+          } = path21;
           const parentScope = scope.getFunctionParent() || scope.getProgramParent();
           parentScope.registerBinding("var", declar);
         }
       },
-      Declaration(path20) {
-        if (path20.isBlockScoped()) return;
-        if (path20.isImportDeclaration()) return;
-        if (path20.isExportDeclaration()) return;
-        const parent = path20.scope.getFunctionParent() || path20.scope.getProgramParent();
-        parent.registerDeclaration(path20);
+      Declaration(path21) {
+        if (path21.isBlockScoped()) return;
+        if (path21.isImportDeclaration()) return;
+        if (path21.isExportDeclaration()) return;
+        const parent = path21.scope.getFunctionParent() || path21.scope.getProgramParent();
+        parent.registerDeclaration(path21);
       },
-      ImportDeclaration(path20) {
-        const parent = path20.scope.getBlockParent();
-        parent.registerDeclaration(path20);
+      ImportDeclaration(path21) {
+        const parent = path21.scope.getBlockParent();
+        parent.registerDeclaration(path21);
       },
-      TSImportEqualsDeclaration(path20) {
-        const parent = path20.scope.getBlockParent();
-        parent.registerDeclaration(path20);
+      TSImportEqualsDeclaration(path21) {
+        const parent = path21.scope.getBlockParent();
+        parent.registerDeclaration(path21);
       },
-      ReferencedIdentifier(path20, state) {
-        if (t10.isTSQualifiedName(path20.parent) && path20.parent.right === path20.node) {
+      ReferencedIdentifier(path21, state) {
+        if (t10.isTSQualifiedName(path21.parent) && path21.parent.right === path21.node) {
           return;
         }
-        if (path20.parentPath.isTSImportEqualsDeclaration()) return;
-        state.references.push(path20);
+        if (path21.parentPath.isTSImportEqualsDeclaration()) return;
+        state.references.push(path21);
       },
-      ForXStatement(path20, state) {
-        const left = path20.get("left");
+      ForXStatement(path21, state) {
+        const left = path21.get("left");
         if (left.isPattern() || left.isIdentifier()) {
-          state.constantViolations.push(path20);
+          state.constantViolations.push(path21);
         } else if (left.isVar()) {
           const {
             scope
-          } = path20;
+          } = path21;
           const parentScope = scope.getFunctionParent() || scope.getProgramParent();
           parentScope.registerBinding("var", left);
         }
       },
       ExportDeclaration: {
-        exit(path20) {
+        exit(path21) {
           const {
             node: node2,
             scope
-          } = path20;
+          } = path21;
           if (isExportAllDeclaration(node2)) return;
           const declar = node2.declaration;
           if (isClassDeclaration(declar) || isFunctionDeclaration4(declar)) {
             const id3 = declar.id;
             if (!id3) return;
             const binding2 = scope.getBinding(id3.name);
-            binding2 == null || binding2.reference(path20);
+            binding2 == null || binding2.reference(path21);
           } else if (isVariableDeclaration5(declar)) {
             for (const decl of declar.declarations) {
               for (const name of Object.keys(getBindingIdentifiers(decl))) {
                 const binding2 = scope.getBinding(name);
-                binding2 == null || binding2.reference(path20);
+                binding2 == null || binding2.reference(path21);
               }
             }
           }
         }
       },
-      LabeledStatement(path20) {
-        path20.scope.getBlockParent().registerDeclaration(path20);
+      LabeledStatement(path21) {
+        path21.scope.getBlockParent().registerDeclaration(path21);
       },
-      AssignmentExpression(path20, state) {
-        state.assignments.push(path20);
+      AssignmentExpression(path21, state) {
+        state.assignments.push(path21);
       },
-      UpdateExpression(path20, state) {
-        state.constantViolations.push(path20);
+      UpdateExpression(path21, state) {
+        state.constantViolations.push(path21);
       },
-      UnaryExpression(path20, state) {
-        if (path20.node.operator === "delete") {
-          state.constantViolations.push(path20);
+      UnaryExpression(path21, state) {
+        if (path21.node.operator === "delete") {
+          state.constantViolations.push(path21);
         }
       },
-      BlockScoped(path20) {
-        let scope = path20.scope;
-        if (scope.path === path20) scope = scope.parent;
+      BlockScoped(path21) {
+        let scope = path21.scope;
+        if (scope.path === path21) scope = scope.parent;
         const parent = scope.getBlockParent();
-        parent.registerDeclaration(path20);
-        if (path20.isClassDeclaration() && path20.node.id) {
-          const id3 = path20.node.id;
+        parent.registerDeclaration(path21);
+        if (path21.isClassDeclaration() && path21.node.id) {
+          const id3 = path21.node.id;
           const name = id3.name;
-          path20.scope.bindings[name] = path20.scope.parent.getBinding(name);
+          path21.scope.bindings[name] = path21.scope.parent.getBinding(name);
         }
       },
-      CatchClause(path20) {
-        path20.scope.registerBinding("let", path20);
+      CatchClause(path21) {
+        path21.scope.registerBinding("let", path21);
       },
-      Function(path20) {
-        const params = path20.get("params");
+      Function(path21) {
+        const params = path21.get("params");
         for (const param of params) {
-          path20.scope.registerBinding("param", param);
+          path21.scope.registerBinding("param", param);
         }
-        if (path20.isFunctionExpression() && path20.node.id && !path20.node.id[NOT_LOCAL_BINDING]) {
-          path20.scope.registerBinding("local", path20.get("id"), path20);
-        }
-      },
-      ClassExpression(path20) {
-        if (path20.node.id && !path20.node.id[NOT_LOCAL_BINDING]) {
-          path20.scope.registerBinding("local", path20.get("id"), path20);
+        if (path21.isFunctionExpression() && path21.node.id && !path21.node.id[NOT_LOCAL_BINDING]) {
+          path21.scope.registerBinding("local", path21.get("id"), path21);
         }
       },
-      TSTypeAnnotation(path20) {
-        path20.skip();
+      ClassExpression(path21) {
+        if (path21.node.id && !path21.node.id[NOT_LOCAL_BINDING]) {
+          path21.scope.registerBinding("local", path21.get("id"), path21);
+        }
+      },
+      TSTypeAnnotation(path21) {
+        path21.skip();
       }
     };
     var scopeVisitor;
     var uid = 0;
     var Scope7 = class _Scope {
-      constructor(path20) {
+      constructor(path21) {
         this.uid = void 0;
         this.path = void 0;
         this.block = void 0;
@@ -57862,15 +57862,15 @@ var require_scope = __commonJS({
         this.crawling = void 0;
         const {
           node: node2
-        } = path20;
+        } = path21;
         const cached = _cache.scope.get(node2);
-        if ((cached == null ? void 0 : cached.path) === path20) {
+        if ((cached == null ? void 0 : cached.path) === path21) {
           return cached;
         }
         _cache.scope.set(node2, this);
         this.uid = uid++;
         this.block = node2;
-        this.path = path20;
+        this.path = path21;
         this.labels = /* @__PURE__ */ new Map();
         this.inited = false;
         Object.defineProperties(this, {
@@ -57890,14 +57890,14 @@ var require_scope = __commonJS({
       }
       get parent() {
         var _parent;
-        let parent, path20 = this.path;
+        let parent, path21 = this.path;
         do {
           var _path;
-          const shouldSkip = path20.key === "key" || path20.listKey === "decorators";
-          path20 = path20.parentPath;
-          if (shouldSkip && path20.isMethod()) path20 = path20.parentPath;
-          if ((_path = path20) != null && _path.isScope()) parent = path20;
-        } while (path20 && !parent);
+          const shouldSkip = path21.key === "key" || path21.listKey === "decorators";
+          path21 = path21.parentPath;
+          if (shouldSkip && path21.isMethod()) path21 = path21.parentPath;
+          if ((_path = path21) != null && _path.isScope()) parent = path21;
+        } while (path21 && !parent);
         return (_parent = parent) == null ? void 0 : _parent.scope;
       }
       get references() {
@@ -58010,62 +58010,62 @@ var require_scope = __commonJS({
       getLabel(name) {
         return this.labels.get(name);
       }
-      registerLabel(path20) {
-        this.labels.set(path20.node.label.name, path20);
+      registerLabel(path21) {
+        this.labels.set(path21.node.label.name, path21);
       }
-      registerDeclaration(path20) {
-        if (path20.isLabeledStatement()) {
-          this.registerLabel(path20);
-        } else if (path20.isFunctionDeclaration()) {
-          this.registerBinding("hoisted", path20.get("id"), path20);
-        } else if (path20.isVariableDeclaration()) {
-          const declarations = path20.get("declarations");
+      registerDeclaration(path21) {
+        if (path21.isLabeledStatement()) {
+          this.registerLabel(path21);
+        } else if (path21.isFunctionDeclaration()) {
+          this.registerBinding("hoisted", path21.get("id"), path21);
+        } else if (path21.isVariableDeclaration()) {
+          const declarations = path21.get("declarations");
           const {
             kind: kind2
-          } = path20.node;
+          } = path21.node;
           for (const declar of declarations) {
             this.registerBinding(kind2 === "using" || kind2 === "await using" ? "const" : kind2, declar);
           }
-        } else if (path20.isClassDeclaration()) {
-          if (path20.node.declare) return;
-          this.registerBinding("let", path20);
-        } else if (path20.isImportDeclaration()) {
-          const isTypeDeclaration = path20.node.importKind === "type" || path20.node.importKind === "typeof";
-          const specifiers = path20.get("specifiers");
+        } else if (path21.isClassDeclaration()) {
+          if (path21.node.declare) return;
+          this.registerBinding("let", path21);
+        } else if (path21.isImportDeclaration()) {
+          const isTypeDeclaration = path21.node.importKind === "type" || path21.node.importKind === "typeof";
+          const specifiers = path21.get("specifiers");
           for (const specifier of specifiers) {
             const isTypeSpecifier = isTypeDeclaration || specifier.isImportSpecifier() && (specifier.node.importKind === "type" || specifier.node.importKind === "typeof");
             this.registerBinding(isTypeSpecifier ? "unknown" : "module", specifier);
           }
-        } else if (path20.isExportDeclaration()) {
-          const declar = path20.get("declaration");
+        } else if (path21.isExportDeclaration()) {
+          const declar = path21.get("declaration");
           if (declar.isClassDeclaration() || declar.isFunctionDeclaration() || declar.isVariableDeclaration()) {
             this.registerDeclaration(declar);
           }
         } else {
-          this.registerBinding("unknown", path20);
+          this.registerBinding("unknown", path21);
         }
       }
       buildUndefinedNode() {
         return buildUndefinedNode();
       }
-      registerConstantViolation(path20) {
-        const ids = path20.getAssignmentIdentifiers();
+      registerConstantViolation(path21) {
+        const ids = path21.getAssignmentIdentifiers();
         for (const name of Object.keys(ids)) {
           var _this$getBinding;
-          (_this$getBinding = this.getBinding(name)) == null || _this$getBinding.reassign(path20);
+          (_this$getBinding = this.getBinding(name)) == null || _this$getBinding.reassign(path21);
         }
       }
-      registerBinding(kind2, path20, bindingPath = path20) {
+      registerBinding(kind2, path21, bindingPath = path21) {
         if (!kind2) throw new ReferenceError("no `kind`");
-        if (path20.isVariableDeclaration()) {
-          const declarators = path20.get("declarations");
+        if (path21.isVariableDeclaration()) {
+          const declarators = path21.get("declarations");
           for (const declar of declarators) {
             this.registerBinding(kind2, declar);
           }
           return;
         }
         const parent = this.getProgramParent();
-        const ids = path20.getOuterBindingIdentifiers(true);
+        const ids = path21.getOuterBindingIdentifiers(true);
         for (const name of Object.keys(ids)) {
           parent.references[name] = true;
           for (const id3 of ids[name]) {
@@ -58207,7 +58207,7 @@ var require_scope = __commonJS({
         }
       }
       crawl() {
-        const path20 = this.path;
+        const path21 = this.path;
         resetScope(this);
         this.data = /* @__PURE__ */ Object.create(null);
         let scope = this;
@@ -58225,27 +58225,27 @@ var require_scope = __commonJS({
         };
         this.crawling = true;
         scopeVisitor || (scopeVisitor = _index.default.visitors.merge([{
-          Scope(path21) {
-            resetScope(path21.scope);
+          Scope(path22) {
+            resetScope(path22.scope);
           }
         }, collectorVisitor]));
-        if (path20.type !== "Program") {
-          const typeVisitors = scopeVisitor[path20.type];
+        if (path21.type !== "Program") {
+          const typeVisitors = scopeVisitor[path21.type];
           if (typeVisitors) {
             for (const visit of typeVisitors.enter) {
-              visit.call(state, path20, state);
+              visit.call(state, path21, state);
             }
           }
         }
-        path20.traverse(scopeVisitor, state);
+        path21.traverse(scopeVisitor, state);
         this.crawling = false;
-        for (const path21 of state.assignments) {
-          const ids = path21.getAssignmentIdentifiers();
+        for (const path22 of state.assignments) {
+          const ids = path22.getAssignmentIdentifiers();
           for (const name of Object.keys(ids)) {
-            if (path21.scope.getBinding(name)) continue;
+            if (path22.scope.getBinding(name)) continue;
             programParent.addGlobal(ids[name]);
           }
-          path21.scope.registerConstantViolation(path21);
+          path22.scope.registerConstantViolation(path22);
         }
         for (const ref2 of state.references) {
           const binding2 = ref2.scope.getBinding(ref2.node.name);
@@ -58255,19 +58255,19 @@ var require_scope = __commonJS({
             programParent.addGlobal(ref2.node);
           }
         }
-        for (const path21 of state.constantViolations) {
-          path21.scope.registerConstantViolation(path21);
+        for (const path22 of state.constantViolations) {
+          path22.scope.registerConstantViolation(path22);
         }
       }
       push(opts) {
-        let path20 = this.path;
-        if (path20.isPattern()) {
-          path20 = this.getPatternParent().path;
-        } else if (!path20.isBlockStatement() && !path20.isProgram()) {
-          path20 = this.getBlockParent().path;
+        let path21 = this.path;
+        if (path21.isPattern()) {
+          path21 = this.getPatternParent().path;
+        } else if (!path21.isBlockStatement() && !path21.isProgram()) {
+          path21 = this.getBlockParent().path;
         }
-        if (path20.isSwitchStatement()) {
-          path20 = (this.getFunctionParent() || this.getProgramParent()).path;
+        if (path21.isSwitchStatement()) {
+          path21 = (this.getFunctionParent() || this.getProgramParent()).path;
         }
         const {
           init: init2,
@@ -58275,29 +58275,29 @@ var require_scope = __commonJS({
           kind: kind2 = "var",
           id: id3
         } = opts;
-        if (!init2 && !unique && (kind2 === "var" || kind2 === "let") && isAnonymousFunctionExpression(path20) && isCallExpression7(path20.parent, {
-          callee: path20.node
-        }) && path20.parent.arguments.length <= path20.node.params.length && isIdentifier11(id3)) {
-          path20.pushContainer("params", id3);
-          path20.scope.registerBinding("param", path20.get("params")[path20.node.params.length - 1]);
+        if (!init2 && !unique && (kind2 === "var" || kind2 === "let") && isAnonymousFunctionExpression(path21) && isCallExpression7(path21.parent, {
+          callee: path21.node
+        }) && path21.parent.arguments.length <= path21.node.params.length && isIdentifier11(id3)) {
+          path21.pushContainer("params", id3);
+          path21.scope.registerBinding("param", path21.get("params")[path21.node.params.length - 1]);
           return;
         }
-        if (path20.isLoop() || path20.isCatchClause() || path20.isFunction()) {
-          path20.ensureBlock();
-          path20 = path20.get("body");
+        if (path21.isLoop() || path21.isCatchClause() || path21.isFunction()) {
+          path21.ensureBlock();
+          path21 = path21.get("body");
         }
         const blockHoist = opts._blockHoist == null ? 2 : opts._blockHoist;
         const dataKey = `declaration:${kind2}:${blockHoist}`;
-        let declarPath = !unique && path20.getData(dataKey);
+        let declarPath = !unique && path21.getData(dataKey);
         if (!declarPath) {
           const declar = variableDeclaration(kind2, []);
           declar._blockHoist = blockHoist;
-          [declarPath] = path20.unshiftContainer("body", [declar]);
-          if (!unique) path20.setData(dataKey, declarPath);
+          [declarPath] = path21.unshiftContainer("body", [declar]);
+          if (!unique) path21.setData(dataKey, declarPath);
         }
         const declarator2 = variableDeclarator(id3, init2);
         const len = declarPath.node.declarations.push(declarator2);
-        path20.scope.registerBinding(kind2, declarPath.get("declarations")[len - 1]);
+        path21.scope.registerBinding(kind2, declarPath.get("declarations")[len - 1]);
       }
       getProgramParent() {
         let scope = this;
@@ -58442,15 +58442,15 @@ var require_scope = __commonJS({
           const binding2 = this.bindings[name];
           if (!binding2) continue;
           const {
-            path: path20
+            path: path21
           } = binding2;
-          if (!path20.isVariableDeclarator()) continue;
+          if (!path21.isVariableDeclarator()) continue;
           const {
             parent,
             parentPath
-          } = path20;
+          } = path21;
           if (parent.kind !== "var" || seen2.has(parent)) continue;
-          seen2.add(path20.parent);
+          seen2.add(path21.parent);
           let firstId;
           const init2 = [];
           for (const decl of parent.declarations) {
@@ -59097,16 +59097,16 @@ var require_resolve_uri_umd = __commonJS({
       }
       function parseFileUrl2(input) {
         const match2 = fileRegex2.exec(input);
-        const path20 = match2[2];
-        return makeUrl2("file:", "", match2[1] || "", "", isAbsolutePath2(path20) ? path20 : "/" + path20, match2[3] || "", match2[4] || "");
+        const path21 = match2[2];
+        return makeUrl2("file:", "", match2[1] || "", "", isAbsolutePath2(path21) ? path21 : "/" + path21, match2[3] || "", match2[4] || "");
       }
-      function makeUrl2(scheme, user, host, port, path20, query, hash2) {
+      function makeUrl2(scheme, user, host, port, path21, query, hash2) {
         return {
           scheme,
           user,
           host,
           port,
-          path: path20,
+          path: path21,
           query,
           hash: hash2,
           type: 7
@@ -59136,11 +59136,11 @@ var require_resolve_uri_umd = __commonJS({
         url.type = input ? input.startsWith("?") ? 3 : input.startsWith("#") ? 2 : 4 : 1;
         return url;
       }
-      function stripPathFilename2(path20) {
-        if (path20.endsWith("/.."))
-          return path20;
-        const index = path20.lastIndexOf("/");
-        return path20.slice(0, index + 1);
+      function stripPathFilename2(path21) {
+        if (path21.endsWith("/.."))
+          return path21;
+        const index = path21.lastIndexOf("/");
+        return path21.slice(0, index + 1);
       }
       function mergePaths2(url, base) {
         normalizePath2(base, base.type);
@@ -59178,14 +59178,14 @@ var require_resolve_uri_umd = __commonJS({
           pieces[pointer++] = piece;
           positive++;
         }
-        let path20 = "";
+        let path21 = "";
         for (let i3 = 1; i3 < pointer; i3++) {
-          path20 += "/" + pieces[i3];
+          path21 += "/" + pieces[i3];
         }
-        if (!path20 || addTrailingSlash && !path20.endsWith("/..")) {
-          path20 += "/";
+        if (!path21 || addTrailingSlash && !path21.endsWith("/..")) {
+          path21 += "/";
         }
-        url.path = path20;
+        url.path = path21;
       }
       function resolve5(input, base) {
         if (!input && !base)
@@ -59226,13 +59226,13 @@ var require_resolve_uri_umd = __commonJS({
           case 3:
             return queryHash;
           case 4: {
-            const path20 = url.path.slice(1);
-            if (!path20)
+            const path21 = url.path.slice(1);
+            if (!path21)
               return queryHash || ".";
-            if (isRelative2(base || input) && !isRelative2(path20)) {
-              return "./" + path20 + queryHash;
+            if (isRelative2(base || input) && !isRelative2(path21)) {
+              return "./" + path21 + queryHash;
             }
-            return path20 + queryHash;
+            return path21 + queryHash;
           }
           case 5:
             return url.path + queryHash;
@@ -59331,10 +59331,10 @@ var require_trace_mapping_umd = __commonJS({
       module2.exports = __toCommonJS(trace_mapping_exports);
       var import_sourcemap_codec7 = __toESM2(require_sourcemap_codec());
       var import_resolve_uri2 = __toESM2(require_resolve_uri());
-      function stripFilename2(path20) {
-        if (!path20) return "";
-        const index = path20.lastIndexOf("/");
-        return path20.slice(0, index + 1);
+      function stripFilename2(path21) {
+        if (!path21) return "";
+        const index = path21.lastIndexOf("/");
+        return path21.slice(0, index + 1);
       }
       function resolver2(mapUrl, sourceRoot) {
         const from = stripFilename2(mapUrl);
@@ -65665,56 +65665,56 @@ var require_ancestry = __commonJS({
       VISITOR_KEYS: VISITOR_KEYS4
     } = _t;
     function findParent(callback) {
-      let path20 = this;
-      while (path20 = path20.parentPath) {
-        if (callback(path20)) return path20;
+      let path21 = this;
+      while (path21 = path21.parentPath) {
+        if (callback(path21)) return path21;
       }
       return null;
     }
     function find(callback) {
-      let path20 = this;
+      let path21 = this;
       do {
-        if (callback(path20)) return path20;
-      } while (path20 = path20.parentPath);
+        if (callback(path21)) return path21;
+      } while (path21 = path21.parentPath);
       return null;
     }
     function getFunctionParent() {
       return this.findParent((p) => p.isFunction());
     }
     function getStatementParent() {
-      let path20 = this;
+      let path21 = this;
       do {
-        if (!path20.parentPath || Array.isArray(path20.container) && path20.isStatement()) {
+        if (!path21.parentPath || Array.isArray(path21.container) && path21.isStatement()) {
           break;
         } else {
-          path20 = path20.parentPath;
+          path21 = path21.parentPath;
         }
-      } while (path20);
-      if (path20 && (path20.isProgram() || path20.isFile())) {
+      } while (path21);
+      if (path21 && (path21.isProgram() || path21.isFile())) {
         throw new Error("File/Program node, we can't possibly find a statement parent to this");
       }
-      return path20;
+      return path21;
     }
     function getEarliestCommonAncestorFrom(paths) {
       return this.getDeepestCommonAncestorFrom(paths, function(deepest, i3, ancestries) {
         let earliest;
         const keys = VISITOR_KEYS4[deepest.type];
         for (const ancestry of ancestries) {
-          const path20 = ancestry[i3 + 1];
+          const path21 = ancestry[i3 + 1];
           if (!earliest) {
-            earliest = path20;
+            earliest = path21;
             continue;
           }
-          if (path20.listKey && earliest.listKey === path20.listKey) {
-            if (path20.key < earliest.key) {
-              earliest = path20;
+          if (path21.listKey && earliest.listKey === path21.listKey) {
+            if (path21.key < earliest.key) {
+              earliest = path21;
               continue;
             }
           }
           const earliestKeyIndex = keys.indexOf(earliest.parentKey);
-          const currentKeyIndex = keys.indexOf(path20.parentKey);
+          const currentKeyIndex = keys.indexOf(path21.parentKey);
           if (earliestKeyIndex > currentKeyIndex) {
-            earliest = path20;
+            earliest = path21;
           }
         }
         return earliest;
@@ -65729,11 +65729,11 @@ var require_ancestry = __commonJS({
       }
       let minDepth = Infinity;
       let lastCommonIndex, lastCommon;
-      const ancestries = paths.map((path20) => {
+      const ancestries = paths.map((path21) => {
         const ancestry = [];
         do {
-          ancestry.unshift(path20);
-        } while ((path20 = path20.parentPath) && path20 !== this);
+          ancestry.unshift(path21);
+        } while ((path21 = path21.parentPath) && path21 !== this);
         if (ancestry.length < minDepth) {
           minDepth = ancestry.length;
         }
@@ -65761,11 +65761,11 @@ var require_ancestry = __commonJS({
       }
     }
     function getAncestry() {
-      let path20 = this;
+      let path21 = this;
       const paths = [];
       do {
-        paths.push(path20);
-      } while (path20 = path20.parentPath);
+        paths.push(path21);
+      } while (path21 = path21.parentPath);
       return paths;
     }
     function isAncestor(maybeDescendant) {
@@ -65775,10 +65775,10 @@ var require_ancestry = __commonJS({
       return !!this.findParent((parent) => parent === maybeAncestor);
     }
     function inType(...candidateTypes) {
-      let path20 = this;
-      while (path20) {
-        if (candidateTypes.includes(path20.node.type)) return true;
-        path20 = path20.parentPath;
+      let path21 = this;
+      while (path21) {
+        if (candidateTypes.includes(path21.node.type)) return true;
+        path21 = path21.parentPath;
       }
       return false;
     }
@@ -65849,14 +65849,14 @@ var require_inferer_reference = __commonJS({
       } else if (node2.name === "arguments") {
       }
     }
-    function getTypeAnnotationBindingConstantViolations(binding2, path20, name) {
+    function getTypeAnnotationBindingConstantViolations(binding2, path21, name) {
       const types2 = [];
       const functionConstantViolations = [];
-      let constantViolations = getConstantViolationsBefore(binding2, path20, functionConstantViolations);
-      const testType = getConditionalAnnotation(binding2, path20, name);
+      let constantViolations = getConstantViolationsBefore(binding2, path21, functionConstantViolations);
+      const testType = getConditionalAnnotation(binding2, path21, name);
       if (testType) {
         const testConstantViolations = getConstantViolationsBefore(binding2, testType.ifStatement);
-        constantViolations = constantViolations.filter((path21) => !testConstantViolations.includes(path21));
+        constantViolations = constantViolations.filter((path22) => !testConstantViolations.includes(path22));
         types2.push(testType.typeAnnotation);
       }
       if (constantViolations.length) {
@@ -65870,20 +65870,20 @@ var require_inferer_reference = __commonJS({
       }
       return (0, _util.createUnionType)(types2);
     }
-    function getConstantViolationsBefore(binding2, path20, functions) {
+    function getConstantViolationsBefore(binding2, path21, functions) {
       const violations = binding2.constantViolations.slice();
       violations.unshift(binding2.path);
       return violations.filter((violation) => {
         violation = violation.resolve();
-        const status2 = violation._guessExecutionStatusRelativeTo(path20);
+        const status2 = violation._guessExecutionStatusRelativeTo(path21);
         if (functions && status2 === "unknown") functions.push(violation);
         return status2 === "before";
       });
     }
-    function inferAnnotationFromBinaryExpression(name, path20) {
-      const operator = path20.node.operator;
-      const right = path20.get("right").resolve();
-      const left = path20.get("left").resolve();
+    function inferAnnotationFromBinaryExpression(name, path21) {
+      const operator = path21.node.operator;
+      const right = path21.get("right").resolve();
+      const left = path21.get("left").resolve();
       let target;
       if (left.isIdentifier({
         name
@@ -65927,11 +65927,11 @@ var require_inferer_reference = __commonJS({
       if (typeof typeValue !== "string") return;
       return createTypeAnnotationBasedOnTypeof(typeValue);
     }
-    function getParentConditionalPath(binding2, path20, name) {
+    function getParentConditionalPath(binding2, path21, name) {
       let parentPath;
-      while (parentPath = path20.parentPath) {
+      while (parentPath = path21.parentPath) {
         if (parentPath.isIfStatement() || parentPath.isConditionalExpression()) {
-          if (path20.key === "test") {
+          if (path21.key === "test") {
             return;
           }
           return parentPath;
@@ -65939,24 +65939,24 @@ var require_inferer_reference = __commonJS({
         if (parentPath.isFunction()) {
           if (name == null || parentPath.parentPath.scope.getBinding(name) !== binding2) return;
         }
-        path20 = parentPath;
+        path21 = parentPath;
       }
     }
-    function getConditionalAnnotation(binding2, path20, name) {
-      const ifStatement = getParentConditionalPath(binding2, path20, name);
+    function getConditionalAnnotation(binding2, path21, name) {
+      const ifStatement = getParentConditionalPath(binding2, path21, name);
       if (!ifStatement) return;
       const test = ifStatement.get("test");
       const paths = [test];
       const types2 = [];
       for (let i3 = 0; i3 < paths.length; i3++) {
-        const path21 = paths[i3];
-        if (path21.isLogicalExpression()) {
-          if (path21.node.operator === "&&") {
-            paths.push(path21.get("left"));
-            paths.push(path21.get("right"));
+        const path22 = paths[i3];
+        if (path22.isLogicalExpression()) {
+          if (path22.node.operator === "&&") {
+            paths.push(path22.get("left"));
+            paths.push(path22.get("right"));
           }
-        } else if (path21.isBinaryExpression()) {
-          const type = inferAnnotationFromBinaryExpression(name, path21);
+        } else if (path22.isBinaryExpression()) {
+          const type = inferAnnotationFromBinaryExpression(name, path22);
           if (type) types2.push(type);
         }
       }
@@ -66775,12 +66775,12 @@ var require_hoister = __commonJS({
       variableDeclarator
     } = _t2;
     var referenceVisitor = {
-      ReferencedIdentifier(path20, state) {
-        if (path20.isJSXIdentifier() && react.isCompatTag(path20.node.name) && !path20.parentPath.isJSXMemberExpression()) {
+      ReferencedIdentifier(path21, state) {
+        if (path21.isJSXIdentifier() && react.isCompatTag(path21.node.name) && !path21.parentPath.isJSXMemberExpression()) {
           return;
         }
-        if (path20.node.name === "this") {
-          let scope = path20.scope;
+        if (path21.node.name === "this") {
+          let scope = path21.scope;
           do {
             if (scope.path.isFunction() && !scope.path.isArrowFunctionExpression()) {
               break;
@@ -66788,21 +66788,21 @@ var require_hoister = __commonJS({
           } while (scope = scope.parent);
           if (scope) state.breakOnScopePaths.push(scope.path);
         }
-        const binding2 = path20.scope.getBinding(path20.node.name);
+        const binding2 = path21.scope.getBinding(path21.node.name);
         if (!binding2) return;
         for (const violation of binding2.constantViolations) {
           if (violation.scope !== binding2.path.scope) {
             state.mutableBinding = true;
-            path20.stop();
+            path21.stop();
             return;
           }
         }
-        if (binding2 !== state.scope.getBinding(path20.node.name)) return;
-        state.bindings[path20.node.name] = binding2;
+        if (binding2 !== state.scope.getBinding(path21.node.name)) return;
+        state.bindings[path21.node.name] = binding2;
       }
     };
     var PathHoister = class {
-      constructor(path20, scope) {
+      constructor(path21, scope) {
         this.breakOnScopePaths = void 0;
         this.bindings = void 0;
         this.mutableBinding = void 0;
@@ -66815,7 +66815,7 @@ var require_hoister = __commonJS({
         this.mutableBinding = false;
         this.scopes = [];
         this.scope = scope;
-        this.path = path20;
+        this.path = path21;
         this.attachAfter = false;
       }
       isCompatibleScope(scope) {
@@ -66841,11 +66841,11 @@ var require_hoister = __commonJS({
         } while (scope = scope.parent);
       }
       getAttachmentPath() {
-        let path20 = this._getAttachmentPath();
-        if (!path20) return;
-        let targetScope = path20.scope;
-        if (targetScope.path === path20) {
-          targetScope = path20.scope.parent;
+        let path21 = this._getAttachmentPath();
+        if (!path21) return;
+        let targetScope = path21.scope;
+        if (targetScope.path === path21) {
+          targetScope = path21.scope.parent;
         }
         if (targetScope.path.isProgram() || targetScope.path.isFunction()) {
           for (const name of Object.keys(this.bindings)) {
@@ -66855,18 +66855,18 @@ var require_hoister = __commonJS({
               continue;
             }
             const bindingParentPath = this.getAttachmentParentForPath(binding2.path);
-            if (bindingParentPath.key >= path20.key) {
+            if (bindingParentPath.key >= path21.key) {
               this.attachAfter = true;
-              path20 = binding2.path;
+              path21 = binding2.path;
               for (const violationPath of binding2.constantViolations) {
-                if (this.getAttachmentParentForPath(violationPath).key > path20.key) {
-                  path20 = violationPath;
+                if (this.getAttachmentParentForPath(violationPath).key > path21.key) {
+                  path21 = violationPath;
                 }
               }
             }
           }
         }
-        return path20;
+        return path21;
       }
       _getAttachmentPath() {
         const scopes = this.scopes;
@@ -66891,13 +66891,13 @@ var require_hoister = __commonJS({
         const scope = this.scopes.pop();
         if (scope) return this.getAttachmentParentForPath(scope.path);
       }
-      getAttachmentParentForPath(path20) {
+      getAttachmentParentForPath(path21) {
         do {
-          if (!path20.parentPath || Array.isArray(path20.container) && path20.isStatement()) {
-            return path20;
+          if (!path21.parentPath || Array.isArray(path21.container) && path21.isStatement()) {
+            return path21;
           }
-        } while (path20 = path20.parentPath);
-        return path20;
+        } while (path21 = path21.parentPath);
+        return path21;
       }
       hasOwnParamBindings(scope) {
         for (const name of Object.keys(this.bindings)) {
@@ -66999,18 +66999,18 @@ var require_modification = __commonJS({
       for (let i3 = 0; i3 < nodes.length; i3++) {
         var _this$context;
         const to = from + i3;
-        const path20 = this.getSibling(to);
-        paths.push(path20);
+        const path21 = this.getSibling(to);
+        paths.push(path21);
         if ((_this$context = this.context) != null && _this$context.queue) {
-          _context.pushContext.call(path20, this.context);
+          _context.pushContext.call(path21, this.context);
         }
       }
       const contexts = _context._getQueueContexts.call(this);
-      for (const path20 of paths) {
-        _context.setScope.call(path20);
-        path20.debug("Inserted.");
+      for (const path21 of paths) {
+        _context.setScope.call(path21);
+        path21.debug("Inserted.");
         for (const context of contexts) {
-          context.maybeQueue(path20, true);
+          context.maybeQueue(path21, true);
         }
       }
       return paths;
@@ -67022,8 +67022,8 @@ var require_modification = __commonJS({
       return _containerInsert.call(this, this.key + 1, nodes);
     }
     var last = (arr) => arr[arr.length - 1];
-    function isHiddenInSequenceExpression(path20) {
-      return isSequenceExpression(path20.parent) && (last(path20.parent.expressions) !== path20.node || isHiddenInSequenceExpression(path20.parentPath));
+    function isHiddenInSequenceExpression(path21) {
+      return isSequenceExpression(path21.parent) && (last(path21.parent.expressions) !== path21.node || isHiddenInSequenceExpression(path21.parentPath));
     }
     function isAlmostConstantAssignment(node2, scope) {
       if (!isAssignmentExpression2(node2) || !isIdentifier11(node2.left)) {
@@ -67097,9 +67097,9 @@ var require_modification = __commonJS({
       if (!this.parent) return;
       const paths = (0, _cache.getCachedPaths)(this);
       if (!paths) return;
-      for (const [, path20] of paths) {
-        if (typeof path20.key === "number" && path20.container === this.container && path20.key >= fromIndex) {
-          path20.key += incrementBy;
+      for (const [, path21] of paths) {
+        if (typeof path21.key === "number" && path21.container === this.container && path21.key >= fromIndex) {
+          path21.key += incrementBy;
         }
       }
     }
@@ -67133,27 +67133,27 @@ var require_modification = __commonJS({
       _removal._assertUnremoved.call(this);
       const verifiedNodes = _verifyNodeList.call(this, nodes);
       const container = this.node[listKey];
-      const path20 = _index.default.get({
+      const path21 = _index.default.get({
         parentPath: this,
         parent: this.node,
         container,
         listKey,
         key: 0
       }).setContext(this.context);
-      return _containerInsertBefore.call(path20, verifiedNodes);
+      return _containerInsertBefore.call(path21, verifiedNodes);
     }
     function pushContainer(listKey, nodes) {
       _removal._assertUnremoved.call(this);
       const verifiedNodes = _verifyNodeList.call(this, nodes);
       const container = this.node[listKey];
-      const path20 = _index.default.get({
+      const path21 = _index.default.get({
         parentPath: this,
         parent: this.node,
         container,
         listKey,
         key: container.length
       }).setContext(this.context);
-      return path20.replaceWithMultiple(verifiedNodes);
+      return path21.replaceWithMultiple(verifiedNodes);
     }
     exports.hoist = function hoist(scope = this.scope) {
       const hoister = new _hoister.default(this, scope);
@@ -67331,9 +67331,9 @@ var require_replacement = __commonJS({
         id: id3
       }));
       const completionRecords = callee.getCompletionRecords();
-      for (const path20 of completionRecords) {
-        if (!path20.isExpressionStatement()) continue;
-        const loop = path20.findParent((path21) => path21.isLoop());
+      for (const path21 of completionRecords) {
+        if (!path21.isExpressionStatement()) continue;
+        const loop = path21.findParent((path22) => path22.isLoop());
         if (loop) {
           let uid = loop.getData("expressionReplacementReturnUid");
           if (!uid) {
@@ -67343,9 +67343,9 @@ var require_replacement = __commonJS({
           } else {
             uid = identifier2(uid.name);
           }
-          path20.get("expression").replaceWith(assignmentExpression("=", cloneNode(uid), path20.node.expression));
+          path21.get("expression").replaceWith(assignmentExpression("=", cloneNode(uid), path21.node.expression));
         } else {
-          path20.replaceWith(returnStatement(path20.node.expression));
+          path21.replaceWith(returnStatement(path21.node.expression));
         }
       }
       callee.arrowFunctionToExpression();
@@ -67454,16 +67454,16 @@ var require_evaluation = __commonJS({
       const res = this.evaluate();
       if (res.confident) return !!res.value;
     }
-    function deopt(path20, state) {
+    function deopt(path21, state) {
       if (!state.confident) return;
-      state.deoptPath = path20;
+      state.deoptPath = path21;
       state.confident = false;
     }
     var Globals = /* @__PURE__ */ new Map([["undefined", void 0], ["Infinity", Infinity], ["NaN", NaN]]);
-    function evaluateCached(path20, state) {
+    function evaluateCached(path21, state) {
       const {
         node: node2
-      } = path20;
+      } = path21;
       const {
         seen: seen2
       } = state;
@@ -67472,7 +67472,7 @@ var require_evaluation = __commonJS({
         if (existing.resolved) {
           return existing.value;
         } else {
-          deopt(path20, state);
+          deopt(path21, state);
           return;
         }
       } else {
@@ -67480,7 +67480,7 @@ var require_evaluation = __commonJS({
           resolved: false
         };
         seen2.set(node2, item);
-        const val = _evaluate(path20, state);
+        const val = _evaluate(path21, state);
         if (state.confident) {
           item.resolved = true;
           item.value = val;
@@ -67488,55 +67488,55 @@ var require_evaluation = __commonJS({
         return val;
       }
     }
-    function _evaluate(path20, state) {
+    function _evaluate(path21, state) {
       if (!state.confident) return;
-      if (path20.isSequenceExpression()) {
-        const exprs = path20.get("expressions");
+      if (path21.isSequenceExpression()) {
+        const exprs = path21.get("expressions");
         return evaluateCached(exprs[exprs.length - 1], state);
       }
-      if (path20.isStringLiteral() || path20.isNumericLiteral() || path20.isBooleanLiteral()) {
-        return path20.node.value;
+      if (path21.isStringLiteral() || path21.isNumericLiteral() || path21.isBooleanLiteral()) {
+        return path21.node.value;
       }
-      if (path20.isNullLiteral()) {
+      if (path21.isNullLiteral()) {
         return null;
       }
-      if (path20.isTemplateLiteral()) {
-        return evaluateQuasis(path20, path20.node.quasis, state);
+      if (path21.isTemplateLiteral()) {
+        return evaluateQuasis(path21, path21.node.quasis, state);
       }
-      if (path20.isTaggedTemplateExpression() && path20.get("tag").isMemberExpression()) {
-        const object4 = path20.get("tag.object");
+      if (path21.isTaggedTemplateExpression() && path21.get("tag").isMemberExpression()) {
+        const object4 = path21.get("tag.object");
         const {
           node: {
             name
           }
         } = object4;
-        const property2 = path20.get("tag.property");
-        if (object4.isIdentifier() && name === "String" && !path20.scope.getBinding(name) && property2.isIdentifier() && property2.node.name === "raw") {
-          return evaluateQuasis(path20, path20.node.quasi.quasis, state, true);
+        const property2 = path21.get("tag.property");
+        if (object4.isIdentifier() && name === "String" && !path21.scope.getBinding(name) && property2.isIdentifier() && property2.node.name === "raw") {
+          return evaluateQuasis(path21, path21.node.quasi.quasis, state, true);
         }
       }
-      if (path20.isConditionalExpression()) {
-        const testResult = evaluateCached(path20.get("test"), state);
+      if (path21.isConditionalExpression()) {
+        const testResult = evaluateCached(path21.get("test"), state);
         if (!state.confident) return;
         if (testResult) {
-          return evaluateCached(path20.get("consequent"), state);
+          return evaluateCached(path21.get("consequent"), state);
         } else {
-          return evaluateCached(path20.get("alternate"), state);
+          return evaluateCached(path21.get("alternate"), state);
         }
       }
-      if (path20.isExpressionWrapper()) {
-        return evaluateCached(path20.get("expression"), state);
+      if (path21.isExpressionWrapper()) {
+        return evaluateCached(path21.get("expression"), state);
       }
-      if (path20.isMemberExpression() && !path20.parentPath.isCallExpression({
-        callee: path20.node
+      if (path21.isMemberExpression() && !path21.parentPath.isCallExpression({
+        callee: path21.node
       })) {
-        const property2 = path20.get("property");
-        const object4 = path20.get("object");
+        const property2 = path21.get("property");
+        const object4 = path21.get("object");
         if (object4.isLiteral()) {
           const value = object4.node.value;
           const type = typeof value;
           let key2 = null;
-          if (path20.node.computed) {
+          if (path21.node.computed) {
             key2 = evaluateCached(property2, state);
             if (!state.confident) return;
           } else if (property2.isIdentifier()) {
@@ -67547,10 +67547,10 @@ var require_evaluation = __commonJS({
           }
         }
       }
-      if (path20.isReferencedIdentifier()) {
-        const binding2 = path20.scope.getBinding(path20.node.name);
+      if (path21.isReferencedIdentifier()) {
+        const binding2 = path21.scope.getBinding(path21.node.name);
         if (binding2) {
-          if (binding2.constantViolations.length > 0 || path20.node.start < binding2.path.node.end) {
+          if (binding2.constantViolations.length > 0 || path21.node.start < binding2.path.node.end) {
             deopt(binding2.path, state);
             return;
           }
@@ -67559,7 +67559,7 @@ var require_evaluation = __commonJS({
             let hasUnsafeBlock = !bindingPathScope.path.parentPath.isBlockStatement();
             for (let scope = bindingPathScope.parent; scope; scope = scope.parent) {
               var _scope$path$parentPat;
-              if (scope === path20.scope) {
+              if (scope === path21.scope) {
                 if (hasUnsafeBlock) {
                   deopt(binding2.path, state);
                   return;
@@ -67575,7 +67575,7 @@ var require_evaluation = __commonJS({
             return binding2.value;
           }
         }
-        const name = path20.node.name;
+        const name = path21.node.name;
         if (Globals.has(name)) {
           if (!binding2) {
             return Globals.get(name);
@@ -67584,7 +67584,7 @@ var require_evaluation = __commonJS({
           return;
         }
         if (!binding2) {
-          deopt(path20, state);
+          deopt(path21, state);
           return;
         }
         const bindingPath = binding2.path;
@@ -67605,19 +67605,19 @@ var require_evaluation = __commonJS({
         }
         return value;
       }
-      if (path20.isUnaryExpression({
+      if (path21.isUnaryExpression({
         prefix: true
       })) {
-        if (path20.node.operator === "void") {
+        if (path21.node.operator === "void") {
           return void 0;
         }
-        const argument = path20.get("argument");
-        if (path20.node.operator === "typeof" && (argument.isFunction() || argument.isClass())) {
+        const argument = path21.get("argument");
+        if (path21.node.operator === "typeof" && (argument.isFunction() || argument.isClass())) {
           return "function";
         }
         const arg = evaluateCached(argument, state);
         if (!state.confident) return;
-        switch (path20.node.operator) {
+        switch (path21.node.operator) {
           case "!":
             return !arg;
           case "+":
@@ -67630,9 +67630,9 @@ var require_evaluation = __commonJS({
             return typeof arg;
         }
       }
-      if (path20.isArrayExpression()) {
+      if (path21.isArrayExpression()) {
         const arr = [];
-        const elems = path20.get("elements");
+        const elems = path21.get("elements");
         for (const elem of elems) {
           const elemValue = elem.evaluate();
           if (elemValue.confident) {
@@ -67644,9 +67644,9 @@ var require_evaluation = __commonJS({
         }
         return arr;
       }
-      if (path20.isObjectExpression()) {
+      if (path21.isObjectExpression()) {
         const obj = {};
-        const props = path20.get("properties");
+        const props = path21.get("properties");
         for (const prop2 of props) {
           if (prop2.isObjectMethod() || prop2.isSpreadElement()) {
             deopt(prop2, state);
@@ -67677,14 +67677,14 @@ var require_evaluation = __commonJS({
         }
         return obj;
       }
-      if (path20.isLogicalExpression()) {
+      if (path21.isLogicalExpression()) {
         const wasConfident = state.confident;
-        const left = evaluateCached(path20.get("left"), state);
+        const left = evaluateCached(path21.get("left"), state);
         const leftConfident = state.confident;
         state.confident = wasConfident;
-        const right = evaluateCached(path20.get("right"), state);
+        const right = evaluateCached(path21.get("right"), state);
         const rightConfident = state.confident;
-        switch (path20.node.operator) {
+        switch (path21.node.operator) {
           case "||":
             state.confident = leftConfident && (!!left || rightConfident);
             if (!state.confident) return;
@@ -67699,12 +67699,12 @@ var require_evaluation = __commonJS({
             return left != null ? left : right;
         }
       }
-      if (path20.isBinaryExpression()) {
-        const left = evaluateCached(path20.get("left"), state);
+      if (path21.isBinaryExpression()) {
+        const left = evaluateCached(path21.get("left"), state);
         if (!state.confident) return;
-        const right = evaluateCached(path20.get("right"), state);
+        const right = evaluateCached(path21.get("right"), state);
         if (!state.confident) return;
-        switch (path20.node.operator) {
+        switch (path21.node.operator) {
           case "-":
             return left - right;
           case "+":
@@ -67747,11 +67747,11 @@ var require_evaluation = __commonJS({
             return left >>> right;
         }
       }
-      if (path20.isCallExpression()) {
-        const callee = path20.get("callee");
+      if (path21.isCallExpression()) {
+        const callee = path21.get("callee");
         let context;
         let func;
-        if (callee.isIdentifier() && !path20.scope.getBinding(callee.node.name) && (isValidObjectCallee(callee.node.name) || isValidIdentifierCallee(callee.node.name))) {
+        if (callee.isIdentifier() && !path21.scope.getBinding(callee.node.name) && (isValidObjectCallee(callee.node.name) || isValidIdentifierCallee(callee.node.name))) {
           func = global[callee.node.name];
         }
         if (callee.isMemberExpression()) {
@@ -67773,17 +67773,17 @@ var require_evaluation = __commonJS({
           }
         }
         if (func) {
-          const args = path20.get("arguments").map((arg) => evaluateCached(arg, state));
+          const args = path21.get("arguments").map((arg) => evaluateCached(arg, state));
           if (!state.confident) return;
           return func.apply(context, args);
         }
       }
-      deopt(path20, state);
+      deopt(path21, state);
     }
-    function evaluateQuasis(path20, quasis, state, raw = false) {
+    function evaluateQuasis(path21, quasis, state, raw = false) {
       let str2 = "";
       let i3 = 0;
-      const exprs = path20.isTemplateLiteral() ? path20.get("expressions") : path20.get("quasi.expressions");
+      const exprs = path21.isTemplateLiteral() ? path21.get("expressions") : path21.get("quasi.expressions");
       for (const elem of quasis) {
         if (!state.confident) break;
         str2 += raw ? elem.value.raw : elem.value.cooked;
@@ -68577,8 +68577,8 @@ var require_conversion = __commonJS({
       }
       hoistFunctionEnvironment(this);
     }
-    function setType(path20, type) {
-      path20.node.type = type;
+    function setType(path21, type) {
+      path21.node.type = type;
     }
     function arrowFunctionToExpression({
       allowInsertArrow = true,
@@ -68993,14 +68993,14 @@ var require_conversion = __commonJS({
       return this;
     }
     var refersOuterBindingVisitor = {
-      "ReferencedIdentifier|BindingIdentifier"(path20, state) {
-        if (path20.node.name !== state.name) return;
+      "ReferencedIdentifier|BindingIdentifier"(path21, state) {
+        if (path21.node.name !== state.name) return;
         state.needsRename = true;
-        path20.stop();
+        path21.stop();
       },
-      Scope(path20, state) {
-        if (path20.scope.hasOwnBinding(state.name)) {
-          path20.skip();
+      Scope(path21, state) {
+        if (path21.scope.hasOwnBinding(state.name)) {
+          path21.skip();
         }
       }
     };
@@ -69149,21 +69149,21 @@ var require_introspection = __commonJS({
       return false;
     }
     function isCompletionRecord(allowInsideFunction) {
-      let path20 = this;
+      let path21 = this;
       let first = true;
       do {
         const {
           type,
           container
-        } = path20;
-        if (!first && (path20.isFunction() || type === "StaticBlock")) {
+        } = path21;
+        if (!first && (path21.isFunction() || type === "StaticBlock")) {
           return !!allowInsideFunction;
         }
         first = false;
-        if (Array.isArray(container) && path20.key !== container.length - 1) {
+        if (Array.isArray(container) && path21.key !== container.length - 1) {
           return false;
         }
-      } while ((path20 = path20.parentPath) && !path20.isProgram() && !path20.isDoExpression());
+      } while ((path21 = path21.parentPath) && !path21.isProgram() && !path21.isDoExpression());
       return true;
     }
     function isStatementOrBlock() {
@@ -69185,21 +69185,21 @@ var require_introspection = __commonJS({
       }
       const binding2 = this.scope.getBinding(this.node.name);
       if ((binding2 == null ? void 0 : binding2.kind) !== "module") return false;
-      const path20 = binding2.path;
-      const parent = path20.parentPath;
+      const path21 = binding2.path;
+      const parent = path21.parentPath;
       if (!parent.isImportDeclaration()) return false;
       if (parent.node.source.value === moduleSource) {
         if (!importName) return true;
       } else {
         return false;
       }
-      if (path20.isImportDefaultSpecifier() && importName === "default") {
+      if (path21.isImportDefaultSpecifier() && importName === "default") {
         return true;
       }
-      if (path20.isImportNamespaceSpecifier() && importName === "*") {
+      if (path21.isImportNamespaceSpecifier() && importName === "*") {
         return true;
       }
-      if (path20.isImportSpecifier() && isIdentifier11(path20.node.imported, {
+      if (path21.isImportSpecifier() && isIdentifier11(path21.node.imported, {
         name: importName
       })) {
         return true;
@@ -69217,8 +69217,8 @@ var require_introspection = __commonJS({
     function willIMaybeExecuteBefore(target) {
       return this._guessExecutionStatusRelativeTo(target) !== "after";
     }
-    function getOuterFunction(path20) {
-      return path20.isProgram() ? path20 : (path20.parentPath.scope.getFunctionParent() || path20.parentPath.scope.getProgramParent()).path;
+    function getOuterFunction(path21) {
+      return path21.isProgram() ? path21 : (path21.parentPath.scope.getFunctionParent() || path21.parentPath.scope.getProgramParent()).path;
     }
     function isExecutionUncertain(type, key2) {
       switch (type) {
@@ -69250,8 +69250,8 @@ var require_introspection = __commonJS({
     }
     function isExecutionUncertainInList(paths, maxIndex) {
       for (let i3 = 0; i3 < maxIndex; i3++) {
-        const path20 = paths[i3];
-        if (isExecutionUncertain(path20.parent.type, path20.parentKey)) {
+        const path21 = paths[i3];
+        if (isExecutionUncertain(path21.parent.type, path21.parentKey)) {
           return true;
         }
       }
@@ -69281,10 +69281,10 @@ var require_introspection = __commonJS({
         this: 0
       };
       while (!commonPath && commonIndex.this < paths.this.length) {
-        const path20 = paths.this[commonIndex.this];
-        commonIndex.target = paths.target.indexOf(path20);
+        const path21 = paths.this[commonIndex.this];
+        commonIndex.target = paths.target.indexOf(path21);
         if (commonIndex.target >= 0) {
-          commonPath = path20;
+          commonPath = path21;
         } else {
           commonIndex.this++;
         }
@@ -69322,13 +69322,13 @@ var require_introspection = __commonJS({
       if (!binding2.references) return "before";
       const referencePaths = binding2.referencePaths;
       let allStatus;
-      for (const path20 of referencePaths) {
-        const childOfFunction = !!path20.find((path21) => path21.node === target.node);
+      for (const path21 of referencePaths) {
+        const childOfFunction = !!path21.find((path22) => path22.node === target.node);
         if (childOfFunction) continue;
-        if (path20.key !== "callee" || !path20.parentPath.isCallExpression()) {
+        if (path21.key !== "callee" || !path21.parentPath.isCallExpression()) {
           return "unknown";
         }
-        const status2 = _guessExecutionStatusRelativeToCached(base, path20, cache);
+        const status2 = _guessExecutionStatusRelativeToCached(base, path21, cache);
         if (allStatus && allStatus !== status2) {
           return "unknown";
         } else {
@@ -69446,19 +69446,19 @@ var require_introspection = __commonJS({
     }
     function isInStrictMode() {
       const start2 = this.isProgram() ? this : this.parentPath;
-      const strictParent = start2.find((path20) => {
-        if (path20.isProgram({
+      const strictParent = start2.find((path21) => {
+        if (path21.isProgram({
           sourceType: "module"
         })) return true;
-        if (path20.isClass()) return true;
-        if (path20.isArrowFunctionExpression() && !path20.get("body").isBlockStatement()) {
+        if (path21.isClass()) return true;
+        if (path21.isArrowFunctionExpression() && !path21.get("body").isBlockStatement()) {
           return false;
         }
         let body;
-        if (path20.isFunction()) {
-          body = path20.node.body;
-        } else if (path20.isProgram()) {
-          body = path20.node;
+        if (path21.isFunction()) {
+          body = path21.node.body;
+        } else if (path21.isProgram()) {
+          body = path21.node;
         } else {
           return false;
         }
@@ -69507,16 +69507,16 @@ var require_family = __commonJS({
     } = _t;
     var NORMAL_COMPLETION = 0;
     var BREAK_COMPLETION = 1;
-    function NormalCompletion(path20) {
+    function NormalCompletion(path21) {
       return {
         type: NORMAL_COMPLETION,
-        path: path20
+        path: path21
       };
     }
-    function BreakCompletion(path20) {
+    function BreakCompletion(path21) {
       return {
         type: BREAK_COMPLETION,
-        path: path20
+        path: path21
       };
     }
     function getOpposite() {
@@ -69527,9 +69527,9 @@ var require_family = __commonJS({
       }
       return null;
     }
-    function addCompletionRecords(path20, records, context) {
-      if (path20) {
-        records.push(..._getCompletionRecords(path20, context));
+    function addCompletionRecords(path21, records, context) {
+      if (path21) {
+        records.push(..._getCompletionRecords(path21, context));
       }
       return records;
     }
@@ -69579,16 +69579,16 @@ var require_family = __commonJS({
       if (context.canHaveBreak) {
         let lastNormalCompletions = [];
         for (let i3 = 0; i3 < paths.length; i3++) {
-          const path20 = paths[i3];
+          const path21 = paths[i3];
           const newContext = Object.assign({}, context, {
             inCaseClause: false
           });
-          if (path20.isBlockStatement() && (context.inCaseClause || context.shouldPopulateBreak)) {
+          if (path21.isBlockStatement() && (context.inCaseClause || context.shouldPopulateBreak)) {
             newContext.shouldPopulateBreak = true;
           } else {
             newContext.shouldPopulateBreak = false;
           }
-          const statementCompletions = _getCompletionRecords(path20, newContext);
+          const statementCompletions = _getCompletionRecords(path21, newContext);
           if (statementCompletions.length > 0 && statementCompletions.every((c) => c.type === BREAK_COMPLETION)) {
             if (lastNormalCompletions.length > 0 && statementCompletions.every((c) => c.path.isBreakStatement({
               label: null
@@ -69638,35 +69638,35 @@ var require_family = __commonJS({
       }
       return completions;
     }
-    function _getCompletionRecords(path20, context) {
+    function _getCompletionRecords(path21, context) {
       let records = [];
-      if (path20.isIfStatement()) {
-        records = addCompletionRecords(path20.get("consequent"), records, context);
-        records = addCompletionRecords(path20.get("alternate"), records, context);
-      } else if (path20.isDoExpression() || path20.isFor() || path20.isWhile() || path20.isLabeledStatement()) {
-        return addCompletionRecords(path20.get("body"), records, context);
-      } else if (path20.isProgram() || path20.isBlockStatement()) {
-        return getStatementListCompletion(path20.get("body"), context);
-      } else if (path20.isFunction()) {
-        return _getCompletionRecords(path20.get("body"), context);
-      } else if (path20.isTryStatement()) {
-        records = addCompletionRecords(path20.get("block"), records, context);
-        records = addCompletionRecords(path20.get("handler"), records, context);
-      } else if (path20.isCatchClause()) {
-        return addCompletionRecords(path20.get("body"), records, context);
-      } else if (path20.isSwitchStatement()) {
-        return completionRecordForSwitch(path20.get("cases"), records, context);
-      } else if (path20.isSwitchCase()) {
-        return getStatementListCompletion(path20.get("consequent"), {
+      if (path21.isIfStatement()) {
+        records = addCompletionRecords(path21.get("consequent"), records, context);
+        records = addCompletionRecords(path21.get("alternate"), records, context);
+      } else if (path21.isDoExpression() || path21.isFor() || path21.isWhile() || path21.isLabeledStatement()) {
+        return addCompletionRecords(path21.get("body"), records, context);
+      } else if (path21.isProgram() || path21.isBlockStatement()) {
+        return getStatementListCompletion(path21.get("body"), context);
+      } else if (path21.isFunction()) {
+        return _getCompletionRecords(path21.get("body"), context);
+      } else if (path21.isTryStatement()) {
+        records = addCompletionRecords(path21.get("block"), records, context);
+        records = addCompletionRecords(path21.get("handler"), records, context);
+      } else if (path21.isCatchClause()) {
+        return addCompletionRecords(path21.get("body"), records, context);
+      } else if (path21.isSwitchStatement()) {
+        return completionRecordForSwitch(path21.get("cases"), records, context);
+      } else if (path21.isSwitchCase()) {
+        return getStatementListCompletion(path21.get("consequent"), {
           canHaveBreak: true,
           shouldPopulateBreak: false,
           inCaseClause: true,
           shouldPreserveBreak: context.shouldPreserveBreak
         });
-      } else if (path20.isBreakStatement()) {
-        records.push(BreakCompletion(path20));
+      } else if (path21.isBreakStatement()) {
+        records.push(BreakCompletion(path21));
       } else {
-        records.push(NormalCompletion(path20));
+        records.push(NormalCompletion(path21));
       }
       return records;
     }
@@ -69746,19 +69746,19 @@ var require_family = __commonJS({
       }
     }
     function _getPattern(parts, context) {
-      let path20 = this;
+      let path21 = this;
       for (const part of parts) {
         if (part === ".") {
-          path20 = path20.parentPath;
+          path21 = path21.parentPath;
         } else {
-          if (Array.isArray(path20)) {
-            path20 = path20[part];
+          if (Array.isArray(path21)) {
+            path21 = path21[part];
           } else {
-            path20 = path20.get(part, context);
+            path21 = path21.get(part, context);
           }
         }
       }
-      return path20;
+      return path21;
     }
     function getAssignmentIdentifiers() {
       return _getAssignmentIdentifiers(this.node);
@@ -69770,8 +69770,8 @@ var require_family = __commonJS({
       return _getOuterBindingIdentifiers(this.node, duplicates);
     }
     function getBindingIdentifierPaths(duplicates = false, outerOnly = false) {
-      const path20 = this;
-      const search = [path20];
+      const path21 = this;
+      const search = [path21];
       const ids = /* @__PURE__ */ Object.create(null);
       while (search.length) {
         const id3 = search.shift();
@@ -69970,13 +69970,13 @@ var require_path2 = __commonJS({
         }
         const targetNode = container[key2];
         const paths = cache.getOrCreateCachedPaths(parent, parentPath);
-        let path20 = paths.get(targetNode);
-        if (!path20) {
-          path20 = new NodePath(hub, parent);
-          if (targetNode) paths.set(targetNode, path20);
+        let path21 = paths.get(targetNode);
+        if (!path21) {
+          path21 = new NodePath(hub, parent);
+          if (targetNode) paths.set(targetNode, path21);
         }
-        _context.setup.call(path20, parentPath, container, listKey, key2);
-        return path20;
+        _context.setup.call(path21, parentPath, container, listKey, key2);
+        return path21;
       }
       getScope(scope) {
         return this.isScope() ? new _index2.default(this) : scope;
@@ -70010,12 +70010,12 @@ var require_path2 = __commonJS({
       }
       getPathLocation() {
         const parts = [];
-        let path20 = this;
+        let path21 = this;
         do {
-          let key2 = path20.key;
-          if (path20.inList) key2 = `${path20.listKey}[${key2}]`;
+          let key2 = path21.key;
+          if (path21.inList) key2 = `${path21.listKey}[${key2}]`;
           parts.unshift(key2);
-        } while (path20 = path20.parentPath);
+        } while (path21 = path21.parentPath);
         return parts.join(".");
       }
       debug(message) {
@@ -70247,12 +70247,12 @@ var require_context = __commonJS({
           hub
         });
       }
-      maybeQueue(path20, notPriority) {
+      maybeQueue(path21, notPriority) {
         if (this.queue) {
           if (notPriority) {
-            this.queue.push(path20);
+            this.queue.push(path21);
           } else {
-            this.priorityQueue.push(path20);
+            this.priorityQueue.push(path21);
           }
         }
       }
@@ -70281,19 +70281,19 @@ var require_context = __commonJS({
         let stop = false;
         let visitIndex = 0;
         for (; visitIndex < queue.length; ) {
-          const path20 = queue[visitIndex];
+          const path21 = queue[visitIndex];
           visitIndex++;
-          _context.resync.call(path20);
-          if (path20.contexts.length === 0 || path20.contexts[path20.contexts.length - 1] !== this) {
-            _context.pushContext.call(path20, this);
+          _context.resync.call(path21);
+          if (path21.contexts.length === 0 || path21.contexts[path21.contexts.length - 1] !== this) {
+            _context.pushContext.call(path21, this);
           }
-          if (path20.key === null) continue;
+          if (path21.key === null) continue;
           const {
             node: node2
-          } = path20;
+          } = path21;
           if (visited.has(node2)) continue;
           if (node2) visited.add(node2);
-          if (path20.visit()) {
+          if (path21.visit()) {
             stop = true;
             break;
           }
@@ -70339,13 +70339,13 @@ var require_traverse_node = __commonJS({
     var {
       VISITOR_KEYS: VISITOR_KEYS4
     } = _t;
-    function traverseNode(node2, opts, scope, state, path20, skipKeys, visitSelf) {
+    function traverseNode(node2, opts, scope, state, path21, skipKeys, visitSelf) {
       const keys = VISITOR_KEYS4[node2.type];
       if (!keys) return false;
-      const context = new _context.default(scope, opts, state, path20);
+      const context = new _context.default(scope, opts, state, path21);
       if (visitSelf) {
-        if (skipKeys != null && skipKeys[path20.parentKey]) return false;
-        return context.visitQueue([path20]);
+        if (skipKeys != null && skipKeys[path21.parentKey]) return false;
+        return context.visitQueue([path21]);
       }
       for (const key2 of keys) {
         if (skipKeys != null && skipKeys[key2]) continue;
@@ -70427,11 +70427,11 @@ var require_context2 = __commonJS({
       return denylist == null ? void 0 : denylist.includes(this.node.type);
     }
     exports.isBlacklisted = isDenylisted;
-    function restoreContext(path20, context) {
-      if (path20.context !== context) {
-        path20.context = context;
-        path20.state = context.state;
-        path20.opts = context.opts;
+    function restoreContext(path21, context) {
+      if (path21.context !== context) {
+        path21.context = context;
+        path21.state = context.state;
+        path21.opts = context.opts;
       }
     }
     function visit() {
@@ -70471,14 +70471,14 @@ var require_context2 = __commonJS({
     }
     function _forceSetScope() {
       var _this$scope;
-      let path20 = this.parentPath;
-      if ((this.key === "key" || this.listKey === "decorators") && path20.isMethod() || this.key === "discriminant" && path20.isSwitchStatement()) {
-        path20 = path20.parentPath;
+      let path21 = this.parentPath;
+      if ((this.key === "key" || this.listKey === "decorators") && path21.isMethod() || this.key === "discriminant" && path21.isSwitchStatement()) {
+        path21 = path21.parentPath;
       }
       let target;
-      while (path20 && !target) {
-        target = path20.scope;
-        path20 = path20.parentPath;
+      while (path21 && !target) {
+        target = path21.scope;
+        path21 = path21.parentPath;
       }
       this.scope = this.getScope(target);
       (_this$scope = this.scope) == null || _this$scope.init();
@@ -70486,16 +70486,16 @@ var require_context2 = __commonJS({
     function setScope() {
       var _this$opts2, _this$scope2;
       if ((_this$opts2 = this.opts) != null && _this$opts2.noScope) return;
-      let path20 = this.parentPath;
-      if ((this.key === "key" || this.listKey === "decorators") && path20.isMethod() || this.key === "discriminant" && path20.isSwitchStatement()) {
-        path20 = path20.parentPath;
+      let path21 = this.parentPath;
+      if ((this.key === "key" || this.listKey === "decorators") && path21.isMethod() || this.key === "discriminant" && path21.isSwitchStatement()) {
+        path21 = path21.parentPath;
       }
       let target;
-      while (path20 && !target) {
+      while (path21 && !target) {
         var _path$opts;
-        if ((_path$opts = path20.opts) != null && _path$opts.noScope) return;
-        target = path20.scope;
-        path20 = path20.parentPath;
+        if ((_path$opts = path21.opts) != null && _path$opts.noScope) return;
+        target = path21.scope;
+        path21 = path21.parentPath;
       }
       this.scope = this.getScope(target);
       (_this$scope2 = this.scope) == null || _this$scope2.init();
@@ -70603,12 +70603,12 @@ var require_context2 = __commonJS({
       }
     }
     function _getQueueContexts() {
-      let path20 = this;
+      let path21 = this;
       let contexts = this.contexts;
       while (!contexts.length) {
-        path20 = path20.parentPath;
-        if (!path20) break;
-        contexts = path20.contexts;
+        path21 = path21.parentPath;
+        if (!path21) break;
+        contexts = path21.contexts;
       }
       return contexts;
     }
@@ -70679,8 +70679,8 @@ var require_lib8 = __commonJS({
       traverseFast(node2, enter);
       return;
     };
-    traverse10.node = function(node2, opts, scope, state, path20, skipKeys) {
-      (0, _traverseNode.traverseNode)(node2, opts, scope, state, path20, skipKeys);
+    traverse10.node = function(node2, opts, scope, state, path21, skipKeys) {
+      (0, _traverseNode.traverseNode)(node2, opts, scope, state, path21, skipKeys);
     };
     traverse10.clearNode = function(node2, opts) {
       removeProperties(node2, opts);
@@ -70836,8 +70836,8 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   }
   const directives = ast.program.directives;
   const directivesEnd = directives.length ? directives[directives.length - 1].end : null;
-  const record = (path20, nodeType, text4, range, kind2, params = [], attributeName, plural, components) => {
-    const loc2 = path20.node.loc?.start ?? { line: 0, column: 0 };
+  const record = (path21, nodeType, text4, range, kind2, params = [], attributeName, plural, components) => {
+    const loc2 = path21.node.loc?.start ?? { line: 0, column: 0 };
     if (!plural && (kind2 === "jsxChild" || kind2 === "attrValue" || kind2 === "expression" || kind2 === "trans")) {
       const versions = versionValues(text4, params.map((p) => p.name));
       if (versions) {
@@ -70845,7 +70845,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
         params = [...params, ...versions.params];
       }
     }
-    let hook = resolveHookTarget(path20, code2, !!options.server, !!options.server && kind2 === "trans");
+    let hook = resolveHookTarget(path21, code2, !!options.server, !!options.server && kind2 === "trans");
     let contextual = false;
     if ("reason" in hook && hook.reason === OUTSIDE_COMPONENTS && !options.server && options.richText !== false && !options.richFunction && (kind2 === "jsxChild" || kind2 === "trans") && !plural) {
       hook = { fnStart: -1, componentName: "module", mode: "reuse", insertAt: -1, bodyEnd: -1, indent: "" };
@@ -70857,7 +70857,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       return null;
     }
     const id3 = `str_${extractedStrings.length + 1}`;
-    const owner = path20.findParent((p) => p.isJSXElement());
+    const owner = path21.findParent((p) => p.isJSXElement());
     const element3 = owner ? elementName(owner.node) : void 0;
     extractedStrings.push({
       id: id3,
@@ -70875,21 +70875,21 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     return id3;
   };
   const consumed = /* @__PURE__ */ new Set();
-  const visitChildren = (path20) => {
-    if (consumed.has(path20.node)) return;
-    const rich = options.richText !== false && !mergeTextRun(path20.node.children, code2) && !isIgnored(path20, true) ? mergeRichText(path20.node.children, code2, attributes2, /\.tsx?$/.test(filePath) ? (name) => !fromPackages.has(name) : null) : null;
+  const visitChildren = (path21) => {
+    if (consumed.has(path21.node)) return;
+    const rich = options.richText !== false && !mergeTextRun(path21.node.children, code2) && !isIgnored(path21, true) ? mergeRichText(path21.node.children, code2, attributes2, /\.tsx?$/.test(filePath) ? (name) => !fromPackages.has(name) : null) : null;
     if (rich && isTranslatable(rich.text.replace(/<[^>]+>/g, " "))) {
-      const first2 = path20.node.children.find((c) => !isBlankText(c));
-      const firstPath2 = path20.get("children").find((c) => c.node === first2);
+      const first2 = path21.node.children.find((c) => !isBlankText(c));
+      const firstPath2 = path21.get("children").find((c) => c.node === first2);
       for (const n4 of rich.consumed) consumed.add(n4);
       record(firstPath2, "TemplateLiteral", rich.text, rich.range, "trans", rich.params, void 0, void 0, rich.components);
       return;
     }
-    const merged = mergeTextRun(path20.node.children, code2, options.ordinals !== false);
-    if (!merged || !isTranslatable(merged.text) || isIgnored(path20, true)) return;
-    const first = path20.node.children.find((c) => !isBlankText(c));
-    const firstPath = path20.get("children").find((c) => c.node === first);
-    for (const c of path20.node.children) if (t.isJSXText(c)) consumed.add(c);
+    const merged = mergeTextRun(path21.node.children, code2, options.ordinals !== false);
+    if (!merged || !isTranslatable(merged.text) || isIgnored(path21, true)) return;
+    const first = path21.node.children.find((c) => !isBlankText(c));
+    const firstPath = path21.get("children").find((c) => c.node === first);
+    for (const c of path21.node.children) if (t.isJSXText(c)) consumed.add(c);
     for (const n4 of merged.consumed) consumed.add(n4);
     for (const sub of merged.subs) {
       const id3 = record(firstPath, "TemplateLiteral", sub.plural.other, { start: 0, end: 0 }, "pluralPart", [{ name: "count", source: sub.param.source }], void 0, sub.plural);
@@ -70995,10 +70995,10 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   }
   const renderedImports = [];
   traverse(ast, {
-    CallExpression(path20) {
-      const callee = path20.node.callee;
-      if (!t.isIdentifier(callee) || expressionSlot(path20, attributes2) === null) return;
-      const at2 = path20.scope.getBinding(callee.name)?.path;
+    CallExpression(path21) {
+      const callee = path21.node.callee;
+      if (!t.isIdentifier(callee) || expressionSlot(path21, attributes2) === null) return;
+      const at2 = path21.scope.getBinding(callee.name)?.path;
       if (!at2?.isImportSpecifier() || !at2.parentPath.isImportDeclaration()) return;
       const source2 = at2.parentPath.node.source.value;
       const imported = at2.node.imported;
@@ -71008,43 +71008,43 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   traverse(ast, {
     JSXElement: visitChildren,
     JSXFragment: visitChildren,
-    JSXText(path20) {
-      if (!t.isJSXElement(path20.parent) && !t.isJSXFragment(path20.parent)) return;
-      if (consumed.has(path20.node)) return;
-      if (isIgnored(path20)) return;
-      const { start: start2, end: end2 } = path20.node;
+    JSXText(path21) {
+      if (!t.isJSXElement(path21.parent) && !t.isJSXFragment(path21.parent)) return;
+      if (consumed.has(path21.node)) return;
+      if (isIgnored(path21)) return;
+      const { start: start2, end: end2 } = path21.node;
       const raw = code2.slice(start2, end2);
       const lead = raw.length - raw.trimStart().length;
       const trimmed = raw.trim();
       const text4 = normalizeWhitespace(decodeEntities(trimmed));
       if (!isTranslatable(text4)) return;
-      record(path20, "JSXText", text4, { start: start2 + lead, end: start2 + lead + trimmed.length }, "jsxChild");
+      record(path21, "JSXText", text4, { start: start2 + lead, end: start2 + lead + trimmed.length }, "jsxChild");
     },
-    JSXAttribute(path20) {
-      const name = attributeNameOf(path20.node);
-      const value = path20.node.value;
-      const copyProp = !attributes2.has(name) && t.isStringLiteral(value) && componentCopyProp(path20, name) && new RegExp("\\p{L}", "u").test(value.value) && (/\s/.test(value.value.trim()) || new RegExp("^\\p{Lu}", "u").test(value.value.trim()));
-      const opening = path20.parentPath;
+    JSXAttribute(path21) {
+      const name = attributeNameOf(path21.node);
+      const value = path21.node.value;
+      const copyProp = !attributes2.has(name) && t.isStringLiteral(value) && componentCopyProp(path21, name) && new RegExp("\\p{L}", "u").test(value.value) && (/\s/.test(value.value.trim()) || new RegExp("^\\p{Lu}", "u").test(value.value.trim()));
+      const opening = path21.parentPath;
       const metaText = name === "content" && opening?.isJSXOpeningElement() && t.isJSXIdentifier(opening.node.name, { name: "meta" }) && metaHoldsText(opening.node.attributes.flatMap((a) => t.isJSXAttribute(a) && t.isStringLiteral(a.value) ? [{ name: attributeNameOf(a), value: a.value.value }] : []));
       if (!attributes2.has(name) && !copyProp && !metaText) return;
       if (!t.isStringLiteral(value)) return;
-      if (isIgnored(path20)) return;
+      if (isIgnored(path21)) return;
       const text4 = normalizeWhitespace(value.value);
       if (!isTranslatable(text4)) return;
-      record(path20, "JSXAttribute", text4, { start: value.start, end: value.end }, "attrValue", [], name);
+      record(path21, "JSXAttribute", text4, { start: value.start, end: value.end }, "attrValue", [], name);
     },
     // gender === 'female' ? 'She liked your post' : 'He liked your post': one message with a
     // variant per gender (i18next context), so every language can word each one.
-    ConditionalExpression(path20) {
-      if (t.isConditionalExpression(path20.parent) && path20.parent.alternate === path20.node) return;
-      const select = genderSelect(path20.node, code2);
-      if (!select || !expressionSlot(path20, attributes2) || isIgnored(path20)) return;
+    ConditionalExpression(path21) {
+      if (t.isConditionalExpression(path21.parent) && path21.parent.alternate === path21.node) return;
+      const select = genderSelect(path21.node, code2);
+      if (!select || !expressionSlot(path21, attributes2) || isIgnored(path21)) return;
       const texts = select.branches.map((b4) => normalizeWhitespace(b4.literal.value));
       if (!texts.every(isTranslatable)) return;
-      const group = `select_${path20.node.start}`;
+      const group = `select_${path21.node.start}`;
       const before2 = extractedStrings.length;
       const base = select.branches.find((b4) => b4.value === null);
-      record(path20, "StringLiteral", normalizeWhitespace(base.literal.value), { start: path20.node.start, end: path20.node.end }, "select");
+      record(path21, "StringLiteral", normalizeWhitespace(base.literal.value), { start: path21.node.start, end: path21.node.end }, "select");
       if (extractedStrings.length === before2) return;
       extractedStrings[extractedStrings.length - 1].select = { group, value: null };
       sites.get(extractedStrings[extractedStrings.length - 1].id).selectOn = select.on;
@@ -71059,10 +71059,10 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       }
     },
     // 'Hello ' + name + ', welcome' in JSX: one message, `Hello {name}, welcome`.
-    BinaryExpression(path20) {
-      if (path20.node.operator !== "+" || t.isBinaryExpression(path20.parent) && path20.parent.operator === "+") return;
-      const slot = expressionSlot(path20, attributes2);
-      if (!slot || isIgnored(path20)) return;
+    BinaryExpression(path21) {
+      if (path21.node.operator !== "+" || t.isBinaryExpression(path21.parent) && path21.parent.operator === "+") return;
+      const slot = expressionSlot(path21, attributes2);
+      if (!slot || isIgnored(path21)) return;
       const parts = [];
       const flatten2 = (n4) => {
         if (t.isBinaryExpression(n4) && n4.operator === "+") {
@@ -71070,7 +71070,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
           flatten2(n4.right);
         } else parts.push(n4);
       };
-      flatten2(path20.node);
+      flatten2(path21.node);
       if (!parts.some((p) => t.isStringLiteral(p) && new RegExp("\\p{L}", "u").test(p.value))) return;
       const params = [];
       let text4 = "";
@@ -71090,13 +71090,13 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       text4 = normalizeWhitespace(text4);
       if (!isTranslatable(text4)) return;
       for (const part of parts) consumed.add(part);
-      record(path20, slot.attributeName ? "JSXAttribute" : "TemplateLiteral", text4, { start: path20.node.start, end: path20.node.end }, "expression", params, slot.attributeName);
+      record(path21, slot.attributeName ? "JSXAttribute" : "TemplateLiteral", text4, { start: path21.node.start, end: path21.node.end }, "expression", params, slot.attributeName);
     },
     // document.title = 'Settings · Acme Tasks' (or a template literal with values).
-    AssignmentExpression(path20) {
-      const { left, right } = path20.node;
-      if (!t.isMemberExpression(left) || !t.isIdentifier(left.object, { name: "document" }) || !t.isIdentifier(left.property, { name: "title" }) || isIgnored(path20)) return;
-      const value = path20.get("right");
+    AssignmentExpression(path21) {
+      const { left, right } = path21.node;
+      if (!t.isMemberExpression(left) || !t.isIdentifier(left.object, { name: "document" }) || !t.isIdentifier(left.property, { name: "title" }) || isIgnored(path21)) return;
+      const value = path21.get("right");
       if (t.isStringLiteral(right)) {
         const text4 = normalizeWhitespace(right.value);
         if (!isTranslatable(text4)) return;
@@ -71120,10 +71120,10 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       }
     },
     // Messages shown through code: setError('…'), toast.error('…'), alert('…'), and zod/yup messages.
-    CallExpression(path20) {
-      const shown = messageCall(path20.node);
+    CallExpression(path21) {
+      const shown = messageCall(path21.node);
       if (!shown) return;
-      path20.traverse({
+      path21.traverse({
         StringLiteral(literalPath) {
           const literal5 = literalPath.node;
           if (!shown.literals.includes(literal5) || consumed.has(literal5) || constantStrings.has(literal5)) return;
@@ -71139,32 +71139,32 @@ function parseAndScanComponent(code2, filePath, options = {}) {
         }
       });
     },
-    StringLiteral(path20) {
-      if (consumed.has(path20.node)) return;
-      if (constantStrings.has(path20.node)) return;
-      const slot = expressionSlot(path20, attributes2);
-      if (!slot || isIgnored(path20)) return;
-      const text4 = normalizeWhitespace(path20.node.value);
+    StringLiteral(path21) {
+      if (consumed.has(path21.node)) return;
+      if (constantStrings.has(path21.node)) return;
+      const slot = expressionSlot(path21, attributes2);
+      if (!slot || isIgnored(path21)) return;
+      const text4 = normalizeWhitespace(path21.node.value);
       if (!isTranslatable(text4)) return;
       record(
-        path20,
+        path21,
         slot.attributeName ? "JSXAttribute" : "StringLiteral",
         text4,
-        { start: path20.node.start, end: path20.node.end },
+        { start: path21.node.start, end: path21.node.end },
         "expression",
         [],
         slot.attributeName
       );
     },
-    TemplateLiteral(path20) {
-      if (t.isTaggedTemplateExpression(path20.parent)) return;
-      const slot = expressionSlot(path20, attributes2);
-      if (!slot || isIgnored(path20)) return;
+    TemplateLiteral(path21) {
+      if (t.isTaggedTemplateExpression(path21.parent)) return;
+      const slot = expressionSlot(path21, attributes2);
+      if (!slot || isIgnored(path21)) return;
       const params = [];
-      const plurals = path20.node.expressions.map((e2) => pluralTernary(e2));
+      const plurals = path21.node.expressions.map((e2) => pluralTernary(e2));
       const plural = plurals.filter(Boolean).length === 1 ? plurals.find(Boolean) : null;
       if (plural) params.push({ name: "count", source: code2.slice(plural.count.start, plural.count.end) });
-      const placeholders = path20.node.expressions.map((expr, i3) => {
+      const placeholders = path21.node.expressions.map((expr, i3) => {
         if (plural && plurals[i3] === plural) return null;
         const source2 = code2.slice(expr.start, expr.end);
         const existing = params.find((p) => p.source === source2);
@@ -71175,7 +71175,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       });
       const build3 = (form) => {
         let template4 = "";
-        path20.node.quasis.forEach((q, idx) => {
+        path21.node.quasis.forEach((q, idx) => {
           template4 += q.value.cooked ?? q.value.raw;
           if (idx < placeholders.length) template4 += placeholders[idx] === null ? plural[form] : `{${placeholders[idx]}}`;
         });
@@ -71184,10 +71184,10 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       const text4 = build3("other");
       if (!isTranslatable(text4)) return;
       record(
-        path20,
+        path21,
         slot.attributeName ? "JSXAttribute" : "TemplateLiteral",
         text4,
-        { start: path20.node.start, end: path20.node.end },
+        { start: path21.node.start, end: path21.node.end },
         "expression",
         params,
         slot.attributeName,
@@ -71451,7 +71451,7 @@ function mergeRichText(children, code2, attributes2, ownComponent = null) {
   if (t.isJSXText(last)) end2 -= last.value.length - last.value.trimEnd().length;
   return { text: normalizeWhitespace(text4), params, range: { start: start2, end: end2 }, components, consumed };
 }
-function isIgnored(path20, includeSelf = false) {
+function isIgnored(path21, includeSelf = false) {
   const test = (p) => {
     if (!p.isJSXElement()) return false;
     if (IGNORED_ELEMENTS.has(elementName(p.node))) return true;
@@ -71463,7 +71463,7 @@ function isIgnored(path20, includeSelf = false) {
       return name === "translate" && t.isStringLiteral(a.value) && a.value.value === "no";
     });
   };
-  return includeSelf && test(path20) || !!path20.findParent(test);
+  return includeSelf && test(path21) || !!path21.findParent(test);
 }
 function genderSelect(node2, code2) {
   const branches2 = [];
@@ -71621,26 +71621,26 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
     return { reads, followed, ignored };
   };
   traverse(ast, {
-    ImportDeclaration(path20) {
+    ImportDeclaration(path21) {
       if (!imported || !external) return;
-      const copy = imported(path20.node.source.value);
+      const copy = imported(path21.node.source.value);
       if (!copy) return;
-      for (const spec2 of path20.node.specifiers) {
+      for (const spec2 of path21.node.specifiers) {
         if (!t.isImportSpecifier(spec2)) continue;
         const name = t.isIdentifier(spec2.imported) ? spec2.imported.name : spec2.imported.value;
         const info2 = copy.get(name);
-        const binding2 = info2 && path20.scope.getBinding(spec2.local.name);
+        const binding2 = info2 && path21.scope.getBinding(spec2.local.name);
         if (!info2 || !binding2?.referencePaths.length) continue;
         const { reads, followed } = follow(binding2, new Set(info2.fields), info2.kind === "list", info2.kind === "lookup");
         const hooks = reads.map((r) => hookFor(r.path));
-        external(path20.node.source.value, name, followed && reads.length && hooks.every(Boolean) ? reads.map((r, i3) => ({ path: r.path, hook: hooks[i3] })) : null);
+        external(path21.node.source.value, name, followed && reads.length && hooks.every(Boolean) ? reads.map((r, i3) => ({ path: r.path, hook: hooks[i3] })) : null);
       }
     },
-    VariableDeclarator(path20) {
-      if (!path20.parentPath.parentPath?.isProgram() && !path20.parentPath.parentPath?.isExportNamedDeclaration()) return;
-      if (!t.isIdentifier(path20.node.id)) return;
-      const name = path20.node.id.name;
-      const init2 = unwrap2(path20.node.init);
+    VariableDeclarator(path21) {
+      if (!path21.parentPath.parentPath?.isProgram() && !path21.parentPath.parentPath?.isExportNamedDeclaration()) return;
+      if (!t.isIdentifier(path21.node.id)) return;
+      const name = path21.node.id.name;
+      const init2 = unwrap2(path21.node.init);
       const copy = /* @__PURE__ */ new Map();
       const collect = (obj) => {
         if (!t.isObjectExpression(obj)) return;
@@ -71665,7 +71665,7 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
         const texts = items.map((s) => normalizeWhitespace(s.value));
         if (texts.every(isTranslatable) && texts.some((x) => /\s/.test(x) && new RegExp("^\\p{Lu}", "u").test(x))) copy.set(ITEM, items);
       }
-      const binding2 = path20.scope.getBinding(name);
+      const binding2 = path21.scope.getBinding(name);
       if (!binding2) return;
       if (!isLookup && !(isList && languageTagged(init2))) {
         const others = /* @__PURE__ */ new Map();
@@ -71685,13 +71685,13 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
         }
       }
       if (!copy.size) return;
-      if (path20.parentPath.parentPath?.isExportNamedDeclaration() && !binding2.referencePaths.length) return;
+      if (path21.parentPath.parentPath?.isExportNamedDeclaration() && !binding2.referencePaths.length) return;
       const { reads, followed, ignored } = follow(binding2, new Set(copy.keys()), isList, isLookup);
       if (followed && !reads.length && ignored) return;
       const hooks = reads.map((r) => hookFor(r.path));
       if (!followed || !reads.length || hooks.some((h) => !h)) {
         const literals = [...copy.values()].flat();
-        const why = move(path20, new Set(isLookup ? [] : copy.keys()), literals);
+        const why = move(path21, new Set(isLookup ? [] : copy.keys()), literals);
         if (why === null) return;
         for (const l2 of literals) report(l2, normalizeWhitespace(l2.value), `copy in the constant ${name}, ${why}: build it with t() in the component that renders it`);
         return;
@@ -71801,8 +71801,8 @@ function scanHelpers(ast, code2, add, hookFor, subscribe) {
     }
   });
 }
-function expressionSlot(path20, attributes2) {
-  let current2 = path20;
+function expressionSlot(path21, attributes2) {
+  let current2 = path21;
   for (; ; ) {
     const parent = current2.parentPath;
     if (!parent) return null;
@@ -71867,12 +71867,12 @@ function componentNameOf(fn2) {
   if (holder.isExportDefaultDeclaration()) return "default";
   return null;
 }
-function resolveHookTarget(path20, code2, server = false, needsI18n = false) {
-  let fn2 = path20.getFunctionParent();
+function resolveHookTarget(path21, code2, server = false, needsI18n = false) {
+  let fn2 = path21.getFunctionParent();
   let name = null;
   while (fn2) {
-    if (fn2.isClassMethod() || fn2.isClassPrivateMethod()) return classTarget(fn2, fn2, path20, code2, server);
-    if (fn2.parentPath.isClassProperty() || fn2.parentPath.isClassPrivateProperty()) return classTarget(fn2, fn2.parentPath, path20, code2, server);
+    if (fn2.isClassMethod() || fn2.isClassPrivateMethod()) return classTarget(fn2, fn2, path21, code2, server);
+    if (fn2.parentPath.isClassProperty() || fn2.parentPath.isClassPrivateProperty()) return classTarget(fn2, fn2.parentPath, path21, code2, server);
     name = componentNameOf(fn2);
     if (name) break;
     fn2 = fn2.parentPath.getFunctionParent();
@@ -71880,7 +71880,7 @@ function resolveHookTarget(path20, code2, server = false, needsI18n = false) {
   if (!fn2 || !name) return { reason: OUTSIDE_COMPONENTS };
   if (fn2.node.async && !server) return { reason: `component ${name} is async (server component?)` };
   if (server && fn2.node.generator) return { reason: `component ${name} is a generator` };
-  const binding2 = path20.scope.getBinding("t");
+  const binding2 = path21.scope.getBinding("t");
   const base = {
     fnStart: fn2.node.start,
     componentName: name,
@@ -71896,13 +71896,13 @@ function resolveHookTarget(path20, code2, server = false, needsI18n = false) {
     if (needsI18n && decl.isVariableDeclarator() && t.isObjectPattern(decl.node.id)) {
       const props = decl.node.id.properties;
       if (!props.some((p) => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: "i18n" }))) {
-        if (path20.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
+        if (path21.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
         addI18nAt = props[props.length - 1].end;
       }
     }
     return { ...base, mode: "reuse", insertAt: -1, bodyEnd: -1, indent: "", ...addI18nAt !== void 0 ? { addI18nAt } : {} };
   }
-  if (needsI18n && path20.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
+  if (needsI18n && path21.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
   const body = fn2.node.body;
   if (t.isBlockStatement(body)) {
     const first = body.body[0];
@@ -71925,11 +71925,11 @@ function resolveHookTarget(path20, code2, server = false, needsI18n = false) {
   const indent2 = /^[ \t]*/.exec(code2.slice(lineStart))[0];
   return { ...base, mode: "wrapExpression", insertAt: start2, bodyEnd: end2, indent: indent2 };
 }
-function classTarget(fn2, member2, path20, code2, server) {
+function classTarget(fn2, member2, path21, code2, server) {
   const cls = member2.parentPath?.parentPath;
   if (server || !cls?.isClassDeclaration() || !cls.node.id || !isComponentClass(cls.node.superClass)) return { reason: "inside a class (not a React component)" };
   const name = cls.node.id.name;
-  if (member2.node.static || fn2.isClassMethod() && fn2.node.kind !== "method") return globalClassTarget(fn2, path20, code2, name);
+  if (member2.node.static || fn2.isClassMethod() && fn2.node.kind !== "method") return globalClassTarget(fn2, path21, code2, name);
   const program2 = cls.parentPath.isProgram() ? cls.parentPath.node : cls.parentPath.parentPath?.node;
   if (!program2 || !t.isProgram(program2)) return { reason: `class component ${name} isn't declared at the top of the file` };
   const typeParams = cls.node.superTypeParameters?.params;
@@ -71940,10 +71940,10 @@ function classTarget(fn2, member2, path20, code2, server) {
   } else {
     const ref2 = program2.body.find((n4) => t.isExportDefaultDeclaration(n4) && t.isIdentifier(n4.declaration, { name }));
     if (ref2) wrap = { className: name, refStart: ref2.declaration.start, refEnd: ref2.declaration.end, ...typed };
-    else if (!new RegExp(`withTranslation\\([^)]*\\)\\(\\s*${name}\\s*\\)`).test(code2)) return unwrappedClassTarget(fn2, path20, code2, name);
+    else if (!new RegExp(`withTranslation\\([^)]*\\)\\(\\s*${name}\\s*\\)`).test(code2)) return unwrappedClassTarget(fn2, path21, code2, name);
   }
   const base = { fnStart: fn2.node.start, componentName: name, bodyEnd: -1, ...wrap ? { wrap } : {} };
-  const binding2 = path20.scope.getBinding("t");
+  const binding2 = path21.scope.getBinding("t");
   if (binding2) {
     const init2 = binding2.path.isVariableDeclarator() ? binding2.path.node.init : null;
     const fromProps = t.isMemberExpression(init2) && t.isThisExpression(init2.object) && t.isIdentifier(init2.property, { name: "props" });
@@ -71956,8 +71956,8 @@ function classTarget(fn2, member2, path20, code2, server) {
   const lineStart = code2.lastIndexOf("\n", first.start - 1) + 1;
   return { ...base, mode: "classMethod", insertAt: first.start, indent: /^[ \t]*/.exec(code2.slice(lineStart))[0] };
 }
-function unwrappedClassTarget(fn2, path20, code2, name) {
-  if (path20.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
+function unwrappedClassTarget(fn2, path21, code2, name) {
+  if (path21.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
   if (fn2.isClassMethod() && t.isIdentifier(fn2.node.key, { name: "render" })) {
     const body = fn2.node.body.body;
     if (!body.length) return { reason: `${name}'s render() is empty` };
@@ -71965,10 +71965,10 @@ function unwrappedClassTarget(fn2, path20, code2, name) {
     const lineStart = code2.lastIndexOf("\n", first.start - 1) + 1;
     return { fnStart: fn2.node.start, componentName: name, mode: "classRender", insertAt: first.start, bodyEnd: body[body.length - 1].end, indent: /^[ \t]*/.exec(code2.slice(lineStart))[0] };
   }
-  return globalClassTarget(fn2, path20, code2, name);
+  return globalClassTarget(fn2, path21, code2, name);
 }
-function globalClassTarget(fn2, path20, code2, name) {
-  if (path20.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
+function globalClassTarget(fn2, path21, code2, name) {
+  if (path21.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
   const body = fn2.node.body;
   if (!t.isBlockStatement(body) || !body.body.length) return { reason: `in a one-line arrow in ${name}: give it a block body` };
   const superAt = body.body.findIndex((s) => t.isExpressionStatement(s) && t.isCallExpression(s.expression) && t.isSuper(s.expression.callee));
@@ -71979,15 +71979,15 @@ function globalClassTarget(fn2, path20, code2, name) {
 }
 function scanActionStates(ast, add, hookFor, use, report) {
   traverse(ast, {
-    CallExpression(path20) {
-      const callee = path20.node.callee;
+    CallExpression(path21) {
+      const callee = path21.node.callee;
       const named2 = t.isIdentifier(callee) ? callee.name : t.isMemberExpression(callee) && t.isIdentifier(callee.property) ? callee.property.name : "";
       if (!/^use(ActionState|FormState)$/.test(named2)) return;
-      const decl = path20.parentPath;
+      const decl = path21.parentPath;
       if (!decl.isVariableDeclarator() || !t.isArrayPattern(decl.node.id) || !t.isIdentifier(decl.node.id.elements[0])) return;
-      const fnRef = path20.node.arguments[0];
+      const fnRef = path21.node.arguments[0];
       if (!t.isIdentifier(fnRef)) return;
-      const fnPath = path20.scope.getBinding(fnRef.name)?.path;
+      const fnPath = path21.scope.getBinding(fnRef.name)?.path;
       const fn2 = fnPath?.isFunctionDeclaration() ? fnPath.node : fnPath?.isVariableDeclarator() && (t.isArrowFunctionExpression(fnPath.node.init) || t.isFunctionExpression(fnPath.node.init)) ? fnPath.node.init : null;
       if (!fn2) return;
       const copy = /* @__PURE__ */ new Map();
@@ -72416,9 +72416,9 @@ function walk(node2, state, visitors6) {
   const stop = () => {
     stopped = true;
   };
-  function visit_children(node3, path20, state2) {
+  function visit_children(node3, path21, state2) {
     let mutations = null;
-    path20.push(node3);
+    path21.push(node3);
     for (const key2 in node3) {
       if (key2 === "type" || // avoid manipulating the prototype
       key2 === "__proto__") {
@@ -72432,7 +72432,7 @@ function walk(node2, state, visitors6) {
           for (let i3 = 0; i3 < len; i3++) {
             const node4 = child_node[i3];
             if (node4 && typeof node4 === "object") {
-              const result = visit(node4, path20, state2);
+              const result = visit(node4, path21, state2);
               if (result) {
                 (mutated_array ??= child_node.slice())[i3] = result;
               }
@@ -72445,7 +72445,7 @@ function walk(node2, state, visitors6) {
           const result = visit(
             /** @type {T} */
             child_node,
-            path20,
+            path21,
             state2
           );
           if (result) {
@@ -72454,12 +72454,12 @@ function walk(node2, state, visitors6) {
         }
       }
     }
-    path20.pop();
+    path21.pop();
     if (mutations) {
       return apply_mutations(node3, mutations);
     }
   }
-  function visit(node3, path20, state2) {
+  function visit(node3, path21, state2) {
     if (stopped) return;
     if (!node3.type) return;
     const visitor = (
@@ -72470,28 +72470,28 @@ function walk(node2, state, visitors6) {
       ]
     );
     if (!universal && !visitor) {
-      return visit_children(node3, path20, state2);
+      return visit_children(node3, path21, state2);
     }
     let result;
     let next_result;
-    const next2 = (next_state = state2) => next_result = visit_children(node3, path20, next_state);
+    const next2 = (next_state = state2) => next_result = visit_children(node3, path21, next_state);
     const visit_node = (next_node, next_state = state2) => {
-      path20.push(node3);
-      const result2 = visit(next_node, path20, next_state) ?? next_node;
-      path20.pop();
+      path21.push(node3);
+      const result2 = visit(next_node, path21, next_state) ?? next_node;
+      path21.pop();
       return result2;
     };
     if (universal) {
       let inner_result;
       result = universal(node3, {
         // Don't spread for performance reasons
-        path: path20,
+        path: path21,
         state: state2,
         /** @param {U} next_state */
         next: (next_state = state2) => {
           state2 = next_state;
           inner_result = visitor ? visitor(node3, {
-            path: path20,
+            path: path21,
             state: next_state,
             next: next2,
             stop,
@@ -72508,7 +72508,7 @@ function walk(node2, state, visitors6) {
     } else {
       result = /** @type {Visitor<T, U, T>} */
       visitor(node3, {
-        path: path20,
+        path: path21,
         state: state2,
         next: next2,
         stop,
@@ -74192,8 +74192,8 @@ function convert(source2, ast) {
           else: elseblock
         };
       },
-      ExpressionTag(node2, { path: path20 }) {
-        const parent = path20.at(-1);
+      ExpressionTag(node2, { path: path21 }) {
+        const parent = path21.at(-1);
         if (parent?.type === "Attribute") {
           if (source2[parent.start] === "{") {
             return {
@@ -74325,14 +74325,14 @@ function convert(source2, ast) {
           )
         };
       },
-      Attribute(node2, { visit, next: next2, path: path20 }) {
+      Attribute(node2, { visit, next: next2, path: path21 }) {
         if (node2.value !== true && !Array.isArray(node2.value)) {
-          path20.push(node2);
+          path21.push(node2);
           const value = (
             /** @type {Legacy.LegacyAttribute['value']} */
             [visit(node2.value)]
           );
-          path20.pop();
+          path21.pop();
           return {
             ...node2,
             value
@@ -74341,14 +74341,14 @@ function convert(source2, ast) {
           return next2();
         }
       },
-      StyleDirective(node2, { visit, next: next2, path: path20 }) {
+      StyleDirective(node2, { visit, next: next2, path: path21 }) {
         if (node2.value !== true && !Array.isArray(node2.value)) {
-          path20.push(node2);
+          path21.push(node2);
           const value = (
             /** @type {Legacy.LegacyStyleDirective['value']} */
             [visit(node2.value)]
           );
-          path20.pop();
+          path21.pop();
           return {
             ...node2,
             value
@@ -74541,8 +74541,8 @@ function convert(source2, ast) {
           )
         };
       },
-      Text(node2, { path: path20 }) {
-        const parent = path20.at(-1);
+      Text(node2, { path: path21 }) {
+        const parent = path21.at(-1);
         if (parent?.type === "RegularElement" && parent.name === "style") {
           return (
             /** @type {AST.Text} */
@@ -86877,7 +86877,7 @@ function get_comment_handlers(source2, comments, index = 0) {
       if (comments.length === 0) return;
       comments = comments.filter((comment) => comment.start >= index).map(({ type, value, start: start2, end: end2 }) => ({ type, value, start: start2, end: end2 }));
       walk(ast, null, {
-        _(node2, { next: next2, path: path20 }) {
+        _(node2, { next: next2, path: path21 }) {
           let comment;
           while (comments[0] && comments[0].start < node2.start) {
             comment = /** @type {CommentWithLocation} */
@@ -86888,7 +86888,7 @@ function get_comment_handlers(source2, comments, index = 0) {
           if (comments[0]) {
             const parent = (
               /** @type {any} */
-              path20.at(-1)
+              path21.at(-1)
             );
             if (parent === void 0 || node2.end !== parent.end) {
               const slice = source2.slice(node2.end, comments[0].start);
@@ -87375,8 +87375,8 @@ function member(object4, property2, computed = false, optional = false) {
   }
   return { type: "MemberExpression", object: object4, property: property2, computed, optional };
 }
-function member_id(path20) {
-  const parts = path20.split(".");
+function member_id(path21) {
+  const parts = path21.split(".");
   let expression = id(parts[0]);
   for (let i3 = 1; i3 < parts.length; i3 += 1) {
     expression = member(expression, id(parts[i3]));
@@ -87614,8 +87614,8 @@ function extract_all_identifiers_from_expression(expr) {
     expr,
     {},
     {
-      Identifier(node2, { path: path20 }) {
-        const parent = path20.at(-1);
+      Identifier(node2, { path: path21 }) {
+        const parent = path21.at(-1);
         if (parent?.type !== "MemberExpression" || parent.property !== node2 || parent.computed) {
           nodes.push(node2);
         }
@@ -87625,9 +87625,9 @@ function extract_all_identifiers_from_expression(expr) {
           keypath.push(node2.name);
         }
       },
-      Literal(node2, { path: path20 }) {
+      Literal(node2, { path: path21 }) {
         const value = typeof node2.value === "string" ? `"${node2.value}"` : String(node2.value);
-        const parent = path20.at(-1);
+        const parent = path21.at(-1);
         if (parent?.type === "MemberExpression" && parent.computed && parent.property === node2) {
           keypath.push(`[${value}]`);
         } else {
@@ -87809,12 +87809,12 @@ function _extract_paths(paths, inserts, param, expression, update_expression, ha
   }
   return paths;
 }
-function get_parent(path20, at2) {
-  let node2 = path20.at(at2);
+function get_parent(path21, at2) {
+  let node2 = path21.at(at2);
   if (node2.type === "TSNonNullExpression" || node2.type === "TSAsExpression") {
     return (
       /** @type {T} */
-      path20.at(at2 < 0 ? at2 - 1 : at2 + 1)
+      path21.at(at2 < 0 ? at2 - 1 : at2 + 1)
     );
   }
   return (
@@ -93578,8 +93578,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       context.visit(child, state2);
     }
   };
-  const SvelteDirective = (node2, { state: state2, path: path20, visit }) => {
-    state2.scope.reference(id(node2.name.split(".")[0]), path20);
+  const SvelteDirective = (node2, { state: state2, path: path21, visit }) => {
+    state2.scope.reference(id(node2.name.split(".")[0]), path21);
     if (node2.expression) {
       visit(node2.expression);
     }
@@ -93593,8 +93593,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       context.next();
     },
     // references
-    Identifier(node2, { path: path20, state: state2 }) {
-      const parent2 = path20.at(-1);
+    Identifier(node2, { path: path21, state: state2 }) {
+      const parent2 = path21.at(-1);
       if (parent2 && is_reference(
         node2,
         /** @type {Node} */
@@ -93603,11 +93603,11 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       // but for the migration they aren't, so we need to filter them out here
       // TODO -> once migration script is gone we can remove this check
       !parent2.type.startsWith("TS")) {
-        references.push([state2.scope, { node: node2, path: path20.slice() }]);
+        references.push([state2.scope, { node: node2, path: path21.slice() }]);
       }
     },
-    LabeledStatement(node2, { path: path20, next: next2 }) {
-      if (path20.length > 1 || !allow_reactive_declarations) return next2();
+    LabeledStatement(node2, { path: path21, next: next2 }) {
+      if (path21.length > 1 || !allow_reactive_declarations) return next2();
       if (node2.label.name !== "$") return next2();
       const scope2 = state.scope.child();
       scopes.set(node2, scope2);
@@ -93708,8 +93708,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       if (node2.id) state2.scope.declare(node2.id, "normal", "let", node2);
       next2();
     },
-    VariableDeclaration(node2, { state: state2, path: path20, next: next2 }) {
-      const is_parent_const_tag = path20.at(-1)?.type === "ConstTag";
+    VariableDeclaration(node2, { state: state2, path: path21, next: next2 }) {
+      const is_parent_const_tag = path21.at(-1)?.type === "ConstTag";
       for (const declarator2 of node2.declarations) {
         const bindings = [];
         state2.scope.declarators.set(declarator2, bindings);
@@ -93867,9 +93867,9 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
     // handled by `Identifier`. This is the special case for the shorthand
     // eg <button style:height /> where the variable has the same name of
     // the css property
-    StyleDirective(node2, { path: path20, state: state2, next: next2 }) {
+    StyleDirective(node2, { path: path21, state: state2, next: next2 }) {
       if (node2.value === true) {
-        state2.scope.reference(id(node2.name), path20.concat(node2));
+        state2.scope.reference(id(node2.name), path21.concat(node2));
       }
       next2();
     }
@@ -93880,8 +93880,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
     if (binding2) continue;
     scope.declare(id3, "legacy_reactive", "let");
   }
-  for (const [scope2, { node: node2, path: path20 }] of references) {
-    scope2.reference(node2, path20);
+  for (const [scope2, { node: node2, path: path21 }] of references) {
+    scope2.reference(node2, path21);
   }
   for (const [scope2, node2, value] of updates) {
     for (const expression of unwrap_pattern(node2)) {
@@ -94593,16 +94593,16 @@ var init_scope = __esm({
        * @param {Identifier} node
        * @param {AST.SvelteNode[]} path
        */
-      reference(node2, path20) {
-        path20 = [...path20];
+      reference(node2, path21) {
+        path21 = [...path21];
         let references = this.references.get(node2.name);
         if (!references) this.references.set(node2.name, references = []);
-        references.push({ node: node2, path: path20 });
+        references.push({ node: node2, path: path21 });
         const binding2 = this.declarations.get(node2.name);
         if (binding2) {
-          binding2.references.push({ node: node2, path: path20 });
+          binding2.references.push({ node: node2, path: path21 });
         } else if (this.parent) {
-          this.parent.reference(node2, path20);
+          this.parent.reference(node2, path21);
         } else {
           this.root.conflicts.add(node2.name);
         }
@@ -94862,11 +94862,11 @@ var init_utils2 = __esm({
 function is_global_block_selector(simple_selector) {
   return simple_selector.type === "PseudoClassSelector" && simple_selector.name === "global" && simple_selector.args === null;
 }
-function is_unscoped(path20) {
-  return path20.filter((node2) => node2.type === "Rule").every((node2) => node2.metadata.has_global_selectors);
+function is_unscoped(path21) {
+  return path21.filter((node2) => node2.type === "Rule").every((node2) => node2.metadata.has_global_selectors);
 }
-function is_in_global_block(path20) {
-  return path20.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
+function is_in_global_block(path21) {
+  return path21.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
 }
 function analyze_css(stylesheet, analysis) {
   const css_state = {
@@ -95535,10 +95535,10 @@ function unquote(str2) {
 }
 function get_ancestor_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ new Set()) {
   const ancestors = [];
-  const path20 = node2.metadata.path;
-  let i3 = path20.length;
+  const path21 = node2.metadata.path;
+  let i3 = path21.length;
   while (i3--) {
-    const parent = path20[i3];
+    const parent = path21[i3];
     if (parent.type === "SnippetBlock") {
       if (!seen2.has(parent)) {
         seen2.add(parent);
@@ -95551,7 +95551,7 @@ function get_ancestor_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ new
     if (parent.type === "RegularElement" || parent.type === "SvelteElement") {
       if (parent.type === "RegularElement" && parent.name === "option") {
         const is_direct_child = ancestors.length === 0;
-        const select_element = path20.findLast(
+        const select_element = path21.findLast(
           (element3, j) => element3.type === "RegularElement" && element3.name === "select" && j < i3
         );
         if (select_element && (!adjacent_only || is_direct_child)) {
@@ -95605,8 +95605,8 @@ function get_descendant_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ n
   }
   walk_children(node2.type === "RenderTag" ? node2 : node2.fragment);
   if (node2.type === "RegularElement" && node2.name === "selectedcontent") {
-    const path20 = node2.metadata.path;
-    const select_element = path20.findLast(
+    const path21 = node2.metadata.path;
+    const select_element = path21.findLast(
       (element3) => element3.type === "RegularElement" && element3.name === "select"
     );
     if (select_element) {
@@ -95630,10 +95630,10 @@ function get_descendant_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ n
   return descendants;
 }
 function get_element_parent(node2) {
-  let path20 = node2.metadata.path;
-  let i3 = path20.length;
+  let path21 = node2.metadata.path;
+  let i3 = path21.length;
   while (i3--) {
-    const parent = path20[i3];
+    const parent = path21[i3];
     if (parent.type === "RegularElement" || parent.type === "SvelteElement") {
       return parent;
     }
@@ -95642,13 +95642,13 @@ function get_element_parent(node2) {
 }
 function get_possible_element_siblings(node2, direction, adjacent_only, seen2 = /* @__PURE__ */ new Set()) {
   const result = /* @__PURE__ */ new Map();
-  const path20 = node2.metadata.path;
+  const path21 = node2.metadata.path;
   let current2 = node2;
-  let i3 = path20.length;
+  let i3 = path21.length;
   while (i3--) {
     const fragment2 = (
       /** @type {Compiler.AST.Fragment} */
-      path20[i3--]
+      path21[i3--]
     );
     let j = fragment2.nodes.indexOf(current2) + (direction === FORWARD ? 1 : -1);
     while (j >= 0 && j < fragment2.nodes.length) {
@@ -95682,7 +95682,7 @@ function get_possible_element_siblings(node2, direction, adjacent_only, seen2 = 
       }
       j = direction === FORWARD ? j + 1 : j - 1;
     }
-    current2 = path20[i3];
+    current2 = path21[i3];
     if (!current2) break;
     if (current2.type === "Component" || current2.type === "SvelteComponent" || current2.type === "SvelteSelf") {
       continue;
@@ -96170,10 +96170,10 @@ var init_AnimateDirective = __esm({
 });
 
 // ../../node_modules/svelte/src/compiler/phases/2-analyze/visitors/shared/fragment.js
-function mark_subtree_dynamic(path20) {
-  let i3 = path20.length;
+function mark_subtree_dynamic(path21) {
+  let i3 = path21.length;
   while (i3--) {
-    const node2 = path20[i3];
+    const node2 = path21[i3];
     if (node2.type === "Fragment") {
       if (node2.metadata.dynamic) return;
       node2.metadata.dynamic = true;
@@ -96319,11 +96319,11 @@ function AwaitExpression(node2, context) {
   }
   context.next();
 }
-function is_reactive_expression(path20, in_derived) {
+function is_reactive_expression(path21, in_derived) {
   if (in_derived) return true;
-  let i3 = path20.length;
+  let i3 = path21.length;
   while (i3--) {
-    const parent = path20[i3];
+    const parent = path21[i3];
     if (parent.type === "ArrowFunctionExpression" || parent.type === "FunctionExpression" || parent.type === "FunctionDeclaration") {
       return false;
     }
@@ -96333,10 +96333,10 @@ function is_reactive_expression(path20, in_derived) {
   }
   return false;
 }
-function is_last_evaluated_expression(path20, node2) {
-  let i3 = path20.length;
+function is_last_evaluated_expression(path21, node2) {
+  let i3 = path21.length;
   while (i3--) {
-    const parent = path20[i3];
+    const parent = path21[i3];
     if (parent.type === "ConstTag") {
       return false;
     }
@@ -97983,17 +97983,17 @@ function LabeledStatement(node2, context) {
       for (const [name, nodes] of context.state.scope.references) {
         const binding2 = context.state.scope.get(name);
         if (binding2 === null) continue;
-        for (const { node: node3, path: path20 } of nodes) {
+        for (const { node: node3, path: path21 } of nodes) {
           let left = node3;
-          let i3 = path20.length - 1;
+          let i3 = path21.length - 1;
           let parent2 = (
             /** @type {Expression} */
-            path20.at(i3)
+            path21.at(i3)
           );
           while (parent2.type === "MemberExpression") {
             left = parent2;
             parent2 = /** @type {Expression} */
-            path20.at(--i3);
+            path21.at(--i3);
           }
           if (parent2.type === "AssignmentExpression" && parent2.operator === "=" && parent2.left === left) {
             continue;
@@ -109583,10 +109583,10 @@ function match_schema(schema, tag_name, attribute_map) {
     return true;
   });
 }
-function is_parent(path20, elements) {
-  let i3 = path20.length;
+function is_parent(path21, elements) {
+  let i3 = path21.length;
   while (i3--) {
-    const parent = path20[i3];
+    const parent = path21[i3];
     if (parent.type === "SvelteElement") return true;
     if (parent.type === "RegularElement") {
       return elements.includes(parent.name);
@@ -110071,8 +110071,8 @@ function SnippetBlock(node2, context) {
       context.state.analysis.module.scope.declarations.set(name2, binding2);
     }
   }
-  const { path: path20 } = context;
-  const parent = path20.at(-2);
+  const { path: path21 } = context;
+  const parent = path21.at(-2);
   if (!parent) return;
   if (parent.type === "Component" && parent.attributes.some(
     (attribute2) => (attribute2.type === "Attribute" || attribute2.type === "BindDirective") && attribute2.name === node2.expression.name
@@ -110557,19 +110557,19 @@ function VariableDeclarator(node2, context) {
     const init2 = node2.init;
     const rune = get_rune(init2, context.state.scope);
     const { paths } = extract_paths(node2.id, id("dummy"));
-    for (const path20 of paths) {
+    for (const path21 of paths) {
       validate_identifier_name(context.state.scope.get(
         /** @type {Identifier} */
-        path20.node.name
+        path21.node.name
       ));
     }
     if (rune === "$state" || rune === "$state.raw" || rune === "$derived" || rune === "$derived.by" || rune === "$props") {
-      for (const path20 of paths) {
+      for (const path21 of paths) {
         const binding2 = (
           /** @type {Binding} */
-          context.state.scope.get(path20.node.name)
+          context.state.scope.get(path21.node.name)
         );
-        binding2.kind = rune === "$state" ? "state" : rune === "$state.raw" ? "raw_state" : rune === "$derived" || rune === "$derived.by" ? "derived" : path20.is_rest ? "rest_prop" : "prop";
+        binding2.kind = rune === "$state" ? "state" : rune === "$state.raw" ? "raw_state" : rune === "$derived" || rune === "$derived.by" ? "derived" : path21.is_rest ? "rest_prop" : "prop";
         if (rune === "$props" && binding2.kind === "rest_prop" && node2.id.type === "ObjectPattern") {
           const { properties } = node2.id;
           const exclude_props = [];
@@ -110821,15 +110821,15 @@ function analyze_component(root, source2, options) {
         if (declaration2 === null && /[a-z]/.test(store_name[0])) {
           global_reference_invalid(references[0].node, name2);
         } else if (declaration2 !== null && is_rune(name2)) {
-          for (const { node: node2, path: path20 } of references) {
-            if (path20.at(-1)?.type === "CallExpression") {
+          for (const { node: node2, path: path21 } of references) {
+            if (path21.at(-1)?.type === "CallExpression") {
               store_rune_conflict(node2, store_name);
             }
           }
         }
       }
       if (module.ast) {
-        for (const { node: node2, path: path20 } of references) {
+        for (const { node: node2, path: path21 } of references) {
           if (
             /** @type {number} */
             node2.start > /** @type {number} */
@@ -110838,7 +110838,7 @@ function analyze_component(root, source2, options) {
             module.ast.end && // const state = $state(0) is valid
             get_rune(
               /** @type {ESTree.Node} */
-              path20.at(-1),
+              path21.at(-1),
               module.scope
             ) === null
           ) {
@@ -110997,10 +110997,10 @@ function analyze_component(root, source2, options) {
     }
     for (const binding2 of instance.scope.declarations.values()) {
       if (binding2.kind !== "normal") continue;
-      for (const { node: node2, path: path20 } of binding2.references) {
+      for (const { node: node2, path: path21 } of binding2.references) {
         if (node2 === binding2.node) continue;
         if (binding2.updated) {
-          if (path20[path20.length - 1].type === "StyleDirective" || path20.some((node3) => node3.type === "Fragment") || path20[1].type === "LabeledStatement" && path20[1].label.name === "$") {
+          if (path21[path21.length - 1].type === "StyleDirective" || path21.some((node3) => node3.type === "Fragment") || path21[1].type === "LabeledStatement" && path21[1].label.name === "$") {
             binding2.kind = "state";
           }
         }
@@ -111097,17 +111097,17 @@ function analyze_component(root, source2, options) {
     for (const scope2 of [module.scope, instance.scope]) {
       outer: for (const [name2, binding2] of scope2.declarations) {
         if (binding2.kind === "normal" && binding2.reassigned) {
-          inner: for (const { path: path20 } of binding2.references) {
-            if (path20[0].type !== "Fragment") continue;
-            for (let i3 = 1; i3 < path20.length; i3 += 1) {
-              const type = path20[i3].type;
+          inner: for (const { path: path21 } of binding2.references) {
+            if (path21[0].type !== "Fragment") continue;
+            for (let i3 = 1; i3 < path21.length; i3 += 1) {
+              const type = path21[i3].type;
               if (type === "FunctionDeclaration" || type === "FunctionExpression" || type === "ArrowFunctionExpression") {
                 continue inner;
               }
               if (type === "BindDirective" && /** @type {AST.BindDirective} */
-              path20[i3].name === "this") {
+              path21[i3].name === "this") {
                 for (let j = i3 - 1; j >= 0; j -= 1) {
-                  const type2 = path20[j].type;
+                  const type2 = path21[j].type;
                   if (type2 === "IfBlock" || type2 === "EachBlock" || type2 === "AwaitBlock" || type2 === "KeyBlock") {
                     non_reactive_update(binding2.node, name2);
                     continue outer;
@@ -111635,8 +111635,8 @@ var init_analyze = __esm({
     init_fragment2();
     init_state();
     visitors3 = {
-      _(node2, { state, next: next2, path: path20 }) {
-        const parent = path20.at(-1);
+      _(node2, { state, next: next2, path: path21 }) {
+        const parent = path21.at(-1);
         const ignores = [];
         if (parent?.type === "Fragment" && node2.type !== "Comment" && node2.type !== "Text") {
           const idx = parent.nodes.indexOf(
@@ -112520,7 +112520,7 @@ function write_for_head_declaration(node2, context, no_in = false) {
 }
 function handle_var_declaration(node2, context, no_in = false) {
   const open3 = context.new();
-  const join18 = context.new();
+  const join19 = context.new();
   const child_context = context.new();
   context.append(child_context);
   if (node2.declare) {
@@ -112534,7 +112534,7 @@ function handle_var_declaration(node2, context, no_in = false) {
   child_context.append(open3);
   let first = true;
   for (const d3 of node2.declarations) {
-    if (!first) child_context.append(join18);
+    if (!first) child_context.append(join19);
     first = false;
     handle_var_declarator(d3, child_context, no_in);
   }
@@ -112543,11 +112543,11 @@ function handle_var_declaration(node2, context, no_in = false) {
   if (multiline) {
     context.multiline = true;
     if (node2.declarations.length > 1) open3.indent();
-    join18.write(",");
-    join18.newline();
+    join19.write(",");
+    join19.newline();
     if (node2.declarations.length > 1) context.dedent();
   } else {
-    join18.write(", ");
+    join19.write(", ");
   }
 }
 function quote(string3, char) {
@@ -112903,7 +112903,7 @@ var init_ts = __esm({
           }
           if (node2.typeArguments) context.visit(node2.typeArguments);
           const open3 = context.new();
-          const join18 = context.new();
+          const join19 = context.new();
           context.write("(");
           context.append(open3);
           const child_context = context.new();
@@ -112921,17 +112921,17 @@ var init_ts = __esm({
             if (!is_last) context2.write(",");
             const next2 = is_last ? node2.loc?.end ?? null : node2.arguments[i3 + 1]?.loc?.start ?? null;
             flush_trailing_comments(context2, arg.loc?.end ?? null, next2);
-            if (!is_last) context2.append(join18);
+            if (!is_last) context2.append(join19);
           }
           context.multiline ||= child_context.multiline || final_context.multiline;
           if (child_context.multiline) {
             open3.indent();
             open3.newline();
-            join18.newline();
+            join19.newline();
             context.dedent();
             context.newline();
           } else {
-            join18.write(" ");
+            join19.write(" ");
           }
           context.write(")");
         },
@@ -115330,16 +115330,16 @@ function parseAbsoluteUrl(input) {
 }
 function parseFileUrl(input) {
   const match2 = fileRegex.exec(input);
-  const path20 = match2[2];
-  return makeUrl("file:", "", match2[1] || "", "", isAbsolutePath(path20) ? path20 : "/" + path20, match2[3] || "", match2[4] || "");
+  const path21 = match2[2];
+  return makeUrl("file:", "", match2[1] || "", "", isAbsolutePath(path21) ? path21 : "/" + path21, match2[3] || "", match2[4] || "");
 }
-function makeUrl(scheme, user, host, port, path20, query, hash2) {
+function makeUrl(scheme, user, host, port, path21, query, hash2) {
   return {
     scheme,
     user,
     host,
     port,
-    path: path20,
+    path: path21,
     query,
     hash: hash2,
     type: 7
@@ -115369,11 +115369,11 @@ function parseUrl(input) {
   url.type = input ? input.startsWith("?") ? 3 : input.startsWith("#") ? 2 : 4 : 1;
   return url;
 }
-function stripPathFilename(path20) {
-  if (path20.endsWith("/.."))
-    return path20;
-  const index = path20.lastIndexOf("/");
-  return path20.slice(0, index + 1);
+function stripPathFilename(path21) {
+  if (path21.endsWith("/.."))
+    return path21;
+  const index = path21.lastIndexOf("/");
+  return path21.slice(0, index + 1);
 }
 function mergePaths(url, base) {
   normalizePath(base, base.type);
@@ -115411,14 +115411,14 @@ function normalizePath(url, type) {
     pieces[pointer++] = piece;
     positive++;
   }
-  let path20 = "";
+  let path21 = "";
   for (let i3 = 1; i3 < pointer; i3++) {
-    path20 += "/" + pieces[i3];
+    path21 += "/" + pieces[i3];
   }
-  if (!path20 || addTrailingSlash && !path20.endsWith("/..")) {
-    path20 += "/";
+  if (!path21 || addTrailingSlash && !path21.endsWith("/..")) {
+    path21 += "/";
   }
-  url.path = path20;
+  url.path = path21;
 }
 function resolve2(input, base) {
   if (!input && !base)
@@ -115459,13 +115459,13 @@ function resolve2(input, base) {
     case 3:
       return queryHash;
     case 4: {
-      const path20 = url.path.slice(1);
-      if (!path20)
+      const path21 = url.path.slice(1);
+      if (!path21)
         return queryHash || ".";
-      if (isRelative(base || input) && !isRelative(path20)) {
-        return "./" + path20 + queryHash;
+      if (isRelative(base || input) && !isRelative(path21)) {
+        return "./" + path21 + queryHash;
       }
-      return path20 + queryHash;
+      return path21 + queryHash;
     }
     case 5:
       return url.path + queryHash;
@@ -115483,10 +115483,10 @@ var init_resolve_uri = __esm({
 });
 
 // ../../node_modules/@jridgewell/trace-mapping/dist/trace-mapping.mjs
-function stripFilename(path20) {
-  if (!path20) return "";
-  const index = path20.lastIndexOf("/");
-  return path20.slice(0, index + 1);
+function stripFilename(path21) {
+  if (!path21) return "";
+  const index = path21.lastIndexOf("/");
+  return path21.slice(0, index + 1);
 }
 function resolver(mapUrl, sourceRoot) {
   const from = stripFilename(mapUrl);
@@ -116378,8 +116378,8 @@ function render_stylesheet(source2, analysis, options) {
   }
   return css;
 }
-function is_in_global_block2(path20) {
-  return path20.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
+function is_in_global_block2(path21) {
+  return path21.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
 }
 function remove_global_pseudo_class(selector, combinator, state) {
   if (selector.args === null) {
@@ -116454,7 +116454,7 @@ var init_css2 = __esm({
         context.state.code.addSourcemapLocation(node2.end);
         context.next();
       },
-      Atrule(node2, { state, next: next2, path: path20 }) {
+      Atrule(node2, { state, next: next2, path: path21 }) {
         if (is_keyframes_node(node2)) {
           let start2 = node2.start + node2.name.length + 1;
           while (state.code.original[start2] === " ") start2 += 1;
@@ -116462,7 +116462,7 @@ var init_css2 = __esm({
           while (state.code.original[end2] !== "{" && state.code.original[end2] !== " ") end2 += 1;
           if (node2.prelude.startsWith("-global-")) {
             state.code.remove(start2, start2 + 8);
-          } else if (!is_in_global_block2(path20)) {
+          } else if (!is_in_global_block2(path21)) {
             state.code.prependRight(start2, `${state.hash}-`);
           }
           return;
@@ -116499,12 +116499,12 @@ var init_css2 = __esm({
           }
         }
       },
-      Rule(node2, { state, next: next2, visit, path: path20 }) {
+      Rule(node2, { state, next: next2, visit, path: path21 }) {
         if (state.minify) {
           remove_preceding_whitespace(node2.start, state);
           remove_preceding_whitespace(node2.block.end - 1, state);
         }
-        if (!dev && is_empty(node2, is_in_global_block2(path20))) {
+        if (!dev && is_empty(node2, is_in_global_block2(path21))) {
           if (state.minify) {
             state.code.remove(node2.start, node2.end);
           } else {
@@ -116514,7 +116514,7 @@ var init_css2 = __esm({
           }
           return;
         }
-        if (!is_used(node2) && !is_in_global_block2(path20)) {
+        if (!is_used(node2) && !is_in_global_block2(path21)) {
           if (state.minify) {
             state.code.remove(node2.start, node2.end);
           } else {
@@ -116542,9 +116542,9 @@ var init_css2 = __esm({
         }
         next2();
       },
-      SelectorList(node2, { state, next: next2, path: path20 }) {
-        const parent = path20.at(-1);
-        if ((!is_in_global_block2(path20) || node2.children.length > 1 && parent?.type === "Rule" && parent.metadata.is_global_block) && !path20.find((n4) => n4.type === "ComplexSelector" && !n4.metadata.used)) {
+      SelectorList(node2, { state, next: next2, path: path21 }) {
+        const parent = path21.at(-1);
+        if ((!is_in_global_block2(path21) || node2.children.length > 1 && parent?.type === "Rule" && parent.metadata.is_global_block) && !path21.find((n4) => n4.type === "ComplexSelector" && !n4.metadata.used)) {
           const children = node2.children;
           let pruning = false;
           let prune_start = children[0].start;
@@ -116693,14 +116693,14 @@ function visit_assignment_expression(node2, context, build_assignment3) {
     for (const { id: id3 } of inserts) {
       id3.name = context.state.scope.generate("$$array");
     }
-    const assignments = paths.map((path20) => {
-      const value2 = path20.expression;
-      let assignment2 = build_assignment3("=", path20.node, value2, context);
+    const assignments = paths.map((path21) => {
+      const value2 = path21.expression;
+      let assignment2 = build_assignment3("=", path21.node, value2, context);
       if (assignment2 !== null) changed = true;
       return assignment2 ?? assignment(
         "=",
         /** @type {Pattern} */
-        context.visit(path20.node),
+        context.visit(path21.node),
         /** @type {Expression} */
         context.visit(value2)
       );
@@ -117311,7 +117311,7 @@ function sort_const_tags(nodes, state) {
   }
   return [...sorted, ...other];
 }
-function clean_nodes(parent, nodes, path20, namespace = "html", state, preserve_whitespace, preserve_comments) {
+function clean_nodes(parent, nodes, path21, namespace = "html", state, preserve_whitespace, preserve_comments) {
   if (!state.analysis.runes) {
     nodes = sort_const_tags(nodes, state);
   }
@@ -117345,7 +117345,7 @@ function clean_nodes(parent, nodes, path20, namespace = "html", state, preserve_
       last.raw = last.raw.replace(regex_ends_with_whitespaces, "");
       last.data = last.data.replace(regex_ends_with_whitespaces, "");
     }
-    const can_remove_entirely = namespace === "svg" && (parent.type !== "RegularElement" || parent.name !== "text") && !path20.some((n4) => n4.type === "RegularElement" && n4.name === "text") || parent.type === "RegularElement" && // TODO others?
+    const can_remove_entirely = namespace === "svg" && (parent.type !== "RegularElement" || parent.name !== "text") && !path21.some((n4) => n4.type === "RegularElement" && n4.name === "text") || parent.type === "RegularElement" && // TODO others?
     (parent.name === "select" || parent.name === "tr" || parent.name === "table" || parent.name === "tbody" || parent.name === "thead" || parent.name === "tfoot" || parent.name === "colgroup" || parent.name === "datalist");
     for (let i3 = 0; i3 < regular.length; i3++) {
       const prev = regular[i3 - 1];
@@ -119437,13 +119437,13 @@ function VariableDeclaration(node2, context) {
             const call8 = call("$.derived", expression);
             declarations.push(declarator(id3, call8));
           }
-          for (const path20 of paths) {
+          for (const path21 of paths) {
             const expression = (
               /** @type {Expression} */
-              context.visit(path20.expression)
+              context.visit(path21.expression)
             );
             const call8 = call("$.derived", thunk(expression));
-            declarations.push(declarator(path20.node, call8));
+            declarations.push(declarator(path21.node, call8));
           }
         }
         continue;
@@ -119487,18 +119487,18 @@ function VariableDeclaration(node2, context) {
             id3.name = context.state.scope.generate("$$array");
             declarations.push(declarator(id3, value));
           }
-          for (const path20 of paths) {
-            const value = path20.expression;
+          for (const path21 of paths) {
+            const value = path21.expression;
             const name = (
               /** @type {Identifier} */
-              path20.node.name
+              path21.node.name
             );
             const binding3 = (
               /** @type {Binding} */
               context.state.scope.get(name)
             );
             const prop3 = member(id("$$props"), literal2(binding3.prop_alias ?? name), true);
-            declarations.push(declarator(path20.node, build_fallback(prop3, value)));
+            declarations.push(declarator(path21.node, build_fallback(prop3, value)));
           }
           continue;
         }
@@ -119553,9 +119553,9 @@ function create_state_declarators(declarator2, scope, value) {
       id3.name = scope.generate("$$array");
       return declarator(id3, value2);
     }),
-    ...paths.map((path20) => {
-      const value2 = path20.expression;
-      return declarator(path20.node, value2);
+    ...paths.map((path21) => {
+      const value2 = path21.expression;
+      return declarator(path21.node, value2);
     })
   ];
 }
@@ -120254,12 +120254,12 @@ function build_bind_this(expression, value, { state, visit }) {
   const seen2 = [];
   const transform2 = { ...state.transform };
   walk(getter ?? expression, null, {
-    Identifier(node3, { path: path20 }) {
+    Identifier(node3, { path: path21 }) {
       if (seen2.includes(node3.name)) return;
       seen2.push(node3.name);
       const parent = (
         /** @type {Expression} */
-        path20.at(-1)
+        path21.at(-1)
       );
       if (!is_reference(node3, parent)) return;
       const binding2 = state.scope.get(node3.name);
@@ -120360,23 +120360,23 @@ function validate_mutation(node2, context, expression) {
     context.state
   );
   state.analysis.needs_mutation_validation = true;
-  const path20 = [];
+  const path21 = [];
   while (left.type === "MemberExpression") {
     if (left.property.type === "Literal") {
-      path20.unshift(left.property);
+      path21.unshift(left.property);
     } else if (left.property.type === "Identifier") {
       const transform2 = Object.hasOwn(context.state.transform, left.property.name) ? context.state.transform[left.property.name] : null;
       if (left.computed) {
-        path20.unshift(transform2?.read ? transform2.read(left.property) : left.property);
+        path21.unshift(transform2?.read ? transform2.read(left.property) : left.property);
       } else {
-        path20.unshift(literal2(left.property.name));
+        path21.unshift(literal2(left.property.name));
       }
     } else {
       return expression;
     }
     left = left.object;
   }
-  path20.unshift(literal2(name.name));
+  path21.unshift(literal2(name.name));
   const loc2 = locator(
     /** @type {number} */
     left.start
@@ -120384,7 +120384,7 @@ function validate_mutation(node2, context, expression) {
   return call(
     "$$ownership_validator.mutation",
     literal2(binding2.prop_alias),
-    array(path20),
+    array(path21),
     expression,
     loc2 && literal2(loc2.line),
     loc2 && literal2(loc2.column)
@@ -120643,9 +120643,9 @@ function build_assignment2(operator, left, right, context) {
   const binding2 = context.state.scope.get(object4.name);
   if (!binding2) return null;
   const transform2 = Object.hasOwn(context.state.transform, object4.name) ? context.state.transform[object4.name] : null;
-  const path20 = context.path.map((node2) => node2.type);
+  const path21 = context.path.map((node2) => node2.type);
   if (object4 === left && transform2?.assign) {
-    const is_primitive = path20.at(-1) === "BindDirective" && path20.at(-2) === "RegularElement";
+    const is_primitive = path21.at(-1) === "BindDirective" && path21.at(-2) === "RegularElement";
     let value = (
       /** @type {Expression} */
       context.visit(build_assignment_value(operator, left, right))
@@ -120685,8 +120685,8 @@ function build_assignment2(operator, left, right, context) {
     }
     return mutation;
   }
-  let should_transform = dev && path20.at(-1) !== "ExpressionStatement" && is_non_coercive_operator(operator) && !context.state.scope.evaluate(right).is_primitive;
-  if (path20.at(-1) === "ArrowFunctionExpression" && (path20.at(-2) === "RegularElement" || path20.at(-2) === "SvelteElement")) {
+  let should_transform = dev && path21.at(-1) !== "ExpressionStatement" && is_non_coercive_operator(operator) && !context.state.scope.evaluate(right).is_primitive;
+  if (path21.at(-1) === "ArrowFunctionExpression" && (path21.at(-2) === "RegularElement" || path21.at(-2) === "SvelteElement")) {
     const element3 = (
       /** @type {AST.RegularElement} */
       context.path.at(-2)
@@ -120702,7 +120702,7 @@ function build_assignment2(operator, left, right, context) {
       should_transform = false;
     }
   }
-  if (path20.at(-1) === "BindDirective" || path20.at(-1) === "Component" || path20.at(-1) === "SvelteComponent" || path20.at(-1) === "ArrowFunctionExpression" && (path20.at(-2) === "BindDirective" || path20.at(-2) === "Component" && path20.at(-3) === "Fragment" || path20.at(-2) === "SequenceExpression" && (path20.at(-3) === "Component" || path20.at(-3) === "SvelteComponent" || path20.at(-3) === "BindDirective"))) {
+  if (path21.at(-1) === "BindDirective" || path21.at(-1) === "Component" || path21.at(-1) === "SvelteComponent" || path21.at(-1) === "ArrowFunctionExpression" && (path21.at(-2) === "BindDirective" || path21.at(-2) === "Component" && path21.at(-3) === "Fragment" || path21.at(-2) === "SequenceExpression" && (path21.at(-3) === "Component" || path21.at(-3) === "SvelteComponent" || path21.at(-3) === "BindDirective"))) {
     should_transform = false;
   }
   if (left.type === "MemberExpression" && should_transform) {
@@ -123341,24 +123341,24 @@ function EachBlock3(node2, context) {
       );
       declarations.push(var_builder(id3, call("$.derived", expression)));
     }
-    for (const path20 of paths) {
+    for (const path21 of paths) {
       const name = (
         /** @type {Identifier} */
-        path20.node.name
+        path21.node.name
       );
-      const needs_derived = path20.has_default_value;
+      const needs_derived = path21.has_default_value;
       const fn2 = thunk(
         /** @type {Expression} */
-        context.visit(path20.expression, child_state)
+        context.visit(path21.expression, child_state)
       );
-      declarations.push(let_builder(path20.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
+      declarations.push(let_builder(path21.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
       const read2 = needs_derived ? get_value : call;
       child_state.transform[name] = {
         read: read2,
         assign: (_2, value) => {
           const left = (
             /** @type {Pattern} */
-            path20.update_expression
+            path21.update_expression
           );
           return sequence([assignment("=", left, value), ...sequence2]);
         },
@@ -124340,17 +124340,17 @@ function SnippetBlock3(node2, context) {
         ))
       );
     }
-    for (const path20 of paths) {
+    for (const path21 of paths) {
       const name = (
         /** @type {Identifier} */
-        path20.node.name
+        path21.node.name
       );
-      const needs_derived = path20.has_default_value;
+      const needs_derived = path21.has_default_value;
       const fn2 = thunk(
         /** @type {Expression} */
-        context.visit(path20.expression, child_state)
+        context.visit(path21.expression, child_state)
       );
-      declarations.push(let_builder(path20.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
+      declarations.push(let_builder(path21.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
       transform2[name] = {
         read: needs_derived ? get_value : call
       };
@@ -125081,17 +125081,17 @@ function VariableDeclaration2(node2, context) {
               }
               return declarator(id3, call7);
             }),
-            ...paths.map((path20) => {
+            ...paths.map((path21) => {
               const value2 = (
                 /** @type {Expression} */
-                context.visit(path20.expression)
+                context.visit(path21.expression)
               );
               const binding2 = context.state.scope.get(
                 /** @type {Identifier} */
-                path20.node.name
+                path21.node.name
               );
               return declarator(
-                path20.node,
+                path21.node,
                 binding2?.kind === "state" || binding2?.kind === "raw_state" ? create_state_declarator(binding2.node, value2) : value2
               );
             })
@@ -125168,18 +125168,18 @@ function VariableDeclaration2(node2, context) {
             }
             declarations.push(declarator(id3, call7));
           }
-          for (const path20 of paths) {
+          for (const path21 of paths) {
             const expression2 = (
               /** @type {Expression} */
-              context.visit(path20.expression)
+              context.visit(path21.expression)
             );
             const call7 = call("$.derived", thunk(expression2));
             declarations.push(
               declarator(
-                path20.node,
+                path21.node,
                 dev ? call("$.tag", call7, literal2(
                   /** @type {Identifier} */
-                  path20.node.name
+                  path21.node.name
                 )) : call7
               )
             );
@@ -125226,10 +125226,10 @@ function VariableDeclaration2(node2, context) {
             );
             declarations.push(declarator(id3, call("$.derived", expression)));
           }
-          for (const path20 of paths) {
+          for (const path21 of paths) {
             const name = (
               /** @type {Identifier} */
-              path20.node.name
+              path21.node.name
             );
             const binding3 = (
               /** @type {Binding} */
@@ -125237,11 +125237,11 @@ function VariableDeclaration2(node2, context) {
             );
             const value = (
               /** @type {Expression} */
-              context.visit(path20.expression)
+              context.visit(path21.expression)
             );
             declarations.push(
               declarator(
-                path20.node,
+                path21.node,
                 binding3.kind === "bindable_prop" ? get_prop_source(binding3, context.state, binding3.prop_alias ?? name, value) : value
               )
             );
@@ -125305,21 +125305,21 @@ function create_state_declarators2(declarator2, context, value) {
       );
       return declarator(id3, call("$.derived", expression));
     }),
-    ...paths.map((path20) => {
+    ...paths.map((path21) => {
       const value2 = (
         /** @type {Expression} */
-        context.visit(path20.expression)
+        context.visit(path21.expression)
       );
       const binding2 = context.state.scope.get(
         /** @type {Identifier} */
-        path20.node.name
+        path21.node.name
       );
       return declarator(
-        path20.node,
+        path21.node,
         binding2?.kind === "state" ? mutable_source(
           value2,
           /** @type {Identifier} */
-          path20.node.name
+          path21.node.name
         ) : value2
       );
     })
@@ -127265,7 +127265,7 @@ var init_print = __esm({
       DeclarationTag(node2, context) {
         context.write("{");
         const open3 = context.new();
-        const join18 = context.new();
+        const join19 = context.new();
         const child_context = context.new();
         context.append(child_context);
         child_context.write(`${node2.declaration.kind} `);
@@ -127273,7 +127273,7 @@ var init_print = __esm({
         const declarations = node2.declaration.declarations;
         let first = true;
         for (const d3 of declarations) {
-          if (!first) child_context.append(join18);
+          if (!first) child_context.append(join19);
           first = false;
           child_context.visit(d3);
         }
@@ -127282,11 +127282,11 @@ var init_print = __esm({
         if (multiline) {
           context.multiline = true;
           if (declarations.length > 1) open3.indent();
-          join18.write(",");
-          join18.newline();
+          join19.write(",");
+          join19.newline();
           if (declarations.length > 1) context.dedent();
         } else {
-          join18.write(", ");
+          join19.write(", ");
         }
         context.write("}");
       },
@@ -127875,8 +127875,8 @@ function trim_block(state, start2, end2) {
     state.str.update(start2 + 1, end2 - 1, without_parens.trim());
   }
 }
-function migrate_slot_usage(node2, path20, state) {
-  const parent = path20.at(-2);
+function migrate_slot_usage(node2, path21, state) {
+  const parent = path21.at(-2);
   if (parent?.type !== "Component" && parent?.type !== "SvelteComponent" && node2.type !== "Component" && node2.type !== "SvelteComponent") {
     return;
   }
@@ -127964,7 +127964,7 @@ ${state.indent}`
     state.str.appendLeft(
       inner_start,
       `{#snippet ${snippet_name}(${props})}
-${state.indent.repeat(path20.length)}`
+${state.indent.repeat(path21.length)}`
     );
     state.str.indent(state.indent, {
       exclude: [
@@ -127974,19 +127974,19 @@ ${state.indent.repeat(path20.length)}`
     });
     if (inner_end < node2.fragment.nodes[node2.fragment.nodes.length - 1].end) {
       state.str.prependLeft(inner_end, `{/snippet}
-${state.indent.repeat(path20.length)}`);
+${state.indent.repeat(path21.length)}`);
     } else {
       state.str.prependLeft(
         inner_end,
-        `${state.indent.repeat(path20.length)}{/snippet}
-${state.indent.repeat(path20.length - 1)}`
+        `${state.indent.repeat(path21.length)}{/snippet}
+${state.indent.repeat(path21.length - 1)}`
       );
     }
   } else {
     state.str.prependLeft(
       node2.start,
       `{#snippet ${snippet_name}(${props})}
-${state.indent.repeat(path20.length - 2)}`
+${state.indent.repeat(path21.length - 2)}`
     );
     state.str.indent(state.indent, {
       exclude: [
@@ -127995,7 +127995,7 @@ ${state.indent.repeat(path20.length - 2)}`
       ]
     });
     const str2 = `
-${state.indent.repeat(path20.length - 2)}{/snippet}`;
+${state.indent.repeat(path21.length - 2)}{/snippet}`;
     if (node2.type === "SlotElement") {
       state.str.appendRight(node2.end, str2);
     } else {
@@ -128003,9 +128003,9 @@ ${state.indent.repeat(path20.length - 2)}{/snippet}`;
     }
   }
 }
-function extract_type_and_comment(declarator2, state, path20) {
+function extract_type_and_comment(declarator2, state, path21) {
   const str2 = state.str;
-  let parent = path20.at(-1);
+  let parent = path21.at(-1);
   if (parent?.type === "Program") {
     parent = void 0;
   }
@@ -128193,8 +128193,8 @@ function get_node_range(source2, node2) {
   start2 = idx;
   return { start: start2, end: end2 };
 }
-function handle_identifier(node2, state, path20) {
-  const parent = path20.at(-1);
+function handle_identifier(node2, state, path21) {
+  const parent = path21.at(-1);
   if (parent?.type === "MemberExpression" && parent.property === node2) return;
   if (state.analysis.uses_props && node2.name !== "$$slots") {
     if (node2.name === "$$props" || node2.name === "$$restProps") {
@@ -128362,8 +128362,8 @@ var init_migrate = __esm({
         }
         next2();
       },
-      Identifier(node2, { state, path: path20 }) {
-        handle_identifier(node2, state, path20);
+      Identifier(node2, { state, path: path21 }) {
+        handle_identifier(node2, state, path21);
       },
       ImportDeclaration(node2, { state }) {
         state.props_insertion_point = node2.end ?? state.props_insertion_point;
@@ -128433,7 +128433,7 @@ var init_migrate = __esm({
           );
         }
       },
-      VariableDeclaration(node2, { state, path: path20, visit, next: next2 }) {
+      VariableDeclaration(node2, { state, path: path21, visit, next: next2 }) {
         if (state.scope !== state.analysis.instance.scope) {
           return;
         }
@@ -128516,7 +128516,7 @@ var init_migrate = __esm({
                 ).toString() : "",
                 optional: !!declarator2.init,
                 bindable: binding2.updated,
-                ...extract_type_and_comment(declarator2, state, path20)
+                ...extract_type_and_comment(declarator2, state, path21)
               });
             }
             let start2 = (
@@ -128718,7 +128718,7 @@ ${indent2}// ${comment.value}`
             /** @type {number} */
             node2.end
           );
-          const parent = path20.at(-1);
+          const parent = path21.at(-1);
           if (parent?.type === "ExportNamedDeclaration") {
             start2 = /** @type {number} */
             parent.start;
@@ -128734,8 +128734,8 @@ ${indent2}// ${comment.value}`
           state.str.update(start2, end2, "");
         }
       },
-      BreakStatement(node2, { state, path: path20 }) {
-        if (path20[1].type !== "LabeledStatement") return;
+      BreakStatement(node2, { state, path: path21 }) {
+        if (path21[1].type !== "LabeledStatement") return;
         if (node2.label?.name !== "$") return;
         state.str.update(
           /** @type {number} */
@@ -128745,9 +128745,9 @@ ${indent2}// ${comment.value}`
           "return;"
         );
       },
-      LabeledStatement(node2, { path: path20, state, next: next2 }) {
+      LabeledStatement(node2, { path: path21, state, next: next2 }) {
         if (state.analysis.runes) return;
-        if (path20.length > 1) return;
+        if (path21.length > 1) return;
         if (node2.label.name !== "$") return;
         if (state.derived_labeled_statements.has(node2)) return;
         next2();
@@ -128878,10 +128878,10 @@ ${state.indent}});`
       }
     };
     template2 = {
-      Identifier(node2, { state, path: path20 }) {
-        handle_identifier(node2, state, path20);
+      Identifier(node2, { state, path: path21 }) {
+        handle_identifier(node2, state, path21);
       },
-      RegularElement(node2, { state, path: path20, next: next2 }) {
+      RegularElement(node2, { state, path: path21, next: next2 }) {
         const node_name = node2.name.replace(/[a-zA-Z-]*:/g, "");
         if (state.analysis.source[node2.end - 2] === "/" && !is_void(node_name) && !is_svg(node_name)) {
           let trimmed_position = node2.end - 2;
@@ -128889,7 +128889,7 @@ ${state.indent}});`
           state.str.remove(trimmed_position, node2.end - 1);
           state.str.appendLeft(node2.end, `</${node2.name}>`);
         }
-        migrate_slot_usage(node2, path20, state);
+        migrate_slot_usage(node2, path21, state);
         handle_events(node2, state);
         next2();
       },
@@ -128927,8 +128927,8 @@ ${indent2}`
         state.has_svelte_self = true;
         next2();
       },
-      SvelteElement(node2, { state, path: path20, next: next2 }) {
-        migrate_slot_usage(node2, path20, state);
+      SvelteElement(node2, { state, path: path21, next: next2 }) {
+        migrate_slot_usage(node2, path21, state);
         if (node2.tag.type === "Literal") {
           let is_static = true;
           let a = (
@@ -128958,13 +128958,13 @@ ${indent2}`
         handle_events(node2, state);
         next2();
       },
-      Component(node2, { state, path: path20, next: next2 }) {
+      Component(node2, { state, path: path21, next: next2 }) {
         next2();
-        migrate_slot_usage(node2, path20, state);
+        migrate_slot_usage(node2, path21, state);
       },
-      SvelteComponent(node2, { state, next: next2, path: path20 }) {
+      SvelteComponent(node2, { state, next: next2, path: path21 }) {
         next2();
-        migrate_slot_usage(node2, path20, state);
+        migrate_slot_usage(node2, path21, state);
         let expression = state.str.snip(
           /** @type {number} */
           node2.expression.start,
@@ -128975,13 +128975,13 @@ ${indent2}`
           let current_expression = expression;
           expression = state.scope.generate("SvelteComponent");
           let needs_derived = true;
-          for (let i3 = path20.length - 1; i3 >= 0; i3--) {
-            const part = path20[i3];
+          for (let i3 = path21.length - 1; i3 >= 0; i3--) {
+            const part = path21[i3];
             if (part.type === "EachBlock" || part.type === "AwaitBlock" || part.type === "IfBlock" || part.type === "SnippetBlock" || part.type === "Component" || part.type === "SvelteComponent") {
               let position2 = node2.start;
-              if (i3 !== path20.length - 1) {
-                for (let modifier = 1; modifier < path20.length - i3; modifier++) {
-                  const path_part = path20[i3 + modifier];
+              if (i3 !== path21.length - 1) {
+                for (let modifier = 1; modifier < path21.length - i3; modifier++) {
+                  const path_part = path21[i3 + modifier];
                   if ("start" in path_part) {
                     position2 = /** @type {number} */
                     path_part.start;
@@ -129020,8 +129020,8 @@ ${indent2}`
         const end_pos = state.str.original.indexOf("}", node2.expression.end) + 1;
         state.str.remove(this_pos, end_pos);
       },
-      SvelteFragment(node2, { state, path: path20, next: next2 }) {
-        migrate_slot_usage(node2, path20, state);
+      SvelteFragment(node2, { state, path: path21, next: next2 }) {
+        migrate_slot_usage(node2, path21, state);
         next2();
       },
       SvelteWindow(node2, { state, next: next2 }) {
@@ -129036,8 +129036,8 @@ ${indent2}`
         handle_events(node2, state);
         next2();
       },
-      SlotElement(node2, { state, path: path20, next: next2, visit }) {
-        migrate_slot_usage(node2, path20, state);
+      SlotElement(node2, { state, path: path21, next: next2, visit }) {
+        migrate_slot_usage(node2, path21, state);
         if (state.analysis.custom_element) return;
         let name = "children";
         let slot_name = "default";
@@ -129057,7 +129057,7 @@ ${indent2}`
             if (attr2.name === "name") {
               slot_name = /** @type {any} */
               attr2.value[0].data;
-              if (path20.some(
+              if (path21.some(
                 (parent) => (parent.type === "RegularElement" || parent.type === "SvelteElement" || parent.type === "Component" || parent.type === "SvelteComponent" || parent.type === "SvelteFragment") && parent.attributes.some(
                   (attribute2) => attribute2.type === "Attribute" && attribute2.name === "slot" && is_text_attribute(attribute2) && attribute2.value[0].data === slot_name
                 )
@@ -129120,7 +129120,7 @@ ${indent2}`
           existing_prop.type = `import('svelte').${slot_props ? "Snippet<[any]>" : "Snippet"}`;
           existing_prop.needs_refine_type = false;
         }
-        if (slot_name === "default" && path20.some(
+        if (slot_name === "default" && path21.some(
           (parent) => (parent.type === "SvelteComponent" || parent.type === "Component" || parent.type === "RegularElement" || parent.type === "SvelteElement" || parent.type === "SvelteFragment") && parent.attributes.some((attr2) => attr2.type === "LetDirective")
         )) {
           aliased_slot_name = `${name}_render`;
@@ -131599,27 +131599,27 @@ var require_util10 = __commonJS({
       };
     }
     var normalize2 = lruMemoize(function normalize3(aPath) {
-      var path20 = aPath;
+      var path21 = aPath;
       var url = urlParse(aPath);
       if (url) {
         if (!url.path) {
           return aPath;
         }
-        path20 = url.path;
+        path21 = url.path;
       }
-      var isAbsolute2 = exports.isAbsolute(path20);
+      var isAbsolute2 = exports.isAbsolute(path21);
       var parts = [];
       var start2 = 0;
       var i3 = 0;
       while (true) {
         start2 = i3;
-        i3 = path20.indexOf("/", start2);
+        i3 = path21.indexOf("/", start2);
         if (i3 === -1) {
-          parts.push(path20.slice(start2));
+          parts.push(path21.slice(start2));
           break;
         } else {
-          parts.push(path20.slice(start2, i3));
-          while (i3 < path20.length && path20[i3] === "/") {
+          parts.push(path21.slice(start2, i3));
+          while (i3 < path21.length && path21[i3] === "/") {
             i3++;
           }
         }
@@ -131640,18 +131640,18 @@ var require_util10 = __commonJS({
           }
         }
       }
-      path20 = parts.join("/");
-      if (path20 === "") {
-        path20 = isAbsolute2 ? "/" : ".";
+      path21 = parts.join("/");
+      if (path21 === "") {
+        path21 = isAbsolute2 ? "/" : ".";
       }
       if (url) {
-        url.path = path20;
+        url.path = path21;
         return urlGenerate(url);
       }
-      return path20;
+      return path21;
     });
     exports.normalize = normalize2;
-    function join18(aRoot, aPath) {
+    function join19(aRoot, aPath) {
       if (aRoot === "") {
         aRoot = ".";
       }
@@ -131683,7 +131683,7 @@ var require_util10 = __commonJS({
       }
       return joined;
     }
-    exports.join = join18;
+    exports.join = join19;
     exports.isAbsolute = function(aPath) {
       return aPath.charAt(0) === "/" || urlRegexp.test(aPath);
     };
@@ -131897,7 +131897,7 @@ var require_util10 = __commonJS({
             parsed.path = parsed.path.substring(0, index + 1);
           }
         }
-        sourceURL = join18(urlGenerate(parsed), sourceURL);
+        sourceURL = join19(urlGenerate(parsed), sourceURL);
       }
       return normalize2(sourceURL);
     }
@@ -135321,14 +135321,14 @@ For props declared with defineModel(), assign the returned ref to a variable and
     var whitespaceRE = /\s+[.[]\s*|\s*[.[]\s+/g;
     var getExpSource = (exp) => exp.type === 4 ? exp.content : exp.loc.source;
     var isMemberExpressionBrowser = (exp) => {
-      const path20 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
+      const path21 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
       let state = 0;
       let stateStack = [];
       let currentOpenBracketCount = 0;
       let currentOpenParensCount = 0;
       let currentStringType = null;
-      for (let i3 = 0; i3 < path20.length; i3++) {
-        const char = path20.charAt(i3);
+      for (let i3 = 0; i3 < path21.length; i3++) {
+        const char = path21.charAt(i3);
         switch (state) {
           case 0:
             if (char === "[") {
@@ -135364,7 +135364,7 @@ For props declared with defineModel(), assign the returned ref to a variable and
             } else if (char === `(`) {
               currentOpenParensCount++;
             } else if (char === `)`) {
-              if (i3 === path20.length - 1) {
+              if (i3 === path21.length - 1) {
                 return false;
               }
               if (!--currentOpenParensCount) {
@@ -142131,14 +142131,14 @@ For props declared with defineModel(), assign the returned ref to a variable and
     var whitespaceRE = /\s+[.[]\s*|\s*[.[]\s+/g;
     var getExpSource = (exp) => exp.type === 4 ? exp.content : exp.loc.source;
     var isMemberExpressionBrowser = (exp) => {
-      const path20 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
+      const path21 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
       let state = 0;
       let stateStack = [];
       let currentOpenBracketCount = 0;
       let currentOpenParensCount = 0;
       let currentStringType = null;
-      for (let i3 = 0; i3 < path20.length; i3++) {
-        const char = path20.charAt(i3);
+      for (let i3 = 0; i3 < path21.length; i3++) {
+        const char = path21.charAt(i3);
         switch (state) {
           case 0:
             if (char === "[") {
@@ -142174,7 +142174,7 @@ For props declared with defineModel(), assign the returned ref to a variable and
             } else if (char === `(`) {
               currentOpenParensCount++;
             } else if (char === `)`) {
-              if (i3 === path20.length - 1) {
+              if (i3 === path21.length - 1) {
                 return false;
               }
               if (!--currentOpenParensCount) {
@@ -181621,10 +181621,10 @@ function omitLeft(body, i3, multiple) {
 function PrintVisitor() {
   this.padding = 0;
 }
-function prefix(path20) {
-  if (path20.data) {
+function prefix(path21) {
+  if (path21.data) {
     return "@";
-  } else if (path20.this) {
+  } else if (path21.this) {
     return "this.";
   } else {
     return "";
@@ -181709,12 +181709,12 @@ function preparePath(data2, sexpr, parts, loc2) {
     loc: loc2
   };
 }
-function prepareMustache(path20, params, hash2, open3, strip, locInfo) {
+function prepareMustache(path21, params, hash2, open3, strip, locInfo) {
   let escapeFlag = open3.charAt(3) || open3.charAt(2), escaped = escapeFlag !== "{" && escapeFlag !== "&";
   let decorator = /\*/.test(open3);
   return {
     type: decorator ? "Decorator" : "MustacheStatement",
-    path: path20,
+    path: path21,
     params,
     hash: hash2,
     escaped,
@@ -182012,12 +182012,12 @@ function getNodeHandler(visitor, nodeType) {
   }
   return visitor.All;
 }
-function visitNode(visitor, path20) {
+function visitNode(visitor, path21) {
   let {
     node: node2,
     parent,
     parentKey
-  } = path20;
+  } = path21;
   let handler = getNodeHandler(visitor, node2.type);
   let enter;
   let exit;
@@ -182027,7 +182027,7 @@ function visitNode(visitor, path20) {
   }
   let result;
   if (enter !== void 0) {
-    result = enter(node2, path20);
+    result = enter(node2, path21);
   }
   if (result !== void 0 && result !== null) {
     if (JSON.stringify(node2) === JSON.stringify(result)) {
@@ -182036,18 +182036,18 @@ function visitNode(visitor, path20) {
       visitArray(visitor, result, parent, parentKey);
       return result;
     } else {
-      let path21 = new WalkerPath(result, parent, parentKey);
-      return visitNode(visitor, path21) || result;
+      let path22 = new WalkerPath(result, parent, parentKey);
+      return visitNode(visitor, path22) || result;
     }
   }
   if (result === void 0) {
     let keys = visitorKeys[node2.type];
     for (let i3 = 0; i3 < keys.length; i3++) {
       let key2 = keys[i3];
-      visitKey(visitor, handler, path20, key2);
+      visitKey(visitor, handler, path21, key2);
     }
     if (exit !== void 0) {
-      result = exit(node2, path20);
+      result = exit(node2, path21);
     }
   }
   return result;
@@ -182058,10 +182058,10 @@ function get3(node2, key2) {
 function set2(node2, key2, value) {
   node2[key2] = value;
 }
-function visitKey(visitor, handler, path20, key2) {
+function visitKey(visitor, handler, path21, key2) {
   let {
     node: node2
-  } = path20;
+  } = path21;
   let value = get3(node2, key2);
   if (!value) {
     return;
@@ -182081,9 +182081,9 @@ function visitKey(visitor, handler, path20, key2) {
     }
   }
   if (Array.isArray(value)) {
-    visitArray(visitor, value, path20, key2);
+    visitArray(visitor, value, path21, key2);
   } else {
-    let keyPath = new WalkerPath(value, path20, key2);
+    let keyPath = new WalkerPath(value, path21, key2);
     let result = visitNode(visitor, keyPath);
     if (result !== void 0) {
       assignKey(node2, key2, value, result);
@@ -182098,8 +182098,8 @@ function visitKey(visitor, handler, path20, key2) {
 function visitArray(visitor, array2, parent, parentKey) {
   for (let i3 = 0; i3 < array2.length; i3++) {
     let node2 = unwrap(array2[i3]);
-    let path20 = new WalkerPath(node2, parent, parentKey);
-    let result = visitNode(visitor, path20);
+    let path21 = new WalkerPath(node2, parent, parentKey);
+    let result = visitNode(visitor, path21);
     if (result !== void 0) {
       i3 += spliceArray(array2, i3, result) - 1;
     }
@@ -182135,8 +182135,8 @@ function spliceArray(array2, index, result) {
   }
 }
 function traverse2(node2, visitor) {
-  let path20 = new WalkerPath(node2);
-  visitNode(visitor, path20);
+  let path21 = new WalkerPath(node2);
+  visitNode(visitor, path21);
 }
 function walkBody(walker, body, callback) {
   for (const child of body) {
@@ -182155,8 +182155,8 @@ function childrenFor(node2) {
 function appendChild(parent, node2) {
   childrenFor(parent).push(node2);
 }
-function isHBSLiteral(path20) {
-  return path20.type === "StringLiteral" || path20.type === "BooleanLiteral" || path20.type === "NumberLiteral" || path20.type === "NullLiteral" || path20.type === "UndefinedLiteral";
+function isHBSLiteral(path21) {
+  return path21.type === "StringLiteral" || path21.type === "BooleanLiteral" || path21.type === "NumberLiteral" || path21.type === "NullLiteral" || path21.type === "UndefinedLiteral";
 }
 function printLiteral(literal5) {
   if (literal5.type === "UndefinedLiteral") {
@@ -182177,9 +182177,9 @@ function SOURCE() {
   }
   return _SOURCE;
 }
-function buildMustache(path20, params = [], hash2 = buildHash([]), trusting = false, loc2, strip) {
+function buildMustache(path21, params = [], hash2 = buildHash([]), trusting = false, loc2, strip) {
   return b3.mustache({
-    path: buildPath(path20),
+    path: buildPath(path21),
     params,
     hash: hash2,
     trusting,
@@ -182187,7 +182187,7 @@ function buildMustache(path20, params = [], hash2 = buildHash([]), trusting = fa
     loc: buildLoc(loc2 || null)
   });
 }
-function buildBlock(path20, params, hash2, _defaultBlock, _elseBlock = null, loc2, openStrip, inverseStrip, closeStrip) {
+function buildBlock(path21, params, hash2, _defaultBlock, _elseBlock = null, loc2, openStrip, inverseStrip, closeStrip) {
   let defaultBlock;
   let elseBlock = null;
   if (_defaultBlock.type === "Template") {
@@ -182210,7 +182210,7 @@ function buildBlock(path20, params, hash2, _defaultBlock, _elseBlock = null, loc
     elseBlock = _elseBlock;
   }
   return b3.block({
-    path: buildPath(path20),
+    path: buildPath(path21),
     params: params || [],
     hash: hash2 || buildHash([]),
     defaultBlock,
@@ -182221,9 +182221,9 @@ function buildBlock(path20, params, hash2, _defaultBlock, _elseBlock = null, loc
     closeStrip
   });
 }
-function buildElementModifier(path20, params, hash2, loc2) {
+function buildElementModifier(path21, params, hash2, loc2) {
   return b3.elementModifier({
-    path: buildPath(path20),
+    path: buildPath(path21),
     params: params || [],
     hash: hash2 || buildHash([]),
     loc: buildLoc(loc2 || null)
@@ -182261,24 +182261,24 @@ function buildElement(tag2, options = {}) {
     closeTag: _closeTag,
     loc: loc2
   } = options;
-  let path20;
+  let path21;
   let selfClosing;
   if (typeof tag2 === "string") {
     if (tag2.endsWith("/")) {
-      path20 = buildPath(tag2.slice(0, -1));
+      path21 = buildPath(tag2.slice(0, -1));
       selfClosing = true;
     } else {
-      path20 = buildPath(tag2);
+      path21 = buildPath(tag2);
     }
   } else if ("type" in tag2) {
     assert3(tag2.type === "PathExpression", `Invalid tag type ${tag2.type}`);
-    path20 = tag2;
+    path21 = tag2;
   } else if ("path" in tag2) {
     assert3(tag2.path.type === "PathExpression", `Invalid tag type ${tag2.path.type}`);
-    path20 = tag2.path;
+    path21 = tag2.path;
     selfClosing = tag2.selfClosing;
   } else {
-    path20 = buildPath(tag2.name);
+    path21 = buildPath(tag2.name);
     selfClosing = tag2.selfClosing;
   }
   let params = blockParams?.map((param) => {
@@ -182292,10 +182292,10 @@ function buildElement(tag2, options = {}) {
   if (_closeTag) {
     closeTag = buildLoc(_closeTag);
   } else if (_closeTag === void 0) {
-    closeTag = selfClosing || isVoidTag(path20.original) ? null : buildLoc(null);
+    closeTag = selfClosing || isVoidTag(path21.original) ? null : buildLoc(null);
   }
   return b3.element({
-    path: path20,
+    path: path21,
     selfClosing: selfClosing || false,
     attributes: attrs || [],
     params: params || [],
@@ -182320,9 +182320,9 @@ function buildText(chars2 = "", loc2) {
     loc: buildLoc(loc2 || null)
   });
 }
-function buildSexpr(path20, params = [], hash2 = buildHash([]), loc2) {
+function buildSexpr(path21, params = [], hash2 = buildHash([]), loc2) {
   return b3.sexpr({
-    path: buildPath(path20),
+    path: buildPath(path21),
     params,
     hash: hash2,
     loc: buildLoc(loc2 || null)
@@ -182370,17 +182370,17 @@ function buildCleanPath(head, tail = [], loc2) {
     loc: buildLoc(loc2 || null)
   });
 }
-function buildPath(path20, loc2) {
+function buildPath(path21, loc2) {
   let span2 = buildLoc(loc2 || null);
-  if (typeof path20 !== "string") {
-    if ("type" in path20) {
-      return path20;
+  if (typeof path21 !== "string") {
+    if ("type" in path21) {
+      return path21;
     } else {
-      assert3(path20.head.indexOf(".") === -1);
+      assert3(path21.head.indexOf(".") === -1);
       let {
         head: head2,
         tail: tail2
-      } = path20;
+      } = path21;
       return b3.path({
         head: b3.head({
           original: head2,
@@ -182396,7 +182396,7 @@ function buildPath(path20, loc2) {
   let {
     head,
     tail
-  } = buildHead(path20, span2);
+  } = buildHead(path21, span2);
   return b3.path({
     head,
     tail,
@@ -182486,7 +182486,7 @@ function literal4(type) {
   };
 }
 function buildLegacyMustache({
-  path: path20,
+  path: path21,
   params,
   hash: hash2,
   trusting,
@@ -182495,7 +182495,7 @@ function buildLegacyMustache({
 }) {
   const node2 = {
     type: "MustacheStatement",
-    path: path20,
+    path: path21,
     params,
     hash: hash2,
     trusting,
@@ -182620,13 +182620,13 @@ function updateTokenizerLocation(tokenizer3, content) {
   tokenizer3.column = column;
 }
 function acceptCallNodes(compiler, node2) {
-  let path20;
+  let path21;
   switch (node2.path.type) {
     case "PathExpression":
-      path20 = compiler.PathExpression(node2.path);
+      path21 = compiler.PathExpression(node2.path);
       break;
     case "SubExpression":
-      path20 = compiler.SubExpression(node2.path);
+      path21 = compiler.SubExpression(node2.path);
       break;
     case "HashLiteral":
       return compiler.HashLiteral(node2.path);
@@ -182651,31 +182651,31 @@ function acceptCallNodes(compiler, node2) {
     }
   }
   const params = node2.params.map((e2) => compiler.acceptNode(e2));
-  const end2 = isPresentArray(params) ? getLast(params).loc : path20.loc;
+  const end2 = isPresentArray(params) ? getLast(params).loc : path21.loc;
   const hash2 = node2.hash ? compiler.Hash(node2.hash) : b3.hash({
     pairs: [],
     loc: compiler.source.spanFor(end2).collapse("end")
   });
   return {
-    path: path20,
+    path: path21,
     params,
     hash: hash2
   };
 }
 function addElementModifier(element3, mustache) {
   const {
-    path: path20,
+    path: path21,
     params,
     hash: hash2,
     loc: loc2
   } = mustache;
-  if (isHBSLiteral(path20)) {
-    const modifier2 = `{{${printLiteral(path20)}}}`;
+  if (isHBSLiteral(path21)) {
+    const modifier2 = `{{${printLiteral(path21)}}}`;
     const tag2 = `<${element3.name} ... ${modifier2} ...`;
     throw generateSyntaxError(`In ${tag2}, ${modifier2} is not a valid modifier`, mustache.loc);
   }
   const modifier = b3.elementModifier({
-    path: path20,
+    path: path21,
     params,
     hash: hash2,
     loc: loc2
@@ -183321,11 +183321,11 @@ var init_es = __esm({
         }
         this.buffer += `<!--${comment.value}-->`;
       }
-      PathExpression(path20) {
-        if (this.handledByOverride(path20)) {
+      PathExpression(path21) {
+        if (this.handledByOverride(path21)) {
           return;
         }
-        this.buffer += path20.original;
+        this.buffer += path21.original;
       }
       SubExpression(sexp) {
         if (this.handledByOverride(sexp)) {
@@ -185371,8 +185371,8 @@ var init_es = __esm({
     };
     PrintVisitor.prototype.PathExpression = function(id3) {
       let head = typeof id3.head === "string" ? id3.head : `[${this.accept(id3.head)}]`;
-      let path20 = [head, ...id3.tail].join("/");
-      return "p%" + prefix(id3) + path20;
+      let path21 = [head, ...id3.tail].join("/");
+      return "p%" + prefix(id3) + path21;
     };
     PrintVisitor.prototype.StringLiteral = function(string3) {
       return '"' + string3.value + '"';
@@ -189005,8 +189005,8 @@ var init_es = __esm({
     };
     PathParentsIterator = class {
       path;
-      constructor(path20) {
-        this.path = path20;
+      constructor(path21) {
+        this.path = path21;
       }
       next() {
         if (this.path.parent) {
@@ -189147,7 +189147,7 @@ var init_es = __esm({
         };
       }
       mustache({
-        path: path20,
+        path: path21,
         params,
         hash: hash2,
         trusting,
@@ -189155,7 +189155,7 @@ var init_es = __esm({
         strip = DEFAULT_STRIP
       }) {
         return buildLegacyMustache({
-          path: path20,
+          path: path21,
           params,
           hash: hash2,
           trusting,
@@ -189164,7 +189164,7 @@ var init_es = __esm({
         });
       }
       block({
-        path: path20,
+        path: path21,
         params,
         hash: hash2,
         defaultBlock,
@@ -189176,7 +189176,7 @@ var init_es = __esm({
       }) {
         return {
           type: "BlockStatement",
-          path: path20,
+          path: path21,
           params,
           hash: hash2,
           program: defaultBlock,
@@ -189218,7 +189218,7 @@ var init_es = __esm({
         };
       }
       element({
-        path: path20,
+        path: path21,
         selfClosing,
         attributes: attributes2,
         modifiers: modifiers2,
@@ -189232,7 +189232,7 @@ var init_es = __esm({
         let _selfClosing = selfClosing;
         return {
           type: "ElementNode",
-          path: path20,
+          path: path21,
           attributes: attributes2,
           modifiers: modifiers2,
           params,
@@ -189272,14 +189272,14 @@ var init_es = __esm({
         };
       }
       elementModifier({
-        path: path20,
+        path: path21,
         params,
         hash: hash2,
         loc: loc2
       }) {
         return {
           type: "ElementModifierStatement",
-          path: path20,
+          path: path21,
           params,
           hash: hash2,
           loc: loc2
@@ -189308,14 +189308,14 @@ var init_es = __esm({
         };
       }
       sexpr({
-        path: path20,
+        path: path21,
         params,
         hash: hash2,
         loc: loc2
       }) {
         return {
           type: "SubExpression",
-          path: path20,
+          path: path21,
           params,
           hash: hash2,
           loc: loc2
@@ -189612,7 +189612,7 @@ var init_es = __esm({
           throw generateSyntaxError("Inverse sections (`{{^foo}}...{{/foo}}`) are not supported. Use `{{#unless foo}}...{{/unless}}` instead", this.source.spanFor(block3.loc));
         }
         const {
-          path: path20,
+          path: path21,
           params,
           hash: hash2
         } = acceptCallNodes(this, block3);
@@ -189662,7 +189662,7 @@ var init_es = __esm({
         const program2 = this.Program(repairedBlock.program, blockParams);
         const inverse = repairedBlock.inverse ? this.Program(repairedBlock.inverse, []) : null;
         const node2 = b3.block({
-          path: path20,
+          path: path21,
           params,
           hash: hash2,
           defaultBlock: program2,
@@ -189706,12 +189706,12 @@ var init_es = __esm({
           });
         } else {
           const {
-            path: path20,
+            path: path21,
             params,
             hash: hash2
           } = acceptCallNodes(this, rawMustache);
           mustache = b3.mustache({
-            path: path20,
+            path: path21,
             params,
             hash: hash2,
             trusting: !escaped,
@@ -189861,12 +189861,12 @@ var init_es = __esm({
       }
       SubExpression(sexpr) {
         const {
-          path: path20,
+          path: path21,
           params,
           hash: hash2
         } = acceptCallNodes(this, sexpr);
         return b3.sexpr({
-          path: path20,
+          path: path21,
           params,
           hash: hash2,
           loc: this.source.spanFor(sexpr.loc)
@@ -189875,29 +189875,29 @@ var init_es = __esm({
       HashLiteral(hash2) {
         throw generateSyntaxError(`Hash literals are not supported. Use named arguments (\`{{helper foo=bar}}\`) or the \`hash\` helper (\`(hash foo=bar)\`) instead`, this.source.spanFor(hash2.loc));
       }
-      PathExpression(path20) {
+      PathExpression(path21) {
         const {
           original
-        } = path20;
+        } = path21;
         let parts;
-        if (typeof path20.head === "object") {
-          throw generateSyntaxError(`A path cannot start with a sub-expression. Use the \`get\` helper (\`(get (foo) "bar")\`) instead`, this.source.spanFor(path20.loc));
+        if (typeof path21.head === "object") {
+          throw generateSyntaxError(`A path cannot start with a sub-expression. Use the \`get\` helper (\`(get (foo) "bar")\`) instead`, this.source.spanFor(path21.loc));
         }
         if (original.indexOf("/") !== -1) {
           if (original.slice(0, 2) === "./") {
-            throw generateSyntaxError(`Using "./" is not supported in Glimmer and unnecessary`, this.source.spanFor(path20.loc));
+            throw generateSyntaxError(`Using "./" is not supported in Glimmer and unnecessary`, this.source.spanFor(path21.loc));
           }
           if (original.slice(0, 3) === "../") {
-            throw generateSyntaxError(`Changing context using "../" is not supported in Glimmer`, this.source.spanFor(path20.loc));
+            throw generateSyntaxError(`Changing context using "../" is not supported in Glimmer`, this.source.spanFor(path21.loc));
           }
           if (original.indexOf(".") !== -1) {
-            throw generateSyntaxError(`Mixing '.' and '/' in paths is not supported in Glimmer; use only '.' to separate property paths`, this.source.spanFor(path20.loc));
+            throw generateSyntaxError(`Mixing '.' and '/' in paths is not supported in Glimmer; use only '.' to separate property paths`, this.source.spanFor(path21.loc));
           }
-          parts = [path20.parts.join("/")];
+          parts = [path21.parts.join("/")];
         } else if (original === ".") {
-          throw generateSyntaxError(`'.' is not a supported path in Glimmer; check for a path with a trailing '.'`, this.source.spanFor(path20.loc));
+          throw generateSyntaxError(`'.' is not a supported path in Glimmer; check for a path with a trailing '.'`, this.source.spanFor(path21.loc));
         } else {
-          parts = path20.parts;
+          parts = path21.parts;
         }
         let thisHead = false;
         if (/^this(?:\..+)?$/u.test(original)) {
@@ -189907,40 +189907,40 @@ var init_es = __esm({
         if (thisHead) {
           pathHead = b3.this({
             loc: this.source.spanFor({
-              start: path20.loc.start,
+              start: path21.loc.start,
               end: {
-                line: path20.loc.start.line,
-                column: path20.loc.start.column + 4
+                line: path21.loc.start.line,
+                column: path21.loc.start.column + 4
               }
             })
           });
-        } else if (path20.data) {
+        } else if (path21.data) {
           const head = parts.shift();
           if (head === void 0) {
-            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths beginning with @ must start with a-z.`, this.source.spanFor(path20.loc));
+            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths beginning with @ must start with a-z.`, this.source.spanFor(path21.loc));
           }
           pathHead = b3.atName({
             name: `@${head}`,
             loc: this.source.spanFor({
-              start: path20.loc.start,
+              start: path21.loc.start,
               end: {
-                line: path20.loc.start.line,
-                column: path20.loc.start.column + head.length + 1
+                line: path21.loc.start.line,
+                column: path21.loc.start.column + head.length + 1
               }
             })
           });
         } else {
           const head = parts.shift();
           if (head === void 0) {
-            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths must start with a-z or A-Z.`, this.source.spanFor(path20.loc));
+            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths must start with a-z or A-Z.`, this.source.spanFor(path21.loc));
           }
           pathHead = b3.var({
             name: head,
             loc: this.source.spanFor({
-              start: path20.loc.start,
+              start: path21.loc.start,
               end: {
-                line: path20.loc.start.line,
-                column: path20.loc.start.column + head.length
+                line: path21.loc.start.line,
+                column: path21.loc.start.column + head.length
               }
             })
           });
@@ -189948,7 +189948,7 @@ var init_es = __esm({
         return b3.path({
           head: pathHead,
           tail: parts,
-          loc: this.source.spanFor(path20.loc)
+          loc: this.source.spanFor(path21.loc)
         });
       }
       Hash(hash2) {
@@ -190084,7 +190084,7 @@ var init_es = __esm({
         } = this.currentStartTag;
         let nameLoc = nameStart.until(nameEnd);
         let [head, ...tail] = asPresentArray(name.split("."));
-        let path20 = b3.path({
+        let path21 = b3.path({
           head: b3.head({
             original: head,
             loc: nameLoc.sliceStartChars({
@@ -190103,7 +190103,7 @@ var init_es = __esm({
           loc: loc2
         } = this.finish(this.currentStartTag);
         let element3 = b3.element({
-          path: path20,
+          path: path21,
           selfClosing,
           attributes: attributes2,
           modifiers: modifiers2,
@@ -191320,12 +191320,12 @@ var init_es = __esm({
        */
       callParts(parts, context) {
         let {
-          path: path20,
+          path: path21,
           params,
           hash: hash2,
           loc: loc2
         } = parts;
-        let callee = this.normalize(path20, context);
+        let callee = this.normalize(path21, context);
         let paramList2 = params.map((p) => this.normalize(p, STRICT_RESOLUTION));
         let paramLoc = SpanList.range(paramList2, callee.loc.collapse("end"));
         let namedLoc = this.block.loc(hash2.loc);
@@ -191472,18 +191472,18 @@ var init_es = __esm({
        */
       MustacheStatement(mustache) {
         let {
-          path: path20,
+          path: path21,
           params,
           hash: hash2,
           trusting
         } = mustache;
         let loc2 = this.block.loc(mustache.loc);
         let value;
-        if (isLiteral(path20)) {
+        if (isLiteral(path21)) {
           if (params.length === 0 && hash2.pairs.length === 0) {
-            value = this.expr.normalize(path20);
+            value = this.expr.normalize(path21);
           } else {
-            assertIllegalLiteral(path20, loc2);
+            assertIllegalLiteral(path21, loc2);
           }
         } else {
           let resolution = this.block.resolutionFor(mustache, AppendSyntaxContext);
@@ -191491,7 +191491,7 @@ var init_es = __esm({
             throw generateSyntaxError(`You attempted to render a path (\`{{${resolution.path}}}\`), but ${resolution.head} was not in scope`, loc2);
           }
           let callParts = this.expr.callParts({
-            path: path20,
+            path: path21,
             params,
             hash: hash2,
             loc: loc2
@@ -191566,7 +191566,7 @@ var init_es = __esm({
         } = element3;
         let loc2 = this.ctx.loc(element3.loc);
         let [tagHead, ...rest2] = asPresentArray(tag2.split("."));
-        let path20 = this.classifyTag(tagHead, rest2, element3.loc);
+        let path21 = this.classifyTag(tagHead, rest2, element3.loc);
         let attrs = element3.attributes.filter((a) => a.name[0] !== "@").map((a) => this.attr(a));
         let args = element3.attributes.filter((a) => a.name[0] === "@").map((a) => this.arg(a));
         let modifiers2 = element3.modifiers.map((m2) => this.modifier(m2));
@@ -191586,7 +191586,7 @@ var init_es = __esm({
           chars: tag2.length,
           skipStart: 1
         });
-        if (path20 === "ElementHead") {
+        if (path21 === "ElementHead") {
           if (tag2[0] === ":") {
             return children.assertNamedBlock(tagOffsets.slice({
               skipStart: 1
@@ -191596,10 +191596,10 @@ var init_es = __esm({
           }
         }
         if (element3.selfClosing) {
-          return el.selfClosingComponent(path20, loc2);
+          return el.selfClosingComponent(path21, loc2);
         } else {
           let blocks = children.assertComponent(tag2, child.table, element3.blockParams.length > 0);
-          return el.componentWithNamedBlocks(path20, blocks, loc2);
+          return el.componentWithNamedBlocks(path21, blocks, loc2);
         }
       }
       modifier(m2) {
@@ -191624,16 +191624,16 @@ var init_es = __esm({
        */
       mustacheAttr(mustache) {
         let {
-          path: path20,
+          path: path21,
           params,
           hash: hash2,
           loc: loc2
         } = mustache;
-        if (isLiteral(path20)) {
+        if (isLiteral(path21)) {
           if (params.length === 0 && hash2.pairs.length === 0) {
-            return this.expr.normalize(path20);
+            return this.expr.normalize(path21);
           } else {
-            assertIllegalLiteral(path20, loc2);
+            assertIllegalLiteral(path21, loc2);
           }
         }
         let resolution = this.ctx.resolutionFor(mustache, AttrValueSyntaxContext);
@@ -191707,15 +191707,15 @@ var init_es = __esm({
           return;
         }
         let {
-          path: path20
+          path: path21
         } = value;
-        if (path20.type !== "PathExpression") {
+        if (path21.type !== "PathExpression") {
           return;
         }
-        if (path20.tail.length > 0) {
+        if (path21.tail.length > 0) {
           return;
         }
-        let resolution = this.ctx.resolutionFor(path20, () => {
+        let resolution = this.ctx.resolutionFor(path21, () => {
           return null;
         });
         if (resolution.result === "error" && resolution.path !== "has-block") {
@@ -191772,7 +191772,7 @@ var init_es = __esm({
         let pathEnd = variableLoc.getEnd().move(tailLength);
         let pathLoc = variableLoc.withEnd(pathEnd);
         if (isComponent) {
-          let path20 = b3.path({
+          let path21 = b3.path({
             head: b3.head({
               original: variable2,
               loc: variableLoc
@@ -191782,11 +191782,11 @@ var init_es = __esm({
           });
           let resolution = this.ctx.isLexicalVar(variable2) ? {
             result: STRICT_RESOLUTION
-          } : this.ctx.resolutionFor(path20, ComponentSyntaxContext);
+          } : this.ctx.resolutionFor(path21, ComponentSyntaxContext);
           if (resolution.result === "error") {
             throw generateSyntaxError(`You attempted to invoke a path (\`<${resolution.path}>\`) but ${resolution.head} was not in scope`, loc2);
           }
-          return new ExpressionNormalizer(this.ctx).normalize(path20, resolution.result);
+          return new ExpressionNormalizer(this.ctx).normalize(path21, resolution.result);
         } else {
           this.ctx.table.allocateFree(variable2, STRICT_RESOLUTION);
         }
@@ -192002,8 +192002,8 @@ var init_optional = __esm({
 
 // src/formats/markup.ts
 function paramName(source2, taken) {
-  const path20 = source2.trim().replace(/\.(?:length|size)$/, "");
-  const last = /([A-Za-z_$][\w$]*)\s*(?:\(\s*\))?\s*$/.exec(path20)?.[1];
+  const path21 = source2.trim().replace(/\.(?:length|size)$/, "");
+  const last = /([A-Za-z_$][\w$]*)\s*(?:\(\s*\))?\s*$/.exec(path21)?.[1];
   let base = last && /^[A-Za-z_]\w*$/.test(last) ? last : "value";
   if (base === "t" || base === "$t" || base === "_") base = "value";
   let name = base;
@@ -192231,12 +192231,12 @@ function scriptLiterals(script, offset2) {
   }
   const found2 = [];
   traverse3(ast, {
-    CallExpression(path20) {
-      const callee = path20.node.callee;
-      if (t2.isIdentifier(callee) && /^(useHead|useServerHead|useSeoMeta|useServerSeoMeta)$/.test(callee.name) && t2.isObjectExpression(path20.node.arguments[0])) {
+    CallExpression(path21) {
+      const callee = path21.node.callee;
+      if (t2.isIdentifier(callee) && /^(useHead|useServerHead|useSeoMeta|useServerSeoMeta)$/.test(callee.name) && t2.isObjectExpression(path21.node.arguments[0])) {
         const seo = /SeoMeta$/.test(callee.name);
         const field = (o, k) => o.properties.find((p) => t2.isObjectProperty(p) && !p.computed && (t2.isIdentifier(p.key, { name: k }) || t2.isStringLiteral(p.key, { value: k })));
-        for (const p of path20.node.arguments[0].properties) {
+        for (const p of path21.node.arguments[0].properties) {
           if (!t2.isObjectProperty(p) || p.computed) continue;
           const key2 = t2.isIdentifier(p.key) ? p.key.name : t2.isStringLiteral(p.key) ? p.key.value : "";
           const values = [];
@@ -192257,16 +192257,16 @@ function scriptLiterals(script, offset2) {
         return;
       }
       const sink = sinkName(callee);
-      const arg = path20.node.arguments[0];
+      const arg = path21.node.arguments[0];
       if (!sink || !arg) return;
       const lit2 = literalMessage(arg, offset2, script);
-      if (lit2) found2.push({ ...lit2, sink, method: inMethod(path20) });
+      if (lit2) found2.push({ ...lit2, sink, method: inMethod(path21) });
     },
-    AssignmentExpression(path20) {
-      const { left, right } = path20.node;
+    AssignmentExpression(path21) {
+      const { left, right } = path21.node;
       if (!t2.isMemberExpression(left) || !t2.isIdentifier(left.object, { name: "document" }) || !t2.isIdentifier(left.property, { name: "title" })) return;
       const lit2 = literalMessage(right, offset2, script);
-      if (lit2) found2.push({ ...lit2, sink: "document.title", method: inMethod(path20) });
+      if (lit2) found2.push({ ...lit2, sink: "document.title", method: inMethod(path21) });
     }
   });
   return found2;
@@ -192276,8 +192276,8 @@ function bindsName(script, name) {
     const ast = (0, import_parser2.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
     let bound = false;
     traverse3(ast, {
-      Scope(path20) {
-        if (path20.scope.hasOwnBinding(name)) bound = true, path20.stop();
+      Scope(path21) {
+        if (path21.scope.hasOwnBinding(name)) bound = true, path21.stop();
       }
     });
     return bound;
@@ -192350,8 +192350,8 @@ var init_script2 = __esm({
       }
       return null;
     };
-    inMethod = (path20) => {
-      const fn2 = path20.getFunctionParent();
+    inMethod = (path21) => {
+      const fn2 = path21.getFunctionParent();
       let p = fn2;
       while (p && p.isArrowFunctionExpression()) p = p.parentPath?.getFunctionParent() ?? null;
       return !!p && (p.isObjectMethod() || p.isFunctionExpression() && !!p.parentPath?.isObjectProperty());
@@ -202041,17 +202041,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key2, node2, visitor, path20) {
-      const ctrl = callVisitor(key2, node2, visitor, path20);
+    function visit_(key2, node2, visitor, path21) {
+      const ctrl = callVisitor(key2, node2, visitor, path21);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key2, path20, ctrl);
-        return visit_(key2, ctrl, visitor, path20);
+        replaceNode(key2, path21, ctrl);
+        return visit_(key2, ctrl, visitor, path21);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node2)) {
-          path20 = Object.freeze(path20.concat(node2));
+          path21 = Object.freeze(path21.concat(node2));
           for (let i3 = 0; i3 < node2.items.length; ++i3) {
-            const ci = visit_(i3, node2.items[i3], visitor, path20);
+            const ci = visit_(i3, node2.items[i3], visitor, path21);
             if (typeof ci === "number")
               i3 = ci - 1;
             else if (ci === BREAK)
@@ -202062,13 +202062,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node2)) {
-          path20 = Object.freeze(path20.concat(node2));
-          const ck = visit_("key", node2.key, visitor, path20);
+          path21 = Object.freeze(path21.concat(node2));
+          const ck = visit_("key", node2.key, visitor, path21);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node2.key = null;
-          const cv = visit_("value", node2.value, visitor, path20);
+          const cv = visit_("value", node2.value, visitor, path21);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -202089,17 +202089,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key2, node2, visitor, path20) {
-      const ctrl = await callVisitor(key2, node2, visitor, path20);
+    async function visitAsync_(key2, node2, visitor, path21) {
+      const ctrl = await callVisitor(key2, node2, visitor, path21);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key2, path20, ctrl);
-        return visitAsync_(key2, ctrl, visitor, path20);
+        replaceNode(key2, path21, ctrl);
+        return visitAsync_(key2, ctrl, visitor, path21);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node2)) {
-          path20 = Object.freeze(path20.concat(node2));
+          path21 = Object.freeze(path21.concat(node2));
           for (let i3 = 0; i3 < node2.items.length; ++i3) {
-            const ci = await visitAsync_(i3, node2.items[i3], visitor, path20);
+            const ci = await visitAsync_(i3, node2.items[i3], visitor, path21);
             if (typeof ci === "number")
               i3 = ci - 1;
             else if (ci === BREAK)
@@ -202110,13 +202110,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node2)) {
-          path20 = Object.freeze(path20.concat(node2));
-          const ck = await visitAsync_("key", node2.key, visitor, path20);
+          path21 = Object.freeze(path21.concat(node2));
+          const ck = await visitAsync_("key", node2.key, visitor, path21);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node2.key = null;
-          const cv = await visitAsync_("value", node2.value, visitor, path20);
+          const cv = await visitAsync_("value", node2.value, visitor, path21);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -202143,23 +202143,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key2, node2, visitor, path20) {
+    function callVisitor(key2, node2, visitor, path21) {
       if (typeof visitor === "function")
-        return visitor(key2, node2, path20);
+        return visitor(key2, node2, path21);
       if (identity.isMap(node2))
-        return visitor.Map?.(key2, node2, path20);
+        return visitor.Map?.(key2, node2, path21);
       if (identity.isSeq(node2))
-        return visitor.Seq?.(key2, node2, path20);
+        return visitor.Seq?.(key2, node2, path21);
       if (identity.isPair(node2))
-        return visitor.Pair?.(key2, node2, path20);
+        return visitor.Pair?.(key2, node2, path21);
       if (identity.isScalar(node2))
-        return visitor.Scalar?.(key2, node2, path20);
+        return visitor.Scalar?.(key2, node2, path21);
       if (identity.isAlias(node2))
-        return visitor.Alias?.(key2, node2, path20);
+        return visitor.Alias?.(key2, node2, path21);
       return void 0;
     }
-    function replaceNode(key2, path20, node2) {
-      const parent = path20[path20.length - 1];
+    function replaceNode(key2, path21, node2) {
+      const parent = path21[path21.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key2] = node2;
       } else if (identity.isPair(parent)) {
@@ -202771,10 +202771,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node3 = require_Node();
-    function collectionFromPath(schema, path20, value) {
+    function collectionFromPath(schema, path21, value) {
       let v2 = value;
-      for (let i3 = path20.length - 1; i3 >= 0; --i3) {
-        const k = path20[i3];
+      for (let i3 = path21.length - 1; i3 >= 0; --i3) {
+        const k = path21[i3];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v2;
@@ -202793,7 +202793,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path20) => path20 == null || typeof path20 === "object" && !!path20[Symbol.iterator]().next().done;
+    var isEmptyPath = (path21) => path21 == null || typeof path21 === "object" && !!path21[Symbol.iterator]().next().done;
     var Collection = class extends Node3.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -202823,11 +202823,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path20, value) {
-        if (isEmptyPath(path20))
+      addIn(path21, value) {
+        if (isEmptyPath(path21))
           this.add(value);
         else {
-          const [key2, ...rest2] = path20;
+          const [key2, ...rest2] = path21;
           const node2 = this.get(key2, true);
           if (identity.isCollection(node2))
             node2.addIn(rest2, value);
@@ -202841,8 +202841,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path20) {
-        const [key2, ...rest2] = path20;
+      deleteIn(path21) {
+        const [key2, ...rest2] = path21;
         if (rest2.length === 0)
           return this.delete(key2);
         const node2 = this.get(key2, true);
@@ -202856,8 +202856,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path20, keepScalar) {
-        const [key2, ...rest2] = path20;
+      getIn(path21, keepScalar) {
+        const [key2, ...rest2] = path21;
         const node2 = this.get(key2, true);
         if (rest2.length === 0)
           return !keepScalar && identity.isScalar(node2) ? node2.value : node2;
@@ -202875,8 +202875,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path20) {
-        const [key2, ...rest2] = path20;
+      hasIn(path21) {
+        const [key2, ...rest2] = path21;
         if (rest2.length === 0)
           return this.has(key2);
         const node2 = this.get(key2, true);
@@ -202886,8 +202886,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path20, value) {
-        const [key2, ...rest2] = path20;
+      setIn(path21, value) {
+        const [key2, ...rest2] = path21;
         if (rest2.length === 0) {
           this.set(key2, value);
         } else {
@@ -205402,9 +205402,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path20, value) {
+      addIn(path21, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path20, value);
+          this.contents.addIn(path21, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -205479,14 +205479,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path20) {
-        if (Collection.isEmptyPath(path20)) {
+      deleteIn(path21) {
+        if (Collection.isEmptyPath(path21)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path20) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path21) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -205501,10 +205501,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path20, keepScalar) {
-        if (Collection.isEmptyPath(path20))
+      getIn(path21, keepScalar) {
+        if (Collection.isEmptyPath(path21))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path20, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path21, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -205515,10 +205515,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path20) {
-        if (Collection.isEmptyPath(path20))
+      hasIn(path21) {
+        if (Collection.isEmptyPath(path21))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path20) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path21) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -205535,13 +205535,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path20, value) {
-        if (Collection.isEmptyPath(path20)) {
+      setIn(path21, value) {
+        if (Collection.isEmptyPath(path21)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path20), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path21), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path20, value);
+          this.contents.setIn(path21, value);
         }
       }
       /**
@@ -207502,9 +207502,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path20) => {
+    visit.itemAtPath = (cst, path21) => {
       let item = cst;
-      for (const [field, index] of path20) {
+      for (const [field, index] of path21) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -207513,23 +207513,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path20) => {
-      const parent = visit.itemAtPath(cst, path20.slice(0, -1));
-      const field = path20[path20.length - 1][0];
+    visit.parentCollection = (cst, path21) => {
+      const parent = visit.itemAtPath(cst, path21.slice(0, -1));
+      const field = path21[path21.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path20, item, visitor) {
-      let ctrl = visitor(item, path20);
+    function _visit(path21, item, visitor) {
+      let ctrl = visitor(item, path21);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token2 = item[field];
         if (token2 && "items" in token2) {
           for (let i3 = 0; i3 < token2.items.length; ++i3) {
-            const ci = _visit(Object.freeze(path20.concat([[field, i3]])), token2.items[i3], visitor);
+            const ci = _visit(Object.freeze(path21.concat([[field, i3]])), token2.items[i3], visitor);
             if (typeof ci === "number")
               i3 = ci - 1;
             else if (ci === BREAK)
@@ -207540,10 +207540,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path20);
+            ctrl = ctrl(item, path21);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path20) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path21) : ctrl;
     }
     exports.visit = visit;
   }
@@ -208845,14 +208845,14 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs20 = this.flowScalar(this.type);
+              const fs21 = this.flowScalar(this.type);
               if (atNextItem || it.value) {
-                map.items.push({ start: start2, key: fs20, sep: [] });
+                map.items.push({ start: start2, key: fs21, sep: [] });
                 this.onKeyLine = true;
               } else if (it.sep) {
-                this.stack.push(fs20);
+                this.stack.push(fs21);
               } else {
-                Object.assign(it, { key: fs20, sep: [] });
+                Object.assign(it, { key: fs21, sep: [] });
                 this.onKeyLine = true;
               }
               return;
@@ -208980,13 +208980,13 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs20 = this.flowScalar(this.type);
+              const fs21 = this.flowScalar(this.type);
               if (!it || it.value)
-                fc.items.push({ start: [], key: fs20, sep: [] });
+                fc.items.push({ start: [], key: fs21, sep: [] });
               else if (it.sep)
-                this.stack.push(fs20);
+                this.stack.push(fs21);
               else
-                Object.assign(it, { key: fs20, sep: [] });
+                Object.assign(it, { key: fs21, sep: [] });
               return;
             }
             case "flow-map-end":
@@ -212189,15 +212189,15 @@ function scanKit(code2, filePath) {
     strings2.push({ id: id3, originalText: lit2.text, nodeType: "StringLiteral", filePath, loc: lineOf(code2, lit2.start), component, element: sink, ...lit2.params.length ? { params: lit2.params.map((p) => p.name) } : {} });
   };
   traverse8(ast, {
-    CallExpression(path20) {
-      const callee = path20.node.callee;
+    CallExpression(path21) {
+      const callee = path21.node.callee;
       if (!t7.isIdentifier(callee) || callee.name !== "fail" && callee.name !== "error") return;
-      const at2 = path20.scope.getBinding(callee.name)?.path;
+      const at2 = path21.scope.getBinding(callee.name)?.path;
       if (!at2?.isImportSpecifier() || at2.parentPath.node.source.value !== "@sveltejs/kit") return;
-      const arg = path20.node.arguments[1];
+      const arg = path21.node.arguments[1];
       if (t7.isObjectExpression(arg)) {
-        for (const p of arg.properties) if (t7.isObjectProperty(p) && !p.computed) take(path20, p.value, `${callee.name}()`);
-      } else take(path20, arg, `${callee.name}()`);
+        for (const p of arg.properties) if (t7.isObjectProperty(p) && !p.computed) take(path21, p.value, `${callee.name}()`);
+      } else take(path21, arg, `${callee.name}()`);
     }
   });
   return { strings: strings2, warnings: warnings2, sites };
@@ -213019,85 +213019,85 @@ function localizeFormats(code2, filePath, opts) {
     }
   }
   traverse9(ast, {
-    CallExpression(path20) {
-      const callee = path20.node.callee;
-      const [first, second] = path20.node.arguments;
+    CallExpression(path21) {
+      const callee = path21.node.callee;
+      const [first, second] = path21.node.arguments;
       if (t8.isIdentifier(callee) && dateFns.has(callee.name) && dateFns.get(callee.name) === "format" && first && t8.isStringLiteral(second)) {
         const options = dateOptions(second.value, "date-fns");
         if (options) {
-          replace(path20.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(first.start, first.end)})`);
+          replace(path21.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(first.start, first.end)})`);
           return;
         }
       }
       if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property, { name: "format" }) && t8.isCallExpression(callee.object) && t8.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name) && t8.isStringLiteral(first)) {
         const options = dateOptions(first.value, "dayjs");
         if (options) {
-          replace(path20.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(callee.object.start, callee.object.end)}.toDate())`);
+          replace(path21.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(callee.object.start, callee.object.end)}.toDate())`);
           return;
         }
       }
       const relative3 = t8.isIdentifier(callee) && ["formatDistance", "formatDistanceToNow", "formatDistanceStrict", "formatRelative"].includes(dateFns.get(callee.name) ?? "") || t8.isMemberExpression(callee) && t8.isIdentifier(callee.property) && ["fromNow", "toNow", "from", "to", "calendar"].includes(callee.property.name) && t8.isCallExpression(callee.object) && t8.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name);
       if (relative3) {
-        const at2 = path20.node.loc?.start ?? { line: 0, column: 0 };
-        warnings2.push({ filePath, loc: { line: at2.line, column: at2.column }, text: code2.slice(path20.node.start, path20.node.end), reason: "relative time from a date library stays English: use Intl.RelativeTimeFormat with the app language" });
+        const at2 = path21.node.loc?.start ?? { line: 0, column: 0 };
+        warnings2.push({ filePath, loc: { line: at2.line, column: at2.column }, text: code2.slice(path21.node.start, path21.node.end), reason: "relative time from a date library stays English: use Intl.RelativeTimeFormat with the app language" });
       }
-      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property, { name: "localeCompare" }) && path20.node.arguments.length === 1) {
-        changes.push({ line: lineOf2(path20.node), before: code2.slice(path20.node.start, path20.node.end), after: "(compared in the app language)" });
-        s.appendLeft(path20.node.arguments[0].end, `, ${opts.lang}`);
+      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property, { name: "localeCompare" }) && path21.node.arguments.length === 1) {
+        changes.push({ line: lineOf2(path21.node), before: code2.slice(path21.node.start, path21.node.end), after: "(compared in the app language)" });
+        s.appendLeft(path21.node.arguments[0].end, `, ${opts.lang}`);
         return;
       }
-      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property) && (callee.property.name === "toUpperCase" || callee.property.name === "toLowerCase") && !path20.node.arguments.length && (path20.parentPath.isJSXExpressionContainer() || t8.isCallExpression(callee.object) && t8.isIdentifier(callee.object.callee, { name: "t" }))) {
+      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property) && (callee.property.name === "toUpperCase" || callee.property.name === "toLowerCase") && !path21.node.arguments.length && (path21.parentPath.isJSXExpressionContainer() || t8.isCallExpression(callee.object) && t8.isIdentifier(callee.object.callee, { name: "t" }))) {
         const name = callee.property.name === "toUpperCase" ? "toLocaleUpperCase" : "toLocaleLowerCase";
-        changes.push({ line: lineOf2(path20.node), before: code2.slice(path20.node.start, path20.node.end), after: `(${name} in the app language)` });
-        s.overwrite(callee.property.start, path20.node.end, `${name}(${opts.lang})`);
+        changes.push({ line: lineOf2(path21.node), before: code2.slice(path21.node.start, path21.node.end), after: `(${name} in the app language)` });
+        s.overwrite(callee.property.start, path21.node.end, `${name}(${opts.lang})`);
         return;
       }
-      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property, { name: "join" }) && path20.node.arguments.length === 1 && t8.isStringLiteral(path20.node.arguments[0]) && /^,\s?$/.test(path20.node.arguments[0].value) && path20.parentPath.isJSXExpressionContainer() && path20.parentPath.parentPath?.isJSXElement()) {
-        replace(path20.node, `new Intl.ListFormat(${opts.lang}, { style: 'short', type: 'unit' }).format(Array.from(${code2.slice(callee.object.start, callee.object.end)}, String))`);
+      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property, { name: "join" }) && path21.node.arguments.length === 1 && t8.isStringLiteral(path21.node.arguments[0]) && /^,\s?$/.test(path21.node.arguments[0].value) && path21.parentPath.isJSXExpressionContainer() && path21.parentPath.parentPath?.isJSXElement()) {
+        replace(path21.node, `new Intl.ListFormat(${opts.lang}, { style: 'short', type: 'unit' }).format(Array.from(${code2.slice(callee.object.start, callee.object.end)}, String))`);
         return;
       }
       if (!t8.isMemberExpression(callee) || !t8.isIdentifier(callee.property) || !TO_LOCALE.has(callee.property.name)) return;
-      const [locale] = path20.node.arguments;
+      const [locale] = path21.node.arguments;
       if (isLocaleLiteral(locale)) replace(locale, opts.lang);
       else if (isDefaultLocale(locale)) {
         if (locale) replace(locale, opts.lang);
         else {
           const open3 = code2.indexOf("(", callee.end);
-          changes.push({ line: lineOf2(path20.node), before: code2.slice(path20.node.start, path20.node.end), after: `${code2.slice(path20.node.start, open3 + 1)}${opts.lang}${code2.slice(open3 + 1, path20.node.end)}` });
+          changes.push({ line: lineOf2(path21.node), before: code2.slice(path21.node.start, path21.node.end), after: `${code2.slice(path21.node.start, open3 + 1)}${opts.lang}${code2.slice(open3 + 1, path21.node.end)}` });
           s.appendLeft(open3 + 1, opts.lang);
         }
       }
     },
-    NewExpression(path20) {
-      const callee = path20.node.callee;
+    NewExpression(path21) {
+      const callee = path21.node.callee;
       const intl = t8.isMemberExpression(callee) && t8.isIdentifier(callee.object, { name: "Intl" }) && t8.isIdentifier(callee.property) && INTL.has(callee.property.name);
       if (!intl) return;
-      const [locale] = path20.node.arguments;
+      const [locale] = path21.node.arguments;
       if (isLocaleLiteral(locale)) replace(locale, opts.lang);
       else if (isDefaultLocale(locale) && locale) replace(locale, opts.lang);
       else if (!locale) {
         const open3 = code2.indexOf("(", callee.end);
-        if (open3 !== -1 && open3 < path20.node.end) s.appendLeft(open3 + 1, opts.lang), changes.push({ line: lineOf2(path20.node), before: code2.slice(path20.node.start, path20.node.end), after: "(app language)" });
+        if (open3 !== -1 && open3 < path21.node.end) s.appendLeft(open3 + 1, opts.lang), changes.push({ line: lineOf2(path21.node), before: code2.slice(path21.node.start, path21.node.end), after: "(app language)" });
       }
     },
-    TemplateLiteral(path20) {
-      const { quasis, expressions } = path20.node;
-      const list4 = handBuiltList(path20.node, code2);
+    TemplateLiteral(path21) {
+      const { quasis, expressions } = path21.node;
+      const list4 = handBuiltList(path21.node, code2);
       if (list4) {
-        replace(path20.node, `new Intl.ListFormat(${opts.lang}, { type: '${list4.type}' }).format(${list4.items})`);
+        replace(path21.node, `new Intl.ListFormat(${opts.lang}, { type: '${list4.type}' }).format(${list4.items})`);
         return;
       }
       if (expressions.length !== 1 || quasis[1].value.cooked !== "") return;
-      if (inUrlAttribute(path20)) return;
+      if (inUrlAttribute(path21)) return;
       const symbol = quasis[0].value.cooked ?? "";
       const currency = currencyOf(symbol);
       if (!currency) return;
       let amount = expressions[0];
       if (t8.isCallExpression(amount) && t8.isMemberExpression(amount.callee) && t8.isIdentifier(amount.callee.property, { name: "toFixed" })) amount = amount.callee.object;
-      replace(path20.node, `new Intl.NumberFormat(${opts.lang}, { style: 'currency', currency: '${currency}' }).format(${code2.slice(amount.start, amount.end)})`);
+      replace(path21.node, `new Intl.NumberFormat(${opts.lang}, { style: 'currency', currency: '${currency}' }).format(${code2.slice(amount.start, amount.end)})`);
     },
-    JSXElement(path20) {
-      const kids = path20.node.children;
+    JSXElement(path21) {
+      const kids = path21.node.children;
       for (let i3 = 0; i3 < kids.length - 1; i3++) {
         const text4 = kids[i3];
         const value = kids[i3 + 1];
@@ -213166,8 +213166,8 @@ var init_locale_formats = __esm({
     };
     SYMBOL_AT_END = new RegExp(`(${[...Object.keys(CURRENCY), "$"].sort((a, b4) => b4.length - a.length).map((k) => k.replace(/\$/g, "\\$")).join("|")})$`);
     URL_ATTRIBUTES = /* @__PURE__ */ new Set(["href", "src", "srcset", "action", "formaction", "poster", "data", "cite", "background", "ping", "to", "url"]);
-    inUrlAttribute = (path20) => {
-      const attr2 = path20.findParent((p) => p.isJSXAttribute());
+    inUrlAttribute = (path21) => {
+      const attr2 = path21.findParent((p) => p.isJSXAttribute());
       if (!attr2 || !attr2.isJSXAttribute()) return false;
       const name = attr2.node.name;
       return URL_ATTRIBUTES.has((t8.isJSXIdentifier(name) ? name.name : name.name.name).toLowerCase());
@@ -215553,7 +215553,7 @@ var init_setup_frameworks = __esm({
     init_paths();
     toPosix = (p) => p.split(path8.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.27.0" : "0.6.0";
+    SELF_VERSION = true ? "0.28.0" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -216001,9 +216001,236 @@ var init_setup_languages = __esm({
   }
 });
 
-// src/setup-switchers.ts
+// src/setup-seo.ts
 import * as fs10 from "node:fs";
 import * as path9 from "node:path";
+function ogLocale(lng) {
+  const [lang, ...rest2] = lng.split("-");
+  const region = rest2.find((p) => /^[A-Za-z]{2}$|^\d{3}$/.test(p));
+  if (region) return `${lang.toLowerCase()}_${region.toUpperCase()}`;
+  return OG_TERRITORY[lang.toLowerCase()] ? `${lang.toLowerCase()}_${OG_TERRITORY[lang.toLowerCase()]}` : lang.toLowerCase();
+}
+async function staticRoutes(cwd, appDir) {
+  const pages = await (0, import_fast_glob7.default)("**/page.{tsx,jsx,ts,js,mdx,md}", { cwd: path9.join(cwd, appDir), ignore: ["**/node_modules/**"] });
+  const routes = /* @__PURE__ */ new Set();
+  for (const page of pages) {
+    const segments = page.split("/").slice(0, -1);
+    if (segments.some((s) => s.startsWith("[") || s.startsWith("_") || s.startsWith("@") || /^\(\.+\)/.test(s))) continue;
+    const kept = segments.filter((s) => !/^\(.*\)$/.test(s));
+    if (kept.some((s) => PRIVATE.test(s))) continue;
+    routes.add(`/${kept.join("/")}`);
+  }
+  return [...routes].sort((a, b4) => a === "/" ? -1 : b4 === "/" ? 1 : a.localeCompare(b4));
+}
+function seoModule(o) {
+  const T = (s) => o.typescript ? s : "";
+  const site = o.siteUrl ? `'${o.siteUrl.replace(/\/+$/, "")}'` : "process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null";
+  return [
+    ...o.typescript ? ["import type { Metadata, MetadataRoute } from 'next';"] : [],
+    "import { headers } from 'next/headers';",
+    `import { fallbackLng, supported } from '${o.resources}';`,
+    "",
+    "/*",
+    " * Generated by localize.dev, and regenerated by each run: what search engines need to index every",
+    " * language. The canonical address and og:locale of each page in the language of the request (from",
+    " * generateMetadata in the root layout), and sitemap entries repeated in every language. The hreflang",
+    " * links come from i18n-alternates.",
+    " */",
+    "",
+    '/** The address of the site: "siteUrl" in localize.config.json, else the Vercel production domain. Sitemaps need full URLs. */',
+    `export const siteUrl${T(": string | null")} = ${site};`,
+    "",
+    `const OG_LOCALES${T(": Record<string, string>")} = { ${o.languages.map((l2) => `'${l2}': '${ogLocale(l2)}'`).join(", ")} };`,
+    `const ogLocale = (lng${T(": string")}) => OG_LOCALES[lng] ?? lng.replace('-', '_');`,
+    "",
+    "/** The path of a page in a language: /es/pricing, or /pricing in the source language. */",
+    `export function pathIn(lng${T(": string")}, path${T(": string")})${T(": string")} {`,
+    "  if (lng === fallbackLng) return path;",
+    "  return path === '/' ? `/${lng}` : `/${lng}${path}`;",
+    "}",
+    "",
+    "/** The canonical address of this page in the language of the request, and its og:locale. */",
+    `export async function languageMetadata()${T(": Promise<Metadata>")} {`,
+    "  const h = await headers();",
+    "  const path = h.get('x-localize-path');",
+    "  if (!path) return {};",
+    "  const lng = h.get('x-localize-lang') ?? fallbackLng;",
+    "  const host = h.get('x-forwarded-host') ?? h.get('host');",
+    "  const origin = siteUrl ?? (host ? `${h.get('x-forwarded-proto') ?? 'https'}://${host}` : null);",
+    "  return {",
+    "    ...(origin ? { metadataBase: new URL(origin) } : {}),",
+    "    alternates: { canonical: pathIn(lng, path) },",
+    "    openGraph: { locale: ogLocale(lng), alternateLocale: supported.filter((l) => l !== lng).map(ogLocale) },",
+    "  };",
+    "}",
+    "",
+    "/** The metadata of the layout with languageMetadata() added; where both set something, the layout wins. */",
+    `export async function withLanguageMetadata(metadata${T(": Metadata")})${T(": Promise<Metadata>")} {`,
+    "  const own = await languageMetadata();",
+    `  return { ...own, ...metadata, alternates: { ...own.alternates, ...metadata.alternates }, openGraph: { ...own.openGraph, ...metadata.openGraph }${T(" as Metadata['openGraph']")} };`,
+    "}",
+    "",
+    `${T("type SitemapEntry = string | MetadataRoute.Sitemap[number];\n\n")}/**`,
+    " * Sitemap entries (a path such as '/pricing', or an entry with a url) repeated in every language, each",
+    " * listing the others as alternates.",
+    " */",
+    `export function localizedSitemap(entries${T(": SitemapEntry[]")})${T(": MetadataRoute.Sitemap")} {`,
+    "  return entries.flatMap((entry) => {",
+    "    const { url, ...rest } = typeof entry === 'string' ? { url: entry } : entry;",
+    "    const absolute = /^https?:\\/\\//.test(url);",
+    "    const base = absolute ? new URL(url).origin : (siteUrl ?? '');",
+    "    const path = absolute ? new URL(url).pathname : url;",
+    "    const at = (lng" + T(": string") + ") => `${base}${pathIn(lng, path)}`;",
+    "    const languages = { ...Object.fromEntries(supported.map((l) => [l, at(l)])), 'x-default': at(fallbackLng) };",
+    "    return supported.map((lng) => ({ ...rest, url: at(lng), alternates: { languages } }));",
+    "  });",
+    "}",
+    ""
+  ].join("\n");
+}
+function withSeoMetadata(code2, opts) {
+  if (/\b(withLanguageMetadata|languageMetadata)\b/.test(code2)) return null;
+  const quote3 = prefersDoubleQuotes(code2) ? '"' : "'";
+  const importOf = (name) => `import { ${name} } from ${quote3}${opts.module}${quote3};
+`;
+  const at2 = afterLastImport(code2);
+  const withImport = (name, body) => body.slice(0, at2) + (at2 ? "\n" : "") + importOf(name).trimEnd() + (at2 ? "" : "\n") + body.slice(at2);
+  const tail = (body, fn3) => `${body.replace(/\s*$/, "\n")}
+${fn3}`;
+  const constant = /export const metadata(\s*:\s*Metadata)?\s*=/.exec(code2);
+  if (constant) {
+    const body = code2.slice(0, constant.index) + `const appMetadata${constant[1] ?? ""} =` + code2.slice(constant.index + constant[0].length);
+    return tail(withImport("withLanguageMetadata", body), "export async function generateMetadata() {\n  return withLanguageMetadata(appMetadata);\n}\n");
+  }
+  const fn2 = /export (async )?function generateMetadata\s*\(/.exec(code2) ?? /export const generateMetadata\b/.exec(code2);
+  if (fn2) {
+    const renamed = fn2[0].startsWith("export const") ? "const appMetadata" : `${fn2[1] ?? ""}function appMetadata(`;
+    const body = code2.slice(0, fn2.index) + renamed + code2.slice(fn2.index + fn2[0].length);
+    const args = opts.typescript ? "...args: Parameters<typeof appMetadata>" : "...args";
+    return tail(withImport("withLanguageMetadata", body), `export async function generateMetadata(${args}) {
+  return withLanguageMetadata(await appMetadata(...args));
+}
+`);
+  }
+  if (/\bexport\s*\{[^}]*\b(metadata|generateMetadata)\b/.test(code2)) return null;
+  return tail(withImport("languageMetadata", code2), "export async function generateMetadata() {\n  return languageMetadata();\n}\n");
+}
+async function addSearch(ctx) {
+  const { cwd, config, changed, out, result, appDir, resourcesFile } = ctx;
+  const has = (f2) => readText(cwd, f2, changed) !== void 0;
+  const dir = config.srcDir === "." ? "" : `${config.srcDir}/`;
+  const proxies = ["proxy", "middleware"].flatMap((n4) => ["ts", "js"].map((e2) => `${dir}${n4}.${e2}`)).map((f2) => readText(cwd, f2, changed) ?? "");
+  if (!proxies.some((code2) => isGenerated(code2) && code2.includes("x-localize-path") || /\blocalizeRequest\b/.test(code2))) return;
+  const typescript = /\.ts$/.test(resourcesFile);
+  const seoFile = `${dir}i18n-seo.${typescript ? "ts" : "js"}`;
+  const current2 = readText(cwd, seoFile, changed);
+  if (current2 !== void 0 && !isGenerated(current2)) return;
+  const languages = [config.sourceLocale, ...config.targetLocales.filter((l2) => l2 !== config.sourceLocale)];
+  const module = seoModule({ resources: relativeImport(seoFile, resourcesFile), languages, siteUrl: config.siteUrl, typescript });
+  const quoted = prefersDoubleQuotes(readText(cwd, resourcesFile, changed) ?? "") ? module.replace(/'/g, '"') : module;
+  if (current2 !== quoted) out(seoFile, quoted);
+  const layout = EXTS.map((e2) => `${appDir}/layout.${e2}`).find(has);
+  if (layout) {
+    const edited = withSeoMetadata(readText(cwd, layout, changed), { module: relativeImport(layout, `${dir}i18n-seo`), typescript });
+    if (edited) out(layout, edited);
+  }
+  const sitemapTaken = ["ts", "js", "xml"].some((e2) => has(`${appDir}/sitemap.${e2}`)) || fs10.existsSync(path9.join(cwd, "public/sitemap.xml"));
+  if (!sitemapTaken) {
+    const routes = await staticRoutes(cwd, appDir);
+    const sitemapFile = `${appDir}/sitemap.${typescript ? "ts" : "js"}`;
+    out(
+      sitemapFile,
+      [
+        ...typescript ? ["import type { MetadataRoute } from 'next';"] : [],
+        `import { localizedSitemap } from '${relativeImport(sitemapFile, `${dir}i18n-seo`)}';`,
+        "",
+        "// Written by localize.dev, and yours to edit: every page with a fixed address, in every language.",
+        "// Pages under a [segment] or a signed-in area are left out; add their paths to the list.",
+        `export default function sitemap()${typescript ? ": MetadataRoute.Sitemap" : ""} {`,
+        `  return localizedSitemap([${routes.map((r) => `'${r}'`).join(", ")}]);`,
+        "}",
+        ""
+      ].join("\n")
+    );
+    if (!config.siteUrl) result.notes.push(`Set "siteUrl" in localize.config.json (https://your-site.com): \`${sitemapFile}\` needs full addresses, and outside Vercel it has no other way to know them.`);
+  }
+  const robotsTaken = ["ts", "js", "txt"].some((e2) => has(`${appDir}/robots.${e2}`)) || fs10.existsSync(path9.join(cwd, "public/robots.txt"));
+  if (!robotsTaken && !sitemapTaken) {
+    const robotsFile = `${appDir}/robots.${typescript ? "ts" : "js"}`;
+    out(
+      robotsFile,
+      [
+        ...typescript ? ["import type { MetadataRoute } from 'next';"] : [],
+        `import { siteUrl } from '${relativeImport(robotsFile, `${dir}i18n-seo`)}';`,
+        "",
+        "// Written by localize.dev, and yours to edit: every crawler welcome, and where the sitemap is.",
+        `export default function robots()${typescript ? ": MetadataRoute.Robots" : ""} {`,
+        "  return { rules: { userAgent: '*', allow: '/' }, ...(siteUrl ? { sitemap: `${siteUrl}/sitemap.xml` } : {}) };",
+        "}",
+        ""
+      ].join("\n")
+    );
+  }
+}
+var import_fast_glob7, EXTS, OG_TERRITORY, PRIVATE;
+var init_setup_seo = __esm({
+  "src/setup-seo.ts"() {
+    "use strict";
+    import_fast_glob7 = __toESM(require_out4(), 1);
+    init_setup_frameworks();
+    init_setup();
+    EXTS = ["tsx", "jsx", "ts", "js"];
+    OG_TERRITORY = {
+      en: "US",
+      es: "ES",
+      fr: "FR",
+      de: "DE",
+      it: "IT",
+      pt: "PT",
+      nl: "NL",
+      ja: "JP",
+      ko: "KR",
+      zh: "CN",
+      ar: "AR",
+      he: "IL",
+      ru: "RU",
+      pl: "PL",
+      tr: "TR",
+      sv: "SE",
+      da: "DK",
+      nb: "NO",
+      no: "NO",
+      fi: "FI",
+      cs: "CZ",
+      uk: "UA",
+      hi: "IN",
+      id: "ID",
+      vi: "VN",
+      th: "TH",
+      el: "GR",
+      ro: "RO",
+      hu: "HU",
+      fa: "IR",
+      ur: "PK",
+      bn: "IN",
+      ms: "MY",
+      sk: "SK",
+      bg: "BG",
+      hr: "HR",
+      sr: "RS",
+      sl: "SI",
+      lt: "LT",
+      lv: "LV",
+      et: "EE",
+      ca: "ES"
+    };
+    PRIVATE = /^(admin|dashboard|account|accounts|settings|profile|login|logout|signin|sign-in|signup|sign-up|register|onboarding|reset-password|forgot-password|verify|checkout|cart|api)$/;
+  }
+});
+
+// src/setup-switchers.ts
+import * as fs11 from "node:fs";
+import * as path10 from "node:path";
 function write(ctx, file2, lines) {
   if (readText(ctx.cwd, file2, ctx.changed) !== void 0) return false;
   ctx.out(file2, lines.join("\n"));
@@ -216011,7 +216238,7 @@ function write(ctx, file2, lines) {
 }
 function planFrameworkSwitcher(ctx) {
   const framework = ctx.config.framework;
-  const ts = fs10.existsSync(path9.join(ctx.cwd, "tsconfig.json"));
+  const ts = fs11.existsSync(path10.join(ctx.cwd, "tsconfig.json"));
   const planned = framework === "vue" ? hasDep(ctx, "nuxt") ? nuxt(ctx, ts) : vue(ctx, ts) : framework === "svelte" ? svelte(ctx, ts) : framework === "solid" ? solid(ctx, ts) : framework === "angular" ? angular(ctx) : framework === "astro" ? astro(ctx, ts) : framework === "qwik" ? qwik(ctx, ts) : framework === "lit" ? lit(ctx, ts) : framework === "ember" ? ember(ctx, ts) : null;
   if (!planned) return;
   ctx.result.switcherFile = planned.file;
@@ -216072,7 +216299,7 @@ function nuxt(ctx, tsconfig) {
   const config = ["ts", "js"].map((e2) => `i18n/i18n.config.${e2}`).find((f2) => ours(ctx, f2));
   if (!config) return null;
   const ts = tsconfig || config.endsWith(".ts");
-  const root = fs10.existsSync(path9.join(ctx.cwd, "app", "app.vue")) || fs10.existsSync(path9.join(ctx.cwd, "app", "pages")) ? "app/" : "";
+  const root = fs11.existsSync(path10.join(ctx.cwd, "app", "app.vue")) || fs11.existsSync(path10.join(ctx.cwd, "app", "pages")) ? "app/" : "";
   const ext = ts ? "ts" : "js";
   const T = (s) => ts ? s : "";
   const composable = `${root}composables/useLanguage.${ext}`;
@@ -216130,7 +216357,7 @@ function svelte(ctx, ts) {
   const ext = ts ? "ts" : "js";
   const i18n2 = kit ? `src/lib/i18n.${ext}` : `${srcPrefix(ctx.config)}i18n.${ext}`;
   if (!ours(ctx, i18n2)) return null;
-  const dir = path9.posix.dirname(i18n2);
+  const dir = path10.posix.dirname(i18n2);
   const store = `${dir}/language.${ext}`;
   const component = `${dir}/LanguageSwitcher.svelte`;
   const T = (s) => ts ? s : "";
@@ -216183,7 +216410,7 @@ function svelte(ctx, ts) {
 function solid(ctx, ts) {
   const i18n2 = solidModulePath(ctx.cwd, ctx.config);
   if (!ours(ctx, i18n2)) return null;
-  const file2 = `${path9.posix.dirname(i18n2)}/language-switcher.${ts ? "tsx" : "jsx"}`;
+  const file2 = `${path10.posix.dirname(i18n2)}/language-switcher.${ts ? "tsx" : "jsx"}`;
   const T = (s) => ts ? s : "";
   const written = write(ctx, file2, [
     ...header("<LanguageSwitcher /> and useLanguage() for this app."),
@@ -216238,7 +216465,7 @@ function solid(ctx, ts) {
   return written ? { file: file2, note: `Language menu: \`<LanguageSwitcher />\` and \`useLanguage()\` from \`${file2}\`.` } : null;
 }
 function angular(ctx) {
-  const appDir = fs10.existsSync(path9.join(ctx.cwd, ctx.config.srcDir, "app")) ? `${srcPrefix(ctx.config)}app` : ctx.config.srcDir;
+  const appDir = fs11.existsSync(path10.join(ctx.cwd, ctx.config.srcDir, "app")) ? `${srcPrefix(ctx.config)}app` : ctx.config.srcDir;
   const i18n2 = `${appDir}/i18n.ts`;
   if (!ours(ctx, i18n2)) return null;
   const major = angularMajor(ctx.cwd, ctx.changed);
@@ -216311,7 +216538,7 @@ function astro(ctx, ts) {
   if (!ours(ctx, i18n2)) return null;
   const dir = `${srcPrefix(ctx.config)}components`;
   const component = `${dir}/LanguageSwitcher.astro`;
-  const helper2 = `${path9.posix.dirname(i18n2)}/language.${ts ? "ts" : "js"}`;
+  const helper2 = `${path10.posix.dirname(i18n2)}/language.${ts ? "ts" : "js"}`;
   const T = (s) => ts ? s : "";
   const a = write(ctx, helper2, [
     ...header("useLanguage(Astro.url): the language of a page and the ones this site offers."),
@@ -216366,7 +216593,7 @@ function qwik(ctx, ts) {
   if (!ours(ctx, i18n2)) return null;
   const city = hasDep(ctx, "@builder.io/qwik-city") || hasDep(ctx, "@qwik.dev/router");
   const qwikModule = hasDep(ctx, "@qwik.dev/core") ? "@qwik.dev/core" : "@builder.io/qwik";
-  const file2 = `${path9.posix.dirname(i18n2)}/language-switcher.${ts ? "tsx" : "jsx"}`;
+  const file2 = `${path10.posix.dirname(i18n2)}/language-switcher.${ts ? "tsx" : "jsx"}`;
   const T = (s) => ts ? s : "";
   const written = write(ctx, file2, [
     ...header("<LanguageSwitcher /> and useLanguage() for this app."),
@@ -216416,7 +216643,7 @@ function qwik(ctx, ts) {
 function lit(ctx, ts) {
   const i18n2 = solidModulePath(ctx.cwd, ctx.config);
   if (!ours(ctx, i18n2)) return null;
-  const file2 = `${path9.posix.dirname(i18n2)}/language-switcher.${ts ? "ts" : "js"}`;
+  const file2 = `${path10.posix.dirname(i18n2)}/language-switcher.${ts ? "ts" : "js"}`;
   const T = (s) => ts ? s : "";
   const written = write(ctx, file2, [
     ...header("<app-language-switcher> and useLanguage() for this app."),
@@ -216551,8 +216778,8 @@ function ember(ctx, ts) {
   return a || b4 || c ? { file: component, note: `Language menu: \`<LanguageSwitcher />\` (\`${component}\`), and the \`language\` service (\`${service}\`) for the current language.` } : null;
 }
 function planNativeSwitcher(ctx) {
-  const ts = fs10.existsSync(path9.join(ctx.cwd, "tsconfig.json"));
-  const file2 = `${path9.posix.dirname(ctx.moduleFile)}/language-switcher.${ts ? "tsx" : "jsx"}`.replace(/^\.\//, "");
+  const ts = fs11.existsSync(path10.join(ctx.cwd, "tsconfig.json"));
+  const file2 = `${path10.posix.dirname(ctx.moduleFile)}/language-switcher.${ts ? "tsx" : "jsx"}`.replace(/^\.\//, "");
   if (readText(ctx.cwd, file2, ctx.changed) !== void 0) return false;
   const T = (s) => ts ? s : "";
   ctx.out(
@@ -216649,7 +216876,7 @@ var init_setup_switchers = __esm({
 });
 
 // src/setup-switchers-native.ts
-import * as path10 from "node:path";
+import * as path11 from "node:path";
 function write2(ctx, file2, content) {
   if (readText(ctx.cwd, file2, ctx.changed) !== void 0) return false;
   ctx.out(file2, content);
@@ -216720,13 +216947,13 @@ function rails(ctx) {
 function django(ctx) {
   const read2 = (f2) => readText(ctx.cwd, f2, ctx.changed);
   const ignore = ["**/venv/**", "**/.venv/**", "**/site-packages/**", "**/node_modules/**"];
-  const settingsFiles = import_fast_glob7.default.sync(["**/settings.py", "**/settings/*.py"], { cwd: ctx.cwd, ignore, deep: 5 }).filter((f2) => /TEMPLATES\s*=/.test(read2(f2) ?? ""));
+  const settingsFiles = import_fast_glob8.default.sync(["**/settings.py", "**/settings/*.py"], { cwd: ctx.cwd, ignore, deep: 5 }).filter((f2) => /TEMPLATES\s*=/.test(read2(f2) ?? ""));
   const settings = settingsFiles.find((f2) => /\/(base|common|defaults)\.py$/.test(f2)) ?? settingsFiles[0];
   if (!settings) return null;
-  const pkg = path10.posix.dirname(settings).replace(/\/settings$/, "");
+  const pkg = path11.posix.dirname(settings).replace(/\/settings$/, "");
   const module = `${pkg}/languages.py`;
   const dotted = `${pkg.replace(/\//g, ".")}.languages.languages`;
-  const dirs = import_fast_glob7.default.sync(["**/templates"], { cwd: ctx.cwd, ignore, onlyDirectories: true, deep: 4 }).sort((x, y3) => x.length - y3.length);
+  const dirs = import_fast_glob8.default.sync(["**/templates"], { cwd: ctx.cwd, ignore, onlyDirectories: true, deep: 4 }).sort((x, y3) => x.length - y3.length);
   const template4 = `${dirs[0] ?? "templates"}/language_switcher.html`;
   const row = (l2) => `    ${str(l2.code.toLowerCase())}: {"code": ${str(l2.code)}, "name": ${str(l2.name)}, "native_name": ${str(l2.nativeName)}, "flag": ${str(l2.flag)}, "dir": ${str(l2.dir)}},`;
   const a = write2(
@@ -216985,7 +217212,7 @@ function flutter(ctx) {
   );
   if (!written) return null;
   let wired = false;
-  for (const entry of import_fast_glob7.default.sync("lib/**/*.dart", { cwd: ctx.cwd, ignore: ["**/l10n/**", "**/generated/**"] })) {
+  for (const entry of import_fast_glob8.default.sync("lib/**/*.dart", { cwd: ctx.cwd, ignore: ["**/l10n/**", "**/generated/**"] })) {
     const code2 = readText(ctx.cwd, entry, ctx.changed) ?? "";
     const app = /(return|=>)\s*((?:const\s+)?(?:MaterialApp|CupertinoApp)(?:\.router)?\s*)\(/.exec(code2);
     if (!app || code2.includes("language.locale")) continue;
@@ -217006,7 +217233,7 @@ ${b22}animation: language,
 ${b22}builder: (context, _) => ${inner},
 ${b4})`;
     let next2 = `${code2.slice(0, app.index)}${app[1]} ${wrapped}${code2.slice(close2 + 1)}`;
-    const spec2 = `import '${path10.posix.relative(path10.posix.dirname(entry), file2)}';`;
+    const spec2 = `import '${path11.posix.relative(path11.posix.dirname(entry), file2)}';`;
     if (!next2.includes(spec2)) {
       const imports2 = [...next2.matchAll(/^import\s+['"][^'"]+['"][^;]*;[ \t]*$/gm)];
       const last = imports2[imports2.length - 1];
@@ -217026,7 +217253,7 @@ ${next2}`;
   };
 }
 function ios(ctx) {
-  const dir = path10.posix.dirname(ctx.config.localesPath);
+  const dir = path11.posix.dirname(ctx.config.localesPath);
   const file2 = `${dir === "." ? "" : `${dir}/`}LanguageSwitcher.swift`;
   const row = (l2) => `        Language(code: ${str(l2.code)}, name: ${str(l2.name)}, nativeName: ${str(l2.nativeName)}, flag: ${str(l2.flag)}, isRTL: ${l2.dir === "rtl"}),`;
   const written = write2(
@@ -217134,7 +217361,7 @@ function ios(ctx) {
   );
   if (!written) return null;
   let wired = false;
-  for (const entry of import_fast_glob7.default.sync("**/*.swift", { cwd: ctx.cwd, ignore: ["**/.build/**", "**/Pods/**", "**/DerivedData/**"] })) {
+  for (const entry of import_fast_glob8.default.sync("**/*.swift", { cwd: ctx.cwd, ignore: ["**/.build/**", "**/Pods/**", "**/DerivedData/**"] })) {
     const code2 = readText(ctx.cwd, entry, ctx.changed) ?? "";
     const root = /(WindowGroup\s*\{\s*\n([ \t]*)[A-Z]\w*\([^()\n]*\))[ \t]*\n/.exec(code2);
     if (!root || !/@main\b/.test(code2) || code2.includes(".appLanguage()")) continue;
@@ -217154,7 +217381,7 @@ function android(ctx) {
   if (!namespace) return null;
   const gradleFile = ["app/build.gradle.kts", "app/build.gradle"].find((f2) => readText(ctx.cwd, f2, ctx.changed) !== void 0);
   const gradle = gradleFile ? readText(ctx.cwd, gradleFile, ctx.changed) : "";
-  const kotlinDir = ["app/src/main/kotlin", "app/src/main/java"].find((d3) => import_fast_glob7.default.sync(`${d3}/**/*.kt`, { cwd: ctx.cwd }).length) ?? "app/src/main/java";
+  const kotlinDir = ["app/src/main/kotlin", "app/src/main/java"].find((d3) => import_fast_glob8.default.sync(`${d3}/**/*.kt`, { cwd: ctx.cwd }).length) ?? "app/src/main/java";
   const file2 = `${kotlinDir}/${namespace.replace(/\./g, "/")}/LanguageSwitcher.kt`;
   const compose = /compose/.test(gradle);
   const material3 = /material3/.test(gradle);
@@ -217291,11 +217518,11 @@ ${indent2}</application>`
     note: `Language menu: ${compose ? "`LanguageSwitcher()` or " : ""}\`showLanguagePicker(context)\` from \`${file2}\`, and \`Languages.current\` for the language, its flag and names. Before Android 13, switching in the app needs the activity to extend AppCompatActivity.`
   };
 }
-var import_fast_glob7, DOCS2, SCRIPT, table, str, webScript;
+var import_fast_glob8, DOCS2, SCRIPT, table, str, webScript;
 var init_setup_switchers_native = __esm({
   "src/setup-switchers-native.ts"() {
     "use strict";
-    import_fast_glob7 = __toESM(require_out4(), 1);
+    import_fast_glob8 = __toESM(require_out4(), 1);
     init_languages2();
     init_setup();
     init_setup_frameworks();
@@ -217322,26 +217549,26 @@ var init_setup_switchers_native = __esm({
 
 // src/setup.ts
 import { spawnSync as spawnSync2 } from "node:child_process";
-import * as fs11 from "node:fs";
-import * as path11 from "node:path";
+import * as fs12 from "node:fs";
+import * as path12 from "node:path";
 function nextAppRouter(cwd, config) {
   let deps = {};
   try {
-    const pkg = JSON.parse(fs11.readFileSync(path11.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs12.readFileSync(path12.join(cwd, "package.json"), "utf8"));
     deps = { ...pkg.devDependencies, ...pkg.dependencies };
   } catch {
     return null;
   }
   if (!deps.next) return null;
-  const appDir = toPosix2(path11.posix.join(config.srcDir, "app"));
-  return fs11.existsSync(path11.join(cwd, appDir)) ? { appDir } : null;
+  const appDir = toPosix2(path12.posix.join(config.srcDir, "app"));
+  return fs12.existsSync(path12.join(cwd, appDir)) ? { appDir } : null;
 }
 function serverModulePath(cwd, config) {
-  const ts = fs11.existsSync(path11.join(cwd, "tsconfig.json"));
-  return toPosix2(path11.posix.join(config.srcDir, `i18n.server.${ts ? "ts" : "js"}`));
+  const ts = fs12.existsSync(path12.join(cwd, "tsconfig.json"));
+  return toPosix2(path12.posix.join(config.srcDir, `i18n.server.${ts ? "ts" : "js"}`));
 }
 function relativeImport(fromFile, target) {
-  let spec2 = path11.posix.relative(path11.posix.dirname(fromFile), target.replace(/\.[jt]sx?$/, ""));
+  let spec2 = path12.posix.relative(path12.posix.dirname(fromFile), target.replace(/\.[jt]sx?$/, ""));
   if (!spec2.startsWith(".")) spec2 = `./${spec2}`;
   return spec2;
 }
@@ -217398,8 +217625,8 @@ function addToTestSetup(o, i18nFile, lines) {
 }
 function readText(cwd, file2, changed) {
   if (changed.has(file2)) return changed.get(file2);
-  const abs = path11.join(cwd, file2);
-  return fs11.existsSync(abs) ? fs11.readFileSync(abs, "utf8") : void 0;
+  const abs = path12.join(cwd, file2);
+  return fs12.existsSync(abs) ? fs12.readFileSync(abs, "utf8") : void 0;
 }
 function writeJsonLike(original, value) {
   try {
@@ -217555,7 +217782,7 @@ async function planSetup(opts, result, changed, out) {
     return result;
   }
   if (config.framework === "ios") {
-    if (!opts.upgradeOnly && !fs11.existsSync(path11.join(cwd, config.localesPath))) {
+    if (!opts.upgradeOnly && !fs12.existsSync(path12.join(cwd, config.localesPath))) {
       result.notes.push(`Add ${config.localesPath} to your app target in Xcode (drag it into the project navigator), so the app bundles it.`);
     }
     planNativeFrameworkSwitcher(native);
@@ -217598,7 +217825,10 @@ async function planSetup(opts, result, changed, out) {
     if (nextResources) {
       addSwitcher({ cwd, config, changed, out, result, next: true, moduleFile: nextResources, sample: "" });
       const app = nextAppRouter(cwd, config);
-      if (app) addHtmlDir({ cwd, changed, out, appDir: app.appDir, serverFile: serverModulePath(cwd, config) });
+      if (app) {
+        addHtmlDir({ cwd, changed, out, appDir: app.appDir, serverFile: serverModulePath(cwd, config) });
+        await addSearch({ cwd, config, changed, out, result, appDir: app.appDir, resourcesFile: nextResources });
+      }
     } else if (client2) addSwitcher({ cwd, config, changed, out, result, next: false, moduleFile: client2, sample: readText(cwd, client2, changed) ?? "" });
     return result;
   }
@@ -217626,7 +217856,7 @@ async function planSetup(opts, result, changed, out) {
     await planNextAppRouter({ cwd, config, changed, out, result, appDir: next2.appDir, files: opts.files });
     return result;
   }
-  const sources = await (0, import_fast_glob8.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
+  const sources = await (0, import_fast_glob9.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
   const existing = sources.find((f2) => I18NEXT_INIT.test(readText(cwd, f2, /* @__PURE__ */ new Map()) ?? ""));
   if (existing) {
     if (isGenerated(readText(cwd, existing, changed) ?? "")) {
@@ -217636,7 +217866,7 @@ async function planSetup(opts, result, changed, out) {
     }
     return result;
   }
-  const typescript = fs11.existsSync(path11.join(cwd, "tsconfig.json"));
+  const typescript = fs12.existsSync(path12.join(cwd, "tsconfig.json"));
   const i18nFile = `${srcPrefix(config)}i18n.${typescript ? "ts" : "js"}`;
   if (readText(cwd, i18nFile, changed) !== void 0) {
     result.notes.push(`\`${i18nFile}\` already exists, so i18next wasn't initialized; set it up there and import it once at startup.`);
@@ -217652,7 +217882,7 @@ async function planSetup(opts, result, changed, out) {
   for (const locale of locales2) {
     const file2 = toPosix2(localePath(config.localesPath, locale));
     if (readText(cwd, file2, changed) === void 0) out(file2, "{}\n");
-    let rel = path11.posix.relative(path11.posix.dirname(i18nFile), file2);
+    let rel = path12.posix.relative(path12.posix.dirname(i18nFile), file2);
     if (!rel.startsWith(".")) rel = `./${rel}`;
     const id3 = locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
     const name = /^[A-Za-z_$][\w$]*$/.test(locale) ? locale : `'${locale}'`;
@@ -217767,7 +217997,7 @@ async function planSetup(opts, result, changed, out) {
     result.notes.push(`Couldn't find the app's entry file; add \`import './i18n';\` to it so i18next starts before the app renders.`);
     return result;
   }
-  let spec2 = path11.posix.relative(path11.posix.dirname(entry), i18nFile.replace(/\.[jt]s$/, ""));
+  let spec2 = path12.posix.relative(path12.posix.dirname(entry), i18nFile.replace(/\.[jt]s$/, ""));
   if (!spec2.startsWith(".")) spec2 = `./${spec2}`;
   const code2 = readText(cwd, entry, changed);
   const insertAt = afterLastImport(code2);
@@ -217780,7 +218010,7 @@ ${line}${code2.slice(insertAt)}`);
 }
 function findEntry(cwd, config, changed) {
   for (const dir of [`${srcPrefix(config)}pages`, "pages"]) {
-    const app = EXTS.map((e2) => `${dir}/_app.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
+    const app = EXTS2.map((e2) => `${dir}/_app.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
     if (app) return app.replace(/^\.\//, "");
   }
   const html = readText(cwd, "index.html", changed);
@@ -217788,7 +218018,7 @@ function findEntry(cwd, config, changed) {
   if (src && readText(cwd, src, changed) !== void 0) return src;
   const found2 = ENTRY_NAMES.map((n4) => `${srcPrefix(config)}${n4}`).find((f2) => readText(cwd, f2, changed) !== void 0);
   if (found2 || config.framework !== "react-native") return found2;
-  const native = ["app/_layout", `${srcPrefix(config)}app/_layout`, "App", `${srcPrefix(config)}App`, "index"].flatMap((n4) => EXTS.map((e2) => `${n4}.${e2}`.replace(/^\.\//, "")));
+  const native = ["app/_layout", `${srcPrefix(config)}app/_layout`, "App", `${srcPrefix(config)}App`, "index"].flatMap((n4) => EXTS2.map((e2) => `${n4}.${e2}`.replace(/^\.\//, "")));
   return native.find((f2) => readText(cwd, f2, changed) !== void 0);
 }
 function enableJsonImports(cwd, changed, out) {
@@ -217808,7 +218038,7 @@ function localeBundles(cwd, config, fromFile, changed, out) {
   for (const locale of locales2) {
     const file2 = toPosix2(localePath(config.localesPath, locale));
     if (readText(cwd, file2, changed) === void 0) out(file2, "{}\n");
-    let rel = path11.posix.relative(path11.posix.dirname(fromFile), file2);
+    let rel = path12.posix.relative(path12.posix.dirname(fromFile), file2);
     if (!rel.startsWith(".")) rel = `./${rel}`;
     const id3 = locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
     imports2.push(`import ${id3} from '${rel}';`);
@@ -217818,21 +218048,21 @@ function localeBundles(cwd, config, fromFile, changed, out) {
 }
 async function planNextAppRouter(ctx) {
   const { cwd, config, changed, out, result, appDir } = ctx;
-  const typescript = fs11.existsSync(path11.join(cwd, "tsconfig.json"));
+  const typescript = fs12.existsSync(path12.join(cwd, "tsconfig.json"));
   const ext = typescript ? "ts" : "js";
   const dir = config.srcDir === "." ? "" : `${config.srcDir}/`;
   const resourcesFile = `${dir}i18n.resources.${ext}`;
   const clientFile = `${dir}i18n.${ext}`;
   const serverFile = serverModulePath(cwd, config);
   const providerFile = `${dir}i18n-provider.${typescript ? "tsx" : "jsx"}`;
-  const layout = EXTS.map((e2) => `${appDir}/layout.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
+  const layout = EXTS2.map((e2) => `${appDir}/layout.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
   const sample = layout && readText(cwd, layout, changed) || ctx.files[0]?.content || "";
   const quote3 = prefersDoubleQuotes(sample) ? (code2) => code2.replace(/'/g, '"') : (code2) => code2;
   const icu = config.interpolation === "icu";
   const write3 = (file2, lines) => {
     if (readText(cwd, file2, changed) === void 0) out(file2, quote3(lines.join("\n")));
   };
-  const sources = await (0, import_fast_glob8.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
+  const sources = await (0, import_fast_glob9.default)(`${srcPrefix(config)}**/*.{ts,tsx,js,jsx,mjs}`, { cwd, ignore: ["**/node_modules/**", "**/*.d.ts"] });
   const own = /* @__PURE__ */ new Set([resourcesFile, clientFile, serverFile, providerFile]);
   const initRe = /initReactI18next|i18next\s*\.\s*init\s*\(/;
   const existing = sources.find((f2) => !own.has(f2) && initRe.test(readText(cwd, f2, changed) ?? ""));
@@ -217976,11 +218206,12 @@ async function planNextAppRouter(ctx) {
   out(layout, cacheComponents(cwd) ? withRequestBound(edited, quote3) : edited);
   result.entryFile = layout;
   addHtmlDir({ cwd, changed, out, appDir, serverFile });
+  await addSearch({ cwd, config, changed, out, result, appDir, resourcesFile });
 }
 function addHtmlDir(ctx) {
   const { cwd, changed, out, appDir, serverFile } = ctx;
   const server = readText(cwd, serverFile, changed);
-  const layout = EXTS.map((e2) => `${appDir}/layout.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
+  const layout = EXTS2.map((e2) => `${appDir}/layout.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
   const code2 = layout && readText(cwd, layout, changed);
   if (!server || !server.includes("x-localize-lang") || !/export async function getLanguage\b/.test(server) || !layout || !code2) return;
   const html = /<html\b[^>]*\blang=\{lng\}[^>]*>/.exec(code2);
@@ -218006,7 +218237,7 @@ export function getDirection(lng${ts ? ": string" : ""})${ts ? `: ${quote3}ltr${
 function cacheComponents(cwd) {
   for (const name of ["next.config.ts", "next.config.mjs", "next.config.js", "next.config.cjs", "next.config.mts"]) {
     try {
-      if (/\b(?:cacheComponents|dynamicIO)\s*:\s*true\b/.test(fs11.readFileSync(path11.join(cwd, name), "utf8"))) return true;
+      if (/\b(?:cacheComponents|dynamicIO)\s*:\s*true\b/.test(fs12.readFileSync(path12.join(cwd, name), "utf8"))) return true;
     } catch {
     }
   }
@@ -218035,7 +218266,7 @@ function addSwitcher(ctx) {
     addSelfDependency(cwd, changed, out, result);
     return;
   }
-  const types2 = fs11.existsSync(path11.join(cwd, "tsconfig.json"));
+  const types2 = fs12.existsSync(path12.join(cwd, "tsconfig.json"));
   const dir = config.srcDir === "." ? "" : `${config.srcDir}/`;
   const file2 = `${dir}language-switcher.${types2 ? "tsx" : "jsx"}`;
   const current2 = readText(cwd, file2, changed);
@@ -218123,7 +218354,7 @@ function planNextProxy(ctx) {
   const { cwd, config, changed, out, result, dir, typescript, quote: quote3 } = ctx;
   let next2 = "";
   try {
-    const pkg = JSON.parse(fs11.readFileSync(path11.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs12.readFileSync(path12.join(cwd, "package.json"), "utf8"));
     next2 = { ...pkg.dependencies, ...pkg.devDependencies }.next ?? "";
   } catch {
   }
@@ -218309,19 +218540,19 @@ function afterLastImport(code2) {
   }
 }
 function detectPackageManager(cwd) {
-  if (fs11.existsSync(path11.join(cwd, "pnpm-lock.yaml"))) return "pnpm";
-  if (fs11.existsSync(path11.join(cwd, "yarn.lock"))) return "yarn";
-  if (fs11.existsSync(path11.join(cwd, "bun.lock")) || fs11.existsSync(path11.join(cwd, "bun.lockb"))) return "bun";
-  if (fs11.existsSync(path11.join(cwd, "package-lock.json"))) return "npm";
+  if (fs12.existsSync(path12.join(cwd, "pnpm-lock.yaml"))) return "pnpm";
+  if (fs12.existsSync(path12.join(cwd, "yarn.lock"))) return "yarn";
+  if (fs12.existsSync(path12.join(cwd, "bun.lock")) || fs12.existsSync(path12.join(cwd, "bun.lockb"))) return "bun";
+  if (fs12.existsSync(path12.join(cwd, "package-lock.json"))) return "npm";
   return null;
 }
 function updateLockfile(cwd, manifests, log) {
   const pm = detectPackageManager(cwd);
   if (!pm) return null;
   const lockfile = LOCKFILES[pm];
-  const before2 = fs11.existsSync(path11.join(cwd, lockfile)) ? fs11.readFileSync(path11.join(cwd, lockfile), "utf8") : "";
+  const before2 = fs12.existsSync(path12.join(cwd, lockfile)) ? fs12.readFileSync(path12.join(cwd, lockfile), "utf8") : "";
   for (const m2 of typeof manifests === "string" ? [{ path: "package.json", content: manifests }] : manifests) {
-    fs11.writeFileSync(path11.join(cwd, m2.path), m2.content);
+    fs12.writeFileSync(path12.join(cwd, m2.path), m2.content);
   }
   const [cmd, ...args] = LOCK_ONLY[pm];
   log.info(`Updating ${lockfile}: ${cmd} ${args.join(" ")}`);
@@ -218330,7 +218561,7 @@ function updateLockfile(cwd, manifests, log) {
     const detail = (run.error?.message ?? run.stderr ?? "").trim().split("\n").slice(-3).join(" ");
     return { error: `\`${cmd} ${args.join(" ")}\` failed: ${detail}` };
   }
-  const after = fs11.readFileSync(path11.join(cwd, lockfile), "utf8");
+  const after = fs12.readFileSync(path12.join(cwd, lockfile), "utf8");
   return after === before2 ? null : { file: { path: lockfile, content: after } };
 }
 function mergeFiles(files, extra) {
@@ -218338,15 +218569,16 @@ function mergeFiles(files, extra) {
   for (const f2 of extra) byPath.set(repoPath(f2.path), { ...f2, path: repoPath(f2.path) });
   return [...byPath.values()];
 }
-var import_fast_glob8, t9, I18N_PACKAGES, ICU_PACKAGES, toPosix2, I18NEXT_INIT, sameJson, isPlainObject, ENTRY_NAMES, EXTS, SELF_VERSION2, isLegacySwitcher, LOCKFILES, LOCK_ONLY;
+var import_fast_glob9, t9, I18N_PACKAGES, ICU_PACKAGES, toPosix2, I18NEXT_INIT, sameJson, isPlainObject, ENTRY_NAMES, EXTS2, SELF_VERSION2, isLegacySwitcher, LOCKFILES, LOCK_ONLY;
 var init_setup = __esm({
   "src/setup.ts"() {
     "use strict";
-    import_fast_glob8 = __toESM(require_out4(), 1);
+    import_fast_glob9 = __toESM(require_out4(), 1);
     t9 = __toESM(require_lib4(), 1);
     init_dist();
     init_rtl();
     init_setup_languages();
+    init_setup_seo();
     init_setup_frameworks();
     init_setup_switchers();
     init_setup_switchers_native();
@@ -218361,13 +218593,13 @@ var init_setup = __esm({
       "i18next-icu": "^2.6.0",
       "intl-messageformat": "^12.1.0"
     };
-    toPosix2 = (p) => p.split(path11.sep).join("/");
+    toPosix2 = (p) => p.split(path12.sep).join("/");
     I18NEXT_INIT = /\binitReactI18next\b|\bi18n(?:ext)?\s*\.\s*init\s*\(|\bcreateInstance\s*\(/;
     sameJson = (a, b4) => JSON.stringify(a) === JSON.stringify(b4);
     isPlainObject = (v2) => !!v2 && typeof v2 === "object" && !Array.isArray(v2);
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
-    EXTS = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.27.0" : "0.6.0";
+    EXTS2 = ["tsx", "jsx", "ts", "js"];
+    SELF_VERSION2 = true ? "0.28.0" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -218380,11 +218612,11 @@ var init_setup = __esm({
 });
 
 // src/component-graph.ts
-import * as fs12 from "node:fs";
-import * as path12 from "node:path";
+import * as fs13 from "node:fs";
+import * as path13 from "node:path";
 function readJsonc(file2) {
   try {
-    const text4 = fs12.readFileSync(file2, "utf8");
+    const text4 = fs13.readFileSync(file2, "utf8");
     const stripped = text4.replace(/("(?:[^"\\]|\\.)*")|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (m2, str2) => str2 ?? "").replace(/,(\s*[}\]])/g, "$1");
     return JSON.parse(stripped);
   } catch {
@@ -218394,24 +218626,24 @@ function readJsonc(file2) {
 function createResolver(cwd) {
   const aliases = [];
   for (const name of ["tsconfig.json", "jsconfig.json"]) {
-    const config = readJsonc(path12.join(cwd, name));
+    const config = readJsonc(path13.join(cwd, name));
     const options = config?.compilerOptions ?? {};
     if (!options.paths) continue;
-    const base = path12.join(cwd, options.baseUrl ?? ".");
+    const base = path13.join(cwd, options.baseUrl ?? ".");
     for (const [pattern, targets] of Object.entries(options.paths)) {
       const star = pattern.indexOf("*");
       aliases.push({
         prefix: star < 0 ? pattern : pattern.slice(0, star),
         suffix: star < 0 ? "" : pattern.slice(star + 1),
         wildcard: star >= 0,
-        targets: targets.map((t10) => path12.join(base, t10))
+        targets: targets.map((t10) => path13.join(base, t10))
       });
     }
     break;
   }
-  const file2 = (candidate) => EXTENSIONS.map((e2) => `${candidate}${e2}`).find((f2) => SOURCE2.test(f2) && fs12.existsSync(f2) && fs12.statSync(f2).isFile()) ?? null;
+  const file2 = (candidate) => EXTENSIONS.map((e2) => `${candidate}${e2}`).find((f2) => SOURCE2.test(f2) && fs13.existsSync(f2) && fs13.statSync(f2).isFile()) ?? null;
   return (fromAbs, specifier) => {
-    if (specifier.startsWith(".")) return file2(path12.join(path12.dirname(fromAbs), specifier));
+    if (specifier.startsWith(".")) return file2(path13.join(path13.dirname(fromAbs), specifier));
     for (const a of aliases) {
       if (a.wildcard ? !(specifier.startsWith(a.prefix) && specifier.endsWith(a.suffix)) : specifier !== a.prefix) continue;
       const rest2 = a.wildcard ? specifier.slice(a.prefix.length, specifier.length - a.suffix.length) : "";
@@ -218434,7 +218666,7 @@ function importSpecifiers(code2) {
 }
 function componentSides(cwd, appDir) {
   const resolve5 = createResolver(cwd);
-  const files = import_fast_glob9.default.sync("**/*.{tsx,ts,jsx,js,mjs}", {
+  const files = import_fast_glob10.default.sync("**/*.{tsx,ts,jsx,js,mjs}", {
     cwd,
     ignore: ["**/node_modules/**", "**/.next/**", "**/dist/**", "**/build/**", "**/out/**", "**/*.d.ts"]
   });
@@ -218442,7 +218674,7 @@ function componentSides(cwd, appDir) {
   const read2 = (abs) => {
     if (!code2.has(abs)) {
       try {
-        code2.set(abs, fs12.readFileSync(abs, "utf8"));
+        code2.set(abs, fs13.readFileSync(abs, "utf8"));
       } catch {
         code2.set(abs, "");
       }
@@ -218451,7 +218683,7 @@ function componentSides(cwd, appDir) {
   };
   const imports2 = (abs) => importSpecifiers(read2(abs)).map((s) => resolve5(abs, s)).filter((f2) => !!f2);
   const isClient = (abs) => USE_CLIENT.test(read2(abs));
-  const app = path12.join(cwd, appDir) + path12.sep;
+  const app = path13.join(cwd, appDir) + path13.sep;
   const server = /* @__PURE__ */ new Set();
   const client2 = /* @__PURE__ */ new Set();
   const walk3 = (start2, into, stopAtClient) => {
@@ -218464,11 +218696,11 @@ function componentSides(cwd, appDir) {
       queue.push(...imports2(abs));
     }
   };
-  const all = files.map((f2) => path12.join(cwd, f2));
+  const all = files.map((f2) => path13.join(cwd, f2));
   walk3(all.filter((f2) => f2.startsWith(app) && !isClient(f2)), server, true);
   walk3(all.filter(isClient), client2, false);
   return (file2) => {
-    const abs = path12.join(cwd, file2);
+    const abs = path13.join(cwd, file2);
     const s = server.has(abs);
     const c = client2.has(abs);
     return s && c ? "shared" : s ? "server" : c ? "client" : "none";
@@ -218479,11 +218711,11 @@ function canBeClientModule(code2) {
   if (/\bawait\b|\basync\s+function\b|\basync\s*\(/.test(code2)) return false;
   return !importSpecifiers(code2).some((s) => s === "server-only" || s === "next/headers" || s === "next/cache" || s.startsWith("node:"));
 }
-var import_fast_glob9, SOURCE2, EXTENSIONS, USE_CLIENT;
+var import_fast_glob10, SOURCE2, EXTENSIONS, USE_CLIENT;
 var init_component_graph = __esm({
   "src/component-graph.ts"() {
     "use strict";
-    import_fast_glob9 = __toESM(require_out4(), 1);
+    import_fast_glob10 = __toESM(require_out4(), 1);
     SOURCE2 = /\.(tsx|ts|jsx|js|mjs)$/;
     EXTENSIONS = ["", ".tsx", ".ts", ".jsx", ".js", ".mjs", "/index.tsx", "/index.ts", "/index.jsx", "/index.js"];
     USE_CLIENT = /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*(['"])use client\1/;
@@ -219287,8 +219519,8 @@ var init_yaml = __esm({
 
 // src/sync/lock.ts
 import { createHash } from "node:crypto";
-import * as fs13 from "node:fs";
-import * as path13 from "node:path";
+import * as fs14 from "node:fs";
+import * as path14 from "node:path";
 function displayKey(key2) {
   if (!key2.startsWith("[")) return key2;
   try {
@@ -219300,7 +219532,7 @@ function displayKey(key2) {
 }
 function readLock(cwd) {
   try {
-    const lock = JSON.parse(fs13.readFileSync(path13.join(cwd, LOCK_FILE), "utf8"));
+    const lock = JSON.parse(fs14.readFileSync(path14.join(cwd, LOCK_FILE), "utf8"));
     return {
       messages: lock && typeof lock.messages === "object" ? lock.messages : {},
       ...lock && typeof lock.content === "object" ? { content: lock.content } : {}
@@ -219344,11 +219576,11 @@ __export(sync_exports, {
   translateFiles: () => translateFiles,
   vuePluralsIn: () => vuePluralsIn
 });
-import * as fs14 from "node:fs";
-import * as path14 from "node:path";
+import * as fs15 from "node:fs";
+import * as path15 from "node:path";
 function readText2(abs) {
-  if (!fs14.existsSync(abs)) return void 0;
-  const buf = fs14.readFileSync(abs);
+  if (!fs15.existsSync(abs)) return void 0;
+  const buf = fs15.readFileSync(abs);
   if (buf[0] === 255 && buf[1] === 254) return buf.subarray(2).toString("utf16le");
   if (buf[0] === 254 && buf[1] === 255) return Buffer.from(buf.subarray(2)).swap16().toString("utf16le");
   return buf.toString("utf8").replace(/^﻿/, "");
@@ -219357,7 +219589,7 @@ function vuePluralsIn(cwd, interpolation) {
   if (interpolation === "vue") return true;
   if (interpolation) return false;
   try {
-    const pkg = JSON.parse(fs14.readFileSync(path14.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs15.readFileSync(path15.join(cwd, "package.json"), "utf8"));
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
     return "vue" in deps || "nuxt" in deps || "vue-i18n" in deps;
   } catch {
@@ -219382,7 +219614,7 @@ function missingIn(catalog, locales2, current2, outdated) {
 async function localeFileGaps(cwd, opts) {
   const read2 = (file2) => {
     try {
-      return fs14.readFileSync(path14.join(cwd, file2), "utf8");
+      return fs15.readFileSync(path15.join(cwd, file2), "utf8");
     } catch {
       return void 0;
     }
@@ -219402,18 +219634,18 @@ async function localeFileGaps(cwd, opts) {
 async function findCatalogs(cwd, sourceLocale, opts = {}) {
   const cache = /* @__PURE__ */ new Map();
   const read2 = (file2) => {
-    if (!cache.has(file2)) cache.set(file2, readText2(path14.join(cwd, file2)));
+    if (!cache.has(file2)) cache.set(file2, readText2(path15.join(cwd, file2)));
     return cache.get(file2);
   };
-  const files = (await (0, import_fast_glob10.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false })).sort();
+  const files = (await (0, import_fast_glob11.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false })).sort();
   const ctx = { cwd, sourceLocale, files, read: read2, warn: opts.warn ?? (() => {
   }), vuePlurals: !!opts.vuePlurals };
   const seen2 = /* @__PURE__ */ new Set();
   return FORMATS.flatMap((f2) => f2.find(ctx)).filter((c) => !seen2.has(`${c.file}\0${c.label}`) && !!seen2.add(`${c.file}\0${c.label}`));
 }
 async function lockNewMessages(cwd, opts) {
-  const read2 = (file2) => opts.overlay?.has(file2) ? opts.overlay.get(file2) : readText2(path14.join(cwd, file2));
-  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob10.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
+  const read2 = (file2) => opts.overlay?.has(file2) ? opts.overlay.get(file2) : readText2(path15.join(cwd, file2));
+  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob11.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
   const ctx = { cwd, sourceLocale: opts.sourceLocale, files, read: read2, warn: () => {
   }, vuePlurals: !!opts.vuePlurals };
   const lockText = read2(LOCK_FILE);
@@ -219438,10 +219670,10 @@ async function translateFiles(opts) {
   const cache = /* @__PURE__ */ new Map();
   const read2 = (file2) => {
     if (opts.overlay?.has(file2)) return opts.overlay.get(file2);
-    if (!cache.has(file2)) cache.set(file2, readText2(path14.join(cwd, file2)));
+    if (!cache.has(file2)) cache.set(file2, readText2(path15.join(cwd, file2)));
     return cache.get(file2);
   };
-  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob10.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
+  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob11.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
   const ctx = { cwd, sourceLocale: opts.sourceLocale, files, read: read2, warn: (m2) => warnings2.push(m2), vuePlurals: !!opts.vuePlurals };
   const syntaxOf = (catalog) => catalog.label === "Flutter ARB" ? arbSyntax(read2("l10n.yaml")) : "other";
   const seen2 = /* @__PURE__ */ new Set();
@@ -219659,9 +219891,9 @@ async function translateFiles(opts) {
   }
   if (opts.write) {
     for (const f2 of out) {
-      const abs = path14.join(cwd, f2.path);
-      fs14.mkdirSync(path14.dirname(abs), { recursive: true });
-      fs14.writeFileSync(abs, f2.content);
+      const abs = path15.join(cwd, f2.path);
+      fs15.mkdirSync(path15.dirname(abs), { recursive: true });
+      fs15.writeFileSync(abs, f2.content);
     }
   }
   return {
@@ -219675,11 +219907,11 @@ async function translateFiles(opts) {
     ...failure ? { incomplete: { error: failure.error, strings: unfinished } } : {}
   };
 }
-var import_fast_glob10, FORMATS, PATTERNS, IGNORE3, MAX_TEXT, MAX_CONTEXT2;
+var import_fast_glob11, FORMATS, PATTERNS, IGNORE3, MAX_TEXT, MAX_CONTEXT2;
 var init_sync = __esm({
   "src/sync/index.ts"() {
     "use strict";
-    import_fast_glob10 = __toESM(require_out4(), 1);
+    import_fast_glob11 = __toESM(require_out4(), 1);
     init_pipeline();
     init_apple();
     init_arb();
@@ -219720,35 +219952,35 @@ var init_sync = __esm({
 });
 
 // src/pipeline.ts
-import * as fs15 from "node:fs";
-import * as path15 from "node:path";
+import * as fs16 from "node:fs";
+import * as path16 from "node:path";
 function qwikHead(cwd, config) {
   if (config.framework !== "qwik") return void 0;
   const file2 = solidModulePath(cwd, config);
-  const abs = path15.join(cwd, file2);
-  if (!fs15.existsSync(abs)) return true;
-  const code2 = fs15.readFileSync(abs, "utf8");
+  const abs = path16.join(cwd, file2);
+  if (!fs16.existsSync(abs)) return true;
+  const code2 = fs16.readFileSync(abs, "utf8");
   const exports = (name) => new RegExp(`export\\s+(?:function|const)\\s+${name}\\b`).test(code2);
   if (isGenerated(code2) || exports("translator") && exports("langOf")) return true;
   return `${file2} has no translator(lang) and langOf(pathname) for a route's head, where useTranslation() can't run: export them, then run again`;
 }
 async function scanProject(cwd, config, log) {
-  const root = path15.join(cwd, config.srcDir);
-  const files = (await (0, import_fast_glob11.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
+  const root = path16.join(cwd, config.srcDir);
+  const files = (await (0, import_fast_glob12.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
   const scanned = [];
   const moduleCopy = /* @__PURE__ */ new Map();
   const copyUses = /* @__PURE__ */ new Map();
-  const plainModule = (abs) => /\.(ts|js|mjs)$/.test(abs) && !abs.endsWith(".d.ts") && fs15.existsSync(abs) && fs15.statSync(abs).isFile();
+  const plainModule = (abs) => /\.(ts|js|mjs)$/.test(abs) && !abs.endsWith(".d.ts") && fs16.existsSync(abs) && fs16.statSync(abs).isFile();
   const resolver2 = createResolver(cwd);
   const resolveModule = (fromFile, specifier) => {
-    const abs = resolver2(path15.join(cwd, fromFile), specifier);
+    const abs = resolver2(path16.join(cwd, fromFile), specifier);
     return abs && plainModule(abs) ? abs : null;
   };
-  const modules = new Set((await (0, import_fast_glob11.default)("**/*.{ts,tsx,js,jsx,mjs}", { cwd: root, ignore: [...config.ignore, "**/*.d.ts"] })).map((f2) => path15.join(root, f2)));
-  const ignored = (abs) => !path15.relative(root, abs).startsWith("..") && !modules.has(abs);
+  const modules = new Set((await (0, import_fast_glob12.default)("**/*.{ts,tsx,js,jsx,mjs}", { cwd: root, ignore: [...config.ignore, "**/*.d.ts"] })).map((f2) => path16.join(root, f2)));
+  const ignored = (abs) => !path16.relative(root, abs).startsWith("..") && !modules.has(abs);
   const copyIn = (abs) => {
     if (ignored(abs)) return null;
-    if (!moduleCopy.has(abs)) moduleCopy.set(abs, exportedCopy(fs15.readFileSync(abs, "utf8")));
+    if (!moduleCopy.has(abs)) moduleCopy.set(abs, exportedCopy(fs16.readFileSync(abs, "utf8")));
     return moduleCopy.get(abs);
   };
   const warnings2 = [];
@@ -219765,8 +219997,8 @@ async function scanProject(cwd, config, log) {
   const next2 = nextAppRouter(cwd, config);
   const sideOf = next2 ? componentSides(cwd, next2.appDir) : null;
   for (const rel of files) {
-    const file2 = toPosix3(path15.join(config.srcDir, rel));
-    const code2 = fs15.readFileSync(path15.join(cwd, file2), "utf8");
+    const file2 = toPosix3(path16.join(config.srcDir, rel));
+    const code2 = fs16.readFileSync(path16.join(cwd, file2), "utf8");
     const adapter = await adapterFor(file2, config.framework);
     if (adapter) {
       try {
@@ -219799,11 +220031,11 @@ async function scanProject(cwd, config, log) {
       for (const use of result.renderedImports ?? []) {
         const abs = resolveModule(file2, use.specifier);
         if (!abs || listed.has(`${abs}\0${use.name}`)) continue;
-        if (!helpers.has(abs)) helpers.set(abs, exportedHelperCopy(fs15.readFileSync(abs, "utf8")));
+        if (!helpers.has(abs)) helpers.set(abs, exportedHelperCopy(fs16.readFileSync(abs, "utf8")));
         const found2 = helpers.get(abs).get(use.name);
         if (!found2) continue;
         listed.add(`${abs}\0${use.name}`);
-        const module = toPosix3(path15.relative(cwd, abs));
+        const module = toPosix3(path16.relative(cwd, abs));
         for (const f2 of found2) {
           warnings2.push({ filePath: module, loc: { line: f2.line, column: 0 }, text: f2.text, reason: `returned by ${use.name}(), in a module outside components that ${file2} renders, where no hook can run: return a key and render it with t(), or move the text into the component` });
         }
@@ -219818,7 +220050,7 @@ async function scanProject(cwd, config, log) {
       unreadable(file2, err);
     }
   }
-  const componentFiles = new Set(scanned.map((s) => path15.join(cwd, s.file)));
+  const componentFiles = new Set(scanned.map((s) => path16.join(cwd, s.file)));
   const others = [...modules].filter((f2) => !componentFiles.has(f2));
   const byModule = /* @__PURE__ */ new Map();
   for (const [id3, followed] of copyUses) {
@@ -219826,14 +220058,14 @@ async function scanProject(cwd, config, log) {
     if (!followed) continue;
     const importedElsewhere = others.some((f2) => {
       if (f2 === abs) return false;
-      const text4 = fs15.readFileSync(f2, "utf8");
-      return [...text4.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"]/g)].some((m2) => new RegExp(`\\b${name}\\b`).test(m2[1]) && resolveModule(toPosix3(path15.relative(cwd, f2)), m2[2]) === abs);
+      const text4 = fs16.readFileSync(f2, "utf8");
+      return [...text4.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"]/g)].some((m2) => new RegExp(`\\b${name}\\b`).test(m2[1]) && resolveModule(toPosix3(path16.relative(cwd, f2)), m2[2]) === abs);
     });
     if (!importedElsewhere) byModule.set(abs, [...byModule.get(abs) ?? [], name]);
   }
   for (const [abs, names3] of byModule) {
-    const code2 = fs15.readFileSync(abs, "utf8");
-    const file2 = toPosix3(path15.relative(cwd, abs));
+    const code2 = fs16.readFileSync(abs, "utf8");
+    const file2 = toPosix3(path16.relative(cwd, abs));
     const strings2 = [];
     const sites = /* @__PURE__ */ new Map();
     for (const name of names3) {
@@ -219847,7 +220079,7 @@ async function scanProject(cwd, config, log) {
   }
   const shell = spaShell(cwd, config);
   if (shell) {
-    const code2 = fs15.readFileSync(path15.join(cwd, shell), "utf8");
+    const code2 = fs16.readFileSync(path16.join(cwd, shell), "utf8");
     const strings2 = [];
     const take = (text4, key2, element3, at2) => {
       const message = normalizeWhitespace(decodeEntities(text4 ?? "")).trim();
@@ -219883,21 +220115,21 @@ async function pool(items, limit, fn2) {
 function richOptions(cwd, config, file2) {
   if (config.framework === "angular") return { richModule: "i18n-t", angularMajor: angularMajor(cwd) };
   if (config.framework === "ember") {
-    let spec3 = path15.posix.relative(path15.posix.dirname(file2), EMBER_RICH);
+    let spec3 = path16.posix.relative(path16.posix.dirname(file2), EMBER_RICH);
     if (!spec3.startsWith(".")) spec3 = `./${spec3}`;
     return { richModule: spec3 };
   }
   const target = config.framework === "svelte" && file2.endsWith(".svelte") ? svelteRichPath(cwd, config) : null;
   if (!target) return {};
-  let spec2 = path15.posix.relative(path15.posix.dirname(file2), target);
+  let spec2 = path16.posix.relative(path16.posix.dirname(file2), target);
   if (!spec2.startsWith(".")) spec2 = `./${spec2}`;
   return { richModule: spec2, ...svelteMajor(cwd) < 5 ? { richSlots: true } : {} };
 }
 async function runPipeline(opts) {
   const { cwd, config, translator, log } = opts;
   const { filesScanned, scanned, warnings: warnings2 } = await scanProject(cwd, config, log);
-  const store = storeFor(config, path15.basename(path15.resolve(cwd)));
-  const fileText = (p) => fs15.existsSync(path15.join(cwd, p)) ? fs15.readFileSync(path15.join(cwd, p), "utf8") : void 0;
+  const store = storeFor(config, path16.basename(path16.resolve(cwd)));
+  const fileText = (p) => fs16.existsSync(path16.join(cwd, p)) ? fs16.readFileSync(path16.join(cwd, p), "utf8") : void 0;
   const sourcePath = store.path(config.sourceLocale);
   const sourceDict = store.read(fileText(sourcePath), config.sourceLocale);
   const targets = new Map(
@@ -220108,19 +220340,19 @@ ${result.code}`;
     const solid2 = config.framework === "solid";
     let deps = {};
     try {
-      const pkg = JSON.parse(fs15.readFileSync(path15.join(cwd, "package.json"), "utf8"));
+      const pkg = JSON.parse(fs16.readFileSync(path16.join(cwd, "package.json"), "utf8"));
       deps = { ...pkg.dependencies, ...pkg.devDependencies };
     } catch {
     }
-    const ready = stats.stringsReplaced > 0 || (solid2 ? fs15.existsSync(path15.join(cwd, solidModulePath(cwd, config))) : component === "vue" ? "vue-i18n" in deps || "@nuxtjs/i18n" in deps : component === "svelte" ? "svelte-i18n" in deps : "i18next" in deps);
+    const ready = stats.stringsReplaced > 0 || (solid2 ? fs16.existsSync(path16.join(cwd, solidModulePath(cwd, config))) : component === "vue" ? "vue-i18n" in deps || "@nuxtjs/i18n" in deps : component === "svelte" ? "svelte-i18n" in deps : "i18next" in deps);
     const appRouter = nextAppRouter(cwd, config);
-    const all = ready && !appRouter ? (await (0, import_fast_glob11.default)(config.include, { cwd: path15.join(cwd, config.srcDir), ignore: config.ignore })).sort() : [];
+    const all = ready && !appRouter ? (await (0, import_fast_glob12.default)(config.include, { cwd: path16.join(cwd, config.srcDir), ignore: config.ignore })).sort() : [];
     localizeAllFormats = (vueModuleReady, again = false) => {
       for (const rel of all) {
-        const file2 = toPosix3(path15.join(config.srcDir, rel));
+        const file2 = toPosix3(path16.join(config.srcDir, rel));
         if (!(component ? file2.endsWith(`.${component}`) : /\.(tsx|jsx)$/.test(file2))) continue;
         const existing = files.find((f2) => f2.path === file2);
-        const code2 = existing?.content ?? fs15.readFileSync(path15.join(cwd, file2), "utf8");
+        const code2 = existing?.content ?? fs16.readFileSync(path16.join(cwd, file2), "utf8");
         const vueModule2 = component === "vue" && vueModuleReady ? relativeImport(file2, solidModulePath(cwd, config)) : void 0;
         const result = component ? localizeComponentFormats(code2, file2, { kind: component, vueModule: vueModule2, currency: config.currency }) : localizeFormats(
           code2,
@@ -220135,12 +220367,12 @@ ${result.code}`;
         stats.formatsLocalized += result.changes.length;
       }
     };
-    localizeAllFormats(component === "vue" && fs15.existsSync(path15.join(cwd, solidModulePath(cwd, config))));
+    localizeAllFormats(component === "vue" && fs16.existsSync(path16.join(cwd, solidModulePath(cwd, config))));
   }
   const dicts = [[sourcePath, sourceDict, config.sourceLocale], ...[...targets].map(([l2, t10]) => [t10.path, t10.dict, l2])];
   for (const [p, content] of serializeAll(dicts)) {
     if (content === null) continue;
-    const missingArb = config.localesPath.endsWith(".arb") && opts.setup !== false && !fs15.existsSync(path15.join(cwd, p));
+    const missingArb = config.localesPath.endsWith(".arb") && opts.setup !== false && !fs16.existsSync(path16.join(cwd, p));
     if (content !== originals.get(p) || missingArb) files.push({ path: toPosix3(p), content });
   }
   const setup = opts.setup === false ? { files: [], addedDependencies: {}, notes: [] } : (
@@ -220148,7 +220380,7 @@ ${result.code}`;
     await planI18nSetup({ cwd, config, files, upgradeOnly: !stats.stringsReplaced })
   );
   const vueModule = solidModulePath(cwd, config);
-  if (component === "vue" && localizeAllFormats && setup.i18nFile === vueModule && !fs15.existsSync(path15.join(cwd, vueModule))) localizeAllFormats(true, true);
+  if (component === "vue" && localizeAllFormats && setup.i18nFile === vueModule && !fs16.existsSync(path16.join(cwd, vueModule))) localizeAllFormats(true, true);
   if (opts.setup !== false && setup.i18nFile) {
     const attributes2 = withLocaleAttributes(cwd, config);
     if (attributes2) {
@@ -220159,9 +220391,9 @@ ${result.code}`;
   const allFiles = mergeFiles(files, setup.files);
   if (opts.write) {
     for (const f2 of allFiles) {
-      const abs = path15.join(cwd, f2.path);
-      fs15.mkdirSync(path15.dirname(abs), { recursive: true });
-      fs15.writeFileSync(abs, f2.content);
+      const abs = path16.join(cwd, f2.path);
+      fs16.mkdirSync(path16.dirname(abs), { recursive: true });
+      fs16.writeFileSync(abs, f2.content);
     }
   }
   return {
@@ -220278,12 +220510,12 @@ async function refreshOutdated(o) {
     vuePlurals: vuePluralsIn2(o.cwd, o.config.interpolation)
   });
 }
-var import_fast_glob11, USE_CLIENT2, duration, toPosix3, BATCH_SIZE, CONCURRENCY;
+var import_fast_glob12, USE_CLIENT2, duration, toPosix3, BATCH_SIZE, CONCURRENCY;
 var init_pipeline = __esm({
   "src/pipeline.ts"() {
     "use strict";
     init_dist();
-    import_fast_glob11 = __toESM(require_out4(), 1);
+    import_fast_glob12 = __toESM(require_out4(), 1);
     init_scanner();
     init_formats();
     init_transformer();
@@ -220308,15 +220540,15 @@ var init_pipeline = __esm({
       const s = Math.round(ms / 1e3);
       return s >= 60 ? `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s` : `${s}s`;
     };
-    toPosix3 = (p) => p.split(path15.sep).join("/");
+    toPosix3 = (p) => p.split(path16.sep).join("/");
     BATCH_SIZE = 10;
     CONCURRENCY = 2;
   }
 });
 
 // src/action/main.ts
-import * as fs19 from "node:fs";
-import * as path19 from "node:path";
+import * as fs20 from "node:fs";
+import * as path20 from "node:path";
 
 // ../../node_modules/@actions/core/lib/command.js
 import * as os from "os";
@@ -221065,7 +221297,7 @@ async function createLocalizationPullRequest(params) {
   const edits = branchSha ? await keepEdits(github, repo, baseSha, branchSha, files) : { kept: [], replaced: [] };
   const tree = await github("POST", `${repo}/git/trees`, {
     base_tree: baseCommit.tree.sha,
-    tree: [...files].map(([path20, content]) => ({ path: path20, mode: "100644", type: "blob", content }))
+    tree: [...files].map(([path21, content]) => ({ path: path21, mode: "100644", type: "blob", content }))
   });
   const commit = await github("POST", `${repo}/git/commits`, {
     message: params.commitMessage ?? `i18n(localize.dev): extract UI strings into translation keys`,
@@ -221096,7 +221328,7 @@ async function keepEdits(github, repo, baseSha, branchSha, files) {
   const onBranch = await github("GET", `${repo}/compare/${baseSha}...${branchSha}`);
   const proposal = onBranch.commits[0]?.sha;
   if (!proposal || proposal === branchSha) return { kept, replaced };
-  const read2 = (path20, ref2) => github("GET", `${repo}/contents/${refPath(path20)}?ref=${ref2}`).then(
+  const read2 = (path21, ref2) => github("GET", `${repo}/contents/${refPath(path21)}?ref=${ref2}`).then(
     (file2) => file2.content === void 0 ? null : Buffer.from(file2.content, "base64").toString("utf8"),
     (err) => {
       if (err.status !== 404) throw err;
@@ -221104,23 +221336,23 @@ async function keepEdits(github, repo, baseSha, branchSha, files) {
     }
   );
   const changed = await github("GET", `${repo}/compare/${proposal}...${branchSha}`);
-  for (const { filename: path20 } of changed.files ?? []) {
-    const [before2, theirs, ours2] = await Promise.all([read2(path20, proposal), read2(path20, branchSha), files.has(path20) ? files.get(path20) : read2(path20, baseSha)]);
+  for (const { filename: path21 } of changed.files ?? []) {
+    const [before2, theirs, ours2] = await Promise.all([read2(path21, proposal), read2(path21, branchSha), files.has(path21) ? files.get(path21) : read2(path21, baseSha)]);
     if (theirs === null || theirs === ours2) continue;
     if (ours2 === before2) {
-      files.set(path20, theirs);
-      kept.push(path20);
+      files.set(path21, theirs);
+      kept.push(path21);
       continue;
     }
-    if (/\.(json|arb)$/i.test(path20) && before2 !== null && ours2 !== null) {
+    if (/\.(json|arb)$/i.test(path21) && before2 !== null && ours2 !== null) {
       try {
-        files.set(path20, mergeLocaleJson(before2, ours2, theirs, "theirs").text);
-        kept.push(path20);
+        files.set(path21, mergeLocaleJson(before2, ours2, theirs, "theirs").text);
+        kept.push(path21);
         continue;
       } catch {
       }
     }
-    replaced.push(path20);
+    replaced.push(path21);
   }
   return { kept, replaced };
 }
@@ -221147,8 +221379,8 @@ async function upsertPullRequestComment(p) {
 var refPath = (ref2) => ref2.split("/").map(encodeURIComponent).join("/");
 function client(token2, baseUrl = "https://api.github.com") {
   const root = baseUrl.replace(/\/+$/, "");
-  return async function github(method2, path20, body) {
-    const res = await fetch(`${root}${path20}`, {
+  return async function github(method2, path21, body) {
+    const res = await fetch(`${root}${path21}`, {
       method: method2,
       headers: {
         authorization: `Bearer ${token2}`,
@@ -221164,7 +221396,7 @@ function client(token2, baseUrl = "https://api.github.com") {
     if (!res.ok) {
       const detail = data2?.message ?? res.statusText;
       const errors = Array.isArray(data2?.errors) ? data2.errors.map((e2) => e2.message ?? e2.code).filter(Boolean) : [];
-      const error2 = new Error(`GitHub ${method2} ${path20.split("?")[0]} failed (${res.status}): ${[detail, ...errors].join("; ")}`);
+      const error2 = new Error(`GitHub ${method2} ${path21.split("?")[0]} failed (${res.status}): ${[detail, ...errors].join("; ")}`);
       error2.status = res.status;
       throw error2;
     }
@@ -221179,14 +221411,14 @@ init_setup();
 
 // src/check.ts
 init_config();
-var import_fast_glob13 = __toESM(require_out4(), 1);
+var import_fast_glob14 = __toESM(require_out4(), 1);
 init_dictionary();
 init_pipeline();
 init_stores();
 init_sync();
 init_lock();
-import * as fs17 from "node:fs";
-import * as path17 from "node:path";
+import * as fs18 from "node:fs";
+import * as path18 from "node:path";
 
 // src/comments.ts
 var JS = { line: ["//"], block: ["/*", "*/"], quotes: ["'", '"', "`"], interp: [["`", "${", "}"]], regex: true };
@@ -221359,41 +221591,41 @@ function regex(text4, i3, to) {
 init_rtl();
 
 // src/workspaces.ts
-var import_fast_glob12 = __toESM(require_out4(), 1);
+var import_fast_glob13 = __toESM(require_out4(), 1);
 init_framework();
 init_component_graph();
 init_setup();
 init_stores();
-import * as fs16 from "node:fs";
-import * as path16 from "node:path";
+import * as fs17 from "node:fs";
+import * as path17 from "node:path";
 function workspacePatterns(root) {
   try {
-    const pkg = JSON.parse(fs16.readFileSync(path16.join(root, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs17.readFileSync(path17.join(root, "package.json"), "utf8"));
     const ws = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages;
     if (Array.isArray(ws) && ws.length) return ws;
   } catch {
   }
-  const yaml = path16.join(root, "pnpm-workspace.yaml");
-  if (!fs16.existsSync(yaml)) return null;
-  const list4 = /^packages:\s*\n((?:[ \t]+-.*\n?|[ \t]*#.*\n?|[ \t]*\n)*)/m.exec(fs16.readFileSync(yaml, "utf8"))?.[1] ?? "";
+  const yaml = path17.join(root, "pnpm-workspace.yaml");
+  if (!fs17.existsSync(yaml)) return null;
+  const list4 = /^packages:\s*\n((?:[ \t]+-.*\n?|[ \t]*#.*\n?|[ \t]*\n)*)/m.exec(fs17.readFileSync(yaml, "utf8"))?.[1] ?? "";
   const patterns = [...list4.matchAll(/^[ \t]+-[ \t]*['"]?([^'"#\n]+?)['"]?[ \t]*(?:#.*)?$/gm)].map((m2) => m2[1]);
   return patterns.length ? patterns : null;
 }
 function librariesOf(cwd) {
-  const app = path16.resolve(cwd);
-  for (let dir = path16.dirname(app); ; dir = path16.dirname(dir)) {
+  const app = path17.resolve(cwd);
+  for (let dir = path17.dirname(app); ; dir = path17.dirname(dir)) {
     if (workspacePatterns(dir)) {
       const found2 = workspaceApps(dir);
-      const me = found2?.apps.find((a) => path16.resolve(dir, a.dir) === app);
-      return (me?.uses ?? []).map((l2) => path16.resolve(dir, l2));
+      const me = found2?.apps.find((a) => path17.resolve(dir, a.dir) === app);
+      return (me?.uses ?? []).map((l2) => path17.resolve(dir, l2));
     }
-    if (path16.dirname(dir) === dir) return [];
+    if (path17.dirname(dir) === dir) return [];
   }
 }
 function workspaceApps(root) {
   const patterns = workspacePatterns(root);
   if (!patterns) return null;
-  const manifests = import_fast_glob12.default.sync(
+  const manifests = import_fast_glob13.default.sync(
     patterns.map((p) => p.startsWith("!") ? `!${p.slice(1).replace(/\/+$/, "")}/package.json` : `${p.replace(/\/+$/, "")}/package.json`),
     { cwd: root, ignore: ["**/node_modules/**"] }
   );
@@ -221401,18 +221633,18 @@ function workspaceApps(root) {
   const libraries = [];
   const skipped = [];
   for (const manifest of manifests.sort()) {
-    const dir = path16.posix.dirname(manifest);
-    const pkg = JSON.parse(fs16.readFileSync(path16.join(root, manifest), "utf8"));
+    const dir = path17.posix.dirname(manifest);
+    const pkg = JSON.parse(fs17.readFileSync(path17.join(root, manifest), "utf8"));
     const library = !pkg.scripts?.dev && !pkg.scripts?.start;
     let framework;
     try {
-      framework = detectFramework(path16.join(root, dir));
+      framework = detectFramework(path17.join(root, dir));
     } catch (err) {
       if (!(err instanceof UnsupportedFrameworkError)) throw err;
       skipped.push({ dir, reason: library ? "a library without a UI framework" : err.message.split(":")[0] });
       continue;
     }
-    if (framework === "html" && !import_fast_glob12.default.sync("**/*.html", { cwd: path16.join(root, dir), ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"], deep: 6 }).length) {
+    if (framework === "html" && !import_fast_glob13.default.sync("**/*.html", { cwd: path17.join(root, dir), ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"], deep: 6 }).length) {
       skipped.push({ dir, reason: library ? "a library without a UI framework" : "no UI framework or HTML pages" });
       continue;
     }
@@ -221428,10 +221660,10 @@ function mergeLibraryLocales(root, lib, app, write3, pending = /* @__PURE__ */ n
   const from = storeFor(lib.config);
   const to = storeFor(app.config);
   const read2 = (dir, file2) => {
-    const rel = path16.posix.join(dir, file2);
+    const rel = path17.posix.join(dir, file2);
     if (pending.has(rel)) return pending.get(rel);
-    const abs = path16.join(root, rel);
-    return fs16.existsSync(abs) ? fs16.readFileSync(abs, "utf8") : void 0;
+    const abs = path17.join(root, rel);
+    return fs17.existsSync(abs) ? fs17.readFileSync(abs, "utf8") : void 0;
   };
   const merge = (into, add) => {
     let changed = false;
@@ -221455,10 +221687,10 @@ function mergeLibraryLocales(root, lib, app, write3, pending = /* @__PURE__ */ n
     if (locale === app.config.sourceLocale) merge(appSource, dict2);
     const content = to.serialize(dict2, locale, original, appSource);
     if (content === null || content === original) continue;
-    const file2 = path16.posix.join(app.dir, target);
+    const file2 = path17.posix.join(app.dir, target);
     if (write3) {
-      fs16.mkdirSync(path16.dirname(path16.join(root, file2)), { recursive: true });
-      fs16.writeFileSync(path16.join(root, file2), content);
+      fs17.mkdirSync(path17.dirname(path17.join(root, file2)), { recursive: true });
+      fs17.writeFileSync(path17.join(root, file2), content);
     }
     files.push({ path: file2, content });
   }
@@ -221466,7 +221698,7 @@ function mergeLibraryLocales(root, lib, app, write3, pending = /* @__PURE__ */ n
 }
 function declareLibraryImports(root, lib, apps, write3) {
   const pkgOf = (dir, files) => {
-    const text4 = files.find((f2) => f2.path === "package.json")?.content ?? (fs16.existsSync(path16.join(root, dir, "package.json")) ? fs16.readFileSync(path16.join(root, dir, "package.json"), "utf8") : void 0);
+    const text4 = files.find((f2) => f2.path === "package.json")?.content ?? (fs17.existsSync(path17.join(root, dir, "package.json")) ? fs17.readFileSync(path17.join(root, dir, "package.json"), "utf8") : void 0);
     return text4 === void 0 ? null : { text: text4, pkg: JSON.parse(text4) };
   };
   const own = pkgOf(lib.dir, lib.files);
@@ -221490,16 +221722,16 @@ function declareLibraryImports(root, lib, apps, write3) {
   const sorted = (deps) => Object.fromEntries(Object.entries({ ...deps, ...wanted }).sort(([a], [b4]) => a.localeCompare(b4)));
   const next2 = { ...own.pkg, peerDependencies: sorted(own.pkg.peerDependencies), devDependencies: sorted(own.pkg.devDependencies) };
   const content = writeJsonLike(own.text, next2);
-  const file2 = path16.posix.join(lib.dir, "package.json");
-  if (write3) fs16.writeFileSync(path16.join(root, file2), content);
+  const file2 = path17.posix.join(lib.dir, "package.json");
+  if (write3) fs17.writeFileSync(path17.join(root, file2), content);
   return { path: file2, content };
 }
 function libraryClientModules(root, lib, apps, write3) {
   const nextApp = apps.some((a) => {
     try {
-      const pkg = JSON.parse(fs16.readFileSync(path16.join(root, a.dir, "package.json"), "utf8"));
+      const pkg = JSON.parse(fs17.readFileSync(path17.join(root, a.dir, "package.json"), "utf8"));
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-      return !!deps.next && ["app", "src/app"].some((d3) => fs16.existsSync(path16.join(root, a.dir, d3)));
+      return !!deps.next && ["app", "src/app"].some((d3) => fs17.existsSync(path17.join(root, a.dir, d3)));
     } catch {
       return false;
     }
@@ -221509,19 +221741,19 @@ function libraryClientModules(root, lib, apps, write3) {
   for (const file2 of lib.files) {
     if (!/\.[jt]sx?$/.test(file2.path) || !/from\s*['"]react-i18next['"]/.test(file2.content) || USE_CLIENT3.test(file2.content)) continue;
     if (!canBeClientModule(file2.content)) {
-      cannot.push(path16.posix.join(lib.dir, file2.path));
+      cannot.push(path17.posix.join(lib.dir, file2.path));
       continue;
     }
     file2.content = `'use client';
 
 ${file2.content}`;
-    if (write3) fs16.writeFileSync(path16.join(root, lib.dir, file2.path), file2.content);
+    if (write3) fs17.writeFileSync(path17.join(root, lib.dir, file2.path), file2.content);
   }
   return cannot;
 }
 var USE_CLIENT3 = /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*(['"])use client\1/;
 function mergeResults(results) {
-  const at2 = (dir, p) => path16.posix.join(dir, p);
+  const at2 = (dir, p) => path17.posix.join(dir, p);
   const merged = {
     files: [],
     replacements: /* @__PURE__ */ new Map(),
@@ -221561,13 +221793,13 @@ async function unusedKeys(cwd, config) {
   const store = storeFor(config);
   const file2 = store.path(config.sourceLocale);
   if (!QUOTED_KEYS.has(config.framework) || store.textKeys) return { file: file2, keys: [] };
-  const abs = path17.join(cwd, file2);
-  if (!fs17.existsSync(abs)) return { file: file2, keys: [] };
-  const flat = [...flatten(store.read(fs17.readFileSync(abs, "utf8"), config.sourceLocale)).keys()];
+  const abs = path18.join(cwd, file2);
+  if (!fs18.existsSync(abs)) return { file: file2, keys: [] };
+  const flat = [...flatten(store.read(fs18.readFileSync(abs, "utf8"), config.sourceLocale)).keys()];
   const keys = [...new Set(flat.map(messageKeyIn(flat)))];
   let code2 = "";
-  for (const dir of [path17.join(cwd, config.srcDir), ...librariesOf(cwd).map((lib) => path17.join(lib, loadConfig(lib).srcDir))]) {
-    for (const f2 of await (0, import_fast_glob13.default)(CODE, { cwd: dir, ignore: IGNORE4 })) code2 += `${withoutComments(fs17.readFileSync(path17.join(dir, f2), "utf8"), f2)}
+  for (const dir of [path18.join(cwd, config.srcDir), ...librariesOf(cwd).map((lib) => path18.join(lib, loadConfig(lib).srcDir))]) {
+    for (const f2 of await (0, import_fast_glob14.default)(CODE, { cwd: dir, ignore: IGNORE4 })) code2 += `${withoutComments(fs18.readFileSync(path18.join(dir, f2), "utf8"), f2)}
 `;
   }
   const prefixes = [...code2.matchAll(/`([\w.-]*)\$\{/g)].map((m2) => m2[1]).filter((p) => p.includes(".") || p.length > 2);
@@ -221599,9 +221831,9 @@ function localizedInPlace(cwd, config) {
   };
 }
 function flatOf(cwd, store, locale) {
-  const file2 = path17.join(cwd, store.path(locale));
-  if (!fs17.existsSync(file2)) return null;
-  return flatten(store.read(fs17.readFileSync(file2, "utf8"), locale));
+  const file2 = path18.join(cwd, store.path(locale));
+  if (!fs18.existsSync(file2)) return null;
+  return flatten(store.read(fs18.readFileSync(file2, "utf8"), locale));
 }
 function pluralCategoriesOf(locale) {
   try {
@@ -221611,9 +221843,9 @@ function pluralCategoriesOf(locale) {
   }
 }
 function keysOf(cwd, store, locale, toMessage = messageKey) {
-  const file2 = path17.join(cwd, store.path(locale));
-  if (!fs17.existsSync(file2)) return null;
-  const dict2 = store.read(fs17.readFileSync(file2, "utf8"), locale);
+  const file2 = path18.join(cwd, store.path(locale));
+  if (!fs18.existsSync(file2)) return null;
+  const dict2 = store.read(fs18.readFileSync(file2, "utf8"), locale);
   return new Set([...flatten(dict2)].filter(([, v2]) => v2.trim() !== "").map(([k]) => toMessage(k)));
 }
 async function checkProject(cwd, config, log, only) {
@@ -221665,8 +221897,8 @@ async function checkProject(cwd, config, log, only) {
   const rawValues = [];
   if (only !== "translations") {
     const store = storeFor(config);
-    const abs = path17.join(cwd, store.path(config.sourceLocale));
-    const source2 = fs17.existsSync(abs) ? flatten(store.read(fs17.readFileSync(abs, "utf8"), config.sourceLocale)) : /* @__PURE__ */ new Map();
+    const abs = path18.join(cwd, store.path(config.sourceLocale));
+    const source2 = fs18.existsSync(abs) ? flatten(store.read(fs18.readFileSync(abs, "utf8"), config.sourceLocale)) : /* @__PURE__ */ new Map();
     for (const [key2, text4] of source2) {
       const value = RAW_VALUE.exec(text4);
       if (value) rawValues.push({ file: store.path(config.sourceLocale), line: 0, text: `${messageKey(key2)}: "${text4}" shows {${value[1]}} as stored` });
@@ -221691,7 +221923,7 @@ async function checkLocaleFiles(cwd, config) {
 }
 function hasConfiguredLocales(cwd) {
   try {
-    return Array.isArray(JSON.parse(fs17.readFileSync(path17.join(cwd, "localize.config.json"), "utf8")).targetLocales);
+    return Array.isArray(JSON.parse(fs18.readFileSync(path18.join(cwd, "localize.config.json"), "utf8")).targetLocales);
   } catch {
     return false;
   }
@@ -221699,20 +221931,20 @@ function hasConfiguredLocales(cwd) {
 async function checkWorkspaces(root, load2, log, only) {
   const found2 = workspaceApps(root);
   if (!found2) return null;
-  const configs = new Map(found2.apps.map((a) => [a.dir, load2(path17.join(root, a.dir))]));
+  const configs = new Map(found2.apps.map((a) => [a.dir, load2(path18.join(root, a.dir))]));
   const targets = [
     ...found2.libraries.map((l2) => {
       const users = found2.apps.filter((a) => a.uses?.includes(l2.dir));
-      return { dir: l2.dir, config: load2(path17.join(root, l2.dir), { targetLocales: [...new Set(users.flatMap((a) => configs.get(a.dir).targetLocales))] }) };
+      return { dir: l2.dir, config: load2(path18.join(root, l2.dir), { targetLocales: [...new Set(users.flatMap((a) => configs.get(a.dir).targetLocales))] }) };
     }),
     ...found2.apps.map((a) => ({ dir: a.dir, config: configs.get(a.dir) }))
   ];
   const packages = [];
-  for (const { dir, config } of targets) packages.push({ dir, result: withDir(await checkProject(path17.join(root, dir), config, log, only), dir) });
+  for (const { dir, config } of targets) packages.push({ dir, result: withDir(await checkProject(path18.join(root, dir), config, log, only), dir) });
   return { packages, skipped: found2.skipped, ok: packages.every((p) => p.result.ok) };
 }
 function withDir(r, dir) {
-  const at2 = (x) => ({ ...x, file: x.file ? path17.posix.join(dir, x.file) : x.file });
+  const at2 = (x) => ({ ...x, file: x.file ? path18.posix.join(dir, x.file) : x.file });
   return {
     ...r,
     hardcoded: r.hardcoded.map(at2),
@@ -221736,18 +221968,19 @@ var KEY_USES = [
 async function unknownKeys(cwd, config, only) {
   const store = storeFor(config);
   if (!QUOTED_KEYS.has(config.framework) || store.textKeys) return [];
-  const abs = path17.join(cwd, store.path(config.sourceLocale));
-  if (!fs17.existsSync(abs)) return [];
-  const known = new Set([...flatten(store.read(fs17.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].flatMap((k) => [k, messageKey(k), k.replace(/_(?:male|female|other)$/, "")]));
+  const abs = path18.join(cwd, store.path(config.sourceLocale));
+  if (!fs18.existsSync(abs)) return [];
+  const known = new Set([...flatten(store.read(fs18.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].flatMap((k) => [k, messageKey(k), k.replace(/_(?:male|female|other)$/, "")]));
   const out = [];
-  for (const f2 of only ?? await (0, import_fast_glob13.default)(CODE, { cwd: path17.join(cwd, config.srcDir), ignore: IGNORE4 })) {
-    const text4 = withoutComments(fs17.readFileSync(path17.join(cwd, config.srcDir, f2), "utf8"), f2);
+  for (const f2 of only ?? await (0, import_fast_glob14.default)(CODE, { cwd: path18.join(cwd, config.srcDir), ignore: IGNORE4 })) {
+    const text4 = withoutComments(fs18.readFileSync(path18.join(cwd, config.srcDir, f2), "utf8"), f2);
     for (const re of KEY_USES) {
       for (const m2 of text4.matchAll(re)) {
         const key2 = m2[2];
         if (known.has(key2) || [...known].some((k) => k.startsWith(`${key2}.`))) continue;
+        if (/[{(\[,]\s*["'`]$/.test(text4.slice(Math.max(0, m2.index - 20), m2.index))) continue;
         if (new RegExp(`exists\\(\\s*(['"\`])${key2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\1`).test(text4)) continue;
-        out.push({ file: path17.posix.join(config.srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: key2 });
+        out.push({ file: path18.posix.join(config.srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: key2 });
       }
     }
   }
@@ -221784,8 +222017,8 @@ async function fontCoverage(cwd, config) {
   const langs = config.targetLocales.map((l2) => l2.split("-")[0].toLowerCase());
   if (!langs.some((l2) => SUBSET[l2] || SCRIPT2[l2])) return [];
   const out = [];
-  for (const f2 of await (0, import_fast_glob13.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE4 })) {
-    const text4 = fs17.readFileSync(path17.join(cwd, f2), "utf8");
+  for (const f2 of await (0, import_fast_glob14.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE4 })) {
+    const text4 = fs18.readFileSync(path18.join(cwd, f2), "utf8");
     if (!/from\s*['"]next\/font\/google['"]/.test(text4)) continue;
     for (const m2 of text4.matchAll(/\b([A-Z]\w*)\(\s*\{([^}]*)\}\s*\)/g)) {
       const subsets = /subsets\s*:\s*\[([^\]]*)\]/.exec(m2[2]);
@@ -221803,18 +222036,18 @@ async function fontCoverage(cwd, config) {
 var RAW_VALUE = /\{\{?\s*(status|state|type|role|kind|category|level|priority|plan|tier|stage|mode|gender)\s*\}?\}/i;
 var CSS_CONTENT = new RegExp(`\\bcontent\\s*:\\s*(["'])((?:(?!\\1).)*\\p{L}(?:(?!\\1).)*)\\1`, "gu");
 async function cssContentText(cwd, srcDir) {
-  const root = path17.join(cwd, srcDir);
+  const root = path18.join(cwd, srcDir);
   const out = [];
-  for (const f2 of await (0, import_fast_glob13.default)("**/*.{css,scss,sass,less,vue,svelte}", { cwd: root, ignore: IGNORE4 })) {
-    const text4 = fs17.readFileSync(path17.join(root, f2), "utf8");
+  for (const f2 of await (0, import_fast_glob14.default)("**/*.{css,scss,sass,less,vue,svelte}", { cwd: root, ignore: IGNORE4 })) {
+    const text4 = fs18.readFileSync(path18.join(root, f2), "utf8");
     for (const m2 of text4.matchAll(CSS_CONTENT)) {
       if (/^\\[0-9a-f]+$/i.test(m2[2])) continue;
-      out.push({ file: path17.posix.join(srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: m2[2] });
+      out.push({ file: path18.posix.join(srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: m2[2] });
     }
   }
-  for (const f2 of await (0, import_fast_glob13.default)("**/*.{ts,tsx,js,jsx,mjs,gjs,gts}", { cwd: root, ignore: [...IGNORE4] })) {
-    for (const { line, text: text4 } of cssInScript(fs17.readFileSync(path17.join(root, f2), "utf8"))) {
-      for (const m2 of text4.matchAll(CSS_CONTENT)) if (!/^\\{1,2}[0-9a-f]+$/i.test(m2[2])) out.push({ file: path17.posix.join(srcDir, f2), line, text: m2[2] });
+  for (const f2 of await (0, import_fast_glob14.default)("**/*.{ts,tsx,js,jsx,mjs,gjs,gts}", { cwd: root, ignore: [...IGNORE4] })) {
+    for (const { line, text: text4 } of cssInScript(fs18.readFileSync(path18.join(root, f2), "utf8"))) {
+      for (const m2 of text4.matchAll(CSS_CONTENT)) if (!/^\\{1,2}[0-9a-f]+$/i.test(m2[2])) out.push({ file: path18.posix.join(srcDir, f2), line, text: m2[2] });
     }
   }
   return out;
@@ -222033,8 +222266,8 @@ init_stores();
 
 // src/tms/index.ts
 init_sync();
-import * as fs18 from "node:fs";
-import * as path18 from "node:path";
+import * as fs19 from "node:fs";
+import * as path19 from "node:path";
 
 // src/tms/types.ts
 var TmsError = class extends Error {
@@ -222070,9 +222303,9 @@ var CrowdinClient = class {
   files = null;
   dirs = /* @__PURE__ */ new Map();
   languages = null;
-  async api(method2, path20, body, what = `Crowdin ${method2} ${path20}`) {
+  async api(method2, path21, body, what = `Crowdin ${method2} ${path21}`) {
     const res = await check(
-      await this.fetchImpl(`${this.base}${path20}`, {
+      await this.fetchImpl(`${this.base}${path21}`, {
         method: method2,
         headers: { Authorization: `Bearer ${this.opts.token}`, ...body ? { "Content-Type": "application/json" } : {} },
         ...body ? { body: JSON.stringify(body) } : {}
@@ -222228,14 +222461,14 @@ var LokaliseClient = class {
   base;
   languages = null;
   sourceLocale = "en";
-  async api(method2, path20, body) {
+  async api(method2, path21, body) {
     const res = await check(
-      await this.fetchImpl(`${this.base}/projects/${encodeURIComponent(this.opts.projectId)}${path20}`, {
+      await this.fetchImpl(`${this.base}/projects/${encodeURIComponent(this.opts.projectId)}${path21}`, {
         method: method2,
         headers: { "X-Api-Token": this.opts.token, ...body ? { "Content-Type": "application/json" } : {} },
         ...body ? { body: JSON.stringify(body) } : {}
       }),
-      `Lokalise ${method2} ${path20}`
+      `Lokalise ${method2} ${path21}`
     );
     return await res.json();
   }
@@ -222376,9 +222609,9 @@ var TransifexClient = class {
   /** `public/locales/en/common.json` → `public-locales-en-common-json`. */
   slug = (file2) => file2.path.toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-|-$/g, "").slice(0, 50);
   resource = (file2) => `${this.project()}:r:${this.slug(file2)}`;
-  async request(method2, path20, body, what = `Transifex ${method2} ${path20}`) {
+  async request(method2, path21, body, what = `Transifex ${method2} ${path21}`) {
     return check(
-      await this.fetchImpl(path20.startsWith("http") ? path20 : `${this.base}${path20}`, {
+      await this.fetchImpl(path21.startsWith("http") ? path21 : `${this.base}${path21}`, {
         method: method2,
         headers: { Authorization: `Bearer ${this.opts.token}`, Accept: "application/vnd.api+json", ...body ? { "Content-Type": "application/vnd.api+json" } : {} },
         ...body ? { body: JSON.stringify(body) } : {},
@@ -222515,7 +222748,7 @@ async function syncFiles(cwd, sourceLocale) {
   }
   return { files, skipped };
 }
-var read = (cwd, file2) => fs18.existsSync(path18.join(cwd, file2)) ? fs18.readFileSync(path18.join(cwd, file2), "utf8") : void 0;
+var read = (cwd, file2) => fs19.existsSync(path19.join(cwd, file2)) ? fs19.readFileSync(path19.join(cwd, file2), "utf8") : void 0;
 async function push(o) {
   let sources = 0;
   let translations = 0;
@@ -222544,8 +222777,8 @@ async function pull(o) {
       o.log.info(`\u2B07\uFE0F  ${target} (${locale})`);
       changed.push({ path: target, content });
       if (o.write) {
-        fs18.mkdirSync(path18.dirname(path18.join(o.cwd, target)), { recursive: true });
-        fs18.writeFileSync(path18.join(o.cwd, target), content);
+        fs19.mkdirSync(path19.dirname(path19.join(o.cwd, target)), { recursive: true });
+        fs19.writeFileSync(path19.join(o.cwd, target), content);
       }
     }
   }
@@ -222557,10 +222790,10 @@ var BRANCH_PREFIX = "localize-dev/";
 function workingDirectory(root) {
   const input = getInput("working_directory").trim();
   if (!input) return "";
-  const dir = path19.posix.normalize(input.replace(/\\/g, "/")).replace(/\/+$/, "");
-  if (path19.posix.isAbsolute(dir) || dir === ".." || dir.startsWith("../")) throw new Error(`working_directory must be a folder inside the repository, not "${input}"`);
+  const dir = path20.posix.normalize(input.replace(/\\/g, "/")).replace(/\/+$/, "");
+  if (path20.posix.isAbsolute(dir) || dir === ".." || dir.startsWith("../")) throw new Error(`working_directory must be a folder inside the repository, not "${input}"`);
   if (dir === ".") return "";
-  if (!fs19.statSync(path19.join(root, dir), { throwIfNoEntry: false })?.isDirectory()) throw new Error(`working_directory: ${dir} isn't a folder in the repository`);
+  if (!fs20.statSync(path20.join(root, dir), { throwIfNoEntry: false })?.isDirectory()) throw new Error(`working_directory: ${dir} isn't a folder in the repository`);
   return dir;
 }
 async function openPullRequest(client2, githubToken, p) {
@@ -222623,7 +222856,7 @@ async function dashboardLanguages(client2, sourceLocale) {
 }
 function configWithLanguages(cwd, files, targets) {
   const file2 = "localize.config.json";
-  const text4 = files.find((f2) => f2.path === file2)?.content ?? (fs19.existsSync(path19.join(cwd, file2)) ? fs19.readFileSync(path19.join(cwd, file2), "utf8") : void 0);
+  const text4 = files.find((f2) => f2.path === file2)?.content ?? (fs20.existsSync(path20.join(cwd, file2)) ? fs20.readFileSync(path20.join(cwd, file2), "utf8") : void 0);
   if (text4 === void 0) return null;
   let raw;
   try {
@@ -222638,14 +222871,14 @@ function configWithLanguages(cwd, files, targets) {
   return { path: file2, content: `${JSON.stringify({ ...raw, targetLocales: [...listed, ...added] }, null, indent2)}
 ` };
 }
-var inRepo = (files, workdir) => workdir ? files.map((f2) => ({ ...f2, path: path19.posix.join(workdir, f2.path) })) : files;
+var inRepo = (files, workdir) => workdir ? files.map((f2) => ({ ...f2, path: path20.posix.join(workdir, f2.path) })) : files;
 async function withSourceDir(cwd, config, chosen) {
   const { config: resolved, note, empty: empty3 } = await resolveSourceDir(cwd, config, chosen).catch((err) => {
     if (!(err instanceof SourceDirError) || !err.apps.length) throw err;
     const named2 = workingDirectory(process.env.GITHUB_WORKSPACE ?? process.cwd());
     throw new SourceDirError(
       `${named2 ? `${named2} has no app code to scan, and looks like a monorepo` : "This looks like a monorepo, and the Action runs at its root"}. Set working_directory to the app to localize:
-` + err.apps.map((a) => `  working_directory: ${named2 ? path19.posix.join(named2, a.dir) : a.dir}   (${a.files} files)`).join("\n") + "\nOr workspaces: true to localize every app in the workspace.",
+` + err.apps.map((a) => `  working_directory: ${named2 ? path20.posix.join(named2, a.dir) : a.dir}   (${a.files} files)`).join("\n") + "\nOr workspaces: true to localize every app in the workspace.",
       false,
       err.apps
     );
@@ -222708,7 +222941,7 @@ async function main() {
   const offline = getBooleanInput("offline");
   const root = process.env.GITHUB_WORKSPACE ?? process.cwd();
   const workdir = workingDirectory(root);
-  const cwd = workdir ? path19.join(root, workdir) : root;
+  const cwd = workdir ? path20.join(root, workdir) : root;
   const [owner, repo] = (process.env.GITHUB_REPOSITORY ?? "/").split("/");
   const baseBranch = getInput("base_branch") || process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
   if (!owner || !repo || !baseBranch) throw new Error("Could not determine repository or branch from the environment");
@@ -222765,9 +222998,9 @@ async function main() {
     const libConfigs = /* @__PURE__ */ new Map();
     let stopped = false;
     for (const lib of found2.libraries) {
-      const dir = path19.join(cwd, lib.dir);
+      const dir = path20.join(cwd, lib.dir);
       const libConfig = await withSourceDir(dir, configAt(dir));
-      libConfig.targetLocales = [...new Set(found2.apps.filter((a) => a.uses?.includes(lib.dir)).flatMap((a) => configAt(path19.join(cwd, a.dir)).targetLocales))];
+      libConfig.targetLocales = [...new Set(found2.apps.filter((a) => a.uses?.includes(lib.dir)).flatMap((a) => configAt(path20.join(cwd, a.dir)).targetLocales))];
       info(`Localizing ${lib.dir} (${lib.framework} library)`);
       const r = await runPipeline({ cwd: dir, config: libConfig, translator, write: false, log, setup: false });
       libConfigs.set(lib.dir, libConfig);
@@ -222779,15 +223012,15 @@ async function main() {
     }
     for (const app of stopped ? [] : found2.apps) {
       info(`Localizing ${app.dir} (${app.framework})`);
-      const dir = path19.join(cwd, app.dir);
+      const dir = path20.join(cwd, app.dir);
       const appConfig = await withSourceDir(dir, configAt(dir));
       const r = await runPipeline({ cwd: dir, config: appConfig, translator, write: false, log });
-      const pending = new Map(results.concat({ dir: app.dir, result: r }).flatMap((x) => x.result.files.map((f2) => [path19.posix.join(x.dir, f2.path), f2.content])));
+      const pending = new Map(results.concat({ dir: app.dir, result: r }).flatMap((x) => x.result.files.map((f2) => [path20.posix.join(x.dir, f2.path), f2.content])));
       for (const libDir of app.uses ?? []) {
         const lib = libConfigs.get(libDir);
         if (!lib) continue;
         const merged = mergeLibraryLocales(cwd, { dir: libDir, config: lib }, { dir: app.dir, config: appConfig }, false, pending);
-        r.files = mergeFiles(r.files, merged.map((f2) => ({ ...f2, path: path19.posix.relative(app.dir, f2.path) })));
+        r.files = mergeFiles(r.files, merged.map((f2) => ({ ...f2, path: path20.posix.relative(app.dir, f2.path) })));
       }
       const relock = await lockNewMessages(dir, { sourceLocale: appConfig.sourceLocale, onlyFiles: [storeFor(appConfig).path(appConfig.sourceLocale)], overlay: new Map(r.files.map((f2) => [f2.path, f2.content])), vuePlurals: vuePluralsIn(dir, appConfig.interpolation) });
       if (relock) r.files = mergeFiles(r.files, [{ path: "localize.lock.json", content: relock }]);
@@ -222800,7 +223033,7 @@ async function main() {
       const users = found2.apps.filter((a) => a.uses?.includes(lib.dir)).map((a) => ({ dir: a.dir, files: results.find((x) => x.dir === a.dir)?.result.files ?? [] }));
       for (const file2 of libraryClientModules(cwd, { dir: lib.dir, files: libResult.files }, users, false)) warning(`${file2} uses react-i18next and is rendered by a Next.js app, but can't be a client module: give it 'use client' or move the copy to a client component.`);
       const pkg2 = declareLibraryImports(cwd, { dir: lib.dir, files: libResult.files }, users, false);
-      if (pkg2) libResult.files = mergeFiles(libResult.files, [{ ...pkg2, path: path19.posix.relative(lib.dir, pkg2.path) }]);
+      if (pkg2) libResult.files = mergeFiles(libResult.files, [{ ...pkg2, path: path20.posix.relative(lib.dir, pkg2.path) }]);
     }
     result = mergeResults(results);
   } else {
@@ -222874,7 +223107,7 @@ async function translateMode(o) {
   if (o.offline) throw new Error("mode: translate needs an api_key; there is nothing to do offline");
   const raw = (() => {
     try {
-      return JSON.parse(fs19.readFileSync(path19.join(o.cwd, "localize.config.json"), "utf8"));
+      return JSON.parse(fs20.readFileSync(path20.join(o.cwd, "localize.config.json"), "utf8"));
     } catch {
       return {};
     }
@@ -222947,7 +223180,7 @@ async function translateMode(o) {
 }
 function rawConfig(cwd) {
   try {
-    return JSON.parse(fs19.readFileSync(path19.join(cwd, "localize.config.json"), "utf8"));
+    return JSON.parse(fs20.readFileSync(path20.join(cwd, "localize.config.json"), "utf8"));
   } catch {
     return {};
   }
@@ -222972,7 +223205,7 @@ async function tmsPush(cwd, branch) {
   if (getInput("tms_push") !== "true") return;
   let defaultBranch;
   try {
-    defaultBranch = JSON.parse(fs19.readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")).repository?.default_branch;
+    defaultBranch = JSON.parse(fs20.readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")).repository?.default_branch;
   } catch {
   }
   if (branch !== defaultBranch) {
@@ -222994,7 +223227,7 @@ async function tmsPush(cwd, branch) {
 }
 var withPulled = (files, pulled, cwd) => {
   const paths = new Set(files.map((f2) => f2.path));
-  return [...files, ...pulled.filter((f2) => !paths.has(f2.path)).map((f2) => ({ path: f2.path, content: fs19.readFileSync(path19.join(cwd, f2.path), "utf8") }))];
+  return [...files, ...pulled.filter((f2) => !paths.has(f2.path)).map((f2) => ({ path: f2.path, content: fs20.readFileSync(path20.join(cwd, f2.path), "utf8") }))];
 };
 var reportFailure = null;
 main().catch(async (err) => {
