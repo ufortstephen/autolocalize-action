@@ -213410,7 +213410,9 @@ async function findPhysicalStyles(cwd, srcDir) {
         if (!cls) continue;
         const at2 = m2.index + m2[0].indexOf(cls, from);
         from = m2[0].indexOf(cls, from) + cls.length;
-        const [variant, base] = /^(.*:)?([^:]+)$/.exec(cls).slice(1);
+        const parts = /^(.*:)?([^:]+)$/.exec(cls);
+        if (!parts) continue;
+        const [variant, base] = parts.slice(1);
         const safe = TAILWIND_SAFE.find(([re]) => re.test(base));
         if (safe) out.push({ file: path7.posix.join(srcDir, f2), line: lineOf2(text4, at2), found: cls, fix: `${variant ?? ""}${base.replace(safe[0], safe[1])}` });
         else if (TAILWIND_REPORT.test(base)) out.push({ file: path7.posix.join(srcDir, f2), line: lineOf2(text4, at2), found: cls });
