@@ -70932,17 +70932,18 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   const consumed = /* @__PURE__ */ new Set();
   const visitChildren = (path22) => {
     if (consumed.has(path22.node)) return;
-    const rich = options.richText !== false && !mergeTextRun(path22.node.children, code2) && !isIgnored(path22, true) ? mergeRichText(path22.node.children, code2, attributes2, /\.tsx?$/.test(filePath) ? (name) => !fromPackages.has(name) : null) : null;
+    const children = withoutEdgeIcons(path22.node.children);
+    const rich = options.richText !== false && !mergeTextRun(children, code2) && !isIgnored(path22, true) ? mergeRichText(children, code2, attributes2, /\.tsx?$/.test(filePath) ? (name) => !fromPackages.has(name) : null) : null;
     if (rich && isTranslatable(rich.text.replace(/<[^>]+>/g, " "))) {
-      const first2 = path22.node.children.find((c) => !isBlankText(c));
+      const first2 = children.find((c) => !isBlankText(c));
       const firstPath2 = path22.get("children").find((c) => c.node === first2);
       for (const n4 of rich.consumed) consumed.add(n4);
       record(firstPath2, "TemplateLiteral", rich.text, rich.range, "trans", rich.params, void 0, void 0, rich.components);
       return;
     }
-    const merged = mergeTextRun(path22.node.children, code2, options.ordinals !== false);
+    const merged = mergeTextRun(children, code2, options.ordinals !== false);
     if (!merged || !isTranslatable(merged.text) || isIgnored(path22, true)) return;
-    const first = path22.node.children.find((c) => !isBlankText(c));
+    const first = children.find((c) => !isBlankText(c));
     const firstPath = path22.get("children").find((c) => c.node === first);
     for (const c of path22.node.children) if (t.isJSXText(c)) consumed.add(c);
     for (const n4 of merged.consumed) consumed.add(n4);
@@ -71281,6 +71282,17 @@ function elementName(el) {
 }
 function isBlankText(node2) {
   return t.isJSXText(node2) && !node2.value.trim();
+}
+function textless(node2) {
+  if (!t.isJSXElement(node2)) return false;
+  return node2.children.every((c) => isBlankText(c) || t.isJSXExpressionContainer(c) && t.isJSXEmptyExpression(c.expression) || textless(c));
+}
+function withoutEdgeIcons(children) {
+  let lo = 0;
+  let hi = children.length;
+  while (lo < hi && (isBlankText(children[lo]) || textless(children[lo]))) lo++;
+  while (hi > lo && (isBlankText(children[hi - 1]) || textless(children[hi - 1]))) hi--;
+  return lo === 0 && hi === children.length ? children : children.slice(lo, hi);
 }
 function isSimpleExpression(expr) {
   if (t.isIdentifier(expr)) return true;
@@ -210824,6 +210836,301 @@ var init_ember = __esm({
   }
 });
 
+// src/formats/script-copy.ts
+function objectCopy(node2, offset2) {
+  const out = [];
+  for (const p of node2.properties) {
+    if (!t6.isObjectProperty(p) || p.computed) continue;
+    const field = t6.isIdentifier(p.key) ? p.key.name : t6.isStringLiteral(p.key) ? p.key.value : null;
+    const text4 = copyText(p.value);
+    if (field && COPY_KEYS.has(field) && text4) out.push({ start: offset2 + p.value.start, end: offset2 + p.value.end, text: text4, field });
+  }
+  return out;
+}
+function copyConstants(script, offset2) {
+  const found2 = /* @__PURE__ */ new Map();
+  let ast;
+  try {
+    ast = (0, import_parser8.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+  } catch {
+    return found2;
+  }
+  traverse7(ast, {
+    Program(program2) {
+      for (const statement of program2.get("body")) {
+        if (!statement.isVariableDeclaration()) continue;
+        for (const decl of statement.get("declarations")) {
+          const id3 = decl.node.id;
+          const init2 = decl.node.init;
+          if (!t6.isIdentifier(id3) || !init2) continue;
+          let constant = null;
+          const text4 = copyText(init2);
+          if (text4) constant = { name: id3.name, kind: "string", literals: [{ start: offset2 + init2.start, end: offset2 + init2.end, text: text4 }] };
+          else if (t6.isCallExpression(init2) && t6.isIdentifier(init2.callee) && /^(shallowRef|ref)$/.test(init2.callee.name) && copyText(init2.arguments[0])) {
+            const arg = init2.arguments[0];
+            constant = { name: id3.name, kind: "string", literals: [{ start: offset2 + arg.start, end: offset2 + arg.end, text: copyText(arg) }] };
+          } else if (t6.isObjectExpression(init2)) {
+            const literals = objectCopy(init2, offset2);
+            if (literals.length) constant = { name: id3.name, kind: "object", literals };
+          } else if (t6.isArrayExpression(init2) && init2.elements.length && init2.elements.every((e2) => t6.isObjectExpression(e2))) {
+            const literals = init2.elements.flatMap((e2) => objectCopy(e2, offset2));
+            if (literals.length) constant = { name: id3.name, kind: "list", literals };
+          }
+          if (!constant) continue;
+          const binding2 = decl.scope.getBinding(id3.name);
+          if (binding2 && (binding2.constantViolations.length || !binding2.referencePaths.every((ref2) => readsNoCopy(ref2, constant)))) continue;
+          found2.set(id3.name, constant);
+        }
+      }
+      program2.stop();
+    }
+  });
+  return found2;
+}
+function frontmatterCopy(script, offset2) {
+  const found2 = [];
+  let ast;
+  try {
+    ast = (0, import_parser8.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+  } catch {
+    return found2;
+  }
+  const unwrap2 = (n4) => t6.isTSAsExpression(n4) || t6.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
+  const collect = (node2, out) => {
+    node2 = unwrap2(node2);
+    if (t6.isArrayExpression(node2)) node2.elements.forEach((e2) => collect(e2, out));
+    if (!t6.isObjectExpression(node2)) return;
+    for (const p of node2.properties) {
+      if (!t6.isObjectProperty(p) || p.computed) continue;
+      const field = t6.isIdentifier(p.key) ? p.key.name : t6.isStringLiteral(p.key) ? p.key.value : null;
+      const value = unwrap2(p.value);
+      if (t6.isObjectExpression(value) || t6.isArrayExpression(value)) collect(value, out);
+      if (!field || !COPY_KEYS.has(field)) continue;
+      const lit2 = value && literalMessage(value, offset2, script);
+      if (lit2 && isTranslatable(normalizeWhitespace(lit2.text))) out.push({ lit: { ...lit2, text: normalizeWhitespace(lit2.text).trim(), sink: field }, field });
+    }
+  };
+  traverse7(ast, {
+    Program(program2) {
+      for (const statement of program2.get("body")) {
+        if (!statement.isVariableDeclaration()) continue;
+        for (const decl of statement.get("declarations")) {
+          const id3 = decl.node.id;
+          const init2 = unwrap2(decl.node.init);
+          if (!t6.isIdentifier(id3) || !(t6.isObjectExpression(init2) || t6.isArrayExpression(init2))) continue;
+          const copy = [];
+          collect(init2, copy);
+          if (!copy.length) continue;
+          const constant = { name: id3.name, kind: t6.isArrayExpression(init2) ? "list" : "object", literals: copy.map((c) => ({ ...c.lit, field: c.field })) };
+          const binding2 = decl.scope.getBinding(id3.name);
+          if (binding2 && (binding2.constantViolations.length || !binding2.referencePaths.every((ref2) => readsNoCopy(ref2, constant)))) continue;
+          found2.push(...copy.map((c) => c.lit));
+        }
+      }
+      program2.stop();
+    }
+  });
+  return found2;
+}
+function readsNoCopy(ref2, c) {
+  if (c.kind === "string") return false;
+  const fields = new Set(c.literals.map((l2) => l2.field));
+  const member2 = ref2.parentPath;
+  if (!member2?.isMemberExpression() || member2.node.object !== ref2.node || member2.node.computed || !t6.isIdentifier(member2.node.property)) return false;
+  const prop2 = member2.node.property.name;
+  if (c.kind === "object") return !fields.has(prop2);
+  if (!NO_ITEM.has(prop2)) return false;
+  if (prop2 === "length") return true;
+  const call7 = member2.parentPath;
+  if (!call7?.isCallExpression()) return false;
+  const cb = call7.node.arguments[0];
+  if (!cb || !(t6.isArrowFunctionExpression(cb) || t6.isFunctionExpression(cb))) return prop2 === "indexOf" || prop2 === "includes";
+  const param = cb.params[0];
+  if (!param) return true;
+  if (!t6.isIdentifier(param)) return false;
+  const binding2 = call7.get("arguments.0").scope.getBinding(param.name);
+  return !!binding2 && binding2.referencePaths.every((r) => {
+    const m2 = r.parentPath;
+    return !!m2?.isMemberExpression() && m2.node.object === r.node && !m2.node.computed && t6.isIdentifier(m2.node.property) && !fields.has(m2.node.property.name);
+  });
+}
+function derivedCopy(script, offset2, template4, flavor) {
+  let ast;
+  try {
+    ast = (0, import_parser8.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+  } catch {
+    return [];
+  }
+  const expressions = templateExpressions(template4, flavor);
+  const shown = (name) => expressions.some((e2) => new RegExp(`(?<![\\w$.])${escape(name)}(?![\\w$])`).test(e2));
+  const codeOnly = script.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\/|(['"`])(?:\\.|(?!\1)[^\\])*\1/g, '""');
+  const usedInScript = (name) => (codeOnly.match(new RegExp(`(?<![\\w$.])${escape(name)}(?![\\w$])`, "g")) ?? []).length > 1;
+  const returned = (fn2) => {
+    if (t6.isArrowFunctionExpression(fn2) && !t6.isBlockStatement(fn2.body)) return [fn2.body];
+    if (!(t6.isArrowFunctionExpression(fn2) || t6.isFunctionExpression(fn2) || t6.isFunctionDeclaration(fn2))) return [];
+    const out = [];
+    const walk3 = (node2) => {
+      if (!node2 || t6.isFunction(node2)) return;
+      if (t6.isReturnStatement(node2)) {
+        if (node2.argument) out.push(node2.argument);
+        return;
+      }
+      for (const key2 of t6.VISITOR_KEYS[node2.type] ?? []) {
+        const child = node2[key2];
+        if (Array.isArray(child)) child.forEach(walk3);
+        else walk3(child);
+      }
+    };
+    fn2.body.body.forEach(walk3);
+    return out;
+  };
+  const found2 = [];
+  const take = (name, values) => {
+    if (!shown(name) || usedInScript(name)) return;
+    for (const v2 of values) found2.push(...outputLiterals(v2, offset2, script, "computed"));
+  };
+  for (const statement of ast.program.body) {
+    if (t6.isFunctionDeclaration(statement) && statement.id) take(statement.id.name, returned(statement));
+    if (t6.isVariableDeclaration(statement)) {
+      for (const d3 of statement.declarations) {
+        if (!t6.isIdentifier(d3.id) || !d3.init) continue;
+        const init2 = d3.init;
+        if (t6.isArrowFunctionExpression(init2) || t6.isFunctionExpression(init2)) take(d3.id.name, returned(init2));
+        else if (t6.isCallExpression(init2)) {
+          const callee = init2.callee;
+          const name = t6.isIdentifier(callee) ? callee.name : t6.isMemberExpression(callee) && t6.isIdentifier(callee.object) && t6.isIdentifier(callee.property) ? `${callee.object.name}.${callee.property.name}` : "";
+          const arg = init2.arguments[0];
+          if ((name === "computed" || name === "$derived.by") && arg) take(d3.id.name, returned(arg));
+          else if (name === "$derived" && arg) take(d3.id.name, [arg]);
+        }
+      }
+    }
+    if (t6.isLabeledStatement(statement) && statement.label.name === "$" && t6.isExpressionStatement(statement.body)) {
+      const e2 = statement.body.expression;
+      if (t6.isAssignmentExpression(e2) && t6.isIdentifier(e2.left)) take(e2.left.name, [e2.right]);
+    }
+  }
+  return found2;
+}
+function exportedCopy(code2) {
+  const found2 = /* @__PURE__ */ new Map();
+  let ast;
+  try {
+    ast = (0, import_parser8.parse)(code2, { sourceType: "module", plugins: ["typescript", "jsx"], errorRecovery: true });
+  } catch {
+    return found2;
+  }
+  const unwrap2 = (n4) => t6.isTSAsExpression(n4) || t6.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
+  for (const statement of ast.program.body) {
+    if (!t6.isExportNamedDeclaration(statement) || !t6.isVariableDeclaration(statement.declaration)) continue;
+    for (const d3 of statement.declaration.declarations) {
+      if (!t6.isIdentifier(d3.id)) continue;
+      const init2 = unwrap2(d3.init);
+      let entry = null;
+      if (t6.isArrayExpression(init2) && init2.elements.length && init2.elements.every((e2) => t6.isObjectExpression(unwrap2(e2)))) {
+        const literals = init2.elements.flatMap((e2) => objectCopy(unwrap2(e2), 0));
+        if (literals.length) entry = { kind: "list", literals };
+      } else if (t6.isObjectExpression(init2)) {
+        const props = init2.properties;
+        const lookup = props.length > 1 && props.every((p) => t6.isObjectProperty(p) && !p.computed && t6.isStringLiteral(p.value)) && props.some((p) => new RegExp("\\s|^\\p{Lu}", "u").test(p.value.value.trim()));
+        if (lookup) {
+          const literals = props.flatMap((p) => {
+            const field = t6.isIdentifier(p.key) ? p.key.name : t6.isStringLiteral(p.key) ? p.key.value : null;
+            const v2 = p.value;
+            const text4 = copyText(v2);
+            return field && text4 ? [{ start: v2.start, end: v2.end, text: text4, field }] : [];
+          });
+          if (literals.length) entry = { kind: "lookup", literals };
+        } else {
+          const literals = objectCopy(init2, 0);
+          if (literals.length) entry = { kind: "object", literals };
+        }
+      }
+      if (entry) found2.set(d3.id.name, entry);
+    }
+  }
+  return found2;
+}
+function templateExpressions(template4, flavor) {
+  if (flavor === "svelte") return [...template4.matchAll(/\{([^{}]*)\}/g)].map((m2) => m2[1].trim());
+  return [
+    ...[...template4.matchAll(/\{\{([\s\S]*?)\}\}/g)].map((m2) => m2[1].trim()),
+    ...[...template4.matchAll(/(?:^|[\s(,])(?:[:@#]|v-)[\w:.\-[\]]*=(["'])([\s\S]*?)\1/gm)].map((m2) => m2[2].trim())
+  ];
+}
+function followCopy(template4, constants3, flavor) {
+  const usable = new Map(constants3);
+  const aliases = /* @__PURE__ */ new Map();
+  const expressions = templateExpressions(template4, flavor);
+  const mentions = (name) => new RegExp(`(?<![\\w$.])${escape(name)}(?![\\w$])`);
+  const onlyAs = (name, allowed) => expressions.filter((e2) => mentions(name).test(e2)).every(allowed);
+  const fieldsOf = (c) => new Set(c.literals.map((l2) => l2.field).filter(Boolean));
+  const fieldRead = (owner, fields) => (expr) => {
+    const m2 = new RegExp(`^${escape(owner)}\\.(\\w+)$`).exec(expr);
+    if (m2) return true;
+    const uses = [...expr.matchAll(new RegExp(`(?<![\\w$.])${escape(owner)}(?![\\w$])(\\.(\\w+))?`, "g"))];
+    return uses.every((u) => u[2] !== void 0 && !fields.has(u[2]));
+  };
+  for (const c of constants3.values()) {
+    let ok;
+    if (c.kind === "string") ok = onlyAs(c.name, (e2) => e2 === c.name);
+    else if (c.kind === "object") ok = onlyAs(c.name, (e2) => e2 === c.name || fieldRead(c.name, fieldsOf(c))(e2));
+    else {
+      const loop = flavor === "vue" ? new RegExp(`^\\(?\\s*([A-Za-z_$][\\w$]*)\\s*(?:,\\s*[\\w$]+\\s*)*\\)?\\s+(?:in|of)\\s+${escape(c.name)}$`) : new RegExp(`^#each\\s+${escape(c.name)}\\s+as\\s+([A-Za-z_$][\\w$]*)\\s*(?:,\\s*[\\w$]+\\s*)?(?:\\([^)]*\\))?$`);
+      const indexed = (e2) => [...e2.matchAll(new RegExp(`(?<![\\w$.])${escape(c.name)}(?![\\w$])(\\.length\\b|\\[[^\\]]+\\]\\.(\\w+))?`, "g"))].every(
+        (u) => u[1] !== void 0 && (u[2] === void 0 || !fieldsOf(c).has(u[2]) || new RegExp(`^${escape(c.name)}\\[[^\\]]+\\]\\.${u[2]}$`).test(e2))
+      );
+      const loops = expressions.filter((e2) => mentions(c.name).test(e2) && e2 !== c.name && !indexed(e2));
+      const names3 = loops.map((e2) => loop.exec(e2)?.[1]);
+      ok = names3.every(Boolean);
+      if (ok) ok = [...new Set(names3)].every((alias) => onlyAs(alias, (e2) => loop.test(e2) || fieldRead(alias, fieldsOf(c))(e2)));
+      if (ok) for (const alias of names3) aliases.set(alias, c.name);
+    }
+    if (!ok || !expressions.some((e2) => mentions(c.name).test(e2))) usable.delete(c.name);
+  }
+  return { usable, aliases };
+}
+function wholeCopy(source2, usable, tr) {
+  const c = usable.get(source2.trim());
+  if (!c || c.kind === "string") return null;
+  const fields = [...new Set(c.literals.map((l2) => l2.field))];
+  const expression = c.kind === "object" ? `{ ...${c.name}, ${fields.map((f2) => `${f2}: ${tr}(${c.name}.${f2})`).join(", ")} }` : `${c.name}.map((item) => ({ ...item, ${fields.map((f2) => `${f2}: item.${f2} && ${tr}(item.${f2})`).join(", ")} }))`;
+  return { literals: c.literals, expression };
+}
+function readOf(source2, usable, aliases) {
+  const s = source2.trim();
+  const direct = usable.get(s);
+  if (direct?.kind === "string") return direct.literals;
+  const at2 = /^([A-Za-z_$][\w$]*)\[[^\]]+\]\.(\w+)$/.exec(s);
+  if (at2) {
+    const list4 = usable.get(at2[1]);
+    const literals2 = list4?.kind === "list" ? list4.literals.filter((l2) => l2.field === at2[2]) : [];
+    return literals2.length ? literals2 : null;
+  }
+  const m2 = /^([A-Za-z_$][\w$]*)\.(\w+)$/.exec(s);
+  if (!m2) return null;
+  const owner = usable.get(m2[1]) ?? (aliases.has(m2[1]) ? usable.get(aliases.get(m2[1])) : void 0);
+  if (!owner || owner.kind === "string" || owner.kind === "object" && owner.name !== m2[1]) return null;
+  const literals = owner.literals.filter((l2) => l2.field === m2[2]);
+  return literals.length ? literals : null;
+}
+var import_parser8, import_traverse6, t6, traverse7, copyText, NO_ITEM, escape;
+var init_script_copy = __esm({
+  "src/formats/script-copy.ts"() {
+    "use strict";
+    import_parser8 = __toESM(require_lib(), 1);
+    import_traverse6 = __toESM(require_lib8(), 1);
+    t6 = __toESM(require_lib4(), 1);
+    init_filters();
+    init_scanner();
+    init_script2();
+    traverse7 = import_traverse6.default.default ?? import_traverse6.default;
+    copyText = (node2) => t6.isStringLiteral(node2) && isTranslatable(normalizeWhitespace(node2.value)) ? normalizeWhitespace(node2.value).trim() : null;
+    NO_ITEM = /* @__PURE__ */ new Set(["some", "every", "findIndex", "indexOf", "includes", "forEach", "length"]);
+    escape = (s) => s.replace(/[$]/g, "\\$");
+  }
+});
+
 // src/formats/astro.ts
 var astro_exports = {};
 __export(astro_exports, {
@@ -211022,7 +211329,7 @@ async function scanAstro(code2, filePath, opts) {
     const body = code2.slice(bodyStart, front.index + front[0].lastIndexOf("---"));
     let script = null;
     try {
-      script = (0, import_parser8.parse)(body, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+      script = (0, import_parser9.parse)(body, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
     } catch {
       script = null;
     }
@@ -211039,6 +211346,7 @@ async function scanAstro(code2, filePath, opts) {
         }
       }
     }
+    for (const lit2 of frontmatterCopy(body, bodyStart)) add(lit2.text, { kind: "literal", start: lit2.start, end: lit2.end, params: lit2.params, context: "script" }, { element: lit2.sink });
   }
   return { strings: strings2, warnings: warnings2, sites, frontmatterEnd: front ? front.index + front[0].length : null };
 }
@@ -211104,7 +211412,7 @@ ${tLine}`);
   }
   return { code: s.toString(), changed: replacements2.length > 0, replacements: replacements2 };
 }
-var import_parser8, bt, RAW4, RAW_DIRECTIVES, componentOf2, paramObject3, call4, astroAdapter;
+var import_parser9, bt, RAW4, RAW_DIRECTIVES, componentOf2, paramObject3, call4, astroAdapter;
 var init_astro = __esm({
   "src/formats/astro.ts"() {
     "use strict";
@@ -211112,10 +211420,11 @@ var init_astro = __esm({
     init_optional();
     init_markup();
     init_filters();
-    import_parser8 = __toESM(require_lib(), 1);
+    import_parser9 = __toESM(require_lib(), 1);
     bt = __toESM(require_lib4(), 1);
     init_scanner();
     init_script2();
+    init_script_copy();
     RAW4 = /* @__PURE__ */ new Set([...IGNORED_ELEMENTS2, "script", "style"]);
     RAW_DIRECTIVES = /^(set:html|set:text|is:raw)$/;
     componentOf2 = (file2) => {
@@ -211347,256 +211656,6 @@ var init_pug = __esm({
     "use strict";
     init_markup();
     KEYWORDS2 = /^(?:if|else|unless|each|for|while|case|when|default|include|extends|block|append|prepend|mixin|doctype|yield)\b/;
-  }
-});
-
-// src/formats/script-copy.ts
-function objectCopy(node2, offset2) {
-  const out = [];
-  for (const p of node2.properties) {
-    if (!t6.isObjectProperty(p) || p.computed) continue;
-    const field = t6.isIdentifier(p.key) ? p.key.name : t6.isStringLiteral(p.key) ? p.key.value : null;
-    const text4 = copyText(p.value);
-    if (field && COPY_KEYS.has(field) && text4) out.push({ start: offset2 + p.value.start, end: offset2 + p.value.end, text: text4, field });
-  }
-  return out;
-}
-function copyConstants(script, offset2) {
-  const found2 = /* @__PURE__ */ new Map();
-  let ast;
-  try {
-    ast = (0, import_parser9.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
-  } catch {
-    return found2;
-  }
-  traverse7(ast, {
-    Program(program2) {
-      for (const statement of program2.get("body")) {
-        if (!statement.isVariableDeclaration()) continue;
-        for (const decl of statement.get("declarations")) {
-          const id3 = decl.node.id;
-          const init2 = decl.node.init;
-          if (!t6.isIdentifier(id3) || !init2) continue;
-          let constant = null;
-          const text4 = copyText(init2);
-          if (text4) constant = { name: id3.name, kind: "string", literals: [{ start: offset2 + init2.start, end: offset2 + init2.end, text: text4 }] };
-          else if (t6.isCallExpression(init2) && t6.isIdentifier(init2.callee) && /^(shallowRef|ref)$/.test(init2.callee.name) && copyText(init2.arguments[0])) {
-            const arg = init2.arguments[0];
-            constant = { name: id3.name, kind: "string", literals: [{ start: offset2 + arg.start, end: offset2 + arg.end, text: copyText(arg) }] };
-          } else if (t6.isObjectExpression(init2)) {
-            const literals = objectCopy(init2, offset2);
-            if (literals.length) constant = { name: id3.name, kind: "object", literals };
-          } else if (t6.isArrayExpression(init2) && init2.elements.length && init2.elements.every((e2) => t6.isObjectExpression(e2))) {
-            const literals = init2.elements.flatMap((e2) => objectCopy(e2, offset2));
-            if (literals.length) constant = { name: id3.name, kind: "list", literals };
-          }
-          if (!constant) continue;
-          const binding2 = decl.scope.getBinding(id3.name);
-          if (binding2 && (binding2.constantViolations.length || !binding2.referencePaths.every((ref2) => readsNoCopy(ref2, constant)))) continue;
-          found2.set(id3.name, constant);
-        }
-      }
-      program2.stop();
-    }
-  });
-  return found2;
-}
-function readsNoCopy(ref2, c) {
-  if (c.kind === "string") return false;
-  const fields = new Set(c.literals.map((l2) => l2.field));
-  const member2 = ref2.parentPath;
-  if (!member2?.isMemberExpression() || member2.node.object !== ref2.node || member2.node.computed || !t6.isIdentifier(member2.node.property)) return false;
-  const prop2 = member2.node.property.name;
-  if (c.kind === "object") return !fields.has(prop2);
-  if (!NO_ITEM.has(prop2)) return false;
-  if (prop2 === "length") return true;
-  const call7 = member2.parentPath;
-  if (!call7?.isCallExpression()) return false;
-  const cb = call7.node.arguments[0];
-  if (!cb || !(t6.isArrowFunctionExpression(cb) || t6.isFunctionExpression(cb))) return prop2 === "indexOf" || prop2 === "includes";
-  const param = cb.params[0];
-  if (!param) return true;
-  if (!t6.isIdentifier(param)) return false;
-  const binding2 = call7.get("arguments.0").scope.getBinding(param.name);
-  return !!binding2 && binding2.referencePaths.every((r) => {
-    const m2 = r.parentPath;
-    return !!m2?.isMemberExpression() && m2.node.object === r.node && !m2.node.computed && t6.isIdentifier(m2.node.property) && !fields.has(m2.node.property.name);
-  });
-}
-function derivedCopy(script, offset2, template4, flavor) {
-  let ast;
-  try {
-    ast = (0, import_parser9.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
-  } catch {
-    return [];
-  }
-  const expressions = templateExpressions(template4, flavor);
-  const shown = (name) => expressions.some((e2) => new RegExp(`(?<![\\w$.])${escape(name)}(?![\\w$])`).test(e2));
-  const codeOnly = script.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\/|(['"`])(?:\\.|(?!\1)[^\\])*\1/g, '""');
-  const usedInScript = (name) => (codeOnly.match(new RegExp(`(?<![\\w$.])${escape(name)}(?![\\w$])`, "g")) ?? []).length > 1;
-  const returned = (fn2) => {
-    if (t6.isArrowFunctionExpression(fn2) && !t6.isBlockStatement(fn2.body)) return [fn2.body];
-    if (!(t6.isArrowFunctionExpression(fn2) || t6.isFunctionExpression(fn2) || t6.isFunctionDeclaration(fn2))) return [];
-    const out = [];
-    const walk3 = (node2) => {
-      if (!node2 || t6.isFunction(node2)) return;
-      if (t6.isReturnStatement(node2)) {
-        if (node2.argument) out.push(node2.argument);
-        return;
-      }
-      for (const key2 of t6.VISITOR_KEYS[node2.type] ?? []) {
-        const child = node2[key2];
-        if (Array.isArray(child)) child.forEach(walk3);
-        else walk3(child);
-      }
-    };
-    fn2.body.body.forEach(walk3);
-    return out;
-  };
-  const found2 = [];
-  const take = (name, values) => {
-    if (!shown(name) || usedInScript(name)) return;
-    for (const v2 of values) found2.push(...outputLiterals(v2, offset2, script, "computed"));
-  };
-  for (const statement of ast.program.body) {
-    if (t6.isFunctionDeclaration(statement) && statement.id) take(statement.id.name, returned(statement));
-    if (t6.isVariableDeclaration(statement)) {
-      for (const d3 of statement.declarations) {
-        if (!t6.isIdentifier(d3.id) || !d3.init) continue;
-        const init2 = d3.init;
-        if (t6.isArrowFunctionExpression(init2) || t6.isFunctionExpression(init2)) take(d3.id.name, returned(init2));
-        else if (t6.isCallExpression(init2)) {
-          const callee = init2.callee;
-          const name = t6.isIdentifier(callee) ? callee.name : t6.isMemberExpression(callee) && t6.isIdentifier(callee.object) && t6.isIdentifier(callee.property) ? `${callee.object.name}.${callee.property.name}` : "";
-          const arg = init2.arguments[0];
-          if ((name === "computed" || name === "$derived.by") && arg) take(d3.id.name, returned(arg));
-          else if (name === "$derived" && arg) take(d3.id.name, [arg]);
-        }
-      }
-    }
-    if (t6.isLabeledStatement(statement) && statement.label.name === "$" && t6.isExpressionStatement(statement.body)) {
-      const e2 = statement.body.expression;
-      if (t6.isAssignmentExpression(e2) && t6.isIdentifier(e2.left)) take(e2.left.name, [e2.right]);
-    }
-  }
-  return found2;
-}
-function exportedCopy(code2) {
-  const found2 = /* @__PURE__ */ new Map();
-  let ast;
-  try {
-    ast = (0, import_parser9.parse)(code2, { sourceType: "module", plugins: ["typescript", "jsx"], errorRecovery: true });
-  } catch {
-    return found2;
-  }
-  const unwrap2 = (n4) => t6.isTSAsExpression(n4) || t6.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
-  for (const statement of ast.program.body) {
-    if (!t6.isExportNamedDeclaration(statement) || !t6.isVariableDeclaration(statement.declaration)) continue;
-    for (const d3 of statement.declaration.declarations) {
-      if (!t6.isIdentifier(d3.id)) continue;
-      const init2 = unwrap2(d3.init);
-      let entry = null;
-      if (t6.isArrayExpression(init2) && init2.elements.length && init2.elements.every((e2) => t6.isObjectExpression(unwrap2(e2)))) {
-        const literals = init2.elements.flatMap((e2) => objectCopy(unwrap2(e2), 0));
-        if (literals.length) entry = { kind: "list", literals };
-      } else if (t6.isObjectExpression(init2)) {
-        const props = init2.properties;
-        const lookup = props.length > 1 && props.every((p) => t6.isObjectProperty(p) && !p.computed && t6.isStringLiteral(p.value)) && props.some((p) => new RegExp("\\s|^\\p{Lu}", "u").test(p.value.value.trim()));
-        if (lookup) {
-          const literals = props.flatMap((p) => {
-            const field = t6.isIdentifier(p.key) ? p.key.name : t6.isStringLiteral(p.key) ? p.key.value : null;
-            const v2 = p.value;
-            const text4 = copyText(v2);
-            return field && text4 ? [{ start: v2.start, end: v2.end, text: text4, field }] : [];
-          });
-          if (literals.length) entry = { kind: "lookup", literals };
-        } else {
-          const literals = objectCopy(init2, 0);
-          if (literals.length) entry = { kind: "object", literals };
-        }
-      }
-      if (entry) found2.set(d3.id.name, entry);
-    }
-  }
-  return found2;
-}
-function templateExpressions(template4, flavor) {
-  if (flavor === "svelte") return [...template4.matchAll(/\{([^{}]*)\}/g)].map((m2) => m2[1].trim());
-  return [
-    ...[...template4.matchAll(/\{\{([\s\S]*?)\}\}/g)].map((m2) => m2[1].trim()),
-    ...[...template4.matchAll(/(?:^|[\s(,])(?:[:@#]|v-)[\w:.\-[\]]*=(["'])([\s\S]*?)\1/gm)].map((m2) => m2[2].trim())
-  ];
-}
-function followCopy(template4, constants3, flavor) {
-  const usable = new Map(constants3);
-  const aliases = /* @__PURE__ */ new Map();
-  const expressions = templateExpressions(template4, flavor);
-  const mentions = (name) => new RegExp(`(?<![\\w$.])${escape(name)}(?![\\w$])`);
-  const onlyAs = (name, allowed) => expressions.filter((e2) => mentions(name).test(e2)).every(allowed);
-  const fieldsOf = (c) => new Set(c.literals.map((l2) => l2.field).filter(Boolean));
-  const fieldRead = (owner, fields) => (expr) => {
-    const m2 = new RegExp(`^${escape(owner)}\\.(\\w+)$`).exec(expr);
-    if (m2) return true;
-    const uses = [...expr.matchAll(new RegExp(`(?<![\\w$.])${escape(owner)}(?![\\w$])(\\.(\\w+))?`, "g"))];
-    return uses.every((u) => u[2] !== void 0 && !fields.has(u[2]));
-  };
-  for (const c of constants3.values()) {
-    let ok;
-    if (c.kind === "string") ok = onlyAs(c.name, (e2) => e2 === c.name);
-    else if (c.kind === "object") ok = onlyAs(c.name, (e2) => e2 === c.name || fieldRead(c.name, fieldsOf(c))(e2));
-    else {
-      const loop = flavor === "vue" ? new RegExp(`^\\(?\\s*([A-Za-z_$][\\w$]*)\\s*(?:,\\s*[\\w$]+\\s*)*\\)?\\s+(?:in|of)\\s+${escape(c.name)}$`) : new RegExp(`^#each\\s+${escape(c.name)}\\s+as\\s+([A-Za-z_$][\\w$]*)\\s*(?:,\\s*[\\w$]+\\s*)?(?:\\([^)]*\\))?$`);
-      const indexed = (e2) => [...e2.matchAll(new RegExp(`(?<![\\w$.])${escape(c.name)}(?![\\w$])(\\.length\\b|\\[[^\\]]+\\]\\.(\\w+))?`, "g"))].every(
-        (u) => u[1] !== void 0 && (u[2] === void 0 || !fieldsOf(c).has(u[2]) || new RegExp(`^${escape(c.name)}\\[[^\\]]+\\]\\.${u[2]}$`).test(e2))
-      );
-      const loops = expressions.filter((e2) => mentions(c.name).test(e2) && e2 !== c.name && !indexed(e2));
-      const names3 = loops.map((e2) => loop.exec(e2)?.[1]);
-      ok = names3.every(Boolean);
-      if (ok) ok = [...new Set(names3)].every((alias) => onlyAs(alias, (e2) => loop.test(e2) || fieldRead(alias, fieldsOf(c))(e2)));
-      if (ok) for (const alias of names3) aliases.set(alias, c.name);
-    }
-    if (!ok || !expressions.some((e2) => mentions(c.name).test(e2))) usable.delete(c.name);
-  }
-  return { usable, aliases };
-}
-function wholeCopy(source2, usable, tr) {
-  const c = usable.get(source2.trim());
-  if (!c || c.kind === "string") return null;
-  const fields = [...new Set(c.literals.map((l2) => l2.field))];
-  const expression = c.kind === "object" ? `{ ...${c.name}, ${fields.map((f2) => `${f2}: ${tr}(${c.name}.${f2})`).join(", ")} }` : `${c.name}.map((item) => ({ ...item, ${fields.map((f2) => `${f2}: item.${f2} && ${tr}(item.${f2})`).join(", ")} }))`;
-  return { literals: c.literals, expression };
-}
-function readOf(source2, usable, aliases) {
-  const s = source2.trim();
-  const direct = usable.get(s);
-  if (direct?.kind === "string") return direct.literals;
-  const at2 = /^([A-Za-z_$][\w$]*)\[[^\]]+\]\.(\w+)$/.exec(s);
-  if (at2) {
-    const list4 = usable.get(at2[1]);
-    const literals2 = list4?.kind === "list" ? list4.literals.filter((l2) => l2.field === at2[2]) : [];
-    return literals2.length ? literals2 : null;
-  }
-  const m2 = /^([A-Za-z_$][\w$]*)\.(\w+)$/.exec(s);
-  if (!m2) return null;
-  const owner = usable.get(m2[1]) ?? (aliases.has(m2[1]) ? usable.get(aliases.get(m2[1])) : void 0);
-  if (!owner || owner.kind === "string" || owner.kind === "object" && owner.name !== m2[1]) return null;
-  const literals = owner.literals.filter((l2) => l2.field === m2[2]);
-  return literals.length ? literals : null;
-}
-var import_parser9, import_traverse6, t6, traverse7, copyText, NO_ITEM, escape;
-var init_script_copy = __esm({
-  "src/formats/script-copy.ts"() {
-    "use strict";
-    import_parser9 = __toESM(require_lib(), 1);
-    import_traverse6 = __toESM(require_lib8(), 1);
-    t6 = __toESM(require_lib4(), 1);
-    init_filters();
-    init_scanner();
-    init_script2();
-    traverse7 = import_traverse6.default.default ?? import_traverse6.default;
-    copyText = (node2) => t6.isStringLiteral(node2) && isTranslatable(normalizeWhitespace(node2.value)) ? normalizeWhitespace(node2.value).trim() : null;
-    NO_ITEM = /* @__PURE__ */ new Set(["some", "every", "findIndex", "indexOf", "includes", "forEach", "length"]);
-    escape = (s) => s.replace(/[$]/g, "\\$");
   }
 });
 
@@ -215983,7 +216042,7 @@ var init_setup_frameworks = __esm({
     init_seo();
     toPosix = (p) => p.split(path8.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.33.3" : "0.6.0";
+    SELF_VERSION = true ? "0.33.4" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -219650,7 +219709,7 @@ var init_setup = __esm({
     NOT_SOURCE = ["**/node_modules/**", "**/*.d.ts", "**/{dist,build,out,coverage,.next,.react-router,.svelte-kit,.output,.astro,.vercel,.netlify}/**"];
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS2 = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.33.3" : "0.6.0";
+    SELF_VERSION2 = true ? "0.33.4" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
