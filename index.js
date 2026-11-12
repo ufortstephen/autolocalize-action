@@ -70818,7 +70818,7 @@ function decodeEntities(text4) {
     return ENTITIES[e2.toLowerCase()] ?? m2;
   });
 }
-var URL_REGEX, HEX_COLOR_REGEX, UUID_REGEX, PURE_SPEC_CHARS, CSS_UNIT_REGEX, EMAIL_REGEX, FILE_NAME_REGEX, FILE_PATH_REGEX, TECHNICAL_ID_REGEX, PLACEHOLDER_ONLY, VERSION_ONLY, PRICE_ONLY, withoutValues, PLAIN_UTILITIES, META_TEXT, ENTITIES;
+var URL_REGEX, HEX_COLOR_REGEX, UUID_REGEX, PURE_SPEC_CHARS, CSS_UNIT_REGEX, EMAIL_REGEX, FILE_NAME_REGEX, FILE_PATH_REGEX, TECHNICAL_ID_REGEX, PLACEHOLDER_ONLY, VERSION_ONLY, PRICE_ONLY, withoutValues, PRODUCT_NAMES, PLAIN_UTILITIES, META_TEXT, ENTITIES;
 var init_filters = __esm({
   "src/ast/filters.ts"() {
     "use strict";
@@ -70835,6 +70835,7 @@ var init_filters = __esm({
     VERSION_ONLY = /^v?\d+(?:\.\d+){1,3}(?:[-+][0-9A-Za-z.]+)?$/i;
     PRICE_ONLY = /^(?:(?:[A-Z]{1,3})?[$€£¥₹₦₩₱₺₴₫₪]\s*\{\w+\}|\{\w+\}\s*(?:[A-Z]{3}|[€£¥₹₦₩₱₺₴₫₪]))$/;
     withoutValues = (text4) => text4.replace(/\{\w+\}/g, "").replace(/&(?:#\w+|[A-Za-z]+\d*);/g, "");
+    PRODUCT_NAMES = ["GitHub", "GitLab", "Bitbucket", "Google", "Apple", "Microsoft", "Facebook", "Instagram", "LinkedIn", "YouTube", "Twitter", "TikTok", "Twitch", "Reddit", "Discord", "Slack", "Telegram", "WhatsApp", "Mastodon", "Bluesky", "Substack", "Patreon", "Dribbble", "Figma", "Notion", "Stripe", "PayPal", "Shopify", "Vercel", "Netlify", "Docker", "Dropbox", "Spotify", "Jira", "Trello", "npm"];
     PLAIN_UTILITIES = /* @__PURE__ */ new Set(["border", "flex", "grid", "block", "inline", "contents", "hidden", "table", "relative", "absolute", "fixed", "sticky", "static", "visible", "invisible", "rounded", "shadow", "ring", "outline", "truncate", "italic", "underline", "uppercase", "lowercase", "capitalize", "antialiased", "container", "transition", "transform", "grow", "shrink", "isolate", "blur", "grayscale", "invert", "sr-only", "group", "peer", "prose"]);
     META_TEXT = /^(description|(og|twitter):(title|description|site_name|image:alt))$/i;
     ENTITIES = {
@@ -71135,7 +71136,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   const directives = ast.program.directives;
   const directivesEnd = directives.length ? directives[directives.length - 1].end : null;
   const record = (path22, nodeType, text4, range, kind2, params = [], attributeName, plural, components) => {
-    const loc2 = path22.node.loc?.start ?? { line: 0, column: 0 };
+    const loc2 = range.end > range.start ? positionAt(range.start) : path22.node.loc?.start ?? { line: 0, column: 0 };
     if (!plural && (kind2 === "jsxChild" || kind2 === "attrValue" || kind2 === "expression" || kind2 === "trans")) {
       const versions = versionValues(text4, params.map((p) => p.name));
       if (versions) {
@@ -71171,6 +71172,12 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     });
     sites.set(id3, { id: id3, ...range, kind: kind2, params, hook, ...components ? { components } : {}, ...plural?.ordinal ? { ordinal: true } : {}, ...contextual ? { contextual } : {} });
     return id3;
+  };
+  const lineStarts = [0, ...[...code2.matchAll(/\n/g)].map((m2) => m2.index + 1)];
+  const positionAt = (offset2) => {
+    let line = 0;
+    while (line + 1 < lineStarts.length && lineStarts[line + 1] <= offset2) line++;
+    return { line: line + 1, column: offset2 - lineStarts[line] };
   };
   const markStateDefault = (id3) => {
     const s = extractedStrings.find((e2) => e2.id === id3);
@@ -71558,11 +71565,15 @@ function textless(node2) {
   if (!t2.isJSXElement(node2)) return false;
   return node2.children.every((c) => isBlankText(c) || t2.isJSXExpressionContainer(c) && t2.isJSXEmptyExpression(c.expression) || textless(c));
 }
+function edgeIcon(node2) {
+  if (textless(node2)) return true;
+  return t2.isJSXElement(node2) && t2.isJSXIdentifier(node2.openingElement.name) && node2.openingElement.name.name === "svg";
+}
 function withoutEdgeIcons(children) {
   let lo = 0;
   let hi = children.length;
-  while (lo < hi && (isBlankText(children[lo]) || textless(children[lo]))) lo++;
-  while (hi > lo && (isBlankText(children[hi - 1]) || textless(children[hi - 1]))) hi--;
+  while (lo < hi && (isBlankText(children[lo]) || edgeIcon(children[lo]))) lo++;
+  while (hi > lo && (isBlankText(children[hi - 1]) || edgeIcon(children[hi - 1]))) hi--;
   return lo === 0 && hi === children.length ? children : children.slice(lo, hi);
 }
 function isSimpleExpression(expr) {
@@ -71904,6 +71915,12 @@ function messageCall(call7) {
     const root = chainRoot(callee);
     if (SCHEMA_METHODS.has(callee.property.name) && t2.isIdentifier(root) && /^(z|yup|Yup|v|zod)$/.test(root.name)) {
       return { literals: strings2(call7.arguments), prose: false, schema: true };
+    }
+    if (callee.property.name === "addIssue" && t2.isObjectExpression(call7.arguments[0])) {
+      return { literals: strings2(call7.arguments.slice(0, 1)), prose: false, schema: true };
+    }
+    if (/^(refine|superRefine)$/.test(callee.property.name) && t2.isObjectExpression(call7.arguments[1])) {
+      return { literals: strings2(call7.arguments.slice(1, 2)), prose: false, schema: true };
     }
   }
   return null;
@@ -216397,7 +216414,7 @@ var init_setup_frameworks = __esm({
     init_seo();
     toPosix = (p) => p.split(path8.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.34.2" : "0.6.0";
+    SELF_VERSION = true ? "0.34.4" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -216726,7 +216743,7 @@ async function addNewLanguages(ctx) {
   }
 }
 function withLanguages(code2, all) {
-  for (const added of all.slice(1).filter((l2) => !isPseudoLocale(l2))) code2 = addLanguage(code2, all, added);
+  for (const added of all.slice(1)) code2 = addLanguage(code2, all, added);
   return code2;
 }
 function occurrences(code2, list4) {
@@ -216829,7 +216846,6 @@ var init_setup_languages = __esm({
   "src/setup-languages.ts"() {
     "use strict";
     import_fast_glob6 = __toESM(require_out4(), 1);
-    init_pseudo();
     init_setup_frameworks();
     init_languages2();
     SOURCES = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,astro,rb,py,php,swift,kt,dart,hbs,erb,html,xml}";
@@ -220098,7 +220114,7 @@ var init_setup = __esm({
     NOT_SOURCE = ["**/node_modules/**", "**/*.d.ts", "**/{dist,build,out,coverage,.next,.react-router,.svelte-kit,.output,.astro,.vercel,.netlify}/**"];
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS2 = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.34.2" : "0.6.0";
+    SELF_VERSION2 = true ? "0.34.4" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -221372,6 +221388,10 @@ async function scanProject(cwd, config, log) {
       }
       continue;
     }
+    if (isEmailTemplate(code2)) {
+      warnings2.push({ filePath: file2, loc: { line: 1, column: 0 }, text: "(email template)", reason: "an email template, rendered to HTML where hooks can't run: pass the recipient's language and translate with i18n.getFixedT(lang)", deliberate: true });
+      continue;
+    }
     const side = sideOf?.(file2) ?? "none";
     const server = side === "server";
     const makeClient = side === "shared" && !USE_CLIENT2.test(code2) && canBeClientModule(code2);
@@ -221454,9 +221474,16 @@ async function scanProject(cwd, config, log) {
     take(description?.[1], "document.description", "meta description", description?.index ?? 0);
     if (strings2.length) scanned.push({ file: shell, code: code2, strings: strings2, server: false, keep: true });
   }
-  const kept = keptAsWritten(config.doNotTranslate);
-  if (kept) for (const s of scanned) s.strings = s.strings.filter((str2) => !kept(str2.originalText));
-  return { filesScanned: files.length, scanned: kept ? scanned.filter((s) => s.strings.length) : scanned, warnings: warnings2 };
+  const kept = keptAsWritten([...PRODUCT_NAMES, ...config.doNotTranslate ?? []]);
+  const emptied = /* @__PURE__ */ new Set();
+  if (kept) {
+    for (const s of scanned) {
+      const before2 = s.strings.length;
+      s.strings = s.strings.filter((str2) => !kept(str2.originalText));
+      if (before2 && !s.strings.length) emptied.add(s);
+    }
+  }
+  return { filesScanned: files.length, scanned: scanned.filter((s) => !emptied.has(s)), warnings: warnings2 };
 }
 async function pool(items, limit, fn2) {
   let next2 = 0;
@@ -221759,7 +221786,10 @@ ${result.code}`;
       setup.notes.push(`Locale files now merge key by key: run this once per clone (and in CI before merging) so git uses it: ${MERGE_DRIVER_SETUP}`);
     }
   }
-  const allFiles = mergeFiles(files, setup.files);
+  const allFiles = mergeFiles(files, setup.files).filter((f2) => {
+    const abs = path17.join(cwd, f2.path);
+    return !fs17.existsSync(abs) || fs17.readFileSync(abs, "utf8") !== f2.content;
+  });
   if (opts.write) {
     for (const f2 of allFiles) {
       const abs = path17.join(cwd, f2.path);
@@ -221882,7 +221912,7 @@ async function refreshOutdated(o) {
     vuePlurals: vuePluralsIn2(o.cwd, o.config.interpolation)
   });
 }
-var import_fast_glob13, USE_CLIENT2, duration, toPosix3, BATCH_SIZE, CONCURRENCY;
+var import_fast_glob13, USE_CLIENT2, duration, toPosix3, BATCH_SIZE, CONCURRENCY, EMAIL_LIBRARIES, isEmailTemplate;
 var init_pipeline = __esm({
   "src/pipeline.ts"() {
     "use strict";
@@ -221915,6 +221945,8 @@ var init_pipeline = __esm({
     toPosix3 = (p) => p.split(path17.sep).join("/");
     BATCH_SIZE = 10;
     CONCURRENCY = 2;
+    EMAIL_LIBRARIES = /^(?:react-email|@react-email\/|jsx-email|mjml-react|@faire\/mjml-react)/;
+    isEmailTemplate = (code2) => importSpecifiers(code2).some((s) => EMAIL_LIBRARIES.test(s));
   }
 });
 
@@ -222469,6 +222501,7 @@ var CloudClient = class {
   }
   async translate(req) {
     const res = await this.request("POST", "/api/v1/translate", req);
+    if (res.notice?.message) this.opts.onNotice?.(res.notice);
     return res.key_mappings;
   }
   /** `project`: the dashboard project the run was filed under; null when the repository isn't connected to the GitHub App. */
