@@ -43055,7 +43055,7 @@ var require_generated = __commonJS({
     exports.isUpdateExpression = isUpdateExpression;
     exports.isUserWhitespacable = isUserWhitespacable;
     exports.isV8IntrinsicIdentifier = isV8IntrinsicIdentifier;
-    exports.isVariableDeclaration = isVariableDeclaration5;
+    exports.isVariableDeclaration = isVariableDeclaration6;
     exports.isVariableDeclarator = isVariableDeclarator;
     exports.isVariance = isVariance;
     exports.isVoidPattern = isVoidPattern;
@@ -43301,7 +43301,7 @@ var require_generated = __commonJS({
       if (node2.type !== "UpdateExpression") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
     }
-    function isVariableDeclaration5(node2, opts) {
+    function isVariableDeclaration6(node2, opts) {
       if (!node2) return false;
       if (node2.type !== "VariableDeclaration") return false;
       return opts == null || (0, _shallowEqual.default)(node2, opts);
@@ -55859,9 +55859,9 @@ var require_isNodesEquivalent = __commonJS({
     Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports.default = isNodesEquivalent;
+    exports.default = isNodesEquivalent2;
     var _index = require_definitions();
-    function isNodesEquivalent(a, b4) {
+    function isNodesEquivalent2(a, b4) {
       if (typeof a !== "object" || typeof b4 !== "object" || a == null || b4 == null) {
         return a === b4;
       }
@@ -55889,7 +55889,7 @@ var require_isNodesEquivalent = __commonJS({
             return false;
           }
           for (let i3 = 0; i3 < val_a.length; i3++) {
-            if (!isNodesEquivalent(val_a[i3], val_b[i3])) {
+            if (!isNodesEquivalent2(val_a[i3], val_b[i3])) {
               return false;
             }
           }
@@ -55903,7 +55903,7 @@ var require_isNodesEquivalent = __commonJS({
           }
           continue;
         }
-        if (!isNodesEquivalent(val_a, val_b)) {
+        if (!isNodesEquivalent2(val_a, val_b)) {
           return false;
         }
       }
@@ -56801,7 +56801,7 @@ var require_virtual_types_validator = __commonJS({
       isScope: nodeIsScope,
       isStatement: nodeIsStatement,
       isVar: nodeIsVar,
-      isVariableDeclaration: isVariableDeclaration5,
+      isVariableDeclaration: isVariableDeclaration6,
       react,
       isForOfStatement
     } = _t;
@@ -56843,7 +56843,7 @@ var require_virtual_types_validator = __commonJS({
         parent
       } = this;
       if (nodeIsStatement(node2)) {
-        if (isVariableDeclaration5(node2)) {
+        if (isVariableDeclaration6(node2)) {
           if (isForXStatement(parent, {
             left: node2
           })) return false;
@@ -57636,7 +57636,7 @@ var require_scope = __commonJS({
       isTemplateLiteral: isTemplateLiteral3,
       isThisExpression: isThisExpression3,
       isUnaryExpression,
-      isVariableDeclaration: isVariableDeclaration5,
+      isVariableDeclaration: isVariableDeclaration6,
       expressionStatement: expressionStatement2,
       matchesPattern,
       memberExpression,
@@ -57836,7 +57836,7 @@ var require_scope = __commonJS({
             if (!id3) return;
             const binding2 = scope.getBinding(id3.name);
             binding2 == null || binding2.reference(path22);
-          } else if (isVariableDeclaration5(declar)) {
+          } else if (isVariableDeclaration6(declar)) {
             for (const decl of declar.declarations) {
               for (const name of Object.keys(getBindingIdentifiers(decl))) {
                 const binding2 = scope.getBinding(name);
@@ -60385,14 +60385,14 @@ var require_buffer = __commonJS({
         } else {
           this._str += repeat > 1 ? String.fromCharCode(char).repeat(repeat) : String.fromCharCode(char);
         }
-        const isSpace2 = char === 32;
+        const isSpace3 = char === 32;
         const position2 = this._position;
         if (char !== 10) {
           if (this._map) {
             const sourcePos = this._sourcePosition;
             if (useSourcePos && sourcePos) {
-              this._map.mark(position2, sourcePos.line, sourcePos.column, isSpace2 ? void 0 : sourcePos.identifierName, isSpace2 ? void 0 : sourcePos.identifierNamePos, sourcePos.filename);
-              if (!isSpace2 && this._canMarkIdName) {
+              this._map.mark(position2, sourcePos.line, sourcePos.column, isSpace3 ? void 0 : sourcePos.identifierName, isSpace3 ? void 0 : sourcePos.identifierNamePos, sourcePos.filename);
+              if (!isSpace3 && this._canMarkIdName) {
                 sourcePos.identifierName = void 0;
                 sourcePos.identifierNamePos = void 0;
               }
@@ -67253,7 +67253,7 @@ var require_replacement = __commonJS({
       isIfStatement,
       isProgram: isProgram2,
       isStatement,
-      isVariableDeclaration: isVariableDeclaration5,
+      isVariableDeclaration: isVariableDeclaration6,
       removeComments,
       returnStatement,
       sequenceExpression,
@@ -67422,7 +67422,7 @@ var require_replacement = __commonJS({
           exprs.push(node2);
         } else if (isExpressionStatement3(node2)) {
           exprs.push(node2.expression);
-        } else if (isVariableDeclaration5(node2)) {
+        } else if (isVariableDeclaration6(node2)) {
           if (node2.kind !== "var") return;
           for (const declar of node2.declarations) {
             const bindings = getBindingIdentifiers(declar);
@@ -70860,15 +70860,258 @@ var init_filters = __esm({
   }
 });
 
+// src/ast/locale-formats.ts
+function currencyAtEnd(text4, fallback = "USD") {
+  const m2 = SYMBOL_AT_END.exec(text4);
+  if (!m2 || /[\p{L}\p{N}]/u.test(text4[m2.index - 1] ?? "")) return null;
+  return { symbol: m2[1], currency: CURRENCY[m2[1]] ?? fallback };
+}
+function currencyFormat(lang, currency, amount) {
+  const fixed = /^([\s\S]+?)\.toFixed\(\s*([^()]*?)\s*\)$/.exec(amount.trim());
+  const digits = fixed ? fixed[2] || "0" : null;
+  const options = `style: 'currency', currency: '${currency}'${digits === null ? "" : `, minimumFractionDigits: ${digits}, maximumFractionDigits: ${digits}`}`;
+  return `\`\\u2066\${new Intl.NumberFormat(${lang}, { ${options} }).format(${fixed ? fixed[1] : amount.trim()})}\\u2069\``;
+}
+function dateOptions(pattern, flavor) {
+  const styles = flavor === "date-fns" ? { P: "dateStyle: 'short'", PP: "dateStyle: 'medium'", PPP: "dateStyle: 'long'", PPPP: "dateStyle: 'full'", p: "timeStyle: 'short'", pp: "timeStyle: 'medium'", PPp: "dateStyle: 'medium', timeStyle: 'short'", PPPp: "dateStyle: 'long', timeStyle: 'short'" } : { L: "dateStyle: 'short'", LL: "dateStyle: 'long'", LLL: "dateStyle: 'long', timeStyle: 'short'", LLLL: "dateStyle: 'full', timeStyle: 'short'", LT: "timeStyle: 'short'", LTS: "timeStyle: 'medium'" };
+  if (styles[pattern.trim()]) return `{ ${styles[pattern.trim()]} }`;
+  if (/['[]/.test(pattern) || /^[yY]+-M+-[dD]+$/.test(pattern.trim())) return null;
+  const tokens2 = pattern.match(/([A-Za-z])\1*/g) ?? [];
+  const opts = [];
+  const set3 = (k, v2) => !opts.some((o) => o.startsWith(`${k}:`)) && opts.push(`${k}: ${v2}`);
+  for (const tok of tokens2) {
+    const c = tok[0];
+    const n4 = tok.length;
+    const year = flavor === "date-fns" ? "y" : "Y";
+    const day = flavor === "date-fns" ? "d" : "D";
+    const weekday = flavor === "date-fns" ? "E" : "d";
+    if (c === year) set3("year", n4 === 2 ? "'2-digit'" : "'numeric'");
+    else if (c === "M") set3("month", n4 >= 4 ? "'long'" : n4 === 3 ? "'short'" : n4 === 2 ? "'2-digit'" : "'numeric'");
+    else if (c === day && !(flavor === "dayjs" && n4 >= 3)) set3("day", n4 === 2 ? "'2-digit'" : "'numeric'");
+    else if (c === weekday && (flavor === "date-fns" || n4 >= 3)) set3("weekday", n4 >= 4 ? "'long'" : "'short'");
+    else if (c === "H") set3("hour", n4 === 2 ? "'2-digit'" : "'numeric'"), set3("hourCycle", "'h23'");
+    else if (c === "h") set3("hour", n4 === 2 ? "'2-digit'" : "'numeric'"), set3("hour12", "true");
+    else if (c === "m") set3("minute", "'2-digit'");
+    else if (c === "s") set3("second", "'2-digit'");
+    else if (c === "a" || c === "A") set3("hour12", "true");
+    else return null;
+  }
+  return opts.length ? `{ ${opts.join(", ")} }` : null;
+}
+function handBuiltList(node2, code2) {
+  const { quasis, expressions } = node2;
+  if (expressions.length !== 2 || quasis[0].value.cooked !== "" || quasis[2].value.cooked !== "") return null;
+  const word = /^,?\s+(and|or)\s+$/.exec(quasis[1].value.cooked ?? "")?.[1];
+  if (!word) return null;
+  const [head, last] = expressions;
+  if (!t.isCallExpression(head) || !t.isMemberExpression(head.callee) || !t.isIdentifier(head.callee.property, { name: "join" }) || !t.isCallExpression(head.callee.object) || !t.isMemberExpression(head.callee.object.callee) || !t.isIdentifier(head.callee.object.callee.property, { name: "slice" })) {
+    return null;
+  }
+  const items = head.callee.object.callee.object;
+  const source2 = code2.slice(items.start, items.end);
+  const lastSource = code2.slice(last.start, last.end).replace(/\s+/g, "");
+  const plain = source2.replace(/\s+/g, "");
+  if (lastSource !== `${plain}[${plain}.length-1]` && lastSource !== `${plain}.at(-1)`) return null;
+  return { items: source2, type: word === "and" ? "conjunction" : "disjunction" };
+}
+function localizeFormats(code2, filePath, opts) {
+  const currencyOf = (symbol) => CURRENCY[symbol] ?? (symbol === "$" ? opts.currency ?? "USD" : void 0);
+  let ast;
+  try {
+    ast = (0, import_parser.parse)(code2, { sourceType: "module", plugins: ["typescript", "jsx"], errorRecovery: true });
+  } catch {
+    return { code: code2, changes: [], warnings: [] };
+  }
+  const s = new MagicString(code2);
+  const changes = [];
+  const warnings2 = [];
+  const lineOf2 = (n4) => n4.loc?.start.line ?? 0;
+  const replace = (node2, after) => {
+    changes.push({ line: lineOf2(node2), before: code2.slice(node2.start, node2.end), after });
+    s.overwrite(node2.start, node2.end, after);
+  };
+  const isLocaleLiteral = (n4) => !!n4 && (t.isStringLiteral(n4) && /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(n4.value) || t.isArrayExpression(n4) && n4.elements.length > 0 && n4.elements.every((e2) => !!e2 && isLocaleLiteral(e2)));
+  const isDefaultLocale = (n4) => !n4 || t.isIdentifier(n4) && n4.name === "undefined";
+  const dateFns = /* @__PURE__ */ new Map();
+  const dateLibs = /* @__PURE__ */ new Set();
+  for (const node2 of ast.program.body) {
+    if (!t.isImportDeclaration(node2)) continue;
+    const from = node2.source.value;
+    for (const spec2 of node2.specifiers) {
+      if (/^date-fns(\/|$)/.test(from) && t.isImportSpecifier(spec2)) dateFns.set(spec2.local.name, t.isIdentifier(spec2.imported) ? spec2.imported.name : spec2.imported.value);
+      if (/^date-fns\/(format|formatDistance\w*|formatRelative)$/.test(from) && t.isImportDefaultSpecifier(spec2)) dateFns.set(spec2.local.name, from.split("/")[1]);
+      if ((from === "dayjs" || from === "moment") && (t.isImportDefaultSpecifier(spec2) || t.isImportNamespaceSpecifier(spec2))) dateLibs.add(spec2.local.name);
+    }
+  }
+  traverse(ast, {
+    CallExpression(path22) {
+      const callee = path22.node.callee;
+      const [first, second] = path22.node.arguments;
+      if (t.isIdentifier(callee) && dateFns.has(callee.name) && dateFns.get(callee.name) === "format" && first && t.isStringLiteral(second)) {
+        const options = dateOptions(second.value, "date-fns");
+        if (options) {
+          replace(path22.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(first.start, first.end)})`);
+          return;
+        }
+      }
+      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property, { name: "format" }) && t.isCallExpression(callee.object) && t.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name) && t.isStringLiteral(first)) {
+        const options = dateOptions(first.value, "dayjs");
+        if (options) {
+          replace(path22.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(callee.object.start, callee.object.end)}.toDate())`);
+          return;
+        }
+      }
+      const relative3 = t.isIdentifier(callee) && ["formatDistance", "formatDistanceToNow", "formatDistanceStrict", "formatRelative"].includes(dateFns.get(callee.name) ?? "") || t.isMemberExpression(callee) && t.isIdentifier(callee.property) && ["fromNow", "toNow", "from", "to", "calendar"].includes(callee.property.name) && t.isCallExpression(callee.object) && t.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name);
+      if (relative3) {
+        const at2 = path22.node.loc?.start ?? { line: 0, column: 0 };
+        warnings2.push({ filePath, loc: { line: at2.line, column: at2.column }, text: code2.slice(path22.node.start, path22.node.end), reason: "relative time from a date library stays English: use Intl.RelativeTimeFormat with the app language" });
+      }
+      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property, { name: "localeCompare" }) && path22.node.arguments.length === 1) {
+        changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: "(compared in the app language)" });
+        s.appendLeft(path22.node.arguments[0].end, `, ${opts.lang}`);
+        return;
+      }
+      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property) && (callee.property.name === "toUpperCase" || callee.property.name === "toLowerCase") && !path22.node.arguments.length && (path22.parentPath.isJSXExpressionContainer() || t.isCallExpression(callee.object) && t.isIdentifier(callee.object.callee, { name: "t" }))) {
+        const name = callee.property.name === "toUpperCase" ? "toLocaleUpperCase" : "toLocaleLowerCase";
+        changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: `(${name} in the app language)` });
+        s.overwrite(callee.property.start, path22.node.end, `${name}(${opts.lang})`);
+        return;
+      }
+      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property, { name: "join" }) && path22.node.arguments.length === 1 && t.isStringLiteral(path22.node.arguments[0]) && /^,\s?$/.test(path22.node.arguments[0].value) && path22.parentPath.isJSXExpressionContainer() && path22.parentPath.parentPath?.isJSXElement()) {
+        replace(path22.node, `new Intl.ListFormat(${opts.lang}, { style: 'short', type: 'unit' }).format(Array.from(${code2.slice(callee.object.start, callee.object.end)}, String))`);
+        return;
+      }
+      if (!t.isMemberExpression(callee) || !t.isIdentifier(callee.property) || !TO_LOCALE.has(callee.property.name)) return;
+      const [locale] = path22.node.arguments;
+      if (isLocaleLiteral(locale)) replace(locale, opts.lang);
+      else if (isDefaultLocale(locale)) {
+        if (locale) replace(locale, opts.lang);
+        else {
+          const open3 = code2.indexOf("(", callee.end);
+          changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: `${code2.slice(path22.node.start, open3 + 1)}${opts.lang}${code2.slice(open3 + 1, path22.node.end)}` });
+          s.appendLeft(open3 + 1, opts.lang);
+        }
+      }
+    },
+    NewExpression(path22) {
+      const callee = path22.node.callee;
+      const intl = t.isMemberExpression(callee) && t.isIdentifier(callee.object, { name: "Intl" }) && t.isIdentifier(callee.property) && INTL.has(callee.property.name);
+      if (!intl) return;
+      const [locale] = path22.node.arguments;
+      if (isLocaleLiteral(locale)) replace(locale, opts.lang);
+      else if (isDefaultLocale(locale) && locale) replace(locale, opts.lang);
+      else if (!locale) {
+        const open3 = code2.indexOf("(", callee.end);
+        if (open3 !== -1 && open3 < path22.node.end) s.appendLeft(open3 + 1, opts.lang), changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: "(app language)" });
+      }
+    },
+    TemplateLiteral(path22) {
+      const { quasis, expressions } = path22.node;
+      const list4 = handBuiltList(path22.node, code2);
+      if (list4) {
+        replace(path22.node, `new Intl.ListFormat(${opts.lang}, { type: '${list4.type}' }).format(${list4.items})`);
+        return;
+      }
+      if (expressions.length !== 1 || quasis[1].value.cooked !== "") return;
+      if (inUrlAttribute(path22)) return;
+      const symbol = quasis[0].value.cooked ?? "";
+      const currency = currencyOf(symbol);
+      if (!currency) return;
+      const amount = expressions[0];
+      replace(path22.node, currencyFormat(opts.lang, currency, code2.slice(amount.start, amount.end)));
+    },
+    JSXElement(path22) {
+      const kids = path22.node.children;
+      for (let i3 = 0; i3 < kids.length - 1; i3++) {
+        const text4 = kids[i3];
+        const value = kids[i3 + 1];
+        if (!t.isJSXText(text4) || !t.isJSXExpressionContainer(value) || t.isJSXEmptyExpression(value.expression)) continue;
+        const m2 = SYMBOL_AT_END.exec(text4.value);
+        const currency = m2 ? currencyOf(m2[1]) : void 0;
+        if (!m2 || !currency) continue;
+        const amount = code2.slice(value.expression.start, value.expression.end);
+        const symbolStart = text4.end - m2[1].length;
+        changes.push({ line: lineOf2(value), before: `${m2[1]}{${amount}}`, after: `{new Intl.NumberFormat(\u2026)}` });
+        s.remove(symbolStart, text4.end);
+        s.overwrite(value.start, value.end, `{${currencyFormat(opts.lang, currency, amount)}}`);
+      }
+    }
+  });
+  const root = opts.lang.split(".")[0];
+  const unbound = !ast.program.body.some((n4) => t.isImportDeclaration(n4) && n4.specifiers.some((sp) => sp.local.name === root) || t.isVariableDeclaration(n4) && n4.declarations.some((d3) => t.isIdentifier(d3.id, { name: root })));
+  const used = unbound && code2.includes(`(${opts.lang},`);
+  if (!changes.length && !used) return { code: code2, changes, warnings: warnings2 };
+  if (unbound && !code2.includes(opts.importLine)) {
+    const imports2 = ast.program.body.filter((n4) => t.isImportDeclaration(n4));
+    const last = imports2[imports2.length - 1];
+    if (last) s.appendLeft(last.end, `
+${opts.importLine}`);
+    else {
+      const directives = ast.program.directives;
+      const at2 = directives.length ? directives[directives.length - 1].end : 0;
+      if (at2) s.appendLeft(at2, `
+${opts.importLine}`);
+      else s.prepend(`${opts.importLine}
+`);
+    }
+  }
+  return { code: s.toString(), changes, warnings: warnings2.map((w4) => ({ ...w4, filePath })) };
+}
+var import_parser, import_traverse, t, traverse, TO_LOCALE, INTL, CURRENCY, SYMBOL_AT_END, URL_ATTRIBUTES, inUrlAttribute;
+var init_locale_formats = __esm({
+  "src/ast/locale-formats.ts"() {
+    "use strict";
+    import_parser = __toESM(require_lib(), 1);
+    import_traverse = __toESM(require_lib8(), 1);
+    t = __toESM(require_lib4(), 1);
+    init_dist();
+    traverse = import_traverse.default.default ?? import_traverse.default;
+    TO_LOCALE = /* @__PURE__ */ new Set(["toLocaleDateString", "toLocaleTimeString", "toLocaleString"]);
+    INTL = /* @__PURE__ */ new Set(["DateTimeFormat", "NumberFormat", "RelativeTimeFormat", "ListFormat", "PluralRules", "DisplayNames", "Collator", "Segmenter"]);
+    CURRENCY = {
+      US$: "USD",
+      CA$: "CAD",
+      C$: "CAD",
+      AU$: "AUD",
+      A$: "AUD",
+      NZ$: "NZD",
+      MX$: "MXN",
+      HK$: "HKD",
+      S$: "SGD",
+      R$: "BRL",
+      "\u20AC": "EUR",
+      "\xA3": "GBP",
+      "\xA5": "JPY",
+      "\u20B9": "INR",
+      "\u20A6": "NGN",
+      "\u20A9": "KRW",
+      "\u20B1": "PHP",
+      "\u20BA": "TRY",
+      "\u20B4": "UAH",
+      "\u20AB": "VND",
+      "\u20AA": "ILS"
+    };
+    SYMBOL_AT_END = new RegExp(`(${[...Object.keys(CURRENCY), "$"].sort((a, b4) => b4.length - a.length).map((k) => k.replace(/\$/g, "\\$")).join("|")})$`);
+    URL_ATTRIBUTES = /* @__PURE__ */ new Set(["href", "src", "srcset", "action", "formaction", "poster", "data", "cite", "background", "ping", "to", "url"]);
+    inUrlAttribute = (path22) => {
+      const attr2 = path22.findParent((p) => p.isJSXAttribute());
+      if (!attr2 || !attr2.isJSXAttribute()) return false;
+      const name = attr2.node.name;
+      return URL_ATTRIBUTES.has((t.isJSXIdentifier(name) ? name.name : name.name.name).toLowerCase());
+    };
+  }
+});
+
 // src/ast/scanner.ts
 function parseCode(code2) {
-  return (0, import_parser.parse)(code2, {
+  return (0, import_parser2.parse)(code2, {
     sourceType: "module",
     plugins: ["jsx", "typescript", "decorators-legacy"]
   });
 }
 function parseAndScanComponent(code2, filePath, options = {}) {
   sourceLanguage = (options.sourceLocale ?? "en").toLowerCase().split(/[-_]/)[0];
+  money = options.money ?? null;
   const ast = parseCode(code2);
   const attributes2 = new Set(options.attributes ?? DEFAULT_ATTRIBUTES);
   const extractedStrings = [];
@@ -70880,14 +71123,14 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   let lastImportEnd = null;
   const fromPackages = /* @__PURE__ */ new Set();
   for (const node2 of ast.program.body) {
-    if (!t.isImportDeclaration(node2)) continue;
+    if (!t2.isImportDeclaration(node2)) continue;
     lastImportEnd = node2.end;
     if (!/^(\.|@\/|~\/|#)/.test(node2.source.value)) for (const sp of node2.specifiers) fromPackages.add(sp.local.name);
-    if (node2.specifiers.some((s) => t.isImportSpecifier(s) && s.local.name === "useTranslation")) {
+    if (node2.specifiers.some((s) => t2.isImportSpecifier(s) && s.local.name === "useTranslation")) {
       hasUseTranslation = true;
     }
-    if (node2.specifiers.some((s) => t.isImportSpecifier(s) && s.local.name === "Trans")) hasTrans = true;
-    if (node2.specifiers.some((s) => t.isImportSpecifier(s) && s.local.name === "getTranslation")) hasGetTranslation = true;
+    if (node2.specifiers.some((s) => t2.isImportSpecifier(s) && s.local.name === "Trans")) hasTrans = true;
+    if (node2.specifiers.some((s) => t2.isImportSpecifier(s) && s.local.name === "getTranslation")) hasGetTranslation = true;
   }
   const directives = ast.program.directives;
   const directivesEnd = directives.length ? directives[directives.length - 1].end : null;
@@ -70945,7 +71188,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     if (!merged || !isTranslatable(merged.text) || isIgnored(path22, true)) return;
     const first = children.find((c) => !isBlankText(c));
     const firstPath = path22.get("children").find((c) => c.node === first);
-    for (const c of path22.node.children) if (t.isJSXText(c)) consumed.add(c);
+    for (const c of path22.node.children) if (t2.isJSXText(c)) consumed.add(c);
     for (const n4 of merged.consumed) consumed.add(n4);
     for (const sub of merged.subs) {
       const id3 = record(firstPath, "TemplateLiteral", sub.plural.other, { start: 0, end: 0 }, "pluralPart", [{ name: "count", source: sub.param.source }], void 0, sub.plural);
@@ -71050,22 +71293,22 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     );
   }
   const renderedImports = [];
-  traverse(ast, {
+  traverse2(ast, {
     CallExpression(path22) {
       const callee = path22.node.callee;
-      if (!t.isIdentifier(callee) || expressionSlot(path22, attributes2) === null) return;
+      if (!t2.isIdentifier(callee) || expressionSlot(path22, attributes2) === null) return;
       const at2 = path22.scope.getBinding(callee.name)?.path;
       if (!at2?.isImportSpecifier() || !at2.parentPath.isImportDeclaration()) return;
       const source2 = at2.parentPath.node.source.value;
       const imported = at2.node.imported;
-      if (/^(\.|@\/|~\/|#)/.test(source2)) renderedImports.push({ specifier: source2, name: t.isIdentifier(imported) ? imported.name : imported.value });
+      if (/^(\.|@\/|~\/|#)/.test(source2)) renderedImports.push({ specifier: source2, name: t2.isIdentifier(imported) ? imported.name : imported.value });
     }
   });
-  traverse(ast, {
+  traverse2(ast, {
     JSXElement: visitChildren,
     JSXFragment: visitChildren,
     JSXText(path22) {
-      if (!t.isJSXElement(path22.parent) && !t.isJSXFragment(path22.parent)) return;
+      if (!t2.isJSXElement(path22.parent) && !t2.isJSXFragment(path22.parent)) return;
       if (consumed.has(path22.node)) return;
       if (isIgnored(path22)) return;
       const { start: start2, end: end2 } = path22.node;
@@ -71074,16 +71317,21 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       const trimmed = raw.trim();
       const text4 = normalizeWhitespace(decodeEntities(trimmed));
       if (!isTranslatable(text4)) return;
+      if (new RegExp("^\\p{L}$", "u").test(text4)) {
+        const siblings = path22.parent.children;
+        const i3 = siblings.indexOf(path22.node);
+        if (/^\S/.test(raw) && t2.isJSXExpressionContainer(siblings[i3 - 1]) || /\S$/.test(raw) && t2.isJSXExpressionContainer(siblings[i3 + 1])) return;
+      }
       record(path22, "JSXText", text4, { start: start2 + lead, end: start2 + lead + trimmed.length }, "jsxChild");
     },
     JSXAttribute(path22) {
       const name = attributeNameOf(path22.node);
       const value = path22.node.value;
-      const copyProp = !attributes2.has(name) && t.isStringLiteral(value) && componentCopyProp(path22, name) && new RegExp("\\p{L}", "u").test(value.value) && (/\s/.test(value.value.trim()) || new RegExp("^\\p{Lu}", "u").test(value.value.trim()));
+      const copyProp = !attributes2.has(name) && t2.isStringLiteral(value) && componentCopyProp(path22, name) && new RegExp("\\p{L}", "u").test(value.value) && (/\s/.test(value.value.trim()) || new RegExp("^\\p{Lu}", "u").test(value.value.trim()));
       const opening = path22.parentPath;
-      const metaText = name === "content" && opening?.isJSXOpeningElement() && t.isJSXIdentifier(opening.node.name, { name: "meta" }) && metaHoldsText(opening.node.attributes.flatMap((a) => t.isJSXAttribute(a) && t.isStringLiteral(a.value) ? [{ name: attributeNameOf(a), value: a.value.value }] : []));
+      const metaText = name === "content" && opening?.isJSXOpeningElement() && t2.isJSXIdentifier(opening.node.name, { name: "meta" }) && metaHoldsText(opening.node.attributes.flatMap((a) => t2.isJSXAttribute(a) && t2.isStringLiteral(a.value) ? [{ name: attributeNameOf(a), value: a.value.value }] : []));
       if (!attributes2.has(name) && !copyProp && !metaText) return;
-      if (!t.isStringLiteral(value)) return;
+      if (!t2.isStringLiteral(value)) return;
       if (isIgnored(path22)) return;
       const text4 = normalizeWhitespace(value.value);
       if (!isTranslatable(text4)) return;
@@ -71092,7 +71340,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     // gender === 'female' ? 'She liked your post' : 'He liked your post': one message with a
     // variant per gender (i18next context), so every language can word each one.
     ConditionalExpression(path22) {
-      if (t.isConditionalExpression(path22.parent) && path22.parent.alternate === path22.node) return;
+      if (t2.isConditionalExpression(path22.parent) && path22.parent.alternate === path22.node) return;
       const select = genderSelect(path22.node, code2);
       if (!select || !expressionSlot(path22, attributes2) || isIgnored(path22)) return;
       const texts = select.branches.map((b4) => normalizeWhitespace(b4.literal.value));
@@ -71116,23 +71364,23 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     },
     // 'Hello ' + name + ', welcome' in JSX: one message, `Hello {name}, welcome`.
     BinaryExpression(path22) {
-      if (path22.node.operator !== "+" || t.isBinaryExpression(path22.parent) && path22.parent.operator === "+") return;
+      if (path22.node.operator !== "+" || t2.isBinaryExpression(path22.parent) && path22.parent.operator === "+") return;
       const slot = expressionSlot(path22, attributes2);
       if (!slot || isIgnored(path22)) return;
       const parts = [];
       const flatten2 = (n4) => {
-        if (t.isBinaryExpression(n4) && n4.operator === "+") {
+        if (t2.isBinaryExpression(n4) && n4.operator === "+") {
           flatten2(n4.left);
           flatten2(n4.right);
         } else parts.push(n4);
       };
       flatten2(path22.node);
-      if (!parts.some((p) => t.isStringLiteral(p) && new RegExp("\\p{L}", "u").test(p.value))) return;
+      if (!parts.some((p) => t2.isStringLiteral(p) && new RegExp("\\p{L}", "u").test(p.value))) return;
       const params = [];
       let text4 = "";
       for (const part of parts) {
-        if (t.isStringLiteral(part)) text4 += part.value;
-        else if (t.isTemplateLiteral(part) && !part.expressions.length) text4 += part.quasis[0].value.cooked ?? "";
+        if (t2.isStringLiteral(part)) text4 += part.value;
+        else if (t2.isTemplateLiteral(part) && !part.expressions.length) text4 += part.quasis[0].value.cooked ?? "";
         else {
           const source2 = code2.slice(part.start, part.end);
           let param = params.find((p) => p.source === source2);
@@ -71151,14 +71399,14 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     // document.title = 'Settings · Acme Tasks' (or a template literal with values).
     AssignmentExpression(path22) {
       const { left, right } = path22.node;
-      if (!t.isMemberExpression(left) || !t.isIdentifier(left.object, { name: "document" }) || !t.isIdentifier(left.property, { name: "title" }) || isIgnored(path22)) return;
+      if (!t2.isMemberExpression(left) || !t2.isIdentifier(left.object, { name: "document" }) || !t2.isIdentifier(left.property, { name: "title" }) || isIgnored(path22)) return;
       const value = path22.get("right");
-      if (t.isStringLiteral(right)) {
+      if (t2.isStringLiteral(right)) {
         const text4 = normalizeWhitespace(right.value);
         if (!isTranslatable(text4)) return;
         consumed.add(right);
         record(value, "StringLiteral", text4, { start: right.start, end: right.end }, "expression");
-      } else if (t.isTemplateLiteral(right)) {
+      } else if (t2.isTemplateLiteral(right)) {
         const params = [];
         let text4 = "";
         right.quasis.forEach((q, i3) => {
@@ -71177,7 +71425,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     },
     // Messages shown through code: setError('…'), toast.error('…'), alert('…'), and zod/yup messages.
     CallExpression(path22) {
-      const shown = messageCall(path22.node);
+      const shown = messageCall(path22.node) ?? pushedMessages(path22);
       if (!shown) return;
       path22.traverse({
         StringLiteral(literalPath) {
@@ -71198,7 +71446,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     StringLiteral(path22) {
       if (consumed.has(path22.node)) return;
       if (constantStrings.has(path22.node)) return;
-      const slot = expressionSlot(path22, attributes2);
+      const slot = expressionSlot(path22, attributes2) ?? (shownListItem(path22) ? {} : null);
       if (!slot || isIgnored(path22)) return;
       const text4 = normalizeWhitespace(path22.node.value);
       if (!isTranslatable(text4)) return;
@@ -71213,15 +71461,28 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       );
     },
     TemplateLiteral(path22) {
-      if (t.isTaggedTemplateExpression(path22.parent)) return;
-      const slot = expressionSlot(path22, attributes2);
+      if (t2.isTaggedTemplateExpression(path22.parent) || consumed.has(path22.node)) return;
+      const call7 = path22.parentPath;
+      const shownProse = !!call7?.isCallExpression() && call7.node.arguments[0] === path22.node && !!(messageCall(call7.node) ?? pushedMessages(call7));
+      const slot = expressionSlot(path22, attributes2) ?? (shownProse ? {} : null);
       if (!slot || isIgnored(path22)) return;
+      if (shownProse && !expressionSlot(path22, attributes2)) {
+        const words = path22.node.quasis.map((q) => q.value.cooked ?? "").join(" x ").trim();
+        if (!/\s/.test(words) || !new RegExp("^\\p{Lu}", "u").test(words)) return;
+      }
       const params = [];
       const plurals = path22.node.expressions.map((e2) => pluralTernary(e2));
       const plural = plurals.filter(Boolean).length === 1 ? plurals.find(Boolean) : null;
       if (plural) params.push({ name: "count", source: code2.slice(plural.count.start, plural.count.end) });
+      const priced = /* @__PURE__ */ new Set();
       const placeholders = path22.node.expressions.map((expr, i3) => {
         if (plural && plurals[i3] === plural) return null;
+        const money2 = moneyPlaceholder(path22.node.quasis[i3].value.cooked ?? "", expr, code2, params);
+        if (money2) {
+          priced.add(i3);
+          if (!params.includes(money2.param)) params.push(money2.param);
+          return money2.param.name;
+        }
         const source2 = code2.slice(expr.start, expr.end);
         const existing = params.find((p) => p.source === source2);
         if (existing) return existing.name;
@@ -71232,7 +71493,8 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       const build3 = (form) => {
         let template4 = "";
         path22.node.quasis.forEach((q, idx) => {
-          template4 += q.value.cooked ?? q.value.raw;
+          const quasi2 = q.value.cooked ?? q.value.raw;
+          template4 += priced.has(idx) ? quasi2.slice(0, -currencyAtEnd(quasi2, money?.currency).symbol.length) : quasi2;
           if (idx < placeholders.length) template4 += placeholders[idx] === null ? plural[form] : `{${placeholders[idx]}}`;
         });
         return normalizeWhitespace(template4);
@@ -71265,27 +71527,30 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   };
 }
 function attributeNameOf(attr2) {
-  return t.isJSXNamespacedName(attr2.name) ? `${attr2.name.namespace.name}:${attr2.name.name.name}` : attr2.name.name;
+  return t2.isJSXNamespacedName(attr2.name) ? `${attr2.name.namespace.name}:${attr2.name.name.name}` : attr2.name.name;
 }
 function componentCopyProp(attr2, name) {
   if (!COPY_PROPS.has(name)) return false;
   const opening = attr2.parentPath;
   if (!opening?.isJSXOpeningElement()) return false;
   const tag2 = opening.node.name;
-  return t.isJSXMemberExpression(tag2) || t.isJSXIdentifier(tag2) && /^[A-Z]/.test(tag2.name);
+  return t2.isJSXMemberExpression(tag2) || t2.isJSXIdentifier(tag2) && /^[A-Z]/.test(tag2.name);
 }
 function elementName(el) {
   const name = el.openingElement.name;
-  if (t.isJSXIdentifier(name)) return name.name;
-  if (t.isJSXMemberExpression(name)) return name.property.name;
+  if (t2.isJSXIdentifier(name)) return name.name;
+  if (t2.isJSXMemberExpression(name)) return name.property.name;
   return name.name.name;
 }
 function isBlankText(node2) {
-  return t.isJSXText(node2) && !node2.value.trim();
+  return t2.isJSXText(node2) && !node2.value.trim() || isSpace(node2);
+}
+function isSpace(node2) {
+  return t2.isJSXExpressionContainer(node2) && t2.isStringLiteral(node2.expression) && /^[ \t]+$/.test(node2.expression.value);
 }
 function textless(node2) {
-  if (!t.isJSXElement(node2)) return false;
-  return node2.children.every((c) => isBlankText(c) || t.isJSXExpressionContainer(c) && t.isJSXEmptyExpression(c.expression) || textless(c));
+  if (!t2.isJSXElement(node2)) return false;
+  return node2.children.every((c) => isBlankText(c) || t2.isJSXExpressionContainer(c) && t2.isJSXEmptyExpression(c.expression) || textless(c));
 }
 function withoutEdgeIcons(children) {
   let lo = 0;
@@ -71295,11 +71560,23 @@ function withoutEdgeIcons(children) {
   return lo === 0 && hi === children.length ? children : children.slice(lo, hi);
 }
 function isSimpleExpression(expr) {
-  if (t.isIdentifier(expr)) return true;
-  if ((t.isMemberExpression(expr) || t.isOptionalMemberExpression(expr)) && !expr.computed) {
-    return t.isIdentifier(expr.property) && (t.isIdentifier(expr.object) || t.isThisExpression(expr.object) || isSimpleExpression(expr.object));
+  if (t2.isIdentifier(expr)) return true;
+  if ((t2.isMemberExpression(expr) || t2.isOptionalMemberExpression(expr)) && !expr.computed) {
+    return t2.isIdentifier(expr.property) && (t2.isIdentifier(expr.object) || t2.isThisExpression(expr.object) || isSimpleExpression(expr.object));
   }
   return false;
+}
+function isValueExpression(expr) {
+  if (t2.isBinaryExpression(expr) && ["+", "-", "*", "/", "%"].includes(expr.operator)) {
+    return [expr.left, expr.right].every((n4) => t2.isNumericLiteral(n4) || isValueExpression(n4)) && !(t2.isNumericLiteral(expr.left) && t2.isNumericLiteral(expr.right));
+  }
+  return isSimpleExpression(expr);
+}
+function formText(n4, count) {
+  const text4 = literalText(n4);
+  if (text4 !== null || !t2.isTemplateLiteral(n4)) return text4;
+  if (!n4.expressions.every((e2) => t2.isNodesEquivalent(e2, count))) return null;
+  return n4.quasis.map((q) => q.value.cooked ?? q.value.raw).join("{count}");
 }
 function englishPlural(word) {
   const lower = word.toLowerCase();
@@ -71311,14 +71588,14 @@ function englishPlural(word) {
   return `${word}s`;
 }
 function pluralTernary(expr) {
-  if (t.isCallExpression(expr)) {
+  if (t2.isCallExpression(expr)) {
     const callee = expr.callee;
-    const name = t.isIdentifier(callee) ? callee.name : t.isMemberExpression(callee) && t.isIdentifier(callee.property) ? callee.property.name : "";
+    const name = t2.isIdentifier(callee) ? callee.name : t2.isMemberExpression(callee) && t2.isIdentifier(callee.property) ? callee.property.name : "";
     if (!PLURAL_HELPER.test(name)) return null;
     const [word, n4, inclusive] = expr.arguments;
     const single = literalText(word);
-    if (single !== null && n4 && literalText(n4) === null && isSimpleExpression(n4) && (expr.arguments.length === 2 || t.isBooleanLiteral(inclusive))) {
-      const withCount = t.isBooleanLiteral(inclusive, { value: true }) ? "{count} " : "";
+    if (single !== null && n4 && literalText(n4) === null && isSimpleExpression(n4) && (expr.arguments.length === 2 || t2.isBooleanLiteral(inclusive))) {
+      const withCount = t2.isBooleanLiteral(inclusive, { value: true }) ? "{count} " : "";
       return { count: n4, one: `${withCount}${single}`, other: `${withCount}${englishPlural(single)}`, node: expr, literals: [word] };
     }
     if (expr.arguments.length !== 3) return null;
@@ -71327,25 +71604,32 @@ function pluralTernary(expr) {
     if (forms2.length !== 2 || counts.length !== 1 || !isSimpleExpression(counts[0])) return null;
     return { count: counts[0], one: literalText(forms2[0]), other: literalText(forms2[1]), node: expr, literals: forms2 };
   }
-  if (!t.isConditionalExpression(expr) || !t.isBinaryExpression(expr.test)) return null;
-  const yes = literalText(expr.consequent);
-  const no = literalText(expr.alternate);
-  if (yes === null || no === null) return null;
-  const result = (count, singularWhenTrue) => isSimpleExpression(count) && !t.isPrivateName(count) ? { count, one: singularWhenTrue ? yes : no, other: singularWhenTrue ? no : yes, node: expr, literals: [expr.consequent, expr.alternate] } : null;
+  if (!t2.isConditionalExpression(expr) || !t2.isBinaryExpression(expr.test)) return null;
+  const { consequent, alternate } = expr;
+  if (literalText(consequent) === null && !t2.isTemplateLiteral(consequent) || literalText(alternate) === null && !t2.isTemplateLiteral(alternate)) return null;
+  const result = (count, singularWhenTrue) => {
+    if (!isSimpleExpression(count) || t2.isPrivateName(count)) return null;
+    const yes = formText(consequent, count);
+    const no = formText(alternate, count);
+    if (yes === null || no === null) return null;
+    let [one, other] = singularWhenTrue ? [yes, no] : [no, yes];
+    if (other.includes("{count}") && !one.includes("{count}")) one = one.replace(/(^|[^\d.,])1(?![\d.,])/, "$1{count}");
+    return { count, one, other, node: expr, literals: [consequent, alternate] };
+  };
   let { operator, left, right } = expr.test;
-  const select = (n4) => t.isCallExpression(n4) && t.isMemberExpression(n4.callee) && t.isIdentifier(n4.callee.property, { name: "select" }) && n4.arguments.length === 1 ? n4.arguments[0] : null;
+  const select = (n4) => t2.isCallExpression(n4) && t2.isMemberExpression(n4.callee) && t2.isIdentifier(n4.callee.property, { name: "select" }) && n4.arguments.length === 1 ? n4.arguments[0] : null;
   for (const [call7, other] of [[left, right], [right, left]]) {
     const count = select(call7);
-    if (count && t.isStringLiteral(other) && other.value === "one" && (operator === "===" || operator === "==" || operator === "!==" || operator === "!=")) {
+    if (count && t2.isStringLiteral(other) && other.value === "one" && (operator === "===" || operator === "==" || operator === "!==" || operator === "!=")) {
       return result(count, operator === "===" || operator === "==");
     }
   }
   const FLIP = { "<": ">", ">": "<", "<=": ">=", ">=": "<=" };
-  if (t.isNumericLiteral(left) && !t.isNumericLiteral(right)) {
+  if (t2.isNumericLiteral(left) && !t2.isNumericLiteral(right)) {
     [left, right] = [right, left];
     operator = FLIP[operator] ?? operator;
   }
-  if (!t.isNumericLiteral(right) || t.isPrivateName(left)) return null;
+  if (!t2.isNumericLiteral(right) || t2.isPrivateName(left)) return null;
   const v2 = right.value;
   if (v2 === 1 && (operator === "===" || operator === "==")) return result(left, true);
   if (v2 === 1 && (operator === "!==" || operator === "!=")) return result(left, false);
@@ -71355,26 +71639,31 @@ function pluralTernary(expr) {
 }
 function mergeTextRun(children, code2, ordinals = true) {
   const significant = children.filter((c) => !isBlankText(c));
-  const expressions = significant.filter((c) => t.isJSXExpressionContainer(c));
+  const expressions = significant.filter((c) => t2.isJSXExpressionContainer(c));
+  const spaced = children.some(isSpace);
   const plurals = expressions.map((c) => pluralTernary(c.expression)).filter((p) => p !== null);
   const plural = plurals.length === 1 ? plurals[0] : null;
   const several = plurals.length > 1 ? plurals : [];
   const ordinalCalls = ordinals && !plurals.length ? expressions.filter((c) => ordinalArgument(c.expression)) : [];
   const ordinal = ordinalCalls.length === 1 ? ordinalCalls[0] : null;
   const special2 = /* @__PURE__ */ new Set([...plurals.map((p) => p.node), ...ordinal ? [ordinal.expression] : []]);
-  const hasText = significant.some((c) => t.isJSXText(c));
-  if (!(hasText && expressions.length) && !plural && !several.length) return null;
-  if (!significant.every((c) => t.isJSXText(c) || t.isJSXExpressionContainer(c) && (special2.has(c.expression) || isSimpleExpression(c.expression)))) {
+  const hasText = significant.some((c) => t2.isJSXText(c));
+  if (!(hasText && (expressions.length || spaced)) && !plural && !several.length) return null;
+  const priced = (c) => {
+    const prev = children[children.indexOf(c) - 1];
+    return t2.isJSXExpressionContainer(c) && t2.isJSXText(prev) && !!moneyPlaceholder(prev.value, c.expression, code2, []);
+  };
+  if (!significant.every((c) => t2.isJSXText(c) || t2.isJSXExpressionContainer(c) && (special2.has(c.expression) || isValueExpression(c.expression) || priced(c)))) {
     return null;
   }
   const sourceOf = (n4) => code2.slice(n4.start, n4.end);
   const skip = /* @__PURE__ */ new Set();
   const countBefore = (node2, count) => {
-    const i3 = children.findIndex((c) => t.isJSXExpressionContainer(c) && c.expression === node2);
+    const i3 = children.findIndex((c) => t2.isJSXExpressionContainer(c) && c.expression === node2);
     const prev = children[i3 - 1];
-    const same3 = (c) => t.isJSXExpressionContainer(c) && sourceOf(c.expression) === sourceOf(count);
+    const same3 = (c) => t2.isJSXExpressionContainer(c) && sourceOf(c.expression) === sourceOf(count);
     if (same3(prev)) return skip.add(prev), "";
-    if (t.isJSXText(prev) && /^[ \t]+$/.test(prev.value) && same3(children[i3 - 2])) return skip.add(prev), skip.add(children[i3 - 2]), " ";
+    if (t2.isJSXText(prev) && /^[ \t]+$/.test(prev.value) && same3(children[i3 - 2])) return skip.add(prev), skip.add(children[i3 - 2]), " ";
     return null;
   };
   const params = [];
@@ -71396,22 +71685,24 @@ function mergeTextRun(children, code2, ordinals = true) {
     let template4 = "";
     for (const c of children) {
       if (skip.has(c)) continue;
-      if (t.isJSXText(c)) {
+      if (t2.isJSXText(c)) {
         template4 += decodeEntities(code2.slice(c.start, c.end));
+      } else if (isSpace(c)) {
+        template4 += " ";
       } else if (plural && c.expression === plural.node) {
         template4 += plural[form === "one" ? "one" : "other"];
       } else if (ordinal && c === ordinal) {
         template4 += `{count}${ORDINAL_SUFFIX[form]}`;
-      } else if (t.isJSXExpressionContainer(c) && subFor.has(c.expression)) {
+      } else if (t2.isJSXExpressionContainer(c) && subFor.has(c.expression)) {
         template4 += `{${subFor.get(c.expression).name}}`;
-      } else if (t.isJSXExpressionContainer(c)) {
+      } else if (t2.isJSXExpressionContainer(c)) {
         const expr = c.expression;
         const source2 = code2.slice(expr.start, expr.end);
-        let param = params.find((p) => p.source === source2);
-        if (!param) {
-          param = { name: uniqueName(paramNameFor(expr), params), source: source2 };
-          params.push(param);
-        }
+        const priced2 = moneyPlaceholder(template4, expr, code2, params);
+        if (priced2) template4 = template4.slice(0, -priced2.symbol.length);
+        let param = priced2?.param ?? params.find((p) => p.source === source2);
+        if (!param) param = { name: uniqueName(paramNameFor(expr), params), source: source2 };
+        if (!params.includes(param)) params.push(param);
         template4 += `{${param.name}}`;
       }
     }
@@ -71423,8 +71714,8 @@ function mergeTextRun(children, code2, ordinals = true) {
   const last = significant[significant.length - 1];
   let start2 = first.start;
   let end2 = last.end;
-  if (t.isJSXText(first)) start2 += first.value.length - first.value.trimStart().length;
-  if (t.isJSXText(last)) end2 -= last.value.length - last.value.trimEnd().length;
+  if (t2.isJSXText(first)) start2 += first.value.length - first.value.trimStart().length;
+  if (t2.isJSXText(last)) end2 -= last.value.length - last.value.trimEnd().length;
   return {
     text: other,
     params,
@@ -71436,16 +71727,16 @@ function mergeTextRun(children, code2, ordinals = true) {
   };
 }
 function ordinalArgument(expr) {
-  if (!t.isCallExpression(expr) || expr.arguments.length !== 1) return null;
+  if (!t2.isCallExpression(expr) || expr.arguments.length !== 1) return null;
   const name = calleeName(expr);
   if (!/ordinal/i.test(name) && !/^nth$/i.test(name)) return null;
   const arg = expr.arguments[0];
-  return t.isExpression(arg) && isSimpleExpression(arg) ? arg : null;
+  return t2.isExpression(arg) && isSimpleExpression(arg) ? arg : null;
 }
 function mergeRichText(children, code2, attributes2, ownComponent = null) {
   const significant = children.filter((c) => !isBlankText(c));
-  const elements = significant.filter((c) => t.isJSXElement(c));
-  if (!elements.length || !significant.some((c) => t.isJSXText(c) && c.value.trim())) return null;
+  const elements = significant.filter((c) => t2.isJSXElement(c));
+  if (!elements.length || !significant.some((c) => t2.isJSXText(c) && c.value.trim())) return null;
   const params = [];
   const components = [];
   const consumed = [];
@@ -71459,15 +71750,16 @@ function mergeRichText(children, code2, attributes2, ownComponent = null) {
     return `{${param.name}}`;
   };
   const piece = (n4, depth) => {
-    if (t.isJSXText(n4)) {
+    if (t2.isJSXText(n4)) {
       consumed.push(n4);
       return decodeEntities(code2.slice(n4.start, n4.end));
     }
-    if (t.isJSXExpressionContainer(n4)) {
-      if (t.isJSXEmptyExpression(n4.expression)) return "";
-      return isSimpleExpression(n4.expression) ? paramFor(n4.expression) : null;
+    if (t2.isJSXExpressionContainer(n4)) {
+      if (t2.isJSXEmptyExpression(n4.expression)) return "";
+      if (isSpace(n4)) return " ";
+      return isValueExpression(n4.expression) ? paramFor(n4.expression) : null;
     }
-    return t.isJSXElement(n4) ? element3(n4, depth) : null;
+    return t2.isJSXElement(n4) ? element3(n4, depth) : null;
   };
   const element3 = (c, depth) => {
     if (depth > 3) return null;
@@ -71481,9 +71773,9 @@ function mergeRichText(children, code2, attributes2, ownComponent = null) {
     }
     if (IGNORED_ELEMENTS.has(name)) return null;
     for (const a of open3.attributes) {
-      if (t.isJSXSpreadAttribute(a)) continue;
+      if (t2.isJSXSpreadAttribute(a)) continue;
       const attr2 = attributeNameOf(a);
-      if (IGNORE_ATTRIBUTES.has(attr2) || attr2 === "translate" && t.isStringLiteral(a.value) && a.value.value === "no") return null;
+      if (IGNORE_ATTRIBUTES.has(attr2) || attr2 === "translate" && t2.isStringLiteral(a.value) && a.value.value === "no") return null;
     }
     let inner = "";
     for (const k of c.children) {
@@ -71491,6 +71783,7 @@ function mergeRichText(children, code2, attributes2, ownComponent = null) {
       if (part === null) return null;
       inner += part;
     }
+    inner = inner.replace(/^[ \t]*\n\s*/, "").replace(/\s*\n[ \t]*$/, "");
     const hasContent = !!c.closingElement && !!inner.trim();
     let base = TAG_NAMES[name] ?? (name.replace(/[^A-Za-z0-9]/g, "").toLowerCase() || "tag");
     if (hasContent && VOID_TAGS.has(base)) base = `${base}_text`;
@@ -71514,20 +71807,28 @@ function mergeRichText(children, code2, attributes2, ownComponent = null) {
   const last = significant[significant.length - 1];
   let start2 = first.start;
   let end2 = last.end;
-  if (t.isJSXText(first)) start2 += first.value.length - first.value.trimStart().length;
-  if (t.isJSXText(last)) end2 -= last.value.length - last.value.trimEnd().length;
+  if (t2.isJSXText(first)) start2 += first.value.length - first.value.trimStart().length;
+  if (t2.isJSXText(last)) end2 -= last.value.length - last.value.trimEnd().length;
   return { text: normalizeWhitespace(text4), params, range: { start: start2, end: end2 }, components, consumed };
+}
+function moneyPlaceholder(before2, expr, code2, taken) {
+  if (!money || !isAmount(expr)) return null;
+  const found2 = currencyAtEnd(before2, money.currency);
+  if (!found2) return null;
+  const amount = t2.isCallExpression(expr) ? expr.callee.object : expr;
+  const source2 = currencyFormat(money.lang, found2.currency, code2.slice(expr.start, expr.end));
+  return { symbol: found2.symbol, param: taken.find((p) => p.source === source2) ?? { name: uniqueName(paramNameFor(amount), taken), source: source2 } };
 }
 function isIgnored(path22, includeSelf = false) {
   const test = (p) => {
     if (!p.isJSXElement()) return false;
     if (IGNORED_ELEMENTS.has(elementName(p.node))) return true;
     return p.node.openingElement.attributes.some((a) => {
-      if (!t.isJSXAttribute(a)) return false;
+      if (!t2.isJSXAttribute(a)) return false;
       const name = attributeNameOf(a);
       if (IGNORE_ATTRIBUTES.has(name)) return true;
-      if (name === "lang" && t.isStringLiteral(a.value)) return a.value.value.toLowerCase().split(/[-_]/)[0] !== sourceLanguage;
-      return name === "translate" && t.isStringLiteral(a.value) && a.value.value === "no";
+      if (name === "lang" && t2.isStringLiteral(a.value)) return a.value.value.toLowerCase().split(/[-_]/)[0] !== sourceLanguage;
+      return name === "translate" && t2.isStringLiteral(a.value) && a.value.value === "no";
     });
   };
   return includeSelf && test(path22) || !!path22.findParent(test);
@@ -71536,28 +71837,28 @@ function genderSelect(node2, code2) {
   const branches2 = [];
   let on = null;
   let cur = node2;
-  while (t.isConditionalExpression(cur)) {
+  while (t2.isConditionalExpression(cur)) {
     const test = cur.test;
-    if (!t.isBinaryExpression(test) || test.operator !== "===" && test.operator !== "==") return null;
-    const [subject, value] = t.isStringLiteral(test.right) ? [test.left, test.right] : t.isStringLiteral(test.left) ? [test.right, test.left] : [null, null];
-    if (!subject || !value || !t.isStringLiteral(value) || !/^[a-z][\w-]*$/i.test(value.value)) return null;
-    const name = t.isIdentifier(subject) ? subject.name : t.isMemberExpression(subject) && t.isIdentifier(subject.property) ? subject.property.name : null;
+    if (!t2.isBinaryExpression(test) || test.operator !== "===" && test.operator !== "==") return null;
+    const [subject, value] = t2.isStringLiteral(test.right) ? [test.left, test.right] : t2.isStringLiteral(test.left) ? [test.right, test.left] : [null, null];
+    if (!subject || !value || !t2.isStringLiteral(value) || !/^[a-z][\w-]*$/i.test(value.value)) return null;
+    const name = t2.isIdentifier(subject) ? subject.name : t2.isMemberExpression(subject) && t2.isIdentifier(subject.property) ? subject.property.name : null;
     const source2 = code2.slice(subject.start, subject.end);
     if (!name || !GENDER.test(name) || on !== null && on !== source2) return null;
     on = source2;
-    if (!t.isStringLiteral(cur.consequent)) return null;
+    if (!t2.isStringLiteral(cur.consequent)) return null;
     branches2.push({ value: value.value.toLowerCase(), literal: cur.consequent });
     cur = cur.alternate;
   }
-  if (!on || !t.isStringLiteral(cur)) return null;
+  if (!on || !t2.isStringLiteral(cur)) return null;
   branches2.push({ value: null, literal: cur });
   return { on, branches: branches2 };
 }
 function chainRoot(n4) {
   let cur = n4;
   for (; ; ) {
-    if (t.isCallExpression(cur)) cur = cur.callee;
-    else if (t.isMemberExpression(cur)) cur = cur.object;
+    if (t2.isCallExpression(cur)) cur = cur.callee;
+    else if (t2.isMemberExpression(cur)) cur = cur.object;
     else return cur;
   }
 }
@@ -71566,43 +71867,53 @@ function messageCall(call7) {
   const strings2 = (nodes) => {
     const out = [];
     for (const n4 of nodes) {
-      if (t.isStringLiteral(n4)) out.push(n4);
-      else if (t.isObjectExpression(n4)) {
+      if (t2.isStringLiteral(n4)) out.push(n4);
+      else if (t2.isObjectExpression(n4)) {
         for (const p of n4.properties) {
-          if (t.isObjectProperty(p) && t.isIdentifier(p.key) && /^(message|description|title|error|invalid_type_error|required_error)$/.test(p.key.name) && t.isStringLiteral(p.value)) out.push(p.value);
+          if (t2.isObjectProperty(p) && t2.isIdentifier(p.key) && /^(message|description|title|error|invalid_type_error|required_error)$/.test(p.key.name) && t2.isStringLiteral(p.value)) out.push(p.value);
         }
       }
     }
     return out;
   };
-  if (t.isIdentifier(callee) && SETTER.test(callee.name)) return { literals: strings2(call7.arguments.slice(0, 1)), prose: true };
-  if (t.isIdentifier(callee) && TOAST_FNS.has(callee.name)) return { literals: strings2(call7.arguments.slice(0, 2)), prose: false };
-  if (t.isMemberExpression(callee) && !callee.computed && t.isIdentifier(callee.property)) {
+  if (t2.isIdentifier(callee) && (SETTER.test(callee.name) || callee.name === "useState")) return { literals: strings2(call7.arguments.slice(0, 1)), prose: true };
+  if (t2.isMemberExpression(callee) && t2.isIdentifier(callee.object, { name: "React" }) && t2.isIdentifier(callee.property, { name: "useState" })) return { literals: strings2(call7.arguments.slice(0, 1)), prose: true };
+  if (t2.isIdentifier(callee) && TOAST_FNS.has(callee.name)) return { literals: strings2(call7.arguments.slice(0, 2)), prose: false };
+  if (t2.isMemberExpression(callee) && !callee.computed && t2.isIdentifier(callee.property)) {
     const object4 = callee.object;
-    if (t.isIdentifier(object4, { name: "Alert" }) && /^(alert|prompt)$/.test(callee.property.name)) {
+    if (t2.isIdentifier(object4, { name: "Alert" }) && /^(alert|prompt)$/.test(callee.property.name)) {
       const buttons = call7.arguments[2];
-      const texts = t.isArrayExpression(buttons) ? buttons.elements.flatMap((b4) => t.isObjectExpression(b4) ? b4.properties.filter((p) => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: "text" }) && t.isStringLiteral(p.value)).map((p) => p.value) : []) : [];
+      const texts = t2.isArrayExpression(buttons) ? buttons.elements.flatMap((b4) => t2.isObjectExpression(b4) ? b4.properties.filter((p) => t2.isObjectProperty(p) && t2.isIdentifier(p.key, { name: "text" }) && t2.isStringLiteral(p.value)).map((p) => p.value) : []) : [];
       return { literals: [...strings2(call7.arguments.slice(0, 2)), ...texts], prose: false };
     }
-    if (t.isIdentifier(object4) && TOAST_OBJECTS.has(object4.name)) {
+    if (t2.isIdentifier(object4) && TOAST_OBJECTS.has(object4.name)) {
       if (object4.name === "window" && !/^(alert|confirm)$/.test(callee.property.name)) return null;
       return { literals: strings2(call7.arguments.slice(0, 2)), prose: false };
     }
     const root = chainRoot(callee);
-    if (SCHEMA_METHODS.has(callee.property.name) && t.isIdentifier(root) && /^(z|yup|Yup|v|zod)$/.test(root.name)) {
+    if (SCHEMA_METHODS.has(callee.property.name) && t2.isIdentifier(root) && /^(z|yup|Yup|v|zod)$/.test(root.name)) {
       return { literals: strings2(call7.arguments), prose: false, schema: true };
     }
   }
   return null;
 }
+function pushedMessages(path22) {
+  const callee = path22.node.callee;
+  if (!t2.isMemberExpression(callee) || !t2.isIdentifier(callee.object) || !t2.isIdentifier(callee.property) || !/^(push|unshift)$/.test(callee.property.name)) return null;
+  const list4 = callee.object.name;
+  const binding2 = path22.scope.getBinding(list4);
+  const shown = /(errors|warnings|messages|problems|issues|notices|alerts)$/i.test(list4) || !!binding2?.referencePaths.some((r) => r.parentPath?.isCallExpression() && t2.isIdentifier(r.parentPath.node.callee) && SETTER.test(r.parentPath.node.callee.name) && r.parentPath.node.arguments.includes(r.node));
+  if (!shown) return null;
+  return { literals: path22.node.arguments.filter((a) => t2.isStringLiteral(a)), prose: true };
+}
 function languageTagged(list4) {
   const languages = /* @__PURE__ */ new Set();
   const codes3 = [];
   for (const e2 of list4.elements) {
-    if (!t.isObjectExpression(e2)) continue;
+    if (!t2.isObjectExpression(e2)) continue;
     for (const p of e2.properties) {
-      if (!t.isObjectProperty(p) || p.computed || !t.isStringLiteral(p.value)) continue;
-      const key2 = t.isIdentifier(p.key) ? p.key.name : t.isStringLiteral(p.key) ? p.key.value : "";
+      if (!t2.isObjectProperty(p) || p.computed || !t2.isStringLiteral(p.value)) continue;
+      const key2 = t2.isIdentifier(p.key) ? p.key.name : t2.isStringLiteral(p.key) ? p.key.value : "";
       const tag2 = /^[a-z]{2,3}(?:[-_][A-Za-z0-9]{2,8})*$/.test(p.value.value);
       if (/^(lang|locale|language|hreflang)$/i.test(key2) && tag2) languages.add(p.value.value.toLowerCase());
       if (key2 === "code") codes3.push(tag2 && knownLanguage(p.value.value) ? p.value.value.toLowerCase() : "");
@@ -71620,33 +71931,33 @@ function knownLanguage(code2) {
   }
 }
 function scanConstants(ast, add, hookFor, use, report, move, imported, external) {
-  const unwrap2 = (n4) => t.isTSAsExpression(n4) || t.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
+  const unwrap2 = (n4) => t2.isTSAsExpression(n4) || t2.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
   const follow = (binding2, fields, isList, isLookup) => {
     const reads = [];
     let followed = true;
     let ignored = 0;
     const skip = (p) => isIgnored(p) ? (ignored++, true) : false;
     const shown = (p) => expressionSlot(p, /* @__PURE__ */ new Set()) !== null || !!p.parentPath?.isJSXExpressionContainer();
-    const asKey = (p) => !!p.parentPath?.isJSXExpressionContainer() && !!p.parentPath.parentPath?.isJSXAttribute() && t.isJSXIdentifier(p.parentPath.parentPath.node.name, { name: "key" });
+    const asKey = (p) => !!p.parentPath?.isJSXExpressionContainer() && !!p.parentPath.parentPath?.isJSXAttribute() && t2.isJSXIdentifier(p.parentPath.parentPath.node.name, { name: "key" });
     const itemReads = (fn2) => {
       if (!fn2.isArrowFunctionExpression() && !fn2.isFunctionExpression()) return [];
       const param = fn2.node.params[0];
       if (!param) return [];
       const out = [];
-      if (t.isIdentifier(param)) {
+      if (t2.isIdentifier(param)) {
         for (const r of fn2.scope.getBinding(param.name)?.referencePaths ?? []) {
           const m2 = r.parentPath;
           if (fields.has(ITEM)) out.push({ path: r, key: ITEM });
-          else if (m2?.isMemberExpression() && !m2.node.computed && t.isIdentifier(m2.node.property) && fields.has(m2.node.property.name)) out.push({ path: m2, key: m2.node.property.name });
+          else if (m2?.isMemberExpression() && !m2.node.computed && t2.isIdentifier(m2.node.property) && fields.has(m2.node.property.name)) out.push({ path: m2, key: m2.node.property.name });
         }
         return out;
       }
-      if (!t.isObjectPattern(param)) return null;
+      if (!t2.isObjectPattern(param)) return null;
       for (const p of param.properties) {
-        if (t.isRestElement(p)) return null;
-        const key2 = !p.computed && t.isIdentifier(p.key) ? p.key.name : null;
+        if (t2.isRestElement(p)) return null;
+        const key2 = !p.computed && t2.isIdentifier(p.key) ? p.key.name : null;
         if (!key2 || !fields.has(key2)) continue;
-        const local = t.isIdentifier(p.value) ? p.value : t.isAssignmentPattern(p.value) && t.isIdentifier(p.value.left) ? p.value.left : null;
+        const local = t2.isIdentifier(p.value) ? p.value : t2.isAssignmentPattern(p.value) && t2.isIdentifier(p.value.left) ? p.value.left : null;
         if (!local) return null;
         for (const r of fn2.scope.getBinding(local.name)?.referencePaths ?? []) out.push({ path: r, key: key2 });
       }
@@ -71654,7 +71965,7 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
     };
     for (const ref2 of binding2.referencePaths) {
       const parent = ref2.parentPath;
-      const method2 = isList && parent?.isMemberExpression() && !parent.node.computed && t.isIdentifier(parent.node.property) ? parent.node.property.name : null;
+      const method2 = isList && parent?.isMemberExpression() && !parent.node.computed && t2.isIdentifier(parent.node.property) ? parent.node.property.name : null;
       if (method2 === "map" && parent.parentPath?.isCallExpression()) {
         const found2 = itemReads(parent.parentPath.get("arguments")[0]);
         if (!found2) {
@@ -71671,7 +71982,7 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
         const fn2 = call7?.isCallExpression() ? call7.get("arguments")[0] : null;
         const found2 = fn2 ? itemReads(fn2) : [];
         if (!found2 || found2.length || fields.has(ITEM) && (method2 === "includes" || method2 === "indexOf")) followed = false;
-      } else if (!isList && parent?.isMemberExpression() && !parent.node.computed && t.isIdentifier(parent.node.property) && fields.has(parent.node.property.name)) {
+      } else if (!isList && parent?.isMemberExpression() && !parent.node.computed && t2.isIdentifier(parent.node.property) && fields.has(parent.node.property.name)) {
         if (skip(parent)) continue;
         if (!parent.parentPath?.isJSXExpressionContainer() && expressionSlot(parent, /* @__PURE__ */ new Set()) === null) followed = false;
         else reads.push({ path: parent, key: parent.node.property.name });
@@ -71687,14 +71998,14 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
     }
     return { reads, followed, ignored };
   };
-  traverse(ast, {
+  traverse2(ast, {
     ImportDeclaration(path22) {
       if (!imported || !external) return;
       const copy = imported(path22.node.source.value);
       if (!copy) return;
       for (const spec2 of path22.node.specifiers) {
-        if (!t.isImportSpecifier(spec2)) continue;
-        const name = t.isIdentifier(spec2.imported) ? spec2.imported.name : spec2.imported.value;
+        if (!t2.isImportSpecifier(spec2)) continue;
+        const name = t2.isIdentifier(spec2.imported) ? spec2.imported.name : spec2.imported.value;
         const info2 = copy.get(name);
         const binding2 = info2 && path22.scope.getBinding(spec2.local.name);
         if (!info2 || !binding2?.referencePaths.length) continue;
@@ -71705,29 +72016,29 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
     },
     VariableDeclarator(path22) {
       if (!path22.parentPath.parentPath?.isProgram() && !path22.parentPath.parentPath?.isExportNamedDeclaration()) return;
-      if (!t.isIdentifier(path22.node.id)) return;
+      if (!t2.isIdentifier(path22.node.id)) return;
       const name = path22.node.id.name;
       const init2 = unwrap2(path22.node.init);
       const copy = /* @__PURE__ */ new Map();
       const collect = (obj) => {
-        if (!t.isObjectExpression(obj)) return;
+        if (!t2.isObjectExpression(obj)) return;
         for (const p of obj.properties) {
-          if (!t.isObjectProperty(p) || p.computed) continue;
-          const key2 = t.isIdentifier(p.key) ? p.key.name : t.isStringLiteral(p.key) ? p.key.value : null;
-          if (key2 && COPY_KEYS.has(key2) && t.isStringLiteral(p.value) && isTranslatable(normalizeWhitespace(p.value.value))) copy.set(key2, [...copy.get(key2) ?? [], p.value]);
+          if (!t2.isObjectProperty(p) || p.computed) continue;
+          const key2 = t2.isIdentifier(p.key) ? p.key.name : t2.isStringLiteral(p.key) ? p.key.value : null;
+          if (key2 && COPY_KEYS.has(key2) && t2.isStringLiteral(p.value) && isTranslatable(normalizeWhitespace(p.value.value))) copy.set(key2, [...copy.get(key2) ?? [], p.value]);
         }
       };
-      const isList = t.isArrayExpression(init2);
-      const isLookup = t.isObjectExpression(init2) && init2.properties.length > 1 && init2.properties.every((p) => t.isObjectProperty(p) && !p.computed && t.isStringLiteral(p.value)) && init2.properties.some((p) => new RegExp("\\s|^\\p{Lu}", "u").test(p.value.value.trim()));
+      const isList = t2.isArrayExpression(init2);
+      const isLookup = t2.isObjectExpression(init2) && init2.properties.length > 1 && init2.properties.every((p) => t2.isObjectProperty(p) && !p.computed && t2.isStringLiteral(p.value)) && init2.properties.some((p) => new RegExp("\\s|^\\p{Lu}", "u").test(p.value.value.trim()));
       if (isLookup) {
         for (const p of init2.properties) {
-          const key2 = t.isIdentifier(p.key) ? p.key.name : t.isStringLiteral(p.key) ? p.key.value : null;
+          const key2 = t2.isIdentifier(p.key) ? p.key.name : t2.isStringLiteral(p.key) ? p.key.value : null;
           const value = p.value;
           if (key2 !== null && isTranslatable(normalizeWhitespace(value.value))) copy.set(key2, [value]);
         }
       } else if (isList && !languageTagged(init2)) init2.elements.forEach((e2) => collect(unwrap2(e2)));
       else collect(init2);
-      if (isList && init2.elements.length && init2.elements.every((e2) => t.isStringLiteral(e2))) {
+      if (isList && init2.elements.length && init2.elements.every((e2) => t2.isStringLiteral(e2))) {
         const items = init2.elements;
         const texts = items.map((s) => normalizeWhitespace(s.value));
         if (texts.every(isTranslatable) && texts.some((x) => /\s/.test(x) && new RegExp("^\\p{Lu}", "u").test(x))) copy.set(ITEM, items);
@@ -71737,10 +72048,10 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
       if (!isLookup && !(isList && languageTagged(init2))) {
         const others = /* @__PURE__ */ new Map();
         for (const obj of isList ? init2.elements.map((e2) => unwrap2(e2)) : [init2]) {
-          if (!t.isObjectExpression(obj)) continue;
+          if (!t2.isObjectExpression(obj)) continue;
           for (const p of obj.properties) {
-            if (!t.isObjectProperty(p) || p.computed || !t.isStringLiteral(p.value)) continue;
-            const key2 = t.isIdentifier(p.key) ? p.key.name : t.isStringLiteral(p.key) ? p.key.value : null;
+            if (!t2.isObjectProperty(p) || p.computed || !t2.isStringLiteral(p.value)) continue;
+            const key2 = t2.isIdentifier(p.key) ? p.key.name : t2.isStringLiteral(p.key) ? p.key.value : null;
             const text4 = normalizeWhitespace(p.value.value);
             if (!key2 || COPY_KEYS.has(key2) || VALUE_FIELDS.test(key2) || !isTranslatable(text4) || !new RegExp("\\s|^\\p{Lu}", "u").test(text4)) continue;
             others.set(key2, [...others.get(key2) ?? [], p.value]);
@@ -71770,28 +72081,28 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
   });
 }
 function outputs(n4, out) {
-  while (t.isTSAsExpression(n4) || t.isTSSatisfiesExpression(n4) || t.isParenthesizedExpression(n4)) n4 = n4.expression;
+  while (t2.isTSAsExpression(n4) || t2.isTSSatisfiesExpression(n4) || t2.isParenthesizedExpression(n4)) n4 = n4.expression;
   if (!n4) return;
-  if (t.isConditionalExpression(n4)) {
+  if (t2.isConditionalExpression(n4)) {
     outputs(n4.consequent, out);
     outputs(n4.alternate, out);
     return;
   }
-  if (t.isLogicalExpression(n4)) {
+  if (t2.isLogicalExpression(n4)) {
     if (n4.operator !== "&&") outputs(n4.left, out);
     outputs(n4.right, out);
     return;
   }
-  if (t.isStringLiteral(n4) && isTranslatable(normalizeWhitespace(n4.value)) && new RegExp("\\s|^\\p{Lu}", "u").test(n4.value.trim())) out.push(n4);
+  if (t2.isStringLiteral(n4) && isTranslatable(normalizeWhitespace(n4.value)) && new RegExp("\\s|^\\p{Lu}", "u").test(n4.value.trim())) out.push(n4);
 }
 function returnedCopy(fn2) {
   const literals = [];
-  if (!t.isBlockStatement(fn2.body)) outputs(fn2.body, literals);
+  if (!t2.isBlockStatement(fn2.body)) outputs(fn2.body, literals);
   else {
     const visit = (node2) => {
-      if (!node2 || t.isFunction(node2) && node2 !== fn2) return;
-      if (t.isReturnStatement(node2)) outputs(node2.argument, literals);
-      for (const key2 of t.VISITOR_KEYS[node2.type] ?? []) {
+      if (!node2 || t2.isFunction(node2) && node2 !== fn2) return;
+      if (t2.isReturnStatement(node2)) outputs(node2.argument, literals);
+      for (const key2 of t2.VISITOR_KEYS[node2.type] ?? []) {
         const child = node2[key2];
         if (Array.isArray(child)) child.forEach(visit);
         else visit(child);
@@ -71810,12 +72121,12 @@ function exportedHelperCopy(code2) {
     return out;
   }
   for (const statement of ast.program.body) {
-    if (!t.isExportNamedDeclaration(statement) || !statement.declaration) continue;
+    if (!t2.isExportNamedDeclaration(statement) || !statement.declaration) continue;
     const decl = statement.declaration;
     const fns = [];
-    if (t.isFunctionDeclaration(decl) && decl.id) fns.push([decl.id.name, decl]);
-    if (t.isVariableDeclaration(decl)) {
-      for (const d3 of decl.declarations) if (t.isIdentifier(d3.id) && (t.isArrowFunctionExpression(d3.init) || t.isFunctionExpression(d3.init))) fns.push([d3.id.name, d3.init]);
+    if (t2.isFunctionDeclaration(decl) && decl.id) fns.push([decl.id.name, decl]);
+    if (t2.isVariableDeclaration(decl)) {
+      for (const d3 of decl.declarations) if (t2.isIdentifier(d3.id) && (t2.isArrowFunctionExpression(d3.init) || t2.isFunctionExpression(d3.init))) fns.push([d3.id.name, d3.init]);
     }
     for (const [name, fn2] of fns) {
       if (/^[A-Z]|^use[A-Z0-9]/.test(name)) continue;
@@ -71826,7 +72137,7 @@ function exportedHelperCopy(code2) {
   return out;
 }
 function scanHelpers(ast, code2, add, hookFor, subscribe) {
-  traverse(ast, {
+  traverse2(ast, {
     Program(program2) {
       for (const statement of program2.get("body")) {
         const decl = statement.isExportNamedDeclaration() ? statement.get("declaration") : statement;
@@ -71835,7 +72146,7 @@ function scanHelpers(ast, code2, add, hookFor, subscribe) {
         if (decl.isVariableDeclaration()) {
           for (const d3 of decl.get("declarations")) {
             const init2 = d3.get("init");
-            if (t.isIdentifier(d3.node.id) && (init2.isArrowFunctionExpression() || init2.isFunctionExpression())) fns.push({ name: d3.node.id.name, fn: init2 });
+            if (t2.isIdentifier(d3.node.id) && (init2.isArrowFunctionExpression() || init2.isFunctionExpression())) fns.push({ name: d3.node.id.name, fn: init2 });
           }
         }
         for (const { name, fn: fn2 } of fns) {
@@ -71892,16 +72203,31 @@ function expressionSlot(path22, attributes2) {
     }
   }
 }
+function shownListItem(path22) {
+  const list4 = path22.parentPath;
+  const member2 = list4?.parentPath;
+  const call7 = member2?.parentPath;
+  if (!list4?.isArrayExpression() || !member2?.isMemberExpression() || member2.node.object !== list4.node || member2.node.computed || !t2.isIdentifier(member2.node.property, { name: "map" })) return false;
+  if (!call7?.isCallExpression() || call7.node.callee !== member2.node) return false;
+  if (!list4.node.elements.every((e2) => t2.isStringLiteral(e2))) return false;
+  const texts = list4.node.elements.map((s) => normalizeWhitespace(s.value));
+  if (!texts.every(isTranslatable) || !texts.some((x) => /\s/.test(x) && new RegExp("^\\p{Lu}", "u").test(x))) return false;
+  const fn2 = call7.get("arguments")[0];
+  if (!fn2 || !fn2.isArrowFunctionExpression() && !fn2.isFunctionExpression() || !t2.isIdentifier(fn2.node.params[0])) return false;
+  const refs = fn2.scope.getBinding(fn2.node.params[0].name)?.referencePaths ?? [];
+  return refs.length > 0 && refs.every((r) => !!r.parentPath?.isJSXExpressionContainer() || expressionSlot(r, /* @__PURE__ */ new Set()) !== null);
+}
 function paramNameFor(expr) {
-  if (t.isIdentifier(expr)) return expr.name;
-  if (t.isMemberExpression(expr) && !expr.computed && t.isIdentifier(expr.property)) {
+  if (t2.isIdentifier(expr)) return expr.name;
+  if (t2.isBinaryExpression(expr) && t2.isExpression(expr.left) && !t2.isNumericLiteral(expr.left)) return paramNameFor(expr.left);
+  if (t2.isMemberExpression(expr) && !expr.computed && t2.isIdentifier(expr.property)) {
     if (GENERIC_PROPS.has(expr.property.name)) return "count";
     return expr.property.name;
   }
-  if (t.isOptionalMemberExpression(expr) && !expr.computed && t.isIdentifier(expr.property)) {
+  if (t2.isOptionalMemberExpression(expr) && !expr.computed && t2.isIdentifier(expr.property)) {
     return expr.property.name;
   }
-  if (t.isCallExpression(expr) && t.isIdentifier(expr.callee)) {
+  if (t2.isCallExpression(expr) && t2.isIdentifier(expr.callee)) {
     const m2 = /^(?:get|format|to)([A-Z]\w*)$/.exec(expr.callee.name);
     if (m2) return m2[1][0].toLowerCase() + m2[1].slice(1);
   }
@@ -71917,18 +72243,18 @@ function isHookOrComponentName(name) {
 }
 function componentNameOf(fn2) {
   const node2 = fn2.node;
-  if (t.isFunctionDeclaration(node2)) {
-    if (!node2.id) return t.isExportDefaultDeclaration(fn2.parent) ? "default" : null;
+  if (t2.isFunctionDeclaration(node2)) {
+    if (!node2.id) return t2.isExportDefaultDeclaration(fn2.parent) ? "default" : null;
     return isHookOrComponentName(node2.id.name) ? node2.id.name : null;
   }
-  if (!t.isArrowFunctionExpression(node2) && !t.isFunctionExpression(node2)) return null;
+  if (!t2.isArrowFunctionExpression(node2) && !t2.isFunctionExpression(node2)) return null;
   let inner = node2;
   let holder = fn2.parentPath;
   while (holder.isCallExpression() && holder.node.arguments[0] === inner) {
     inner = holder.node;
     holder = holder.parentPath;
   }
-  if (holder.isVariableDeclarator() && t.isIdentifier(holder.node.id)) {
+  if (holder.isVariableDeclarator() && t2.isIdentifier(holder.node.id)) {
     return isHookOrComponentName(holder.node.id.name) ? holder.node.id.name : null;
   }
   if (holder.isExportDefaultDeclaration()) return "default";
@@ -71956,13 +72282,13 @@ function resolveHookTarget(path22, code2, server = false, needsI18n = false) {
   if (binding2) {
     const decl = binding2.path;
     const init2 = decl.isVariableDeclarator() ? decl.node.init : null;
-    const call7 = server && t.isAwaitExpression(init2) ? init2.argument : init2;
-    const isHook = t.isCallExpression(call7) && t.isIdentifier(call7.callee, { name: server ? "getTranslation" : "useTranslation" }) && binding2.scope.getFunctionParent() === fn2.scope;
+    const call7 = server && t2.isAwaitExpression(init2) ? init2.argument : init2;
+    const isHook = t2.isCallExpression(call7) && t2.isIdentifier(call7.callee, { name: server ? "getTranslation" : "useTranslation" }) && binding2.scope.getFunctionParent() === fn2.scope;
     if (!isHook) return { reason: `identifier "t" is already bound in ${name}` };
     let addI18nAt;
-    if (needsI18n && decl.isVariableDeclarator() && t.isObjectPattern(decl.node.id)) {
+    if (needsI18n && decl.isVariableDeclarator() && t2.isObjectPattern(decl.node.id)) {
       const props = decl.node.id.properties;
-      if (!props.some((p) => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: "i18n" }))) {
+      if (!props.some((p) => t2.isObjectProperty(p) && t2.isIdentifier(p.key, { name: "i18n" }))) {
         if (path22.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
         addI18nAt = props[props.length - 1].end;
       }
@@ -71971,7 +72297,7 @@ function resolveHookTarget(path22, code2, server = false, needsI18n = false) {
   }
   if (needsI18n && path22.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
   const body = fn2.node.body;
-  if (t.isBlockStatement(body)) {
+  if (t2.isBlockStatement(body)) {
     const first = body.body[0];
     if (first) {
       const lineStart2 = code2.lastIndexOf("\n", first.start - 1) + 1;
@@ -71998,14 +72324,14 @@ function classTarget(fn2, member2, path22, code2, server) {
   const name = cls.node.id.name;
   if (member2.node.static || fn2.isClassMethod() && fn2.node.kind !== "method") return globalClassTarget(fn2, path22, code2, name);
   const program2 = cls.parentPath.isProgram() ? cls.parentPath.node : cls.parentPath.parentPath?.node;
-  if (!program2 || !t.isProgram(program2)) return { reason: `class component ${name} isn't declared at the top of the file` };
+  if (!program2 || !t2.isProgram(program2)) return { reason: `class component ${name} isn't declared at the top of the file` };
   const typeParams = cls.node.superTypeParameters?.params;
   const typed = typeParams?.length ? { typeAt: typeParams[0].end, typeText: " & WithTranslation" } : { typeAt: cls.node.superClass.end, typeText: "<WithTranslation>" };
   let wrap;
   if (cls.parentPath.isExportDefaultDeclaration()) {
     wrap = { className: name, removeStart: cls.parentPath.node.start, removeEnd: cls.node.start, appendAt: program2.end, ...typed };
   } else {
-    const ref2 = program2.body.find((n4) => t.isExportDefaultDeclaration(n4) && t.isIdentifier(n4.declaration, { name }));
+    const ref2 = program2.body.find((n4) => t2.isExportDefaultDeclaration(n4) && t2.isIdentifier(n4.declaration, { name }));
     if (ref2) wrap = { className: name, refStart: ref2.declaration.start, refEnd: ref2.declaration.end, ...typed };
     else if (!new RegExp(`withTranslation\\([^)]*\\)\\(\\s*${name}\\s*\\)`).test(code2)) return unwrappedClassTarget(fn2, path22, code2, name);
   }
@@ -72013,19 +72339,19 @@ function classTarget(fn2, member2, path22, code2, server) {
   const binding2 = path22.scope.getBinding("t");
   if (binding2) {
     const init2 = binding2.path.isVariableDeclarator() ? binding2.path.node.init : null;
-    const fromProps = t.isMemberExpression(init2) && t.isThisExpression(init2.object) && t.isIdentifier(init2.property, { name: "props" });
+    const fromProps = t2.isMemberExpression(init2) && t2.isThisExpression(init2.object) && t2.isIdentifier(init2.property, { name: "props" });
     if (!fromProps || binding2.scope.getFunctionParent() !== fn2.scope) return { reason: `identifier "t" is already bound in ${name}` };
     return { ...base, mode: "reuse", insertAt: -1, indent: "" };
   }
   const body = fn2.node.body;
-  if (!t.isBlockStatement(body) || !body.body.length) return { reason: `in a one-line arrow in ${name}: give it a block body` };
+  if (!t2.isBlockStatement(body) || !body.body.length) return { reason: `in a one-line arrow in ${name}: give it a block body` };
   const first = body.body[0];
   const lineStart = code2.lastIndexOf("\n", first.start - 1) + 1;
   return { ...base, mode: "classMethod", insertAt: first.start, indent: /^[ \t]*/.exec(code2.slice(lineStart))[0] };
 }
 function unwrappedClassTarget(fn2, path22, code2, name) {
   if (path22.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
-  if (fn2.isClassMethod() && t.isIdentifier(fn2.node.key, { name: "render" })) {
+  if (fn2.isClassMethod() && t2.isIdentifier(fn2.node.key, { name: "render" })) {
     const body = fn2.node.body.body;
     if (!body.length) return { reason: `${name}'s render() is empty` };
     const first = body[0];
@@ -72037,37 +72363,37 @@ function unwrappedClassTarget(fn2, path22, code2, name) {
 function globalClassTarget(fn2, path22, code2, name) {
   if (path22.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
   const body = fn2.node.body;
-  if (!t.isBlockStatement(body) || !body.body.length) return { reason: `in a one-line arrow in ${name}: give it a block body` };
-  const superAt = body.body.findIndex((s) => t.isExpressionStatement(s) && t.isCallExpression(s.expression) && t.isSuper(s.expression.callee));
+  if (!t2.isBlockStatement(body) || !body.body.length) return { reason: `in a one-line arrow in ${name}: give it a block body` };
+  const superAt = body.body.findIndex((s) => t2.isExpressionStatement(s) && t2.isCallExpression(s.expression) && t2.isSuper(s.expression.callee));
   const anchor = superAt >= 0 ? body.body[superAt] : body.body[0];
   const lineStart = code2.lastIndexOf("\n", anchor.start - 1) + 1;
   const indent2 = /^[ \t]*/.exec(code2.slice(lineStart))[0];
   return superAt >= 0 ? { fnStart: fn2.node.start, componentName: name, mode: "classGlobal", insertAt: anchor.end, bodyEnd: -1, indent: indent2, after: true } : { fnStart: fn2.node.start, componentName: name, mode: "classGlobal", insertAt: anchor.start, bodyEnd: -1, indent: indent2 };
 }
 function scanActionStates(ast, add, hookFor, use, report) {
-  traverse(ast, {
+  traverse2(ast, {
     CallExpression(path22) {
       const callee = path22.node.callee;
-      const named2 = t.isIdentifier(callee) ? callee.name : t.isMemberExpression(callee) && t.isIdentifier(callee.property) ? callee.property.name : "";
+      const named2 = t2.isIdentifier(callee) ? callee.name : t2.isMemberExpression(callee) && t2.isIdentifier(callee.property) ? callee.property.name : "";
       if (!/^use(ActionState|FormState)$/.test(named2)) return;
       const decl = path22.parentPath;
-      if (!decl.isVariableDeclarator() || !t.isArrayPattern(decl.node.id) || !t.isIdentifier(decl.node.id.elements[0])) return;
+      if (!decl.isVariableDeclarator() || !t2.isArrayPattern(decl.node.id) || !t2.isIdentifier(decl.node.id.elements[0])) return;
       const fnRef = path22.node.arguments[0];
-      if (!t.isIdentifier(fnRef)) return;
+      if (!t2.isIdentifier(fnRef)) return;
       const fnPath = path22.scope.getBinding(fnRef.name)?.path;
-      const fn2 = fnPath?.isFunctionDeclaration() ? fnPath.node : fnPath?.isVariableDeclarator() && (t.isArrowFunctionExpression(fnPath.node.init) || t.isFunctionExpression(fnPath.node.init)) ? fnPath.node.init : null;
+      const fn2 = fnPath?.isFunctionDeclaration() ? fnPath.node : fnPath?.isVariableDeclarator() && (t2.isArrowFunctionExpression(fnPath.node.init) || t2.isFunctionExpression(fnPath.node.init)) ? fnPath.node.init : null;
       if (!fn2) return;
       const copy = /* @__PURE__ */ new Map();
       const visit = (node2) => {
-        if (!node2 || t.isFunction(node2) && node2 !== fn2) return;
-        if (t.isReturnStatement(node2) && t.isObjectExpression(node2.argument)) {
+        if (!node2 || t2.isFunction(node2) && node2 !== fn2) return;
+        if (t2.isReturnStatement(node2) && t2.isObjectExpression(node2.argument)) {
           for (const p of node2.argument.properties) {
-            if (!t.isObjectProperty(p) || p.computed || !t.isIdentifier(p.key) || !t.isStringLiteral(p.value)) continue;
+            if (!t2.isObjectProperty(p) || p.computed || !t2.isIdentifier(p.key) || !t2.isStringLiteral(p.value)) continue;
             const text4 = normalizeWhitespace(p.value.value);
             if (isTranslatable(text4) && new RegExp("\\s|^\\p{Lu}", "u").test(text4)) copy.set(p.key.name, [...copy.get(p.key.name) ?? [], p.value]);
           }
         }
-        for (const key2 of t.VISITOR_KEYS[node2.type] ?? []) {
+        for (const key2 of t2.VISITOR_KEYS[node2.type] ?? []) {
           const child = node2[key2];
           if (Array.isArray(child)) child.forEach(visit);
           else visit(child);
@@ -72080,7 +72406,7 @@ function scanActionStates(ast, add, hookFor, use, report) {
       let followed = !!state;
       for (const ref2 of state?.referencePaths ?? []) {
         const m2 = ref2.parentPath;
-        const field = (m2?.isMemberExpression() || m2?.isOptionalMemberExpression()) && !m2.node.computed && t.isIdentifier(m2.node.property) ? m2.node.property.name : null;
+        const field = (m2?.isMemberExpression() || m2?.isOptionalMemberExpression()) && !m2.node.computed && t2.isIdentifier(m2.node.property) ? m2.node.property.name : null;
         if (!field) {
           followed = false;
           continue;
@@ -72093,7 +72419,7 @@ function scanActionStates(ast, add, hookFor, use, report) {
         if (!hook) followed = false;
         else reads.push({ path: m2, hook, field });
       }
-      const owner = t.isIdentifier(fnRef) ? fnRef.name : "action";
+      const owner = t2.isIdentifier(fnRef) ? fnRef.name : "action";
       if (!followed || !reads.length) {
         for (const literals of copy.values()) for (const l2 of literals) report(l2, normalizeWhitespace(l2.value), `returned by the action ${owner} and read where it can't be followed: show it as {state.field} in the component`);
         return;
@@ -72125,7 +72451,7 @@ function planMove(decl, code2, server, fields) {
     const call7 = list4?.parentPath;
     if (list4?.isArrayExpression() && call7?.isCallExpression() && list4.key !== 0) {
       const callee = call7.node.callee;
-      const hookName = t.isIdentifier(callee) ? callee.name : t.isMemberExpression(callee) && t.isIdentifier(callee.property) ? callee.property.name : "";
+      const hookName = t2.isIdentifier(callee) ? callee.name : t2.isMemberExpression(callee) && t2.isIdentifier(callee.property) ? callee.property.name : "";
       if (DEPENDENCY_HOOKS.test(hookName)) return { reason: `a dependency of ${hookName} in ${h.componentName}, which would re-run on every render if it were built there` };
     }
   }
@@ -72141,7 +72467,7 @@ function planMove(decl, code2, server, fields) {
       p.stop();
     },
     NewExpression(p) {
-      if (!p.node.arguments.length || !p.node.arguments.every((a) => t.isStringLiteral(a) || t.isNumericLiteral(a))) {
+      if (!p.node.arguments.length || !p.node.arguments.every((a) => t2.isStringLiteral(a) || t2.isNumericLiteral(a))) {
         built ??= "built with code (a call)";
         p.stop();
       }
@@ -72184,11 +72510,11 @@ function planMove(decl, code2, server, fields) {
 function comparedField(program2, fields) {
   const fieldOf = (p) => {
     while (p.isTSAsExpression() || p.isTSNonNullExpression() || p.isParenthesizedExpression()) p = p.get("expression");
-    if ((p.isMemberExpression() || p.isOptionalMemberExpression()) && !p.node.computed && t.isIdentifier(p.node.property) && fields.has(p.node.property.name)) return p.node.property.name;
+    if ((p.isMemberExpression() || p.isOptionalMemberExpression()) && !p.node.computed && t2.isIdentifier(p.node.property) && fields.has(p.node.property.name)) return p.node.property.name;
     if (!p.isIdentifier()) return null;
     const at2 = p.scope.getBinding(p.node.name)?.path;
     const prop2 = at2?.isIdentifier() || at2?.isAssignmentPattern() ? at2.parentPath : null;
-    if (prop2?.isObjectProperty() && prop2.parentPath.isObjectPattern() && !prop2.node.computed && t.isIdentifier(prop2.node.key) && fields.has(prop2.node.key.name)) return prop2.node.key.name;
+    if (prop2?.isObjectProperty() && prop2.parentPath.isObjectPattern() && !prop2.node.computed && t2.isIdentifier(prop2.node.key) && fields.has(prop2.node.key.name)) return prop2.node.key.name;
     return null;
   };
   let found2 = null;
@@ -72206,23 +72532,23 @@ function comparedField(program2, fields) {
   return found2;
 }
 function scanQwikHead(ast, code2, ts, mode, add) {
-  traverse(ast, {
+  traverse2(ast, {
     ExportNamedDeclaration(exp) {
       exp.skip();
       const declaration2 = exp.get("declaration");
       if (!declaration2.isVariableDeclaration() || declaration2.node.declarations.length !== 1) return;
       const decl = declaration2.get("declarations")[0];
-      if (!t.isIdentifier(decl.node.id, { name: "head" }) || !decl.node.init) return;
+      if (!t2.isIdentifier(decl.node.id, { name: "head" }) || !decl.node.init) return;
       const typed = !!decl.node.id.typeAnnotation;
       let value = decl.get("init");
       while (value.isTSAsExpression() || value.isTSSatisfiesExpression() || value.isParenthesizedExpression()) value = value.get("expression");
       const wrapped = value.node !== decl.node.init;
       const found2 = [];
       const take = (n4, element3) => {
-        if (t.isStringLiteral(n4)) {
+        if (t2.isStringLiteral(n4)) {
           const text4 = normalizeWhitespace(n4.value).trim();
           if (isTranslatable(text4)) found2.push({ literal: n4, text: text4, params: [], element: element3 });
-        } else if (t.isTemplateLiteral(n4)) {
+        } else if (t2.isTemplateLiteral(n4)) {
           const params = [];
           let text4 = "";
           n4.quasis.forEach((q, i3) => {
@@ -72239,19 +72565,19 @@ function scanQwikHead(ast, code2, ts, mode, add) {
         }
       };
       const fromObject = (obj) => {
-        while (t.isTSAsExpression(obj) || t.isTSSatisfiesExpression(obj) || t.isParenthesizedExpression(obj)) obj = obj.expression;
-        if (!t.isObjectExpression(obj)) return;
+        while (t2.isTSAsExpression(obj) || t2.isTSSatisfiesExpression(obj) || t2.isParenthesizedExpression(obj)) obj = obj.expression;
+        if (!t2.isObjectExpression(obj)) return;
         for (const p of obj.properties) {
-          if (!t.isObjectProperty(p) || p.computed) continue;
-          const key2 = t.isIdentifier(p.key) ? p.key.name : t.isStringLiteral(p.key) ? p.key.value : "";
+          if (!t2.isObjectProperty(p) || p.computed) continue;
+          const key2 = t2.isIdentifier(p.key) ? p.key.name : t2.isStringLiteral(p.key) ? p.key.value : "";
           if (key2 === "title") take(p.value, "title");
-          if (key2 !== "meta" || !t.isArrayExpression(p.value)) continue;
+          if (key2 !== "meta" || !t2.isArrayExpression(p.value)) continue;
           for (const tag2 of p.value.elements) {
-            if (!t.isObjectExpression(tag2)) continue;
-            const field = (k) => tag2.properties.find((q) => t.isObjectProperty(q) && !q.computed && (t.isIdentifier(q.key, { name: k }) || t.isStringLiteral(q.key, { value: k })));
+            if (!t2.isObjectExpression(tag2)) continue;
+            const field = (k) => tag2.properties.find((q) => t2.isObjectProperty(q) && !q.computed && (t2.isIdentifier(q.key, { name: k }) || t2.isStringLiteral(q.key, { value: k })));
             const named2 = field("name")?.value ?? field("property")?.value;
             const content = field("content")?.value;
-            if (t.isStringLiteral(named2) && META_TEXT.test(named2.value) && content) take(content, "meta");
+            if (t2.isStringLiteral(named2) && META_TEXT.test(named2.value) && content) take(content, "meta");
           }
         }
       };
@@ -72277,7 +72603,7 @@ function scanQwikHead(ast, code2, ts, mode, add) {
       } else if (value.isArrowFunctionExpression() || value.isFunctionExpression()) {
         const fn2 = value.node;
         const body = fn2.body;
-        if (t.isBlockStatement(body)) {
+        if (t2.isBlockStatement(body)) {
           value.traverse({
             Function(inner) {
               inner.skip();
@@ -72297,20 +72623,20 @@ function scanQwikHead(ast, code2, ts, mode, add) {
           if (open3 === -1 || open3 > body.start) problem ??= "head's parameters can't be found";
           else edits.push({ at: open3 + 1, text: `{ url }${urlType}` });
           if (value.scope.hasBinding("url")) problem ??= "url is already a name in head";
-        } else if (t.isIdentifier(param)) url = `${param.name}.url`;
-        else if (t.isObjectPattern(param)) {
-          const own = param.properties.find((p) => t.isObjectProperty(p) && !p.computed && t.isIdentifier(p.key, { name: "url" }));
-          const rest2 = param.properties.find((p) => t.isRestElement(p));
+        } else if (t2.isIdentifier(param)) url = `${param.name}.url`;
+        else if (t2.isObjectPattern(param)) {
+          const own = param.properties.find((p) => t2.isObjectProperty(p) && !p.computed && t2.isIdentifier(p.key, { name: "url" }));
+          const rest2 = param.properties.find((p) => t2.isRestElement(p));
           if (own) {
-            if (t.isIdentifier(own.value)) url = own.value.name;
+            if (t2.isIdentifier(own.value)) url = own.value.name;
             else problem ??= "head takes its url apart, so its pathname can't be read";
-          } else if (rest2 && t.isIdentifier(rest2.argument)) url = `${rest2.argument.name}.url`;
+          } else if (rest2 && t2.isIdentifier(rest2.argument)) url = `${rest2.argument.name}.url`;
           else if (param.typeAnnotation) problem ??= "head's parameter has a type of its own: add url to it";
           else if (value.scope.hasBinding("url")) problem ??= "url is already a name in head";
           else if (param.properties.length) edits.push({ at: param.properties[param.properties.length - 1].end, text: ", url" });
           else edits.push({ at: param.start + 1, text: " url " });
         } else problem ??= "head's parameter can't be read";
-        if (t.isBlockStatement(body)) {
+        if (t2.isBlockStatement(body)) {
           const first = body.body[0];
           const lineStart = first ? code2.lastIndexOf("\n", first.start - 1) + 1 : 0;
           const indent2 = first ? /^[ \t]*/.exec(code2.slice(lineStart))[0] : "  ";
@@ -72346,12 +72672,12 @@ ${indent2}${line(`${url}.pathname`)}` });
 function scanMetadata(ast, code2, add) {
   const strings2 = (obj, out = []) => {
     for (const p of obj.properties) {
-      if (!t.isObjectProperty(p) || p.computed) continue;
-      const key2 = t.isIdentifier(p.key) ? p.key.name : t.isStringLiteral(p.key) ? p.key.value : "";
+      if (!t2.isObjectProperty(p) || p.computed) continue;
+      const key2 = t2.isIdentifier(p.key) ? p.key.name : t2.isStringLiteral(p.key) ? p.key.value : "";
       const v2 = p.value;
-      if (t.isObjectExpression(v2)) strings2(v2, out);
-      else if (t.isArrayExpression(v2)) v2.elements.forEach((e2) => t.isObjectExpression(e2) && strings2(e2, out));
-      else if (t.isStringLiteral(v2) && META_TEXT2.has(key2)) {
+      if (t2.isObjectExpression(v2)) strings2(v2, out);
+      else if (t2.isArrayExpression(v2)) v2.elements.forEach((e2) => t2.isObjectExpression(e2) && strings2(e2, out));
+      else if (t2.isStringLiteral(v2) && META_TEXT2.has(key2)) {
         const text4 = normalizeWhitespace(v2.value).trim();
         const templated = key2 === "template" && text4.includes("%s");
         const message = templated ? text4.replace("%s", "{page}") : text4;
@@ -72360,18 +72686,18 @@ function scanMetadata(ast, code2, add) {
     }
     return out;
   };
-  const objectsIn = (expr) => t.isObjectExpression(expr) ? [expr] : t.isCallExpression(expr) ? expr.arguments.filter((a) => t.isObjectExpression(a)) : [];
+  const objectsIn = (expr) => t2.isObjectExpression(expr) ? [expr] : t2.isCallExpression(expr) ? expr.arguments.filter((a) => t2.isObjectExpression(a)) : [];
   for (const statement of ast.program.body) {
-    if (!t.isExportNamedDeclaration(statement) || !statement.declaration) continue;
+    if (!t2.isExportNamedDeclaration(statement) || !statement.declaration) continue;
     const decl = statement.declaration;
-    if (t.isVariableDeclaration(decl)) {
+    if (t2.isVariableDeclaration(decl)) {
       for (const d3 of decl.declarations) {
-        if (!t.isIdentifier(d3.id, { name: "metadata" }) || !d3.init || decl.declarations.length !== 1) continue;
+        if (!t2.isIdentifier(d3.id, { name: "metadata" }) || !d3.init || decl.declarations.length !== 1) continue;
         const objects = objectsIn(d3.init);
         if (!objects.length) continue;
         const found2 = objects.flatMap((o) => strings2(o));
         if (!found2.length) continue;
-        const annotation = d3.id.typeAnnotation && t.isTSTypeAnnotation(d3.id.typeAnnotation) ? code2.slice(d3.id.typeAnnotation.typeAnnotation.start, d3.id.typeAnnotation.typeAnnotation.end) : null;
+        const annotation = d3.id.typeAnnotation && t2.isTSTypeAnnotation(d3.id.typeAnnotation) ? code2.slice(d3.id.typeAnnotation.typeAnnotation.start, d3.id.typeAnnotation.typeAnnotation.end) : null;
         const hook = {
           fnStart: statement.start,
           componentName: "metadata",
@@ -72385,12 +72711,12 @@ function scanMetadata(ast, code2, add) {
         for (const f2 of found2) add(f2.literal, f2.text, f2.params, hook);
       }
     }
-    if (t.isFunctionDeclaration(decl) && t.isIdentifier(decl.id, { name: "generateMetadata" }) && decl.body.body.length) {
+    if (t2.isFunctionDeclaration(decl) && t2.isIdentifier(decl.id, { name: "generateMetadata" }) && decl.body.body.length) {
       const found2 = [];
       const visit = (node2) => {
-        if (!node2 || t.isFunction(node2) && node2 !== decl) return;
-        if (t.isReturnStatement(node2)) for (const o of objectsIn(node2.argument)) strings2(o, found2);
-        for (const key2 of t.VISITOR_KEYS[node2.type] ?? []) {
+        if (!node2 || t2.isFunction(node2) && node2 !== decl) return;
+        if (t2.isReturnStatement(node2)) for (const o of objectsIn(node2.argument)) strings2(o, found2);
+        for (const key2 of t2.VISITOR_KEYS[node2.type] ?? []) {
           const child = node2[key2];
           if (Array.isArray(child)) child.forEach(visit);
           else visit(child);
@@ -72417,7 +72743,7 @@ function scanMetadata(ast, code2, add) {
 function ordinalFromSource(source2) {
   let expr;
   try {
-    expr = (0, import_parser.parseExpression)(source2, { plugins: ["typescript"] });
+    expr = (0, import_parser2.parseExpression)(source2, { plugins: ["typescript"] });
   } catch {
     return null;
   }
@@ -72427,36 +72753,39 @@ function ordinalFromSource(source2) {
 function pluralFromSource(source2) {
   let expr;
   try {
-    expr = (0, import_parser.parseExpression)(source2, { plugins: ["typescript"] });
+    expr = (0, import_parser2.parseExpression)(source2, { plugins: ["typescript"] });
   } catch {
     return null;
   }
   const found2 = pluralTernary(expr);
   return found2 ? { count: source2.slice(found2.count.start, found2.count.end), one: found2.one, other: found2.other } : null;
 }
-var import_parser, import_traverse, t, traverse, IGNORED_ELEMENTS, INLINE_CODE_TAGS, IGNORE_ATTRIBUTES, COPY_PROPS, literalText, IRREGULAR, UNCOUNTABLE, PLURAL_HELPER, ORDINAL_SUFFIX, calleeName, TAG_NAMES, VOID_TAGS, sourceLanguage, GENDER, LIST_QUERIES, ITEM, prose, VALUE_FIELDS, COPY_KEYS, SETTER, TOAST_FNS, TOAST_OBJECTS, SCHEMA_METHODS, GENERIC_PROPS, OUTSIDE_COMPONENTS, isComponentClass, DEPENDENCY_HOOKS, META_TEXT2, ENGLISH_ORDINAL_SUFFIX;
+var import_parser2, import_traverse2, t2, traverse2, IGNORED_ELEMENTS, INLINE_CODE_TAGS, IGNORE_ATTRIBUTES, COPY_PROPS, literalText, IRREGULAR, UNCOUNTABLE, PLURAL_HELPER, ORDINAL_SUFFIX, calleeName, TAG_NAMES, VOID_TAGS, sourceLanguage, money, isAmount, GENDER, LIST_QUERIES, ITEM, prose, VALUE_FIELDS, COPY_KEYS, SETTER, TOAST_FNS, TOAST_OBJECTS, SCHEMA_METHODS, GENERIC_PROPS, OUTSIDE_COMPONENTS, isComponentClass, DEPENDENCY_HOOKS, META_TEXT2, ENGLISH_ORDINAL_SUFFIX;
 var init_scanner = __esm({
   "src/ast/scanner.ts"() {
     "use strict";
-    import_parser = __toESM(require_lib(), 1);
-    import_traverse = __toESM(require_lib8(), 1);
-    t = __toESM(require_lib4(), 1);
+    import_parser2 = __toESM(require_lib(), 1);
+    import_traverse2 = __toESM(require_lib8(), 1);
+    t2 = __toESM(require_lib4(), 1);
     init_config();
     init_filters();
-    traverse = import_traverse.default.default ?? import_traverse.default;
+    init_locale_formats();
+    traverse2 = import_traverse2.default.default ?? import_traverse2.default;
     IGNORED_ELEMENTS = /* @__PURE__ */ new Set(["code", "pre", "script", "style", "kbd", "samp", "Trans"]);
     INLINE_CODE_TAGS = /* @__PURE__ */ new Set(["code", "kbd", "samp"]);
     IGNORE_ATTRIBUTES = /* @__PURE__ */ new Set(["data-i18n-ignore", "data-localize-ignore"]);
     COPY_PROPS = /* @__PURE__ */ new Set(["heading", "subheading", "title", "subtitle", "description", "text", "message", "caption", "cta", "ctaText", "hint", "helperText", "helpText", "emptyText", "emptyMessage", "errorMessage", "successMessage", "buttonText", "confirmText", "cancelText", "okText", "submitText", "loadingText", "summary", "body", "question", "answer", "tagline", "headline", "eyebrow", "badge"]);
-    literalText = (n4) => t.isStringLiteral(n4) ? n4.value : t.isTemplateLiteral(n4) && !n4.expressions.length ? n4.quasis[0].value.cooked ?? null : null;
+    literalText = (n4) => t2.isStringLiteral(n4) ? n4.value : t2.isTemplateLiteral(n4) && !n4.expressions.length ? n4.quasis[0].value.cooked ?? null : null;
     IRREGULAR = { person: "people", child: "children", man: "men", woman: "women", mouse: "mice", foot: "feet", tooth: "teeth", goose: "geese", ox: "oxen", leaf: "leaves", life: "lives", knife: "knives", wife: "wives", half: "halves" };
     UNCOUNTABLE = /* @__PURE__ */ new Set(["information", "equipment", "feedback", "news", "data", "software", "hardware", "series", "species", "sheep", "fish", "deer", "money", "advice"]);
     PLURAL_HELPER = /^(?:plural|pluralize|pluralise|inflect|plur)$/i;
     ORDINAL_SUFFIX = { one: "st", two: "nd", few: "rd", other: "th" };
-    calleeName = (call7) => t.isIdentifier(call7.callee) ? call7.callee.name : t.isMemberExpression(call7.callee) && t.isIdentifier(call7.callee.property) ? call7.callee.property.name : "";
+    calleeName = (call7) => t2.isIdentifier(call7.callee) ? call7.callee.name : t2.isMemberExpression(call7.callee) && t2.isIdentifier(call7.callee.property) ? call7.callee.property.name : "";
     TAG_NAMES = { a: "a", Link: "a", NavLink: "a", strong: "bold", b: "bold", em: "em", i: "em" };
     VOID_TAGS = /* @__PURE__ */ new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
     sourceLanguage = "en";
+    money = null;
+    isAmount = (expr) => t2.isCallExpression(expr) ? t2.isMemberExpression(expr.callee) && t2.isIdentifier(expr.callee.property, { name: "toFixed" }) && isValueExpression(expr.callee.object) : isValueExpression(expr);
     GENDER = /(gender|sex|pronouns?)$/i;
     LIST_QUERIES = /* @__PURE__ */ new Set(["length", "findIndex", "findLastIndex", "some", "every", "includes", "indexOf"]);
     ITEM = "[]";
@@ -72469,7 +72798,7 @@ var init_scanner = __esm({
     SCHEMA_METHODS = /* @__PURE__ */ new Set(["min", "max", "length", "email", "url", "regex", "matches", "nonempty", "required", "refine", "superRefine", "positive", "negative", "int", "gt", "gte", "lt", "lte", "startsWith", "endsWith", "includes", "uuid", "datetime", "oneOf", "typeError", "test"]);
     GENERIC_PROPS = /* @__PURE__ */ new Set(["length", "size"]);
     OUTSIDE_COMPONENTS = "not inside a function component or hook";
-    isComponentClass = (superClass) => !!superClass && (t.isIdentifier(superClass) ? /^(Pure)?Component$/.test(superClass.name) : t.isMemberExpression(superClass) && t.isIdentifier(superClass.property) && /^(Pure)?Component$/.test(superClass.property.name));
+    isComponentClass = (superClass) => !!superClass && (t2.isIdentifier(superClass) ? /^(Pure)?Component$/.test(superClass.name) : t2.isMemberExpression(superClass) && t2.isIdentifier(superClass.property) && /^(Pure)?Component$/.test(superClass.property.name));
     DEPENDENCY_HOOKS = /^use(Effect|LayoutEffect|InsertionEffect|Memo|Callback|ImperativeHandle)$/;
     META_TEXT2 = /* @__PURE__ */ new Set(["title", "description", "alt", "default", "absolute", "template"]);
     ENGLISH_ORDINAL_SUFFIX = ORDINAL_SUFFIX;
@@ -74681,7 +75010,7 @@ __export(acorn_exports, {
   lineBreak: () => lineBreak,
   lineBreakG: () => lineBreakG,
   nonASCIIwhitespace: () => nonASCIIwhitespace,
-  parse: () => parse4,
+  parse: () => parse5,
   parseExpressionAt: () => parseExpressionAt2,
   tokContexts: () => types,
   tokTypes: () => types$1,
@@ -74983,7 +75312,7 @@ function stringToBigInt(str2) {
   }
   return BigInt(str2.replace(/_/g, ""));
 }
-function parse4(input, options) {
+function parse5(input, options) {
   return Parser.parse(input, options);
 }
 function parseExpressionAt2(input, pos, options) {
@@ -75334,7 +75663,7 @@ var init_acorn = __esm({
       this.privateNameStack = [];
     };
     prototypeAccessors = { inFunction: { configurable: true }, inGenerator: { configurable: true }, inAsync: { configurable: true }, canAwait: { configurable: true }, allowReturn: { configurable: true }, allowSuper: { configurable: true }, allowDirectSuper: { configurable: true }, treatFunctionsAsVar: { configurable: true }, allowNewDotTarget: { configurable: true }, allowUsing: { configurable: true }, inClassStaticBlock: { configurable: true } };
-    Parser.prototype.parse = function parse2() {
+    Parser.prototype.parse = function parse3() {
       var this$1$1 = this;
       var node2 = this.options.program || this.startNode();
       this.nextToken();
@@ -75417,7 +75746,7 @@ var init_acorn = __esm({
       }
       return cls;
     };
-    Parser.parse = function parse3(input, options) {
+    Parser.parse = function parse4(input, options) {
       return new this(options, input).parse();
     };
     Parser.parseExpressionAt = function parseExpressionAt(input, pos, options) {
@@ -86794,7 +87123,7 @@ var init_errors = __esm({
 });
 
 // ../../node_modules/svelte/src/compiler/phases/1-parse/acorn.js
-function parse5(source2, comments, typescript, is_script) {
+function parse6(source2, comments, typescript, is_script) {
   const acorn = typescript ? TSParser : JSParser;
   const { onComment, add_comments } = get_comment_handlers(
     source2,
@@ -88043,7 +88372,7 @@ function read_script(parser2, start2, attributes2) {
   }
   const source2 = parser2.template.slice(0, script_start).replace(regex_not_newline_characters, " ") + data2;
   parser2.read(regex_starts_with_closing_script_tag);
-  const ast = parse5(source2, parser2.root.comments, parser2.ts, true);
+  const ast = parse6(source2, parser2.root.comments, parser2.ts, true);
   ast.start = script_start;
   if (ast.loc) {
     ({ line: ast.loc.start.line, column: ast.loc.start.column } = locator(start2));
@@ -93086,7 +93415,7 @@ var init_options = __esm({
 });
 
 // ../../node_modules/svelte/src/compiler/phases/1-parse/index.js
-function parse6(template4, loose = false) {
+function parse7(template4, loose = false) {
   set_source(template4);
   const parser2 = new Parser3(template4, loose);
   return parser2.root;
@@ -110772,7 +111101,7 @@ function get_component_name(filename2) {
 function analyze_module(source2, options) {
   const comments = [];
   set_source(source2);
-  const ast = parse5(source2, comments, false, false);
+  const ast = parse6(source2, comments, false, false);
   const { scope, scopes, has_await } = create_scopes(ast, new ScopeRoot(), false, null);
   for (const [name, references] of scope.references) {
     if (name[0] !== "$" || RESERVED.includes(name)) continue;
@@ -115645,7 +115974,7 @@ function memoizedBinarySearch(haystack, needle, state, key2) {
   state.lastNeedle = needle;
   return state.lastIndex = binarySearch(haystack, needle, low, high);
 }
-function parse7(map) {
+function parse8(map) {
   return typeof map === "string" ? JSON.parse(map) : map;
 }
 function cast(map) {
@@ -115689,7 +116018,7 @@ var init_trace_mapping = __esm({
       constructor(map, mapUrl) {
         const isString = typeof map === "string";
         if (!isString && map._decodedMemo) return map;
-        const parsed = parse7(map);
+        const parsed = parse8(map);
         const { version: version2, file: file2, names: names3, sourceRoot, sources, sourcesContent } = parsed;
         this.version = version2;
         this.file = file2;
@@ -127660,7 +127989,7 @@ function migrate(source2, { filename: filename2, use_ts } = {}) {
       return start2 + style_placeholder + end2;
     });
     reset({ warning: () => false, filename: filename2 });
-    let parsed = parse6(source2);
+    let parsed = parse7(source2);
     const { customElement: customElementOptions, ...parsed_options } = parsed.options || {};
     const combined_options = {
       ...validate_component_options({}, ""),
@@ -129275,7 +129604,7 @@ __export(compiler_exports, {
   compile: () => compile,
   compileModule: () => compileModule,
   migrate: () => migrate,
-  parse: () => parse8,
+  parse: () => parse9,
   parseCss: () => parseCss,
   preprocess: () => preprocess,
   print: () => print2,
@@ -129285,7 +129614,7 @@ function compile(source2, options) {
   source2 = remove_bom(source2);
   reset({ warning: options.warningFilter, filename: options.filename });
   const validated = validate_component_options(options, "");
-  let parsed = parse6(source2);
+  let parsed = parse7(source2);
   const { customElement: customElementOptions, ...parsed_options } = parsed.options || {};
   const combined_options = {
     ...validated,
@@ -129319,10 +129648,10 @@ function compileModule(source2, options) {
   const analysis = analyze_module(source2, validated);
   return transform_module(analysis, source2, validated);
 }
-function parse8(source2, { modern, loose } = {}) {
+function parse9(source2, { modern, loose } = {}) {
   source2 = remove_bom(source2);
   reset({ warning: () => false, filename: void 0 });
-  const ast = parse6(source2, loose);
+  const ast = parse7(source2, loose);
   return to_public_ast(source2, ast, modern);
 }
 function parseCss(source2) {
@@ -151156,7 +151485,7 @@ function transformExpressionsInStatement(stmt2, transform2, flags) {
     throw new Error(`Unhandled statement kind: ${stmt2.constructor.name}`);
   }
 }
-function isStringLiteral2(expr) {
+function isStringLiteral3(expr) {
   return expr instanceof LiteralExpr && typeof expr.value === "string";
 }
 function isElementOrContainerOp(op) {
@@ -154544,7 +154873,7 @@ function emitNamespaceChanges(job) {
     }
   }
 }
-function parse9(value) {
+function parse10(value) {
   const styles = [];
   let i3 = 0;
   let parenDepth = 0;
@@ -154614,13 +154943,13 @@ function parseExtractedStyles(job) {
   }
   for (const unit of job.units) {
     for (const op of unit.create) {
-      if (op.kind === OpKind.ExtractedAttribute && op.bindingKind === BindingKind.Attribute && isStringLiteral2(op.expression)) {
+      if (op.kind === OpKind.ExtractedAttribute && op.bindingKind === BindingKind.Attribute && isStringLiteral3(op.expression)) {
         const target = elements.get(op.target);
         if (target !== void 0 && (target.kind === OpKind.Template || target.kind === OpKind.ConditionalCreate || target.kind === OpKind.ConditionalBranchCreate) && target.templateKind === TemplateKind.Structural) {
           continue;
         }
         if (op.name === "style") {
-          const parsedStyles = parse9(op.expression.value);
+          const parsedStyles = parse10(op.expression.value);
           for (let i3 = 0; i3 < parsedStyles.length - 1; i3 += 2) {
             OpList.insertBefore(createExtractedAttributeOp(op.target, BindingKind.StyleProperty, null, parsedStyles[i3], literal3(parsedStyles[i3 + 1]), null, null, SecurityContext.STYLE), op);
           }
@@ -169209,7 +169538,7 @@ ${ctx.toSourceMapGenerator(sourceUrl, headerLines).toJsComment()}`;
           if (value === null) {
             throw Error("Attribute, i18n attribute, & style element attributes must have a value");
           }
-          if (trustedValueFn !== null && isStringLiteral2(value)) {
+          if (trustedValueFn !== null && isStringLiteral3(value)) {
             array2.push(taggedTemplate(trustedValueFn, new TemplateLiteralExpr([new TemplateLiteralElementExpr(value.value)], []), void 0, value.sourceSpan));
           } else {
             array2.push(value);
@@ -181487,7 +181816,7 @@ __export(es_exports, {
   print: () => build2,
   sortByLoc: () => sortByLoc,
   src: () => api$1,
-  traverse: () => traverse2,
+  traverse: () => traverse3,
   visitorKeys: () => visitorKeys
 });
 function attrValueReplacer(char) {
@@ -181924,7 +182253,7 @@ function hashLiteralNode(hash2, loc2) {
     loc: loc2
   };
 }
-function parse10(input, options) {
+function parse11(input, options) {
   let ast = parseWithoutProcessing(input, options);
   let strip = new WhitespaceControl(options);
   return strip.accept(ast);
@@ -182201,7 +182530,7 @@ function spliceArray(array2, index, result) {
     return 1;
   }
 }
-function traverse2(node2, visitor) {
+function traverse3(node2, visitor) {
   let path22 = new WalkerPath(node2);
   visitNode(visitor, path22);
 }
@@ -182769,7 +183098,7 @@ function repairBlock(source2, block3, fallbackStart) {
   }
   return block3;
 }
-function isSpace(char) {
+function isSpace2(char) {
   return /[\t\n\f ]/u.test(char);
 }
 function preprocess2(input, options = {}) {
@@ -182781,14 +183110,14 @@ function preprocess2(input, options = {}) {
     if (mode === "codemod") {
       ast = parseWithoutProcessing(input, options.parseOptions);
     } else {
-      ast = parse10(input, options.parseOptions);
+      ast = parse11(input, options.parseOptions);
     }
   } else if (input instanceof Source2) {
     source2 = input;
     if (mode === "codemod") {
       ast = parseWithoutProcessing(input.source, options.parseOptions);
     } else {
-      ast = parse10(input.source, options.parseOptions);
+      ast = parse11(input.source, options.parseOptions);
     }
   } else {
     source2 = new Source2("", options.meta?.moduleName);
@@ -182813,7 +183142,7 @@ function preprocess2(input, options = {}) {
         plugins: void 0
       });
       let pluginResult = transform2(env);
-      traverse2(template4, pluginResult.visitor);
+      traverse3(template4, pluginResult.visitor);
     }
   }
   return template4;
@@ -182865,7 +183194,7 @@ function getTemplateLocals(html, options = {
   const ast = preprocess2(html);
   const tokensSet = /* @__PURE__ */ new Set();
   const scopedTokens = [];
-  traverse2(ast, {
+  traverse3(ast, {
     Block: {
       enter({
         blockParams
@@ -190310,7 +190639,7 @@ var init_es = __esm({
         const handlers = {
           PossibleAs: (next3) => {
             assert3(state.state === "PossibleAs");
-            if (isSpace(next3)) {
+            if (isSpace2(next3)) {
               state = {
                 state: "BeforeStartPipe"
               };
@@ -190326,7 +190655,7 @@ var init_es = __esm({
           },
           BeforeStartPipe: (next3) => {
             assert3(state.state === "BeforeStartPipe");
-            if (isSpace(next3)) {
+            if (isSpace2(next3)) {
               this.tokenizer.consume();
             } else if (next3 === "|") {
               state = {
@@ -190342,7 +190671,7 @@ var init_es = __esm({
           },
           BeforeBlockParamName: (next3) => {
             assert3(state.state === "BeforeBlockParamName");
-            if (isSpace(next3)) {
+            if (isSpace2(next3)) {
               this.tokenizer.consume();
             } else if (next3 === "") {
               state = {
@@ -190390,7 +190719,7 @@ var init_es = __esm({
                   throw generateSyntaxError(`Invalid block parameters syntax: expecting the tag to be closed with ">" or "/>" after parameters list`, as.start.until(loc2));
                 }
               };
-            } else if (next3 === "|" || isSpace(next3)) {
+            } else if (next3 === "|" || isSpace2(next3)) {
               let loc2 = state.start.until(this.offset());
               if (state.name === "this" || ID_INVERSE_PATTERN.test(state.name)) {
                 throw generateSyntaxError(`Invalid block parameters syntax: invalid identifier name \`${state.name}\``, loc2);
@@ -190414,7 +190743,7 @@ var init_es = __esm({
           },
           AfterEndPipe: (next3) => {
             assert3(state.state === "AfterEndPipe");
-            if (isSpace(next3)) {
+            if (isSpace2(next3)) {
               this.tokenizer.consume();
             } else if (next3 === "") {
               state = {
@@ -190443,7 +190772,7 @@ var init_es = __esm({
           },
           Error: (next3) => {
             assert3(state.state === "Error");
-            if (next3 === "" || next3 === "/" || next3 === ">" || isSpace(next3)) {
+            if (next3 === "" || next3 === "/" || next3 === ">" || isSpace2(next3)) {
               throw generateSyntaxError(state.message, state.start.until(this.offset()));
             } else {
               this.tokenizer.consume();
@@ -190505,7 +190834,7 @@ var init_es = __esm({
       parse: preprocess2,
       builders: publicBuilder,
       print: build2,
-      traverse: traverse2,
+      traverse: traverse3,
       Walker
     };
     CodemodEntityParser = class extends EntityParser {
@@ -192265,11 +192594,11 @@ var init_markup = __esm({
 
 // src/formats/script.ts
 function literalMessage(node2, offset2, code2) {
-  if (t2.isStringLiteral(node2)) {
+  if (t3.isStringLiteral(node2)) {
     const run2 = buildRun([{ kind: "text", start: 0, end: node2.value.length, raw: node2.value }], { values: true });
     return run2 ? { start: offset2 + node2.start, end: offset2 + node2.end, text: run2.text, params: [] } : null;
   }
-  if (!t2.isTemplateLiteral(node2)) return null;
+  if (!t3.isTemplateLiteral(node2)) return null;
   const parts = [];
   node2.quasis.forEach((q, i3) => {
     const raw = q.value.cooked ?? q.value.raw;
@@ -192292,28 +192621,28 @@ function onInstance(p) {
 function scriptLiterals(script, offset2) {
   let ast;
   try {
-    ast = (0, import_parser2.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+    ast = (0, import_parser3.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
   } catch {
     return null;
   }
   const found2 = [];
-  traverse3(ast, {
+  traverse4(ast, {
     CallExpression(path22) {
       const callee = path22.node.callee;
-      if (t2.isIdentifier(callee) && /^(useHead|useServerHead|useSeoMeta|useServerSeoMeta)$/.test(callee.name) && t2.isObjectExpression(path22.node.arguments[0])) {
+      if (t3.isIdentifier(callee) && /^(useHead|useServerHead|useSeoMeta|useServerSeoMeta)$/.test(callee.name) && t3.isObjectExpression(path22.node.arguments[0])) {
         const seo = /SeoMeta$/.test(callee.name);
-        const field = (o, k) => o.properties.find((p) => t2.isObjectProperty(p) && !p.computed && (t2.isIdentifier(p.key, { name: k }) || t2.isStringLiteral(p.key, { value: k })));
+        const field = (o, k) => o.properties.find((p) => t3.isObjectProperty(p) && !p.computed && (t3.isIdentifier(p.key, { name: k }) || t3.isStringLiteral(p.key, { value: k })));
         for (const p of path22.node.arguments[0].properties) {
-          if (!t2.isObjectProperty(p) || p.computed) continue;
-          const key2 = t2.isIdentifier(p.key) ? p.key.name : t2.isStringLiteral(p.key) ? p.key.value : "";
+          if (!t3.isObjectProperty(p) || p.computed) continue;
+          const key2 = t3.isIdentifier(p.key) ? p.key.name : t3.isStringLiteral(p.key) ? p.key.value : "";
           const values = [];
           if (seo ? SEO_TEXT.has(key2) : key2 === "title") values.push(p.value);
-          if (!seo && key2 === "meta" && t2.isArrayExpression(p.value)) {
+          if (!seo && key2 === "meta" && t3.isArrayExpression(p.value)) {
             for (const tag2 of p.value.elements) {
-              if (!t2.isObjectExpression(tag2)) continue;
+              if (!t3.isObjectExpression(tag2)) continue;
               const named2 = field(tag2, "name")?.value ?? field(tag2, "property")?.value;
               const content = field(tag2, "content")?.value;
-              if (content && t2.isStringLiteral(named2) && metaHoldsText([{ name: "name", value: named2.value }])) values.push(content);
+              if (content && t3.isStringLiteral(named2) && metaHoldsText([{ name: "name", value: named2.value }])) values.push(content);
             }
           }
           for (const v2 of values) {
@@ -192331,7 +192660,7 @@ function scriptLiterals(script, offset2) {
     },
     AssignmentExpression(path22) {
       const { left, right } = path22.node;
-      if (!t2.isMemberExpression(left) || !t2.isIdentifier(left.object, { name: "document" }) || !t2.isIdentifier(left.property, { name: "title" })) return;
+      if (!t3.isMemberExpression(left) || !t3.isIdentifier(left.object, { name: "document" }) || !t3.isIdentifier(left.property, { name: "title" })) return;
       const lit2 = literalMessage(right, offset2, script);
       if (lit2) found2.push({ ...lit2, sink: "document.title", method: inMethod(path22) });
     }
@@ -192340,9 +192669,9 @@ function scriptLiterals(script, offset2) {
 }
 function bindsName(script, name) {
   try {
-    const ast = (0, import_parser2.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+    const ast = (0, import_parser3.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
     let bound = false;
-    traverse3(ast, {
+    traverse4(ast, {
       Scope(path22) {
         if (path22.scope.hasOwnBinding(name)) bound = true, path22.stop();
       }
@@ -192355,7 +192684,7 @@ function bindsName(script, name) {
 function expressionLiterals(source2, offset2) {
   let expr;
   try {
-    expr = (0, import_parser2.parseExpression)(source2, { plugins: ["typescript"] });
+    expr = (0, import_parser3.parseExpression)(source2, { plugins: ["typescript"] });
   } catch {
     return [];
   }
@@ -192364,24 +192693,24 @@ function expressionLiterals(source2, offset2) {
 function outputLiterals(expr, offset2, code2, sink) {
   const found2 = [];
   const visit = (node2) => {
-    if (t2.isConditionalExpression(node2)) {
+    if (t3.isConditionalExpression(node2)) {
       visit(node2.consequent);
       visit(node2.alternate);
       return;
     }
-    if (t2.isLogicalExpression(node2)) {
+    if (t3.isLogicalExpression(node2)) {
       if (node2.operator !== "&&") visit(node2.left);
       visit(node2.right);
       return;
     }
-    if (t2.isParenthesizedExpression(node2) || t2.isTSAsExpression(node2)) return visit(node2.expression);
-    if (t2.isBinaryExpression(node2) && node2.operator === "+") {
+    if (t3.isParenthesizedExpression(node2) || t3.isTSAsExpression(node2)) return visit(node2.expression);
+    if (t3.isBinaryExpression(node2) && node2.operator === "+") {
       const pieces = [];
-      const flatten2 = (n4) => t2.isBinaryExpression(n4) && n4.operator === "+" ? (flatten2(n4.left), flatten2(n4.right)) : void pieces.push(n4);
+      const flatten2 = (n4) => t3.isBinaryExpression(n4) && n4.operator === "+" ? (flatten2(n4.left), flatten2(n4.right)) : void pieces.push(n4);
       flatten2(node2);
-      if (!pieces.some((p) => t2.isStringLiteral(p) && new RegExp("\\p{L}", "u").test(p.value) && (/\s/.test(p.value) || new RegExp("^\\p{Lu}", "u").test(p.value.trim())))) return;
+      if (!pieces.some((p) => t3.isStringLiteral(p) && new RegExp("\\p{L}", "u").test(p.value) && (/\s/.test(p.value) || new RegExp("^\\p{Lu}", "u").test(p.value.trim())))) return;
       const parts = pieces.map(
-        (p) => t2.isStringLiteral(p) ? { kind: "text", start: 0, end: p.value.length, raw: p.value } : { kind: "expr", start: 0, end: 0, source: code2.slice(p.start, p.end) }
+        (p) => t3.isStringLiteral(p) ? { kind: "text", start: 0, end: p.value.length, raw: p.value } : { kind: "expr", start: 0, end: 0, source: code2.slice(p.start, p.end) }
       );
       const run = buildRun(parts);
       if (run && !run.plural) found2.push({ start: offset2 + node2.start, end: offset2 + node2.end, text: run.text, params: run.params, sink });
@@ -192393,26 +192722,26 @@ function outputLiterals(expr, offset2, code2, sink) {
   visit(expr);
   return found2;
 }
-var import_parser2, import_traverse2, t2, traverse3, SEO_TEXT, SINK_FUNCTIONS, SINK_OBJECTS, sinkName, inMethod;
+var import_parser3, import_traverse3, t3, traverse4, SEO_TEXT, SINK_FUNCTIONS, SINK_OBJECTS, sinkName, inMethod;
 var init_script2 = __esm({
   "src/formats/script.ts"() {
     "use strict";
-    import_parser2 = __toESM(require_lib(), 1);
-    import_traverse2 = __toESM(require_lib8(), 1);
-    t2 = __toESM(require_lib4(), 1);
+    import_parser3 = __toESM(require_lib(), 1);
+    import_traverse3 = __toESM(require_lib8(), 1);
+    t3 = __toESM(require_lib4(), 1);
     init_markup();
     init_filters();
-    traverse3 = import_traverse2.default.default ?? import_traverse2.default;
+    traverse4 = import_traverse3.default.default ?? import_traverse3.default;
     SEO_TEXT = /* @__PURE__ */ new Set(["title", "description", "ogTitle", "ogDescription", "ogSiteName", "ogImageAlt", "twitterTitle", "twitterDescription", "twitterImageAlt"]);
     SINK_FUNCTIONS = /* @__PURE__ */ new Set(["alert", "confirm", "prompt", "toast", "notify"]);
     SINK_OBJECTS = /* @__PURE__ */ new Set(["toast", "notify", "notification", "message", "snackbar", "$toast", "$notify", "$q"]);
     sinkName = (callee) => {
-      if (t2.isIdentifier(callee)) return SINK_FUNCTIONS.has(callee.name) ? callee.name : null;
-      if (!t2.isMemberExpression(callee) || callee.computed || !t2.isIdentifier(callee.property)) return null;
+      if (t3.isIdentifier(callee)) return SINK_FUNCTIONS.has(callee.name) ? callee.name : null;
+      if (!t3.isMemberExpression(callee) || callee.computed || !t3.isIdentifier(callee.property)) return null;
       const obj = callee.object;
-      if (t2.isIdentifier(obj) && obj.name === "window" && SINK_FUNCTIONS.has(callee.property.name)) return callee.property.name;
-      if (t2.isIdentifier(obj) && SINK_OBJECTS.has(obj.name)) return `${obj.name}.${callee.property.name}`;
-      if (t2.isMemberExpression(obj) && t2.isThisExpression(obj.object) && t2.isIdentifier(obj.property) && SINK_OBJECTS.has(obj.property.name)) {
+      if (t3.isIdentifier(obj) && obj.name === "window" && SINK_FUNCTIONS.has(callee.property.name)) return callee.property.name;
+      if (t3.isIdentifier(obj) && SINK_OBJECTS.has(obj.name)) return `${obj.name}.${callee.property.name}`;
+      if (t3.isMemberExpression(obj) && t3.isThisExpression(obj.object) && t3.isIdentifier(obj.property) && SINK_OBJECTS.has(obj.property.name)) {
         return `${obj.property.name}.${callee.property.name}`;
       }
       return null;
@@ -192437,7 +192766,7 @@ function inlineTemplates(code2) {
   if (!/@Component\s*\(/.test(code2)) return [];
   let ast;
   try {
-    ast = (0, import_parser3.parse)(code2, { sourceType: "module", plugins: ["typescript", "decorators-legacy"], errorRecovery: true });
+    ast = (0, import_parser4.parse)(code2, { sourceType: "module", plugins: ["typescript", "decorators-legacy"], errorRecovery: true });
   } catch {
     return [];
   }
@@ -192469,27 +192798,27 @@ function angularScript(code2, inlineTemplate, major) {
   if (!/@(Component|Injectable|Directive)\s*\(/.test(code2)) return out;
   let ast;
   try {
-    ast = (0, import_parser3.parse)(code2, { sourceType: "module", plugins: ["typescript", "decorators-legacy"], errorRecovery: true });
+    ast = (0, import_parser4.parse)(code2, { sourceType: "module", plugins: ["typescript", "decorators-legacy"], errorRecovery: true });
   } catch {
     return out;
   }
-  traverse4(ast, {
+  traverse5(ast, {
     ClassDeclaration(cls) {
-      const decorated = (cls.node.decorators ?? []).some((d3) => t3.isCallExpression(d3.expression) && t3.isIdentifier(d3.expression.callee) && /^(Component|Injectable|Directive)$/.test(d3.expression.callee.name));
+      const decorated = (cls.node.decorators ?? []).some((d3) => t4.isCallExpression(d3.expression) && t4.isIdentifier(d3.expression.callee) && /^(Component|Injectable|Directive)$/.test(d3.expression.callee.name));
       if (!decorated) return;
       const body = cls.node.body.body;
-      const typed = (n4) => t3.isTSTypeAnnotation(n4) && t3.isTSTypeReference(n4.typeAnnotation) && t3.isIdentifier(n4.typeAnnotation.typeName, { name: "TranslateService" });
+      const typed = (n4) => t4.isTSTypeAnnotation(n4) && t4.isTSTypeReference(n4.typeAnnotation) && t4.isIdentifier(n4.typeAnnotation.typeName, { name: "TranslateService" });
       let member2 = null;
       for (const m2 of body) {
-        if (t3.isClassProperty(m2) && t3.isIdentifier(m2.key) && (typed(m2.typeAnnotation) || t3.isCallExpression(m2.value) && t3.isIdentifier(m2.value.callee, { name: "inject" }) && t3.isIdentifier(m2.value.arguments[0], { name: "TranslateService" }))) member2 = m2.key.name;
-        if (t3.isClassMethod(m2) && m2.kind === "constructor") {
-          for (const p of m2.params) if (t3.isTSParameterProperty(p) && t3.isIdentifier(p.parameter) && typed(p.parameter.typeAnnotation)) member2 = p.parameter.name;
+        if (t4.isClassProperty(m2) && t4.isIdentifier(m2.key) && (typed(m2.typeAnnotation) || t4.isCallExpression(m2.value) && t4.isIdentifier(m2.value.callee, { name: "inject" }) && t4.isIdentifier(m2.value.arguments[0], { name: "TranslateService" }))) member2 = m2.key.name;
+        if (t4.isClassMethod(m2) && m2.kind === "constructor") {
+          for (const p of m2.params) if (t4.isTSParameterProperty(p) && t4.isIdentifier(p.parameter) && typed(p.parameter.typeAnnotation)) member2 = p.parameter.name;
         }
       }
       let problem;
       if (!member2) {
         if (major !== void 0 && major < 14) problem = "Angular before 14 has no inject(): give the class a TranslateService (constructor(private translate: TranslateService)) and run again";
-        else if (body.some((m2) => (t3.isClassProperty(m2) || t3.isClassMethod(m2)) && t3.isIdentifier(m2.key, { name: "translate" }))) problem = "the class already has a member named translate";
+        else if (body.some((m2) => (t4.isClassProperty(m2) || t4.isClassMethod(m2)) && t4.isIdentifier(m2.key, { name: "translate" }))) problem = "the class already has a member named translate";
         else out.inject = { at: cls.node.body.start + 1 };
         member2 = "translate";
       }
@@ -192505,17 +192834,17 @@ function angularScript(code2, inlineTemplate, major) {
         },
         AssignmentExpression(p) {
           const { left, right } = p.node;
-          if (t3.isMemberExpression(left) && t3.isIdentifier(left.object, { name: "document" }) && t3.isIdentifier(left.property, { name: "title" })) take(p, right, "document.title");
+          if (t4.isMemberExpression(left) && t4.isIdentifier(left.object, { name: "document" }) && t4.isIdentifier(left.property, { name: "title" })) take(p, right, "document.title");
         }
       });
     },
     // const LABELS = { online: 'All systems normal', … }, read as label = computed(() => LABELS[this.status()] ?? 'Unknown').
     VariableDeclarator(decl) {
-      if (!decl.parentPath.parentPath?.isProgram() || !t3.isIdentifier(decl.node.id)) return;
+      if (!decl.parentPath.parentPath?.isProgram() || !t4.isIdentifier(decl.node.id)) return;
       let init2 = decl.node.init;
-      while (t3.isTSAsExpression(init2) || t3.isTSSatisfiesExpression(init2)) init2 = init2.expression;
-      if (!t3.isObjectExpression(init2) || init2.properties.length < 2) return;
-      const values = init2.properties.map((p) => t3.isObjectProperty(p) && !p.computed && t3.isStringLiteral(p.value) ? p.value : null);
+      while (t4.isTSAsExpression(init2) || t4.isTSSatisfiesExpression(init2)) init2 = init2.expression;
+      if (!t4.isObjectExpression(init2) || init2.properties.length < 2) return;
+      const values = init2.properties.map((p) => t4.isObjectProperty(p) && !p.computed && t4.isStringLiteral(p.value) ? p.value : null);
       if (values.some((v2) => !v2) || !values.some((v2) => new RegExp("\\s|^\\p{Lu}", "u").test(v2.value.trim()))) return;
       const binding2 = decl.scope.getBinding(decl.node.id.name);
       if (!binding2?.referencePaths.length) return;
@@ -192527,14 +192856,14 @@ function angularScript(code2, inlineTemplate, major) {
         let at2 = read2;
         while (at2.parentPath?.isLogicalExpression() && at2.key === "left") {
           const right = at2.parentPath.node.right;
-          if (!t3.isStringLiteral(right)) return false;
+          if (!t4.isStringLiteral(right)) return false;
           fallbacks.push(right);
           at2 = at2.parentPath;
         }
         const arrow2 = at2.parentPath;
         const call7 = arrow2?.parentPath;
         const prop2 = call7?.parentPath;
-        if (!arrow2?.isArrowFunctionExpression() || !call7?.isCallExpression() || !t3.isIdentifier(call7.node.callee, { name: "computed" }) || !prop2?.isClassProperty() || !t3.isIdentifier(prop2.node.key)) return false;
+        if (!arrow2?.isArrowFunctionExpression() || !call7?.isCallExpression() || !t4.isIdentifier(call7.node.callee, { name: "computed" }) || !prop2?.isClassProperty() || !t4.isIdentifier(prop2.node.key)) return false;
         members.push(prop2.node.key.name);
         return true;
       });
@@ -192800,19 +193129,19 @@ ${lines.join("\n")}`);
   }
   return { code: s.toString(), changed: replacements2.length > 0, replacements: replacements2 };
 }
-var import_parser3, import_traverse3, t3, traverse4, BLOCK_KEYS, componentOf, paramObject, binding, pipe2, pluralPipe, angularAdapter;
+var import_parser4, import_traverse4, t4, traverse5, BLOCK_KEYS, componentOf, paramObject, binding, pipe2, pluralPipe, angularAdapter;
 var init_angular = __esm({
   "src/formats/angular.ts"() {
     "use strict";
-    import_parser3 = __toESM(require_lib(), 1);
-    import_traverse3 = __toESM(require_lib8(), 1);
-    t3 = __toESM(require_lib4(), 1);
+    import_parser4 = __toESM(require_lib(), 1);
+    import_traverse4 = __toESM(require_lib8(), 1);
+    t4 = __toESM(require_lib4(), 1);
     init_dist();
     init_optional();
     init_markup();
     init_script2();
     init_filters();
-    traverse4 = import_traverse3.default.default ?? import_traverse3.default;
+    traverse5 = import_traverse4.default.default ?? import_traverse4.default;
     BLOCK_KEYS = ["branches", "cases", "empty", "placeholder", "loading", "error", "children"];
     componentOf = (file2) => file2.split("/").pop().replace(/\.(component\.)?(html|ts)$/, "");
     paramObject = (params) => `{ ${params.map((p) => `${p.name}: ${p.source}`).join(", ")} }`;
@@ -192999,7 +193328,7 @@ function scanLit(code2, filePath, opts) {
       if (state === "text") {
         if (q.end > textStart) parts.push({ kind: "text", start: textStart, end: q.end, raw: code2.slice(textStart, q.end) });
         let holdsTemplate = false;
-        traverse5(t4.file(t4.program([t4.expressionStatement(expr)])), {
+        traverse6(t5.file(t5.program([t5.expressionStatement(expr)])), {
           noScope: true,
           TaggedTemplateExpression(p) {
             if (isLitTemplate(p.node)) holdsTemplate = true, p.stop();
@@ -193017,7 +193346,7 @@ function scanLit(code2, filePath, opts) {
     });
     if (state === "text") flush();
   };
-  traverse5(ast, {
+  traverse6(ast, {
     TaggedTemplateExpression(p) {
       if (!isLitTemplate(p.node)) return;
       const cls = p.findParent((x) => x.isClassBody());
@@ -193035,7 +193364,7 @@ function scanLit(code2, filePath, opts) {
     }
     add(lit2.text, { kind: "literal", start: lit2.start, end: lit2.end, params: lit2.params, context: "script" }, { element: sink });
   };
-  traverse5(ast, {
+  traverse6(ast, {
     CallExpression(p) {
       const sink = sinkName(p.node.callee);
       const arg = p.node.arguments[0];
@@ -193043,17 +193372,17 @@ function scanLit(code2, filePath, opts) {
     },
     AssignmentExpression(p) {
       const { left, right } = p.node;
-      if (t4.isMemberExpression(left) && t4.isIdentifier(left.object, { name: "document" }) && t4.isIdentifier(left.property, { name: "title" })) take(p, literalMessage(right, 0, code2), "document.title");
+      if (t5.isMemberExpression(left) && t5.isIdentifier(left.object, { name: "document" }) && t5.isIdentifier(left.property, { name: "title" })) take(p, literalMessage(right, 0, code2), "document.title");
     },
     ClassProperty(p) {
-      const reactive = (p.node.decorators ?? []).some((d3) => t4.isCallExpression(d3.expression) && t4.isIdentifier(d3.expression.callee) && /^(state|property)$/.test(d3.expression.callee.name));
+      const reactive = (p.node.decorators ?? []).some((d3) => t5.isCallExpression(d3.expression) && t5.isIdentifier(d3.expression.callee) && /^(state|property)$/.test(d3.expression.callee.name));
       if (!reactive || !p.node.value) return;
       const value = p.get("value");
-      const objects = t4.isArrayExpression(p.node.value) ? p.node.value.elements : [p.node.value];
+      const objects = t5.isArrayExpression(p.node.value) ? p.node.value.elements : [p.node.value];
       for (const obj of objects) {
-        if (!t4.isObjectExpression(obj)) continue;
+        if (!t5.isObjectExpression(obj)) continue;
         for (const prop2 of obj.properties) {
-          if (!t4.isObjectProperty(prop2) || prop2.computed || !t4.isIdentifier(prop2.key) || !COPY_KEYS.has(prop2.key.name) || !t4.isStringLiteral(prop2.value)) continue;
+          if (!t5.isObjectProperty(prop2) || prop2.computed || !t5.isIdentifier(prop2.key) || !COPY_KEYS.has(prop2.key.name) || !t5.isStringLiteral(prop2.value)) continue;
           if (isTranslatable(normalizeWhitespace(prop2.value.value))) take(value, literalMessage(prop2.value, 0, code2), `@state ${prop2.key.name}`);
         }
       }
@@ -193092,22 +193421,22 @@ ${line}`);
   }
   return { code: s.toString(), changed: replacements2.length > 0, replacements: replacements2 };
 }
-var import_parser4, import_traverse4, t4, traverse5, RAW, parseCode2, isLitTemplate, paramObject2, call3, litAdapter;
+var import_parser5, import_traverse5, t5, traverse6, RAW, parseCode2, isLitTemplate, paramObject2, call3, litAdapter;
 var init_lit = __esm({
   "src/formats/lit.ts"() {
     "use strict";
-    import_parser4 = __toESM(require_lib(), 1);
-    import_traverse4 = __toESM(require_lib8(), 1);
-    t4 = __toESM(require_lib4(), 1);
+    import_parser5 = __toESM(require_lib(), 1);
+    import_traverse5 = __toESM(require_lib8(), 1);
+    t5 = __toESM(require_lib4(), 1);
     init_dist();
     init_markup();
     init_script2();
     init_scanner();
     init_filters();
-    traverse5 = import_traverse4.default.default ?? import_traverse4.default;
+    traverse6 = import_traverse5.default.default ?? import_traverse5.default;
     RAW = /* @__PURE__ */ new Set([...IGNORED_ELEMENTS2, "script", "style"]);
-    parseCode2 = (code2) => (0, import_parser4.parse)(code2, { sourceType: "module", plugins: ["typescript", "decorators-legacy"], errorRecovery: true });
-    isLitTemplate = (n4) => t4.isIdentifier(n4.tag) && (n4.tag.name === "html" || n4.tag.name === "svg");
+    parseCode2 = (code2) => (0, import_parser5.parse)(code2, { sourceType: "module", plugins: ["typescript", "decorators-legacy"], errorRecovery: true });
+    isLitTemplate = (n4) => t5.isIdentifier(n4.tag) && (n4.tag.name === "html" || n4.tag.name === "svg");
     paramObject2 = (params) => `{ ${params.map((p) => p.name === p.source ? p.name : `${p.name}: ${p.source}`).join(", ")} }`;
     call3 = (key2, params, ordinal = false) => params.length ? `t('${key2}', ${paramObject2(ordinal ? [...params, { name: "ordinal", source: "true" }] : params)})` : `t('${key2}')`;
     litAdapter = {
@@ -193806,7 +194135,10 @@ var init_swift = __esm({
     init_dist();
     init_scanner();
     init_markup();
-    unescape3 = (s) => s.replace(/\\(["\\'nt0])/g, (_m, c) => ({ n: "\n", t: "	", "0": "\0" })[c] ?? c);
+    unescape3 = (s) => s.replace(
+      /\\(?:u\{([0-9a-fA-F]{1,8})\}|(["\\'nt0]))/g,
+      (_m, hex, c) => hex ? String.fromCodePoint(parseInt(hex, 16)) : { n: "\n", t: "	", "0": "\0" }[c] ?? c
+    );
     SWIFTUI = /\b(Text|Button|Label|Toggle|TextField|SecureField|Section|Link|Picker|Menu|NavigationLink|Stepper|DatePicker|ColorPicker|ProgressView|Gauge|LabeledContent|ContentUnavailableView|ControlGroup|DisclosureGroup|GroupBox|Tab|ShareLink)\s*\(\s*$|\.(navigationTitle|navigationBarTitle|help|accessibilityLabel|accessibilityHint|accessibilityValue|alert|confirmationDialog|badge)\s*\(\s*$|\bprompt:\s*$/;
     UIKIT = /\.(text|title|placeholder|accessibilityLabel|accessibilityHint|prompt|stringValue|toolTip)\s*=\s*$|\bsetTitle\(\s*$|\bUIAlert(?:Controller|Action)\((?:[^()]|\([^()]*\))*?\b(?:title|message):\s*$/;
     swiftAdapter = { scan: scanSwift, transform: transformSwift };
@@ -202014,7 +202346,7 @@ var init_serializer = __esm({
 });
 
 // node_modules/parse5/dist/index.js
-function parse13(html, options) {
+function parse14(html, options) {
   return Parser7.parse(html, options);
 }
 var init_dist2 = __esm({
@@ -209473,8 +209805,9 @@ function mask(value, tokens2) {
   const forms2 = typeof value === "string" ? { other: value } : value;
   const texts = Object.values(forms2);
   const code2 = texts.some((t10) => INLINE_CODE.test(t10));
-  if (!tokens2 && !code2) return { value, restore: (v2) => v2 };
-  const re = new RegExp([...code2 ? [INLINE_CODE.source] : [], ...tokens2 ? [tokens2.source] : []].join("|"), "g");
+  const shortcuts = texts.some((t10) => SHORTCUT.test(t10));
+  if (!tokens2 && !code2 && !shortcuts) return { value, restore: (v2) => v2 };
+  const re = new RegExp([...code2 ? [INLINE_CODE.source] : [], ...shortcuts ? [SHORTCUT.source] : [], ...tokens2 ? [tokens2.source] : []].join("|"), "g");
   const taken = new Set(texts.flatMap((t10) => [...t10.replace(re, " ").matchAll(/\{(\w+)\}/g)].map((m2) => m2[1])));
   const byToken = /* @__PURE__ */ new Map();
   const unnamed = [];
@@ -209529,12 +209862,15 @@ function mask(value, tokens2) {
     }
   };
 }
-var PRINTF, nameOf, INLINE_CODE;
+var PRINTF, nameOf, INLINE_CODE, SHORTCUT, SHORTCUT_START;
 var init_placeholders = __esm({
   "src/sync/placeholders.ts"() {
     "use strict";
     PRINTF = /%(?:\d+\$)?[-+#0]*\d*(?:\.\d+)?(?:hh|h|ll|l|L|q|z|j|t)?[@sdiufFeEgGxXoaAcCpS]|%%/;
     nameOf = (token2) => {
+      if (SHORTCUT_START.test(token2)) return "shortcut";
+      const substitution = /^%#@(\w+)@$/.exec(token2);
+      if (substitution) return substitution[1].toLowerCase();
       const xliff = /^<xliff:g\b[^>]*\bid="([\w.-]+)"/.exec(token2);
       if (xliff) return xliff[1].replace(/[^\w]/g, "_").toLowerCase();
       const entity = /^&(#?\w+);$/.exec(token2);
@@ -209548,6 +209884,8 @@ var init_placeholders = __esm({
       return null;
     };
     INLINE_CODE = /`[^`\n]+`/;
+    SHORTCUT = /[⌃⌥⇧⌘]+(?:F\d{1,2}\b|[A-Z0-9]\b|[,.;/[\]\\=+\-`'↩⌫⌦⎋⇥␣←→↑↓])?/;
+    SHORTCUT_START = /^[⌃⌥⇧⌘]/;
   }
 });
 
@@ -209836,6 +210174,237 @@ var init_po = __esm({
   }
 });
 
+// src/sync/formats/apple.ts
+function xcodeJson(value, indent2 = "") {
+  const inner = `${indent2}  `;
+  if (Array.isArray(value)) return value.length ? `[
+${value.map((v2) => inner + xcodeJson(v2, inner)).join(",\n")}
+${indent2}]` : `[
+
+${indent2}]`;
+  if (value && typeof value === "object") {
+    const entries = (value instanceof Map ? [...value] : Object.entries(value).sort(([a], [b4]) => a < b4 ? -1 : a > b4 ? 1 : 0)).filter(([, v2]) => v2 !== void 0);
+    if (!entries.length) return `{
+
+${indent2}}`;
+    return `{
+${entries.map(([k, v2]) => `${inner}${JSON.stringify(k)} : ${xcodeJson(v2, inner)}`).join(",\n")}
+${indent2}}`;
+  }
+  return JSON.stringify(value);
+}
+function stringsKeyOrder(text4) {
+  const keys = [];
+  let depth = 0;
+  let target = 0;
+  let lastKey = "";
+  for (let i3 = 0; i3 < text4.length; i3++) {
+    const c = text4[i3];
+    if (c === '"') {
+      let j = i3 + 1;
+      while (j < text4.length && text4[j] !== '"') j += text4[j] === "\\" ? 2 : 1;
+      let k = j + 1;
+      while (/\s/.test(text4[k] ?? "")) k++;
+      if (text4[k] === ":") {
+        const key2 = JSON.parse(text4.slice(i3, j + 1));
+        if (depth === target) keys.push(key2);
+        if (depth === 1) lastKey = key2;
+      }
+      i3 = j;
+    } else if (c === "{" || c === "[") {
+      depth++;
+      if (c === "{" && depth === 2 && lastKey === "strings" && !target) target = 2;
+    } else if (c === "}" || c === "]") {
+      if (depth === target) target = -1;
+      depth--;
+    }
+  }
+  return keys;
+}
+function writeCatalog(catalog, original) {
+  const order = original ? stringsKeyOrder(original) : [];
+  const known = new Set(order);
+  const keys = [...order.filter((k) => k in catalog.strings), ...Object.keys(catalog.strings).filter((k) => !known.has(k)).sort()];
+  const strings2 = new Map(keys.map((k) => [k, catalog.strings[k]]));
+  return `${xcodeJson({ ...catalog, strings: strings2 })}${original === void 0 || original.endsWith("\n") ? "\n" : ""}`;
+}
+function parseStrings(text4) {
+  const out = /* @__PURE__ */ new Map();
+  for (const m2 of text4.matchAll(ENTRY)) out.set(keyText(m2[2]), { value: unescape4(m2[3]), ...m2[1]?.trim() ? { comment: m2[1].trim() } : {} });
+  return out;
+}
+var TOKENS2, SUB, parseCatalog, done, xcstrings, ENTRY, unescape4, escape, keyText, strings, appleFormats;
+var init_apple = __esm({
+  "src/sync/formats/apple.ts"() {
+    "use strict";
+    init_plural();
+    init_locale();
+    TOKENS2 = /%#@\w+@|%arg\b|%(?:\d+\$)?[-+#0]*\d*(?:\.\d+)?(?:hh|h|ll|l|q|z|t|j)?[@dDiuUxXoOfFeEgGcCsSpaA]|%%/;
+    SUB = "\u241F";
+    parseCatalog = (text4) => {
+      try {
+        const v2 = text4 && JSON.parse(text4);
+        return v2 && typeof v2.strings === "object" && typeof v2.sourceLanguage === "string" ? v2 : null;
+      } catch {
+        return null;
+      }
+    };
+    done = (u) => !!u?.stringUnit?.value?.trim() && u.stringUnit.state !== "new";
+    xcstrings = {
+      find(ctx) {
+        const catalogs = [];
+        for (const file2 of ctx.files) {
+          if (!file2.endsWith(".xcstrings")) continue;
+          const source2 = parseCatalog(ctx.read(file2));
+          if (!source2) continue;
+          const src = source2.sourceLanguage;
+          const locales2 = /* @__PURE__ */ new Set();
+          const messages = [];
+          for (const [key2, entry] of Object.entries(source2.strings)) {
+            for (const l2 of Object.keys(entry.localizations ?? {})) if (!sameLocale(l2, src) && toBcp47(l2)) locales2.add(toBcp47(l2));
+            if (entry.shouldTranslate === false || !key2.trim()) continue;
+            const own = entry.localizations?.[src];
+            if (own?.variations?.device) continue;
+            if (own?.substitutions) {
+              const subs = Object.entries(own.substitutions);
+              const template4 = own.stringUnit?.value;
+              if (!template4 || subs.some(([, s]) => s.variations?.device || !s.variations?.plural?.other?.stringUnit?.value)) continue;
+              const note = entry.comment ? ` (${entry.comment})` : "";
+              messages.push({ key: key2, value: template4, context: `${key2}${note}. Each %#@name@ is replaced by a count with its noun, translated separately.` });
+              for (const [name, s] of subs) {
+                const forms2 = Object.fromEntries(Object.entries(s.variations.plural).map(([c, u]) => [c, u?.stringUnit?.value ?? ""]));
+                messages.push({ key: `${key2}${SUB}${name}`, value: forms2, context: `The %#@${name}@ part of "${template4}"${note}. %arg is the number.` });
+              }
+              continue;
+            }
+            const plural = own?.variations?.plural;
+            let value;
+            if (plural) {
+              const forms2 = Object.fromEntries(Object.entries(plural).map(([c, u]) => [c, u?.stringUnit?.value ?? ""]));
+              if (!forms2.other) continue;
+              value = forms2;
+            } else {
+              value = own?.stringUnit?.value ?? key2;
+            }
+            messages.push({ key: key2, value, context: entry.comment ? `${key2}: ${entry.comment}` : void 0 });
+          }
+          if (!messages.length) continue;
+          catalogs.push({
+            label: "String Catalog",
+            file: file2,
+            sourceLocale: toBcp47(src) ?? src,
+            messages,
+            locales: [...locales2].sort(),
+            tokens: TOKENS2,
+            targetFile: () => file2,
+            present(content, locale) {
+              const has = /* @__PURE__ */ new Set();
+              const cat = parseCatalog(content);
+              for (const [key2, entry] of Object.entries(cat?.strings ?? {})) {
+                const loc2 = Object.entries(entry.localizations ?? {}).find(([l2]) => sameLocale(l2, locale))?.[1];
+                if (done(loc2) || done(loc2?.variations?.plural?.other)) has.add(key2);
+                for (const [name, s] of Object.entries(loc2?.substitutions ?? {})) if (done(s.variations?.plural?.other)) has.add(`${key2}${SUB}${name}`);
+                const own = Object.keys(entry.localizations?.[cat.sourceLanguage]?.substitutions ?? {});
+                const text4 = done(loc2) ? loc2.stringUnit.value : void 0;
+                if (text4 !== void 0) {
+                  for (const name of own) if (!text4.includes(`%#@${name}@`)) has.add(`${key2}${SUB}${name}`);
+                }
+              }
+              return has;
+            },
+            write(content, locale, values) {
+              const cat = parseCatalog(content) ?? source2;
+              const code2 = Object.values(cat.strings).flatMap((e2) => Object.keys(e2.localizations ?? {})).find((l2) => sameLocale(l2, locale)) ?? spell(locale, "bcp47");
+              const unit = (v2) => ({ stringUnit: { state: "translated", value: v2 } });
+              const plural = (forms2) => ({ plural: Object.fromEntries(pluralCategories(locale).map((c) => [c, unit(forms2[c] ?? forms2.other)])) });
+              const touched = /* @__PURE__ */ new Map();
+              for (const [id3, value] of values) {
+                const [key2, name] = id3.split(SUB);
+                const entry = cat.strings[key2] ??= {};
+                const before2 = entry.localizations?.[code2];
+                if (!touched.has(key2)) touched.set(key2, before2);
+                let loc2;
+                if (name !== void 0) {
+                  const src2 = source2.strings[key2]?.localizations?.[source2.sourceLanguage]?.substitutions?.[name];
+                  if (!src2 || typeof value === "string") continue;
+                  loc2 = { ...before2, substitutions: { ...before2?.substitutions, [name]: { argNum: src2.argNum, formatSpecifier: src2.formatSpecifier, variations: plural(value) } } };
+                } else if (typeof value === "string") {
+                  loc2 = before2?.substitutions ? { ...unit(value), substitutions: before2.substitutions } : unit(value);
+                } else {
+                  loc2 = { variations: plural(value) };
+                }
+                const all = { ...entry.localizations, [code2]: loc2 };
+                entry.localizations = Object.fromEntries(Object.keys(all).sort().map((l2) => [l2, all[l2]]));
+              }
+              for (const [key2, before2] of touched) {
+                const subs = Object.keys(source2.strings[key2]?.localizations?.[source2.sourceLanguage]?.substitutions ?? {});
+                const loc2 = cat.strings[key2].localizations?.[code2];
+                if (!subs.length || loc2?.stringUnit && subs.every((n4) => loc2.substitutions?.[n4])) continue;
+                const all = cat.strings[key2].localizations ?? {};
+                if (before2) all[code2] = before2;
+                else delete all[code2];
+              }
+              return writeCatalog(cat, content);
+            }
+          });
+        }
+        return catalogs;
+      }
+    };
+    ENTRY = /(?:\/\*([\s\S]*?)\*\/\s*)?("(?:[^"\\]|\\.)*"|[\w.-]+)\s*=\s*"((?:[^"\\]|\\.)*)"\s*;/g;
+    unescape4 = (s) => s.replace(
+      /\\(U[0-9a-fA-F]{4}|u[0-9a-fA-F]{4}|.)/g,
+      (_2, c) => c.length === 5 ? String.fromCharCode(parseInt(c.slice(1), 16)) : c === "n" ? "\n" : c === "t" ? "	" : c === "r" ? "\r" : c
+    );
+    escape = (s) => s.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n").replace(/\t/g, "\\t");
+    keyText = (k) => k.startsWith('"') ? unescape4(k.slice(1, -1)) : k;
+    strings = {
+      find(ctx) {
+        const catalogs = [];
+        for (const file2 of ctx.files) {
+          const m2 = /^(.*?)([^/]+)\.lproj\/([^/]+\.strings)$/.exec(file2);
+          if (!m2 || !sameLocale(m2[2], ctx.sourceLocale)) continue;
+          const text4 = ctx.read(file2);
+          if (!text4) continue;
+          const entries = parseStrings(text4);
+          const messages = [...entries].filter(([, e2]) => e2.value.trim()).map(([key2, e2]) => ({ key: key2, value: e2.value, context: e2.comment && !/No comment provided/i.test(e2.comment) ? `${key2}: ${e2.comment}` : key2 }));
+          if (!messages.length) continue;
+          const [, dir, , name] = m2;
+          const locales2 = /* @__PURE__ */ new Set();
+          for (const f2 of ctx.files) {
+            const s = /^(.*?)([^/]+)\.lproj\/([^/]+\.strings)$/.exec(f2);
+            const code2 = s && s[1] === dir && s[3] === name ? toBcp47(s[2]) : null;
+            if (code2 && !sameLocale(code2, ctx.sourceLocale)) locales2.add(code2);
+          }
+          catalogs.push({
+            label: "Apple .strings",
+            file: file2,
+            messages,
+            locales: [...locales2].sort(),
+            tokens: TOKENS2,
+            targetFile: (locale) => `${dir}${spell(locale, "bcp47")}.lproj/${name}`,
+            present(content) {
+              return new Set([...parseStrings(content ?? "")].filter(([, e2]) => e2.value.trim()).map(([k]) => k));
+            },
+            write(content, _locale, values) {
+              const lines = [...values].map(([key2, value]) => {
+                const comment = entries.get(key2)?.comment;
+                return `${comment ? `/* ${comment} */
+` : ""}"${escape(key2)}" = "${escape(typeof value === "string" ? value : value.other)}";`;
+              });
+              const base = content ? content.replace(/\s*$/, "\n\n") : "";
+              return `${base}${lines.join("\n\n")}
+`;
+            }
+          });
+        }
+        return catalogs;
+      }
+    };
+    appleFormats = [xcstrings, strings];
+  }
+});
+
 // src/stores.ts
 function poEntries(text4) {
   const out = /* @__PURE__ */ new Map();
@@ -209887,6 +210456,7 @@ var init_stores = __esm({
     import_yaml = __toESM(require_dist(), 1);
     init_dictionary();
     init_po();
+    init_apple();
     init_plural();
     DOT = "\u2024";
     encodeKey = (text4) => text4.replace(/\./g, DOT);
@@ -210052,6 +210622,10 @@ ${base.slice(end2)}`;
         const catalog = text4?.trim() ? JSON.parse(text4) : {};
         const out = {};
         for (const [key2, entry] of Object.entries(catalog.strings ?? {})) {
+          if (entry.shouldTranslate === false) {
+            out[encodeKey(key2)] = key2;
+            continue;
+          }
           const l10n = entry.localizations?.[locale];
           const plural = l10n?.variations?.plural;
           if (plural?.other?.stringUnit?.value !== void 0) {
@@ -210070,6 +210644,7 @@ ${base.slice(end2)}`;
           const plural = isPluralForms(value);
           if (typeof value !== "string" && !plural) continue;
           const key2 = decodeKey(encoded);
+          if (catalog.strings[key2]?.shouldTranslate === false) continue;
           const entry = catalog.strings[key2] ??= {};
           if (locale === sourceLocale && !plural) continue;
           const src = source2[encoded];
@@ -210082,9 +210657,7 @@ ${base.slice(end2)}`;
           entry.localizations ??= {};
           entry.localizations[locale] = plural ? { variations: { plural: Object.fromEntries(PLURAL_CATEGORIES.filter((c) => value[c] !== void 0).map((c) => [c, { stringUnit: { state: "translated", value: localize(value[c]) } }])) } } : { stringUnit: { state: "translated", value: localize(value) } };
         }
-        const sorted = (v2) => Array.isArray(v2) ? v2.map(sorted) : v2 && typeof v2 === "object" ? Object.fromEntries(Object.keys(v2).sort().map((k) => [k, sorted(v2[k])])) : v2;
-        return `${JSON.stringify(sorted(catalog), null, 2).replace(/^(\s*"(?:[^"\\]|\\.)*"): /gm, "$1 : ")}
-`;
+        return writeCatalog(catalog, original);
       }
     });
   }
@@ -210341,7 +210914,7 @@ function scanServerTemplate(engine) {
       }
       return found2;
     };
-    const doc = parse13(masked, { sourceCodeLocationInfo: true });
+    const doc = parse14(masked, { sourceCodeLocationInfo: true });
     const walk3 = (node2, element3) => {
       let pending = null;
       const flush = () => {
@@ -210570,20 +211143,20 @@ function emberScript(code2) {
   if (!/\b(?:alert|confirm|prompt|toast|notify)\s*\(|document\.title/.test(script)) return out;
   let ast;
   try {
-    ast = (0, import_parser7.parse)(script, { sourceType: "module", plugins: ["typescript", "decorators-legacy"], errorRecovery: true });
+    ast = (0, import_parser8.parse)(script, { sourceType: "module", plugins: ["typescript", "decorators-legacy"], errorRecovery: true });
   } catch {
     return out;
   }
-  traverse6(ast, {
+  traverse7(ast, {
     ClassDeclaration(cls) {
       if (!cls.node.superClass) return;
       const body = cls.node.body.body;
-      const injected = (m2) => t5.isClassProperty(m2) && (m2.decorators ?? []).some((d3) => t5.isIdentifier(d3.expression, { name: "service" }) && t5.isIdentifier(m2.key, { name: "intl" }) || t5.isCallExpression(d3.expression) && t5.isIdentifier(d3.expression.callee, { name: "service" }) && t5.isStringLiteral(d3.expression.arguments[0], { value: "intl" }));
+      const injected = (m2) => t6.isClassProperty(m2) && (m2.decorators ?? []).some((d3) => t6.isIdentifier(d3.expression, { name: "service" }) && t6.isIdentifier(m2.key, { name: "intl" }) || t6.isCallExpression(d3.expression) && t6.isIdentifier(d3.expression.callee, { name: "service" }) && t6.isStringLiteral(d3.expression.arguments[0], { value: "intl" }));
       const existing = body.find(injected);
-      const member2 = existing && t5.isIdentifier(existing.key) ? existing.key.name : "intl";
+      const member2 = existing && t6.isIdentifier(existing.key) ? existing.key.name : "intl";
       let problem;
       if (!existing) {
-        if (body.some((m2) => (t5.isClassProperty(m2) || t5.isClassMethod(m2)) && t5.isIdentifier(m2.key, { name: "intl" }))) problem = "the class already has a member named intl";
+        if (body.some((m2) => (t6.isClassProperty(m2) || t6.isClassMethod(m2)) && t6.isIdentifier(m2.key, { name: "intl" }))) problem = "the class already has a member named intl";
         else out.service = { at: cls.node.body.start + 1 };
       }
       const take = (p, node2, sink) => {
@@ -210597,7 +211170,7 @@ function emberScript(code2) {
         },
         AssignmentExpression(p) {
           const { left, right } = p.node;
-          if (t5.isMemberExpression(left) && t5.isIdentifier(left.object, { name: "document" }) && t5.isIdentifier(left.property, { name: "title" })) take(p, right, "document.title");
+          if (t6.isMemberExpression(left) && t6.isIdentifier(left.object, { name: "document" }) && t6.isIdentifier(left.property, { name: "title" })) take(p, right, "document.title");
         }
       });
     }
@@ -210814,18 +211387,18 @@ ${lines.join("\n")}`);
   }
   return { code: s.toString(), changed: replacements2.length > 0, replacements: replacements2 };
 }
-var import_parser7, import_traverse5, t5, traverse6, RAW3, start, end, plainValue, conditionalStrings, helper, emberAdapter;
+var import_parser8, import_traverse6, t6, traverse7, RAW3, start, end, plainValue, conditionalStrings, helper, emberAdapter;
 var init_ember = __esm({
   "src/formats/ember.ts"() {
     "use strict";
-    import_parser7 = __toESM(require_lib(), 1);
-    import_traverse5 = __toESM(require_lib8(), 1);
-    t5 = __toESM(require_lib4(), 1);
+    import_parser8 = __toESM(require_lib(), 1);
+    import_traverse6 = __toESM(require_lib8(), 1);
+    t6 = __toESM(require_lib4(), 1);
     init_dist();
     init_script2();
     init_optional();
     init_markup();
-    traverse6 = import_traverse5.default.default ?? import_traverse5.default;
+    traverse7 = import_traverse6.default.default ?? import_traverse6.default;
     RAW3 = /* @__PURE__ */ new Set([...IGNORED_ELEMENTS2, "script", "style"]);
     start = (n4, base) => base + (n4.loc.getStart().offset ?? 0);
     end = (n4, base) => base + (n4.loc.getEnd().offset ?? 0);
@@ -210840,8 +211413,8 @@ var init_ember = __esm({
 function objectCopy(node2, offset2) {
   const out = [];
   for (const p of node2.properties) {
-    if (!t6.isObjectProperty(p) || p.computed) continue;
-    const field = t6.isIdentifier(p.key) ? p.key.name : t6.isStringLiteral(p.key) ? p.key.value : null;
+    if (!t7.isObjectProperty(p) || p.computed) continue;
+    const field = t7.isIdentifier(p.key) ? p.key.name : t7.isStringLiteral(p.key) ? p.key.value : null;
     const text4 = copyText(p.value);
     if (field && COPY_KEYS.has(field) && text4) out.push({ start: offset2 + p.value.start, end: offset2 + p.value.end, text: text4, field });
   }
@@ -210851,28 +211424,28 @@ function copyConstants(script, offset2) {
   const found2 = /* @__PURE__ */ new Map();
   let ast;
   try {
-    ast = (0, import_parser8.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+    ast = (0, import_parser9.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
   } catch {
     return found2;
   }
-  traverse7(ast, {
+  traverse8(ast, {
     Program(program2) {
       for (const statement of program2.get("body")) {
         if (!statement.isVariableDeclaration()) continue;
         for (const decl of statement.get("declarations")) {
           const id3 = decl.node.id;
           const init2 = decl.node.init;
-          if (!t6.isIdentifier(id3) || !init2) continue;
+          if (!t7.isIdentifier(id3) || !init2) continue;
           let constant = null;
           const text4 = copyText(init2);
           if (text4) constant = { name: id3.name, kind: "string", literals: [{ start: offset2 + init2.start, end: offset2 + init2.end, text: text4 }] };
-          else if (t6.isCallExpression(init2) && t6.isIdentifier(init2.callee) && /^(shallowRef|ref)$/.test(init2.callee.name) && copyText(init2.arguments[0])) {
+          else if (t7.isCallExpression(init2) && t7.isIdentifier(init2.callee) && /^(shallowRef|ref)$/.test(init2.callee.name) && copyText(init2.arguments[0])) {
             const arg = init2.arguments[0];
             constant = { name: id3.name, kind: "string", literals: [{ start: offset2 + arg.start, end: offset2 + arg.end, text: copyText(arg) }] };
-          } else if (t6.isObjectExpression(init2)) {
+          } else if (t7.isObjectExpression(init2)) {
             const literals = objectCopy(init2, offset2);
             if (literals.length) constant = { name: id3.name, kind: "object", literals };
-          } else if (t6.isArrayExpression(init2) && init2.elements.length && init2.elements.every((e2) => t6.isObjectExpression(e2))) {
+          } else if (t7.isArrayExpression(init2) && init2.elements.length && init2.elements.every((e2) => t7.isObjectExpression(e2))) {
             const literals = init2.elements.flatMap((e2) => objectCopy(e2, offset2));
             if (literals.length) constant = { name: id3.name, kind: "list", literals };
           }
@@ -210891,37 +211464,37 @@ function frontmatterCopy(script, offset2) {
   const found2 = [];
   let ast;
   try {
-    ast = (0, import_parser8.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+    ast = (0, import_parser9.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
   } catch {
     return found2;
   }
-  const unwrap2 = (n4) => t6.isTSAsExpression(n4) || t6.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
+  const unwrap2 = (n4) => t7.isTSAsExpression(n4) || t7.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
   const collect = (node2, out) => {
     node2 = unwrap2(node2);
-    if (t6.isArrayExpression(node2)) node2.elements.forEach((e2) => collect(e2, out));
-    if (!t6.isObjectExpression(node2)) return;
+    if (t7.isArrayExpression(node2)) node2.elements.forEach((e2) => collect(e2, out));
+    if (!t7.isObjectExpression(node2)) return;
     for (const p of node2.properties) {
-      if (!t6.isObjectProperty(p) || p.computed) continue;
-      const field = t6.isIdentifier(p.key) ? p.key.name : t6.isStringLiteral(p.key) ? p.key.value : null;
+      if (!t7.isObjectProperty(p) || p.computed) continue;
+      const field = t7.isIdentifier(p.key) ? p.key.name : t7.isStringLiteral(p.key) ? p.key.value : null;
       const value = unwrap2(p.value);
-      if (t6.isObjectExpression(value) || t6.isArrayExpression(value)) collect(value, out);
+      if (t7.isObjectExpression(value) || t7.isArrayExpression(value)) collect(value, out);
       if (!field || !COPY_KEYS.has(field)) continue;
       const lit2 = value && literalMessage(value, offset2, script);
       if (lit2 && isTranslatable(normalizeWhitespace(lit2.text))) out.push({ lit: { ...lit2, text: normalizeWhitespace(lit2.text).trim(), sink: field }, field });
     }
   };
-  traverse7(ast, {
+  traverse8(ast, {
     Program(program2) {
       for (const statement of program2.get("body")) {
         if (!statement.isVariableDeclaration()) continue;
         for (const decl of statement.get("declarations")) {
           const id3 = decl.node.id;
           const init2 = unwrap2(decl.node.init);
-          if (!t6.isIdentifier(id3) || !(t6.isObjectExpression(init2) || t6.isArrayExpression(init2))) continue;
+          if (!t7.isIdentifier(id3) || !(t7.isObjectExpression(init2) || t7.isArrayExpression(init2))) continue;
           const copy = [];
           collect(init2, copy);
           if (!copy.length) continue;
-          const constant = { name: id3.name, kind: t6.isArrayExpression(init2) ? "list" : "object", literals: copy.map((c) => ({ ...c.lit, field: c.field })) };
+          const constant = { name: id3.name, kind: t7.isArrayExpression(init2) ? "list" : "object", literals: copy.map((c) => ({ ...c.lit, field: c.field })) };
           const binding2 = decl.scope.getBinding(id3.name);
           if (binding2 && (binding2.constantViolations.length || !binding2.referencePaths.every((ref2) => readsNoCopy(ref2, constant)))) continue;
           found2.push(...copy.map((c) => c.lit));
@@ -210936,7 +211509,7 @@ function readsNoCopy(ref2, c) {
   if (c.kind === "string") return false;
   const fields = new Set(c.literals.map((l2) => l2.field));
   const member2 = ref2.parentPath;
-  if (!member2?.isMemberExpression() || member2.node.object !== ref2.node || member2.node.computed || !t6.isIdentifier(member2.node.property)) return false;
+  if (!member2?.isMemberExpression() || member2.node.object !== ref2.node || member2.node.computed || !t7.isIdentifier(member2.node.property)) return false;
   const prop2 = member2.node.property.name;
   if (c.kind === "object") return !fields.has(prop2);
   if (!NO_ITEM.has(prop2)) return false;
@@ -210944,38 +211517,38 @@ function readsNoCopy(ref2, c) {
   const call7 = member2.parentPath;
   if (!call7?.isCallExpression()) return false;
   const cb = call7.node.arguments[0];
-  if (!cb || !(t6.isArrowFunctionExpression(cb) || t6.isFunctionExpression(cb))) return prop2 === "indexOf" || prop2 === "includes";
+  if (!cb || !(t7.isArrowFunctionExpression(cb) || t7.isFunctionExpression(cb))) return prop2 === "indexOf" || prop2 === "includes";
   const param = cb.params[0];
   if (!param) return true;
-  if (!t6.isIdentifier(param)) return false;
+  if (!t7.isIdentifier(param)) return false;
   const binding2 = call7.get("arguments.0").scope.getBinding(param.name);
   return !!binding2 && binding2.referencePaths.every((r) => {
     const m2 = r.parentPath;
-    return !!m2?.isMemberExpression() && m2.node.object === r.node && !m2.node.computed && t6.isIdentifier(m2.node.property) && !fields.has(m2.node.property.name);
+    return !!m2?.isMemberExpression() && m2.node.object === r.node && !m2.node.computed && t7.isIdentifier(m2.node.property) && !fields.has(m2.node.property.name);
   });
 }
 function derivedCopy(script, offset2, template4, flavor) {
   let ast;
   try {
-    ast = (0, import_parser8.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+    ast = (0, import_parser9.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
   } catch {
     return [];
   }
   const expressions = templateExpressions(template4, flavor);
-  const shown = (name) => expressions.some((e2) => new RegExp(`(?<![\\w$.])${escape(name)}(?![\\w$])`).test(e2));
+  const shown = (name) => expressions.some((e2) => new RegExp(`(?<![\\w$.])${escape2(name)}(?![\\w$])`).test(e2));
   const codeOnly = script.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\/|(['"`])(?:\\.|(?!\1)[^\\])*\1/g, '""');
-  const usedInScript = (name) => (codeOnly.match(new RegExp(`(?<![\\w$.])${escape(name)}(?![\\w$])`, "g")) ?? []).length > 1;
+  const usedInScript = (name) => (codeOnly.match(new RegExp(`(?<![\\w$.])${escape2(name)}(?![\\w$])`, "g")) ?? []).length > 1;
   const returned = (fn2) => {
-    if (t6.isArrowFunctionExpression(fn2) && !t6.isBlockStatement(fn2.body)) return [fn2.body];
-    if (!(t6.isArrowFunctionExpression(fn2) || t6.isFunctionExpression(fn2) || t6.isFunctionDeclaration(fn2))) return [];
+    if (t7.isArrowFunctionExpression(fn2) && !t7.isBlockStatement(fn2.body)) return [fn2.body];
+    if (!(t7.isArrowFunctionExpression(fn2) || t7.isFunctionExpression(fn2) || t7.isFunctionDeclaration(fn2))) return [];
     const out = [];
     const walk3 = (node2) => {
-      if (!node2 || t6.isFunction(node2)) return;
-      if (t6.isReturnStatement(node2)) {
+      if (!node2 || t7.isFunction(node2)) return;
+      if (t7.isReturnStatement(node2)) {
         if (node2.argument) out.push(node2.argument);
         return;
       }
-      for (const key2 of t6.VISITOR_KEYS[node2.type] ?? []) {
+      for (const key2 of t7.VISITOR_KEYS[node2.type] ?? []) {
         const child = node2[key2];
         if (Array.isArray(child)) child.forEach(walk3);
         else walk3(child);
@@ -210990,24 +211563,24 @@ function derivedCopy(script, offset2, template4, flavor) {
     for (const v2 of values) found2.push(...outputLiterals(v2, offset2, script, "computed"));
   };
   for (const statement of ast.program.body) {
-    if (t6.isFunctionDeclaration(statement) && statement.id) take(statement.id.name, returned(statement));
-    if (t6.isVariableDeclaration(statement)) {
+    if (t7.isFunctionDeclaration(statement) && statement.id) take(statement.id.name, returned(statement));
+    if (t7.isVariableDeclaration(statement)) {
       for (const d3 of statement.declarations) {
-        if (!t6.isIdentifier(d3.id) || !d3.init) continue;
+        if (!t7.isIdentifier(d3.id) || !d3.init) continue;
         const init2 = d3.init;
-        if (t6.isArrowFunctionExpression(init2) || t6.isFunctionExpression(init2)) take(d3.id.name, returned(init2));
-        else if (t6.isCallExpression(init2)) {
+        if (t7.isArrowFunctionExpression(init2) || t7.isFunctionExpression(init2)) take(d3.id.name, returned(init2));
+        else if (t7.isCallExpression(init2)) {
           const callee = init2.callee;
-          const name = t6.isIdentifier(callee) ? callee.name : t6.isMemberExpression(callee) && t6.isIdentifier(callee.object) && t6.isIdentifier(callee.property) ? `${callee.object.name}.${callee.property.name}` : "";
+          const name = t7.isIdentifier(callee) ? callee.name : t7.isMemberExpression(callee) && t7.isIdentifier(callee.object) && t7.isIdentifier(callee.property) ? `${callee.object.name}.${callee.property.name}` : "";
           const arg = init2.arguments[0];
           if ((name === "computed" || name === "$derived.by") && arg) take(d3.id.name, returned(arg));
           else if (name === "$derived" && arg) take(d3.id.name, [arg]);
         }
       }
     }
-    if (t6.isLabeledStatement(statement) && statement.label.name === "$" && t6.isExpressionStatement(statement.body)) {
+    if (t7.isLabeledStatement(statement) && statement.label.name === "$" && t7.isExpressionStatement(statement.body)) {
       const e2 = statement.body.expression;
-      if (t6.isAssignmentExpression(e2) && t6.isIdentifier(e2.left)) take(e2.left.name, [e2.right]);
+      if (t7.isAssignmentExpression(e2) && t7.isIdentifier(e2.left)) take(e2.left.name, [e2.right]);
     }
   }
   return found2;
@@ -211016,26 +211589,26 @@ function exportedCopy(code2) {
   const found2 = /* @__PURE__ */ new Map();
   let ast;
   try {
-    ast = (0, import_parser8.parse)(code2, { sourceType: "module", plugins: ["typescript", "jsx"], errorRecovery: true });
+    ast = (0, import_parser9.parse)(code2, { sourceType: "module", plugins: ["typescript", "jsx"], errorRecovery: true });
   } catch {
     return found2;
   }
-  const unwrap2 = (n4) => t6.isTSAsExpression(n4) || t6.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
+  const unwrap2 = (n4) => t7.isTSAsExpression(n4) || t7.isTSSatisfiesExpression(n4) ? unwrap2(n4.expression) : n4;
   for (const statement of ast.program.body) {
-    if (!t6.isExportNamedDeclaration(statement) || !t6.isVariableDeclaration(statement.declaration)) continue;
+    if (!t7.isExportNamedDeclaration(statement) || !t7.isVariableDeclaration(statement.declaration)) continue;
     for (const d3 of statement.declaration.declarations) {
-      if (!t6.isIdentifier(d3.id)) continue;
+      if (!t7.isIdentifier(d3.id)) continue;
       const init2 = unwrap2(d3.init);
       let entry = null;
-      if (t6.isArrayExpression(init2) && init2.elements.length && init2.elements.every((e2) => t6.isObjectExpression(unwrap2(e2)))) {
+      if (t7.isArrayExpression(init2) && init2.elements.length && init2.elements.every((e2) => t7.isObjectExpression(unwrap2(e2)))) {
         const literals = init2.elements.flatMap((e2) => objectCopy(unwrap2(e2), 0));
         if (literals.length) entry = { kind: "list", literals };
-      } else if (t6.isObjectExpression(init2)) {
+      } else if (t7.isObjectExpression(init2)) {
         const props = init2.properties;
-        const lookup = props.length > 1 && props.every((p) => t6.isObjectProperty(p) && !p.computed && t6.isStringLiteral(p.value)) && props.some((p) => new RegExp("\\s|^\\p{Lu}", "u").test(p.value.value.trim()));
+        const lookup = props.length > 1 && props.every((p) => t7.isObjectProperty(p) && !p.computed && t7.isStringLiteral(p.value)) && props.some((p) => new RegExp("\\s|^\\p{Lu}", "u").test(p.value.value.trim()));
         if (lookup) {
           const literals = props.flatMap((p) => {
-            const field = t6.isIdentifier(p.key) ? p.key.name : t6.isStringLiteral(p.key) ? p.key.value : null;
+            const field = t7.isIdentifier(p.key) ? p.key.name : t7.isStringLiteral(p.key) ? p.key.value : null;
             const v2 = p.value;
             const text4 = copyText(v2);
             return field && text4 ? [{ start: v2.start, end: v2.end, text: text4, field }] : [];
@@ -211062,13 +211635,13 @@ function followCopy(template4, constants3, flavor) {
   const usable = new Map(constants3);
   const aliases = /* @__PURE__ */ new Map();
   const expressions = templateExpressions(template4, flavor);
-  const mentions = (name) => new RegExp(`(?<![\\w$.])${escape(name)}(?![\\w$])`);
+  const mentions = (name) => new RegExp(`(?<![\\w$.])${escape2(name)}(?![\\w$])`);
   const onlyAs = (name, allowed) => expressions.filter((e2) => mentions(name).test(e2)).every(allowed);
   const fieldsOf = (c) => new Set(c.literals.map((l2) => l2.field).filter(Boolean));
   const fieldRead = (owner, fields) => (expr) => {
-    const m2 = new RegExp(`^${escape(owner)}\\.(\\w+)$`).exec(expr);
+    const m2 = new RegExp(`^${escape2(owner)}\\.(\\w+)$`).exec(expr);
     if (m2) return true;
-    const uses = [...expr.matchAll(new RegExp(`(?<![\\w$.])${escape(owner)}(?![\\w$])(\\.(\\w+))?`, "g"))];
+    const uses = [...expr.matchAll(new RegExp(`(?<![\\w$.])${escape2(owner)}(?![\\w$])(\\.(\\w+))?`, "g"))];
     return uses.every((u) => u[2] !== void 0 && !fields.has(u[2]));
   };
   for (const c of constants3.values()) {
@@ -211076,9 +211649,9 @@ function followCopy(template4, constants3, flavor) {
     if (c.kind === "string") ok = onlyAs(c.name, (e2) => e2 === c.name);
     else if (c.kind === "object") ok = onlyAs(c.name, (e2) => e2 === c.name || fieldRead(c.name, fieldsOf(c))(e2));
     else {
-      const loop = flavor === "vue" ? new RegExp(`^\\(?\\s*([A-Za-z_$][\\w$]*)\\s*(?:,\\s*[\\w$]+\\s*)*\\)?\\s+(?:in|of)\\s+${escape(c.name)}$`) : new RegExp(`^#each\\s+${escape(c.name)}\\s+as\\s+([A-Za-z_$][\\w$]*)\\s*(?:,\\s*[\\w$]+\\s*)?(?:\\([^)]*\\))?$`);
-      const indexed = (e2) => [...e2.matchAll(new RegExp(`(?<![\\w$.])${escape(c.name)}(?![\\w$])(\\.length\\b|\\[[^\\]]+\\]\\.(\\w+))?`, "g"))].every(
-        (u) => u[1] !== void 0 && (u[2] === void 0 || !fieldsOf(c).has(u[2]) || new RegExp(`^${escape(c.name)}\\[[^\\]]+\\]\\.${u[2]}$`).test(e2))
+      const loop = flavor === "vue" ? new RegExp(`^\\(?\\s*([A-Za-z_$][\\w$]*)\\s*(?:,\\s*[\\w$]+\\s*)*\\)?\\s+(?:in|of)\\s+${escape2(c.name)}$`) : new RegExp(`^#each\\s+${escape2(c.name)}\\s+as\\s+([A-Za-z_$][\\w$]*)\\s*(?:,\\s*[\\w$]+\\s*)?(?:\\([^)]*\\))?$`);
+      const indexed = (e2) => [...e2.matchAll(new RegExp(`(?<![\\w$.])${escape2(c.name)}(?![\\w$])(\\.length\\b|\\[[^\\]]+\\]\\.(\\w+))?`, "g"))].every(
+        (u) => u[1] !== void 0 && (u[2] === void 0 || !fieldsOf(c).has(u[2]) || new RegExp(`^${escape2(c.name)}\\[[^\\]]+\\]\\.${u[2]}$`).test(e2))
       );
       const loops = expressions.filter((e2) => mentions(c.name).test(e2) && e2 !== c.name && !indexed(e2));
       const names3 = loops.map((e2) => loop.exec(e2)?.[1]);
@@ -211114,20 +211687,20 @@ function readOf(source2, usable, aliases) {
   const literals = owner.literals.filter((l2) => l2.field === m2[2]);
   return literals.length ? literals : null;
 }
-var import_parser8, import_traverse6, t6, traverse7, copyText, NO_ITEM, escape;
+var import_parser9, import_traverse7, t7, traverse8, copyText, NO_ITEM, escape2;
 var init_script_copy = __esm({
   "src/formats/script-copy.ts"() {
     "use strict";
-    import_parser8 = __toESM(require_lib(), 1);
-    import_traverse6 = __toESM(require_lib8(), 1);
-    t6 = __toESM(require_lib4(), 1);
+    import_parser9 = __toESM(require_lib(), 1);
+    import_traverse7 = __toESM(require_lib8(), 1);
+    t7 = __toESM(require_lib4(), 1);
     init_filters();
     init_scanner();
     init_script2();
-    traverse7 = import_traverse6.default.default ?? import_traverse6.default;
-    copyText = (node2) => t6.isStringLiteral(node2) && isTranslatable(normalizeWhitespace(node2.value)) ? normalizeWhitespace(node2.value).trim() : null;
+    traverse8 = import_traverse7.default.default ?? import_traverse7.default;
+    copyText = (node2) => t7.isStringLiteral(node2) && isTranslatable(normalizeWhitespace(node2.value)) ? normalizeWhitespace(node2.value).trim() : null;
     NO_ITEM = /* @__PURE__ */ new Set(["some", "every", "findIndex", "indexOf", "includes", "forEach", "length"]);
-    escape = (s) => s.replace(/[$]/g, "\\$");
+    escape2 = (s) => s.replace(/[$]/g, "\\$");
   }
 });
 
@@ -211329,7 +211902,7 @@ async function scanAstro(code2, filePath, opts) {
     const body = code2.slice(bodyStart, front.index + front[0].lastIndexOf("---"));
     let script = null;
     try {
-      script = (0, import_parser9.parse)(body, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+      script = (0, import_parser10.parse)(body, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
     } catch {
       script = null;
     }
@@ -211412,7 +211985,7 @@ ${tLine}`);
   }
   return { code: s.toString(), changed: replacements2.length > 0, replacements: replacements2 };
 }
-var import_parser9, bt, RAW4, RAW_DIRECTIVES, componentOf2, paramObject3, call4, astroAdapter;
+var import_parser10, bt, RAW4, RAW_DIRECTIVES, componentOf2, paramObject3, call4, astroAdapter;
 var init_astro = __esm({
   "src/formats/astro.ts"() {
     "use strict";
@@ -211420,7 +211993,7 @@ var init_astro = __esm({
     init_optional();
     init_markup();
     init_filters();
-    import_parser9 = __toESM(require_lib(), 1);
+    import_parser10 = __toESM(require_lib(), 1);
     bt = __toESM(require_lib4(), 1);
     init_scanner();
     init_script2();
@@ -212268,7 +212841,7 @@ function scanKit(code2, filePath) {
   if (!/@sveltejs\/kit/.test(code2)) return { strings: strings2, warnings: warnings2, sites };
   let ast;
   try {
-    ast = (0, import_parser10.parse)(code2, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+    ast = (0, import_parser11.parse)(code2, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
   } catch {
     return { strings: strings2, warnings: warnings2, sites };
   }
@@ -212293,14 +212866,14 @@ function scanKit(code2, filePath) {
       if (open3 === -1 || open3 > node2.body.start) return "the handler's parameters can't be found";
       edits.push({ at: open3 + 1, text: `{ ${want} }`, key: `${node2.start}:param` });
       name = want;
-    } else if (t7.isIdentifier(param)) name = `${param.name}.${want}`;
-    else if (t7.isObjectPattern(param)) {
-      const own = param.properties.find((p) => t7.isObjectProperty(p) && !p.computed && t7.isIdentifier(p.key, { name: want }));
-      const rest2 = param.properties.find((p) => t7.isRestElement(p));
+    } else if (t8.isIdentifier(param)) name = `${param.name}.${want}`;
+    else if (t8.isObjectPattern(param)) {
+      const own = param.properties.find((p) => t8.isObjectProperty(p) && !p.computed && t8.isIdentifier(p.key, { name: want }));
+      const rest2 = param.properties.find((p) => t8.isRestElement(p));
       if (own) {
-        if (!t7.isIdentifier(own.value)) return `the handler takes ${want} apart`;
+        if (!t8.isIdentifier(own.value)) return `the handler takes ${want} apart`;
         name = own.value.name;
-      } else if (rest2 && t7.isIdentifier(rest2.argument)) name = `${rest2.argument.name}.${want}`;
+      } else if (rest2 && t8.isIdentifier(rest2.argument)) name = `${rest2.argument.name}.${want}`;
       else if (outer.scope.hasBinding(want)) return `${want} is already a name here`;
       else {
         const last = param.properties[param.properties.length - 1];
@@ -212325,31 +212898,31 @@ function scanKit(code2, filePath) {
     sites.set(id3, { id: id3, kind: "literal", start: lit2.start, end: lit2.end, params: lit2.params, context: "script", ...where });
     strings2.push({ id: id3, originalText: lit2.text, nodeType: "StringLiteral", filePath, loc: lineOf(code2, lit2.start), component, element: sink, ...lit2.params.length ? { params: lit2.params.map((p) => p.name) } : {} });
   };
-  traverse8(ast, {
+  traverse9(ast, {
     CallExpression(path22) {
       const callee = path22.node.callee;
-      if (!t7.isIdentifier(callee) || callee.name !== "fail" && callee.name !== "error") return;
+      if (!t8.isIdentifier(callee) || callee.name !== "fail" && callee.name !== "error") return;
       const at2 = path22.scope.getBinding(callee.name)?.path;
       if (!at2?.isImportSpecifier() || at2.parentPath.node.source.value !== "@sveltejs/kit") return;
       const arg = path22.node.arguments[1];
-      if (t7.isObjectExpression(arg)) {
-        for (const p of arg.properties) if (t7.isObjectProperty(p) && !p.computed) take(path22, p.value, `${callee.name}()`);
+      if (t8.isObjectExpression(arg)) {
+        for (const p of arg.properties) if (t8.isObjectProperty(p) && !p.computed) take(path22, p.value, `${callee.name}()`);
       } else take(path22, arg, `${callee.name}()`);
     }
   });
   return { strings: strings2, warnings: warnings2, sites };
 }
-var import_parser10, import_traverse7, t7, traverse8, svelteKitAdapter;
+var import_parser11, import_traverse8, t8, traverse9, svelteKitAdapter;
 var init_sveltekit = __esm({
   "src/formats/sveltekit.ts"() {
     "use strict";
-    import_parser10 = __toESM(require_lib(), 1);
-    import_traverse7 = __toESM(require_lib8(), 1);
-    t7 = __toESM(require_lib4(), 1);
+    import_parser11 = __toESM(require_lib(), 1);
+    import_traverse8 = __toESM(require_lib8(), 1);
+    t8 = __toESM(require_lib4(), 1);
     init_dist();
     init_markup();
     init_script2();
-    traverse8 = import_traverse7.default.default ?? import_traverse7.default;
+    traverse9 = import_traverse8.default.default ?? import_traverse8.default;
     svelteKitAdapter = {
       scan: (code2, filePath) => scanKit(code2, filePath),
       transform: (code2, filePath, keys) => {
@@ -212395,7 +212968,7 @@ __export(html_exports2, {
   transformHtml: () => transformHtml
 });
 function scanHtml(code2, filePath, opts) {
-  const doc = parse13(code2, { sourceCodeLocationInfo: true });
+  const doc = parse14(code2, { sourceCodeLocationInfo: true });
   const strings2 = [];
   const warnings2 = [];
   const sites = /* @__PURE__ */ new Map();
@@ -213083,235 +213656,6 @@ var init_sense = __esm({
   }
 });
 
-// src/ast/locale-formats.ts
-function dateOptions(pattern, flavor) {
-  const styles = flavor === "date-fns" ? { P: "dateStyle: 'short'", PP: "dateStyle: 'medium'", PPP: "dateStyle: 'long'", PPPP: "dateStyle: 'full'", p: "timeStyle: 'short'", pp: "timeStyle: 'medium'", PPp: "dateStyle: 'medium', timeStyle: 'short'", PPPp: "dateStyle: 'long', timeStyle: 'short'" } : { L: "dateStyle: 'short'", LL: "dateStyle: 'long'", LLL: "dateStyle: 'long', timeStyle: 'short'", LLLL: "dateStyle: 'full', timeStyle: 'short'", LT: "timeStyle: 'short'", LTS: "timeStyle: 'medium'" };
-  if (styles[pattern.trim()]) return `{ ${styles[pattern.trim()]} }`;
-  if (/['[]/.test(pattern) || /^[yY]+-M+-[dD]+$/.test(pattern.trim())) return null;
-  const tokens2 = pattern.match(/([A-Za-z])\1*/g) ?? [];
-  const opts = [];
-  const set3 = (k, v2) => !opts.some((o) => o.startsWith(`${k}:`)) && opts.push(`${k}: ${v2}`);
-  for (const tok of tokens2) {
-    const c = tok[0];
-    const n4 = tok.length;
-    const year = flavor === "date-fns" ? "y" : "Y";
-    const day = flavor === "date-fns" ? "d" : "D";
-    const weekday = flavor === "date-fns" ? "E" : "d";
-    if (c === year) set3("year", n4 === 2 ? "'2-digit'" : "'numeric'");
-    else if (c === "M") set3("month", n4 >= 4 ? "'long'" : n4 === 3 ? "'short'" : n4 === 2 ? "'2-digit'" : "'numeric'");
-    else if (c === day && !(flavor === "dayjs" && n4 >= 3)) set3("day", n4 === 2 ? "'2-digit'" : "'numeric'");
-    else if (c === weekday && (flavor === "date-fns" || n4 >= 3)) set3("weekday", n4 >= 4 ? "'long'" : "'short'");
-    else if (c === "H") set3("hour", n4 === 2 ? "'2-digit'" : "'numeric'"), set3("hourCycle", "'h23'");
-    else if (c === "h") set3("hour", n4 === 2 ? "'2-digit'" : "'numeric'"), set3("hour12", "true");
-    else if (c === "m") set3("minute", "'2-digit'");
-    else if (c === "s") set3("second", "'2-digit'");
-    else if (c === "a" || c === "A") set3("hour12", "true");
-    else return null;
-  }
-  return opts.length ? `{ ${opts.join(", ")} }` : null;
-}
-function handBuiltList(node2, code2) {
-  const { quasis, expressions } = node2;
-  if (expressions.length !== 2 || quasis[0].value.cooked !== "" || quasis[2].value.cooked !== "") return null;
-  const word = /^,?\s+(and|or)\s+$/.exec(quasis[1].value.cooked ?? "")?.[1];
-  if (!word) return null;
-  const [head, last] = expressions;
-  if (!t8.isCallExpression(head) || !t8.isMemberExpression(head.callee) || !t8.isIdentifier(head.callee.property, { name: "join" }) || !t8.isCallExpression(head.callee.object) || !t8.isMemberExpression(head.callee.object.callee) || !t8.isIdentifier(head.callee.object.callee.property, { name: "slice" })) {
-    return null;
-  }
-  const items = head.callee.object.callee.object;
-  const source2 = code2.slice(items.start, items.end);
-  const lastSource = code2.slice(last.start, last.end).replace(/\s+/g, "");
-  const plain = source2.replace(/\s+/g, "");
-  if (lastSource !== `${plain}[${plain}.length-1]` && lastSource !== `${plain}.at(-1)`) return null;
-  return { items: source2, type: word === "and" ? "conjunction" : "disjunction" };
-}
-function localizeFormats(code2, filePath, opts) {
-  const currencyOf = (symbol) => CURRENCY[symbol] ?? (symbol === "$" ? opts.currency ?? "USD" : void 0);
-  let ast;
-  try {
-    ast = (0, import_parser11.parse)(code2, { sourceType: "module", plugins: ["typescript", "jsx"], errorRecovery: true });
-  } catch {
-    return { code: code2, changes: [], warnings: [] };
-  }
-  const s = new MagicString(code2);
-  const changes = [];
-  const warnings2 = [];
-  const lineOf2 = (n4) => n4.loc?.start.line ?? 0;
-  const replace = (node2, after) => {
-    changes.push({ line: lineOf2(node2), before: code2.slice(node2.start, node2.end), after });
-    s.overwrite(node2.start, node2.end, after);
-  };
-  const isLocaleLiteral = (n4) => !!n4 && (t8.isStringLiteral(n4) && /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(n4.value) || t8.isArrayExpression(n4) && n4.elements.length > 0 && n4.elements.every((e2) => !!e2 && isLocaleLiteral(e2)));
-  const isDefaultLocale = (n4) => !n4 || t8.isIdentifier(n4) && n4.name === "undefined";
-  const dateFns = /* @__PURE__ */ new Map();
-  const dateLibs = /* @__PURE__ */ new Set();
-  for (const node2 of ast.program.body) {
-    if (!t8.isImportDeclaration(node2)) continue;
-    const from = node2.source.value;
-    for (const spec2 of node2.specifiers) {
-      if (/^date-fns(\/|$)/.test(from) && t8.isImportSpecifier(spec2)) dateFns.set(spec2.local.name, t8.isIdentifier(spec2.imported) ? spec2.imported.name : spec2.imported.value);
-      if (/^date-fns\/(format|formatDistance\w*|formatRelative)$/.test(from) && t8.isImportDefaultSpecifier(spec2)) dateFns.set(spec2.local.name, from.split("/")[1]);
-      if ((from === "dayjs" || from === "moment") && (t8.isImportDefaultSpecifier(spec2) || t8.isImportNamespaceSpecifier(spec2))) dateLibs.add(spec2.local.name);
-    }
-  }
-  traverse9(ast, {
-    CallExpression(path22) {
-      const callee = path22.node.callee;
-      const [first, second] = path22.node.arguments;
-      if (t8.isIdentifier(callee) && dateFns.has(callee.name) && dateFns.get(callee.name) === "format" && first && t8.isStringLiteral(second)) {
-        const options = dateOptions(second.value, "date-fns");
-        if (options) {
-          replace(path22.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(first.start, first.end)})`);
-          return;
-        }
-      }
-      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property, { name: "format" }) && t8.isCallExpression(callee.object) && t8.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name) && t8.isStringLiteral(first)) {
-        const options = dateOptions(first.value, "dayjs");
-        if (options) {
-          replace(path22.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(callee.object.start, callee.object.end)}.toDate())`);
-          return;
-        }
-      }
-      const relative3 = t8.isIdentifier(callee) && ["formatDistance", "formatDistanceToNow", "formatDistanceStrict", "formatRelative"].includes(dateFns.get(callee.name) ?? "") || t8.isMemberExpression(callee) && t8.isIdentifier(callee.property) && ["fromNow", "toNow", "from", "to", "calendar"].includes(callee.property.name) && t8.isCallExpression(callee.object) && t8.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name);
-      if (relative3) {
-        const at2 = path22.node.loc?.start ?? { line: 0, column: 0 };
-        warnings2.push({ filePath, loc: { line: at2.line, column: at2.column }, text: code2.slice(path22.node.start, path22.node.end), reason: "relative time from a date library stays English: use Intl.RelativeTimeFormat with the app language" });
-      }
-      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property, { name: "localeCompare" }) && path22.node.arguments.length === 1) {
-        changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: "(compared in the app language)" });
-        s.appendLeft(path22.node.arguments[0].end, `, ${opts.lang}`);
-        return;
-      }
-      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property) && (callee.property.name === "toUpperCase" || callee.property.name === "toLowerCase") && !path22.node.arguments.length && (path22.parentPath.isJSXExpressionContainer() || t8.isCallExpression(callee.object) && t8.isIdentifier(callee.object.callee, { name: "t" }))) {
-        const name = callee.property.name === "toUpperCase" ? "toLocaleUpperCase" : "toLocaleLowerCase";
-        changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: `(${name} in the app language)` });
-        s.overwrite(callee.property.start, path22.node.end, `${name}(${opts.lang})`);
-        return;
-      }
-      if (t8.isMemberExpression(callee) && t8.isIdentifier(callee.property, { name: "join" }) && path22.node.arguments.length === 1 && t8.isStringLiteral(path22.node.arguments[0]) && /^,\s?$/.test(path22.node.arguments[0].value) && path22.parentPath.isJSXExpressionContainer() && path22.parentPath.parentPath?.isJSXElement()) {
-        replace(path22.node, `new Intl.ListFormat(${opts.lang}, { style: 'short', type: 'unit' }).format(Array.from(${code2.slice(callee.object.start, callee.object.end)}, String))`);
-        return;
-      }
-      if (!t8.isMemberExpression(callee) || !t8.isIdentifier(callee.property) || !TO_LOCALE.has(callee.property.name)) return;
-      const [locale] = path22.node.arguments;
-      if (isLocaleLiteral(locale)) replace(locale, opts.lang);
-      else if (isDefaultLocale(locale)) {
-        if (locale) replace(locale, opts.lang);
-        else {
-          const open3 = code2.indexOf("(", callee.end);
-          changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: `${code2.slice(path22.node.start, open3 + 1)}${opts.lang}${code2.slice(open3 + 1, path22.node.end)}` });
-          s.appendLeft(open3 + 1, opts.lang);
-        }
-      }
-    },
-    NewExpression(path22) {
-      const callee = path22.node.callee;
-      const intl = t8.isMemberExpression(callee) && t8.isIdentifier(callee.object, { name: "Intl" }) && t8.isIdentifier(callee.property) && INTL.has(callee.property.name);
-      if (!intl) return;
-      const [locale] = path22.node.arguments;
-      if (isLocaleLiteral(locale)) replace(locale, opts.lang);
-      else if (isDefaultLocale(locale) && locale) replace(locale, opts.lang);
-      else if (!locale) {
-        const open3 = code2.indexOf("(", callee.end);
-        if (open3 !== -1 && open3 < path22.node.end) s.appendLeft(open3 + 1, opts.lang), changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: "(app language)" });
-      }
-    },
-    TemplateLiteral(path22) {
-      const { quasis, expressions } = path22.node;
-      const list4 = handBuiltList(path22.node, code2);
-      if (list4) {
-        replace(path22.node, `new Intl.ListFormat(${opts.lang}, { type: '${list4.type}' }).format(${list4.items})`);
-        return;
-      }
-      if (expressions.length !== 1 || quasis[1].value.cooked !== "") return;
-      if (inUrlAttribute(path22)) return;
-      const symbol = quasis[0].value.cooked ?? "";
-      const currency = currencyOf(symbol);
-      if (!currency) return;
-      let amount = expressions[0];
-      if (t8.isCallExpression(amount) && t8.isMemberExpression(amount.callee) && t8.isIdentifier(amount.callee.property, { name: "toFixed" })) amount = amount.callee.object;
-      replace(path22.node, `new Intl.NumberFormat(${opts.lang}, { style: 'currency', currency: '${currency}' }).format(${code2.slice(amount.start, amount.end)})`);
-    },
-    JSXElement(path22) {
-      const kids = path22.node.children;
-      for (let i3 = 0; i3 < kids.length - 1; i3++) {
-        const text4 = kids[i3];
-        const value = kids[i3 + 1];
-        if (!t8.isJSXText(text4) || !t8.isJSXExpressionContainer(value) || t8.isJSXEmptyExpression(value.expression)) continue;
-        const m2 = SYMBOL_AT_END.exec(text4.value);
-        const currency = m2 ? currencyOf(m2[1]) : void 0;
-        if (!m2 || !currency) continue;
-        const amount = code2.slice(value.expression.start, value.expression.end);
-        const symbolStart = text4.end - m2[1].length;
-        changes.push({ line: lineOf2(value), before: `${m2[1]}{${amount}}`, after: `{new Intl.NumberFormat(\u2026)}` });
-        s.remove(symbolStart, text4.end);
-        s.overwrite(value.start, value.end, `{new Intl.NumberFormat(${opts.lang}, { style: 'currency', currency: '${currency}' }).format(${amount})}`);
-      }
-    }
-  });
-  if (!changes.length) return { code: code2, changes, warnings: warnings2 };
-  if (!code2.includes(opts.importLine)) {
-    const imports2 = ast.program.body.filter((n4) => t8.isImportDeclaration(n4));
-    const last = imports2[imports2.length - 1];
-    if (last) s.appendLeft(last.end, `
-${opts.importLine}`);
-    else {
-      const directives = ast.program.directives;
-      const at2 = directives.length ? directives[directives.length - 1].end : 0;
-      if (at2) s.appendLeft(at2, `
-${opts.importLine}`);
-      else s.prepend(`${opts.importLine}
-`);
-    }
-  }
-  return { code: s.toString(), changes, warnings: warnings2.map((w4) => ({ ...w4, filePath })) };
-}
-var import_parser11, import_traverse8, t8, traverse9, TO_LOCALE, INTL, CURRENCY, SYMBOL_AT_END, URL_ATTRIBUTES, inUrlAttribute;
-var init_locale_formats = __esm({
-  "src/ast/locale-formats.ts"() {
-    "use strict";
-    import_parser11 = __toESM(require_lib(), 1);
-    import_traverse8 = __toESM(require_lib8(), 1);
-    t8 = __toESM(require_lib4(), 1);
-    init_dist();
-    traverse9 = import_traverse8.default.default ?? import_traverse8.default;
-    TO_LOCALE = /* @__PURE__ */ new Set(["toLocaleDateString", "toLocaleTimeString", "toLocaleString"]);
-    INTL = /* @__PURE__ */ new Set(["DateTimeFormat", "NumberFormat", "RelativeTimeFormat", "ListFormat", "PluralRules", "DisplayNames", "Collator", "Segmenter"]);
-    CURRENCY = {
-      US$: "USD",
-      CA$: "CAD",
-      C$: "CAD",
-      AU$: "AUD",
-      A$: "AUD",
-      NZ$: "NZD",
-      MX$: "MXN",
-      HK$: "HKD",
-      S$: "SGD",
-      R$: "BRL",
-      "\u20AC": "EUR",
-      "\xA3": "GBP",
-      "\xA5": "JPY",
-      "\u20B9": "INR",
-      "\u20A6": "NGN",
-      "\u20A9": "KRW",
-      "\u20B1": "PHP",
-      "\u20BA": "TRY",
-      "\u20B4": "UAH",
-      "\u20AB": "VND",
-      "\u20AA": "ILS"
-    };
-    SYMBOL_AT_END = new RegExp(`(${[...Object.keys(CURRENCY), "$"].sort((a, b4) => b4.length - a.length).map((k) => k.replace(/\$/g, "\\$")).join("|")})$`);
-    URL_ATTRIBUTES = /* @__PURE__ */ new Set(["href", "src", "srcset", "action", "formaction", "poster", "data", "cite", "background", "ping", "to", "url"]);
-    inUrlAttribute = (path22) => {
-      const attr2 = path22.findParent((p) => p.isJSXAttribute());
-      if (!attr2 || !attr2.isJSXAttribute()) return false;
-      const name = attr2.node.name;
-      return URL_ATTRIBUTES.has((t8.isJSXIdentifier(name) ? name.name : name.name.name).toLowerCase());
-    };
-  }
-});
-
 // src/ast/template-formats.ts
 function interpolations(markup, open3, close2) {
   const out = [];
@@ -213417,7 +213761,7 @@ function localizeTemplateFormats(markup, o) {
       if (currency && amount && !/\bIntl\b/.test(amount)) {
         changes.push({ line: line(it.start), before: `${sym[1]}${markup.slice(it.start, it.end)}`, after: `(${currency} in the app's language)` });
         before2 = before2.slice(0, -sym[1].length);
-        replacement = `${o.open} new Intl.NumberFormat(${o.lang}, { style: 'currency', currency: '${currency}' }).format(${amount.replace(/\.toFixed\(\d*\)\s*$/, "")}) ${o.close}`;
+        replacement = `${o.open} ${currencyFormat(o.lang, currency, amount)} ${o.close}`;
       }
     }
     out += before2 + replacement;
@@ -213674,7 +214018,7 @@ function withAlternates(html, block3) {
   ${html.slice(head)}`;
 }
 function renderPage(html, o) {
-  const doc = parse13(html, { sourceCodeLocationInfo: true });
+  const doc = parse14(html, { sourceCodeLocationInfo: true });
   const s = new MagicString(html);
   const up = "../".repeat(o.depth);
   const moved = (url) => up + url.replace(/^\.\//, "");
@@ -216042,7 +216386,7 @@ var init_setup_frameworks = __esm({
     init_seo();
     toPosix = (p) => p.split(path8.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.33.4" : "0.6.0";
+    SELF_VERSION = true ? "0.34.0" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -216469,7 +216813,7 @@ function lastEntry(rest2, from, to, k, line, period) {
   const entry = rest2.slice(0, end2);
   return occurrences(entry, [from.code]).length < k ? rest2 : swap(entry, from, to, line) + rest2.slice(end2);
 }
-var import_fast_glob6, SOURCES, IGNORE2, forms, ident2, escape2, unquoted, lineAt, boundary2, closers, commented;
+var import_fast_glob6, SOURCES, IGNORE2, forms, ident2, escape3, unquoted, lineAt, boundary2, closers, commented;
 var init_setup_languages = __esm({
   "src/setup-languages.ts"() {
     "use strict";
@@ -216481,10 +216825,10 @@ var init_setup_languages = __esm({
     IGNORE2 = ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.nuxt/**", "**/.output/**", "**/.svelte-kit/**", "**/.dart_tool/**", "**/vendor/**", "**/Pods/**", "**/venv/**", "**/.venv/**"];
     forms = (locale) => [.../* @__PURE__ */ new Set([locale, locale.toLowerCase(), ident2(locale), ident2(locale).toLowerCase()])];
     ident2 = (locale) => locale.replace(/[^A-Za-z0-9_$]/g, "_").replace(/^(\d)/, "_$1");
-    escape2 = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    escape3 = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     unquoted = (text4) => text4.replace(/(['"])([A-Za-z_$][\w$]*)\1(?=\s*:(?!:))/g, "$2");
     lineAt = (code2, index) => code2.slice(code2.lastIndexOf("\n", index - 1) + 1, (code2.indexOf("\n", index) + 1 || code2.length + 1) - 1);
-    boundary2 = (alternatives) => new RegExp(`(?<![A-Za-z0-9_$]|[A-Za-z0-9]-)(${[...new Set(alternatives)].sort((a, b4) => b4.length - a.length).map(escape2).join("|")})(?![A-Za-z0-9_$]|-[A-Za-z0-9])`, "g");
+    boundary2 = (alternatives) => new RegExp(`(?<![A-Za-z0-9_$]|[A-Za-z0-9]-)(${[...new Set(alternatives)].sort((a, b4) => b4.length - a.length).map(escape3).join("|")})(?![A-Za-z0-9_$]|-[A-Za-z0-9])`, "g");
     closers = (text4) => (text4.match(/[\])};]/g) ?? []).length;
     commented = (code2, index) => /^\s*(\*|\/\/|\/\*|#|<!--|\{\{!)/.test(code2.slice(code2.lastIndexOf("\n", index - 1) + 1, index));
   }
@@ -218839,6 +219183,8 @@ async function planI18nSetup(opts) {
     else result.files.push({ path: file2, content });
   };
   await planSetup(opts, result, changed, out);
+  const before2 = result.i18nFile && readText(opts.cwd, result.i18nFile, /* @__PURE__ */ new Map());
+  if (before2 !== void 0 && before2 === (result.files.find((f2) => f2.path === result.i18nFile)?.content ?? before2)) delete result.i18nFile;
   await addNewLanguages({ cwd: opts.cwd, config: opts.config, readText: (f2) => readText(opts.cwd, f2, changed), out, planned: result.files.map((f2) => f2.path) });
   return result;
 }
@@ -219050,6 +219396,17 @@ async function planSetup(opts, result, changed, out) {
       "    interpolation: { escapeValue: false }, // React already escapes",
       "  });",
       "",
+      ...config.framework !== "react-native" ? [
+        "/** <html lang dir> follow the language: at start (a saved right-to-left choice too) and on every change. */",
+        `const applyDocument = (lng${tsModule ? ": string" : ""}) => {`,
+        "  if (typeof document === 'undefined' || !lng) return;",
+        "  document.documentElement.lang = lng;",
+        "  document.documentElement.dir = i18n.dir(lng);",
+        "};",
+        "i18n.on('languageChanged', applyDocument);",
+        "applyDocument(i18n.language);",
+        ""
+      ] : [],
       ...spaShell(cwd, config) ? [
         "/** The page title and description from index.html, in the current language. */",
         "const applyTitle = () => {",
@@ -219164,7 +219521,8 @@ async function planNextAppRouter(ctx) {
   const serverFile = serverModulePath(cwd, config);
   const providerFile = `${dir}i18n-provider.${typescript ? "tsx" : "jsx"}`;
   const layout = EXTS2.map((e2) => `${appDir}/layout.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
-  const sample = layout && readText(cwd, layout, changed) || ctx.files[0]?.content || "";
+  const segmentLayout = layout ? void 0 : languageSegmentLayout(cwd, appDir, changed);
+  const sample = layout && readText(cwd, layout, changed) || segmentLayout && readText(cwd, segmentLayout, changed) || ctx.files[0]?.content || "";
   const quote3 = prefersDoubleQuotes(sample) ? (code2) => code2.replace(/'/g, '"') : (code2) => code2;
   const icu = config.interpolation === "icu";
   const write3 = (file2, lines) => {
@@ -219251,7 +219609,7 @@ async function planNextAppRouter(ctx) {
     "}",
     ""
   ]);
-  planNextProxy({ cwd, config, changed, out, result, dir, typescript, quote: quote3 });
+  planNextProxy({ cwd, config, changed, out, result, dir, typescript, quote: quote3, segment: !!segmentLayout });
   if (existing) {
     result.notes.push(
       `i18next is already initialized in \`${existing}\`, so the client setup was left alone. Server components now use \`${serverFile}\`; make sure client components get the same language.`
@@ -219297,6 +219655,12 @@ async function planNextAppRouter(ctx) {
   result.i18nFile = clientFile;
   addSwitcher({ cwd, config, changed, out, result, next: true, moduleFile: resourcesFile, sample });
   if (typescript) enableJsonImports(cwd, changed, out);
+  if (segmentLayout) {
+    if (!/\bI18nProvider\b/.test(readText(cwd, segmentLayout, changed))) {
+      result.notes.push(`Wrap \`{children}\` in \`${segmentLayout}\` in \`<I18nProvider lng={lang}>\` from \`${providerFile}\`, with the language from the segment's params.`);
+    }
+    return;
+  }
   if (!layout) {
     result.notes.push(`No \`${appDir}/layout\` found: wrap your app in \`<I18nProvider lng={await getLanguage()}>\` from \`${providerFile}\`.`);
     return;
@@ -219315,6 +219679,19 @@ async function planNextAppRouter(ctx) {
   result.entryFile = layout;
   addHtmlDir({ cwd, changed, out, appDir, serverFile });
   await addSearch({ cwd, config, changed, out, result, appDir, resourcesFile });
+}
+function languageSegmentLayout(cwd, appDir, changed) {
+  let dirs = [];
+  try {
+    dirs = fs13.readdirSync(path13.join(cwd, appDir), { withFileTypes: true }).filter((d3) => d3.isDirectory() && /^\[[^.[\]]+\]$/.test(d3.name)).map((d3) => d3.name);
+  } catch {
+    return void 0;
+  }
+  for (const d3 of dirs) {
+    const found2 = EXTS2.map((e2) => `${appDir}/${d3}/layout.${e2}`).find((f2) => readText(cwd, f2, changed) !== void 0);
+    if (found2) return found2;
+  }
+  return void 0;
 }
 function addHtmlDir(ctx) {
   const { cwd, changed, out, appDir, serverFile } = ctx;
@@ -219474,6 +219851,7 @@ function planNextProxy(ctx) {
     const code2 = readText(cwd, f2, changed);
     return code2 !== void 0 && !isGenerated(code2);
   });
+  if (ctx.segment && !theirs) return;
   const languages = [config.sourceLocale, ...config.targetLocales.filter((l2) => l2 !== config.sourceLocale)];
   const T = (s) => typescript ? s : "";
   if (theirs) {
@@ -219515,7 +219893,7 @@ function planNextProxy(ctx) {
         )
       );
     }
-    if (!/\blocalizeRequest\b/.test(readText(cwd, theirs, changed) ?? "")) {
+    if (!ctx.segment && !/\b(localizeRequest|splitLanguage)\b/.test(readText(cwd, theirs, changed) ?? "")) {
       result.notes.push(
         `\`${theirs}\` is your own, so it wasn't replaced. For a URL per language (/es/about) and hreflang links, call the generated \`${helper2}\` from it: return \`localizeRequest(request)\` where it returns \`NextResponse.next()\`, compare paths with \`splitLanguage(pathname).path\` (/es/dashboard is /dashboard), and let its matcher include every page: '/((?!api|_next|.*\\\\..*).*)'.`
       );
@@ -219709,7 +220087,7 @@ var init_setup = __esm({
     NOT_SOURCE = ["**/node_modules/**", "**/*.d.ts", "**/{dist,build,out,coverage,.next,.react-router,.svelte-kit,.output,.astro,.vercel,.netlify}/**"];
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS2 = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.33.4" : "0.6.0";
+    SELF_VERSION2 = true ? "0.34.0" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -219829,158 +220207,6 @@ var init_component_graph = __esm({
     SOURCE2 = /\.(tsx|ts|jsx|js|mjs)$/;
     EXTENSIONS = ["", ".tsx", ".ts", ".jsx", ".js", ".mjs", "/index.tsx", "/index.ts", "/index.jsx", "/index.js"];
     USE_CLIENT = /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*(['"])use client\1/;
-  }
-});
-
-// src/sync/formats/apple.ts
-function xcodeJson(value, indent2 = "") {
-  const inner = `${indent2}  `;
-  if (Array.isArray(value)) return value.length ? `[
-${value.map((v2) => inner + xcodeJson(v2, inner)).join(",\n")}
-${indent2}]` : "[\n\n]";
-  if (value && typeof value === "object") {
-    const entries = Object.entries(value).filter(([, v2]) => v2 !== void 0);
-    if (!entries.length) return "{\n\n}";
-    return `{
-${entries.map(([k, v2]) => `${inner}${JSON.stringify(k)} : ${xcodeJson(v2, inner)}`).join(",\n")}
-${indent2}}`;
-  }
-  return JSON.stringify(value);
-}
-function parseStrings(text4) {
-  const out = /* @__PURE__ */ new Map();
-  for (const m2 of text4.matchAll(ENTRY)) out.set(keyText(m2[2]), { value: unescape4(m2[3]), ...m2[1]?.trim() ? { comment: m2[1].trim() } : {} });
-  return out;
-}
-var TOKENS2, parseCatalog, done, xcstrings, ENTRY, unescape4, escape3, keyText, strings, appleFormats;
-var init_apple = __esm({
-  "src/sync/formats/apple.ts"() {
-    "use strict";
-    init_plural();
-    init_locale();
-    TOKENS2 = /%#@\w+@|%(?:\d+\$)?[-+#0]*\d*(?:\.\d+)?(?:hh|h|ll|l|q|z|t|j)?[@dDiuUxXoOfFeEgGcCsSpaA]|%%/;
-    parseCatalog = (text4) => {
-      try {
-        const v2 = text4 && JSON.parse(text4);
-        return v2 && typeof v2.strings === "object" && typeof v2.sourceLanguage === "string" ? v2 : null;
-      } catch {
-        return null;
-      }
-    };
-    done = (u) => !!u?.stringUnit?.value?.trim() && u.stringUnit.state !== "new";
-    xcstrings = {
-      find(ctx) {
-        const catalogs = [];
-        for (const file2 of ctx.files) {
-          if (!file2.endsWith(".xcstrings")) continue;
-          const source2 = parseCatalog(ctx.read(file2));
-          if (!source2) continue;
-          const src = source2.sourceLanguage;
-          const locales2 = /* @__PURE__ */ new Set();
-          const messages = [];
-          for (const [key2, entry] of Object.entries(source2.strings)) {
-            for (const l2 of Object.keys(entry.localizations ?? {})) if (!sameLocale(l2, src) && toBcp47(l2)) locales2.add(toBcp47(l2));
-            if (entry.shouldTranslate === false || !key2.trim()) continue;
-            const own = entry.localizations?.[src];
-            if (own?.variations?.device || own?.substitutions) continue;
-            const plural = own?.variations?.plural;
-            let value;
-            if (plural) {
-              const forms2 = Object.fromEntries(Object.entries(plural).map(([c, u]) => [c, u?.stringUnit?.value ?? ""]));
-              if (!forms2.other) continue;
-              value = forms2;
-            } else {
-              value = own?.stringUnit?.value ?? key2;
-            }
-            messages.push({ key: key2, value, context: entry.comment ? `${key2}: ${entry.comment}` : void 0 });
-          }
-          if (!messages.length) continue;
-          catalogs.push({
-            label: "String Catalog",
-            file: file2,
-            sourceLocale: toBcp47(src) ?? src,
-            messages,
-            locales: [...locales2].sort(),
-            tokens: TOKENS2,
-            targetFile: () => file2,
-            present(content, locale) {
-              const has = /* @__PURE__ */ new Set();
-              const cat = parseCatalog(content);
-              for (const [key2, entry] of Object.entries(cat?.strings ?? {})) {
-                const loc2 = Object.entries(entry.localizations ?? {}).find(([l2]) => sameLocale(l2, locale))?.[1];
-                if (done(loc2) || done(loc2?.variations?.plural?.other)) has.add(key2);
-              }
-              return has;
-            },
-            write(content, locale, values) {
-              const cat = parseCatalog(content) ?? source2;
-              const code2 = Object.values(cat.strings).flatMap((e2) => Object.keys(e2.localizations ?? {})).find((l2) => sameLocale(l2, locale)) ?? spell(locale, "bcp47");
-              for (const [key2, value] of values) {
-                const entry = cat.strings[key2] ??= {};
-                const unit = (v2) => ({ stringUnit: { state: "translated", value: v2 } });
-                const loc2 = typeof value === "string" ? unit(value) : { variations: { plural: Object.fromEntries(pluralCategories(locale).map((c) => [c, unit(value[c] ?? value.other)])) } };
-                const all = { ...entry.localizations, [code2]: loc2 };
-                entry.localizations = Object.fromEntries(Object.keys(all).sort().map((l2) => [l2, all[l2]]));
-              }
-              return `${xcodeJson(cat)}
-`;
-            }
-          });
-        }
-        return catalogs;
-      }
-    };
-    ENTRY = /(?:\/\*([\s\S]*?)\*\/\s*)?("(?:[^"\\]|\\.)*"|[\w.-]+)\s*=\s*"((?:[^"\\]|\\.)*)"\s*;/g;
-    unescape4 = (s) => s.replace(
-      /\\(U[0-9a-fA-F]{4}|u[0-9a-fA-F]{4}|.)/g,
-      (_2, c) => c.length === 5 ? String.fromCharCode(parseInt(c.slice(1), 16)) : c === "n" ? "\n" : c === "t" ? "	" : c === "r" ? "\r" : c
-    );
-    escape3 = (s) => s.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n").replace(/\t/g, "\\t");
-    keyText = (k) => k.startsWith('"') ? unescape4(k.slice(1, -1)) : k;
-    strings = {
-      find(ctx) {
-        const catalogs = [];
-        for (const file2 of ctx.files) {
-          const m2 = /^(.*?)([^/]+)\.lproj\/([^/]+\.strings)$/.exec(file2);
-          if (!m2 || !sameLocale(m2[2], ctx.sourceLocale)) continue;
-          const text4 = ctx.read(file2);
-          if (!text4) continue;
-          const entries = parseStrings(text4);
-          const messages = [...entries].filter(([, e2]) => e2.value.trim()).map(([key2, e2]) => ({ key: key2, value: e2.value, context: e2.comment && !/No comment provided/i.test(e2.comment) ? `${key2}: ${e2.comment}` : key2 }));
-          if (!messages.length) continue;
-          const [, dir, , name] = m2;
-          const locales2 = /* @__PURE__ */ new Set();
-          for (const f2 of ctx.files) {
-            const s = /^(.*?)([^/]+)\.lproj\/([^/]+\.strings)$/.exec(f2);
-            const code2 = s && s[1] === dir && s[3] === name ? toBcp47(s[2]) : null;
-            if (code2 && !sameLocale(code2, ctx.sourceLocale)) locales2.add(code2);
-          }
-          catalogs.push({
-            label: "Apple .strings",
-            file: file2,
-            messages,
-            locales: [...locales2].sort(),
-            tokens: TOKENS2,
-            targetFile: (locale) => `${dir}${spell(locale, "bcp47")}.lproj/${name}`,
-            present(content) {
-              return new Set([...parseStrings(content ?? "")].filter(([, e2]) => e2.value.trim()).map(([k]) => k));
-            },
-            write(content, _locale, values) {
-              const lines = [...values].map(([key2, value]) => {
-                const comment = entries.get(key2)?.comment;
-                return `${comment ? `/* ${comment} */
-` : ""}"${escape3(key2)}" = "${escape3(typeof value === "string" ? value : value.other)}";`;
-              });
-              const base = content ? content.replace(/\s*$/, "\n\n") : "";
-              return `${base}${lines.join("\n\n")}
-`;
-            }
-          });
-        }
-        return catalogs;
-      }
-    };
-    appleFormats = [xcstrings, strings];
   }
 });
 
@@ -220680,6 +220906,7 @@ var init_lock = __esm({
 // src/sync/index.ts
 var sync_exports = {};
 __export(sync_exports, {
+  IGNORE: () => IGNORE3,
   findCatalogs: () => findCatalogs,
   localeFileGaps: () => localeFileGaps,
   lockNewMessages: () => lockNewMessages,
@@ -221074,6 +221301,20 @@ function qwikHead(cwd, config) {
   if (isGenerated(code2) || exports("translator") && exports("langOf")) return true;
   return `${file2} has no translator(lang) and langOf(pathname) for a route's head, where useTranslation() can't run: export them, then run again`;
 }
+function linesAsWritten(changes, original) {
+  const from = /* @__PURE__ */ new Map();
+  return changes.map((c) => {
+    const at2 = original.indexOf(c.before, from.get(c.before) ?? 0);
+    if (at2 === -1) return c;
+    from.set(c.before, at2 + 1);
+    return { ...c, line: original.slice(0, at2).split("\n").length };
+  });
+}
+function moneyOptions(cwd, config) {
+  if (config.localizeFormats === false || !(!config.framework || config.framework === "react" || config.framework === "react-native" || config.framework === "solid")) return void 0;
+  if (nextAppRouter(cwd, config)) return void 0;
+  return { lang: config.framework === "solid" ? "i18n.language" : "i18next.language", currency: config.currency };
+}
 async function scanProject(cwd, config, log) {
   const root = path17.join(cwd, config.srcDir);
   const files = (await (0, import_fast_glob13.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
@@ -221130,7 +221371,7 @@ async function scanProject(cwd, config, log) {
         if (!copy?.size) return null;
         return new Map([...copy].map(([name, c]) => [name, { kind: c.kind, fields: [...new Set(c.literals.map((l2) => l2.field))] }]));
       };
-      const result = parseAndScanComponent(code2, file2, { attributes: config.attributes, server, ordinals: config.interpolation === "i18next", sourceLocale: config.sourceLocale, importedCopy, qwikHead: qwikHead(cwd, config), richFunction: config.framework === "solid" || config.framework === "qwik" });
+      const result = parseAndScanComponent(code2, file2, { attributes: config.attributes, server, ordinals: config.interpolation === "i18next", sourceLocale: config.sourceLocale, importedCopy, qwikHead: qwikHead(cwd, config), richFunction: config.framework === "solid" || config.framework === "qwik", money: moneyOptions(cwd, config) });
       warnings2.push(...result.warnings);
       if (side === "shared" && !USE_CLIENT2.test(code2) && !makeClient && result.extractedStrings.length) {
         for (const str2 of result.extractedStrings) {
@@ -221267,7 +221508,7 @@ async function runPipeline(opts) {
     keysByText.set(text4, [...keysByText.get(text4) ?? [], key2]);
   }
   const textKeyOf = (s) => encodeKey(textKeyFor(s.originalText, config.interpolation, s.plural));
-  const keyFor = (s, mid) => registry.keyForText(mid) ?? (s.fixedKey && registry.has(s.fixedKey) ? s.fixedKey : store.textKeys && registry.has(textKeyOf(s)) ? textKeyOf(s) : void 0);
+  const keyFor = (s, mid) => s.fixedKey ? registry.has(s.fixedKey) ? s.fixedKey : void 0 : registry.keyForText(mid) ?? (store.textKeys && registry.has(textKeyOf(s)) ? textKeyOf(s) : void 0);
   const fillable = [...targets].filter(([l2]) => translator.fills?.(l2) ?? true).map(([, t10]) => t10);
   const queued = /* @__PURE__ */ new Set();
   const jobs = [];
@@ -221368,8 +221609,9 @@ async function runPipeline(opts) {
         if (same3) registry.alias(mid, same3);
       }
       const base = variant && selectBase.has(variant.group) ? `${selectBase.get(variant.group)}_${variant.value}` : s.fixedKey ?? (store.textKeys ? textKeyOf(s) : mapping?.key ?? fallbackKey(file2, s.originalText));
-      const proposed = s.keySuffix && !base.endsWith(s.keySuffix) ? `${base}${s.keySuffix}` : base;
-      const { key: key2, isNew } = registry.register(proposed, mid);
+      let proposed = s.keySuffix && !base.endsWith(s.keySuffix) ? `${base}${s.keySuffix}` : base;
+      if (!store.textKeys && !s.fixedKey && !variant && s.params?.length && registry.has(proposed) && !keyFor(s, mid)) proposed = `${proposed}_${s.params.join("_")}`;
+      const { key: key2, isNew } = s.fixedKey && registry.has(s.fixedKey) ? { key: s.fixedKey, isNew: false } : registry.register(proposed, s.fixedKey ? `${mid}\0${s.fixedKey}` : mid);
       if (s.select && s.select.value === null) selectBase.set(s.select.group, key2);
       if (isNew && !s.plural) keysByText.set(s.originalText, [...keysByText.get(s.originalText) ?? [], key2]);
       const write3 = (dict2, value, where) => typeof value === "string" ? set3(dict2, key2, toDictFormat(value, config.interpolation), where) : guard(() => writePlural(dict2, key2, value, config.interpolation, !!s.plural?.ordinal), where);
@@ -221431,7 +221673,8 @@ async function runPipeline(opts) {
       server,
       serverModule: server ? relativeImport(file2, serverModulePath(cwd, config)) : void 0,
       importedCopy,
-      qwikHead: qwikHead(cwd, config)
+      qwikHead: qwikHead(cwd, config),
+      money: moneyOptions(cwd, config)
     });
     if (result.changed && config.framework === "astro" && /\.(tsx|jsx|svelte)$/.test(file2)) {
       result.code = withIslandImport(result.code, file2, relativeImport(file2, `${srcPrefix(config)}i18n/${file2.endsWith(".svelte") ? "svelte" : "react"}`));
@@ -221472,10 +221715,10 @@ ${result.code}`;
           solid2 ? { lang: "i18n.language", importLine: `import i18n from '${relativeImport(file2, solidModulePath(cwd, config))}';`, currency: config.currency } : { lang: "i18next.language", importLine: "import i18next from 'i18next';", currency: config.currency }
         );
         if ("warnings" in result && !again) warnings2.push(...result.warnings);
-        if (!result.changes.length) continue;
+        if (result.code === code2) continue;
         if (existing) existing.content = result.code;
         else files.push({ path: file2, content: result.code });
-        formats.set(file2, [...formats.get(file2) ?? [], ...result.changes]);
+        if (result.changes.length) formats.set(file2, [...formats.get(file2) ?? [], ...existing ? linesAsWritten(result.changes, fs17.readFileSync(path17.join(cwd, file2), "utf8")) : result.changes]);
         stats.formatsLocalized += result.changes.length;
       }
     };
@@ -222528,6 +222771,7 @@ init_dictionary();
 init_pipeline();
 init_stores();
 init_sync();
+init_placeholders();
 init_lock();
 import * as fs19 from "node:fs";
 import * as path19 from "node:path";
@@ -222935,14 +223179,28 @@ function messageKeyIn(sourceKeys) {
 function localizedInPlace(cwd, config) {
   const store = storeFor(config);
   const flat = flatOf(cwd, store, config.sourceLocale);
-  if (!flat) return () => false;
-  const has = (key2) => flat.has(key2) || flat.has(`${key2}.other`);
+  const ios2 = config.framework === "ios" ? swiftUIKeys(cwd, config, flat) : null;
+  if (!flat && !ios2) return () => false;
   return (s) => {
-    if (s.fixedKey) return flat.get(s.fixedKey) === s.originalText;
-    if (config.framework === "ios" && s.element !== "UIKit") return has(encodeKey(textKeyFor(s.originalText, config.interpolation, s.plural)));
+    if (s.fixedKey) return flat?.get(s.fixedKey) === s.originalText;
+    if (ios2 && s.element !== "UIKit") return ios2.has(formatFree(textKeyFor(s.originalText, config.interpolation, s.plural)));
     return false;
   };
 }
+function swiftUIKeys(cwd, config, flat) {
+  const keys = /* @__PURE__ */ new Set();
+  const add = (key2) => keys.add(formatFree(decodeKey(key2.replace(/\.other$/, ""))));
+  for (const k of flat?.keys() ?? []) add(k);
+  for (const file2 of import_fast_glob15.default.sync("**/*.xcstrings", { cwd, ignore: IGNORE3 })) {
+    try {
+      for (const k of flatten(xcstringsStore(file2, config.sourceLocale).read(fs19.readFileSync(path19.join(cwd, file2), "utf8"), config.sourceLocale)).keys()) add(k);
+    } catch {
+    }
+  }
+  return keys;
+}
+var FORMAT = new RegExp(PRINTF.source, "g");
+var formatFree = (key2) => key2.replace(FORMAT, (m2) => m2 === "%%" ? "%" : "%@").replace(/\s+/g, " ");
 function flatOf(cwd, store, locale) {
   const file2 = path19.join(cwd, store.path(locale));
   if (!fs19.existsSync(file2)) return null;
@@ -222978,7 +223236,8 @@ async function checkProject(cwd, config, log, only) {
     const sourceFlat = flatOf(cwd, store, config.sourceLocale);
     const toMessage = messageKeyIn(sourceFlat?.keys() ?? []);
     const source2 = keysOf(cwd, store, config.sourceLocale, toMessage);
-    if (source2?.size) {
+    const ownLocales = store.path(config.sourceLocale) === store.path(`${config.sourceLocale}-x`) && !hasConfiguredLocales(cwd);
+    if (source2?.size && !ownLocales) {
       const pluralBases = [...source2].filter((k) => sourceFlat?.has(`${k}_other`));
       for (const locale of config.targetLocales.filter((l2) => l2 !== config.sourceLocale)) {
         const have = keysOf(cwd, store, locale, toMessage);
@@ -222993,7 +223252,7 @@ async function checkProject(cwd, config, log, only) {
         }
         if (keys.length) missing.push({ locale, file: store.path(locale), keys: keys.sort(), noFile: !have });
       }
-    } else if (!sourceFlat) {
+    } else if (!sourceFlat || ownLocales) {
       const targets = config.targetLocales.filter((l2) => l2 !== config.sourceLocale);
       missing.push(...await localeFileGaps(cwd, { sourceLocale: config.sourceLocale, targetLocales: hasConfiguredLocales(cwd) ? targets : void 0 }));
     }
