@@ -1086,14 +1086,14 @@ var require_util = __commonJS({
         }
         const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
         let origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`;
-        let path22 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
+        let path23 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
         if (origin[origin.length - 1] === "/") {
           origin = origin.slice(0, origin.length - 1);
         }
-        if (path22 && path22[0] !== "/") {
-          path22 = `/${path22}`;
+        if (path23 && path23[0] !== "/") {
+          path23 = `/${path23}`;
         }
-        return new URL(`${origin}${path22}`);
+        return new URL(`${origin}${path23}`);
       }
       if (!isHttpOrHttpsPrefixed(url.origin || url.protocol)) {
         throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
@@ -1544,39 +1544,39 @@ var require_diagnostics = __commonJS({
       });
       diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
         const {
-          request: { method: method2, path: path22, origin }
+          request: { method: method2, path: path23, origin }
         } = evt;
-        debuglog("sending request to %s %s/%s", method2, origin, path22);
+        debuglog("sending request to %s %s/%s", method2, origin, path23);
       });
       diagnosticsChannel.channel("undici:request:headers").subscribe((evt) => {
         const {
-          request: { method: method2, path: path22, origin },
+          request: { method: method2, path: path23, origin },
           response: { statusCode }
         } = evt;
         debuglog(
           "received response to %s %s/%s - HTTP %d",
           method2,
           origin,
-          path22,
+          path23,
           statusCode
         );
       });
       diagnosticsChannel.channel("undici:request:trailers").subscribe((evt) => {
         const {
-          request: { method: method2, path: path22, origin }
+          request: { method: method2, path: path23, origin }
         } = evt;
-        debuglog("trailers received from %s %s/%s", method2, origin, path22);
+        debuglog("trailers received from %s %s/%s", method2, origin, path23);
       });
       diagnosticsChannel.channel("undici:request:error").subscribe((evt) => {
         const {
-          request: { method: method2, path: path22, origin },
+          request: { method: method2, path: path23, origin },
           error: error2
         } = evt;
         debuglog(
           "request to %s %s/%s errored - %s",
           method2,
           origin,
-          path22,
+          path23,
           error2.message
         );
       });
@@ -1625,9 +1625,9 @@ var require_diagnostics = __commonJS({
         });
         diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
           const {
-            request: { method: method2, path: path22, origin }
+            request: { method: method2, path: path23, origin }
           } = evt;
-          debuglog("sending request to %s %s/%s", method2, origin, path22);
+          debuglog("sending request to %s %s/%s", method2, origin, path23);
         });
       }
       diagnosticsChannel.channel("undici:websocket:open").subscribe((evt) => {
@@ -1690,7 +1690,7 @@ var require_request = __commonJS({
     var kHandler = /* @__PURE__ */ Symbol("handler");
     var Request = class {
       constructor(origin, {
-        path: path22,
+        path: path23,
         method: method2,
         body,
         headers,
@@ -1705,11 +1705,11 @@ var require_request = __commonJS({
         expectContinue,
         servername
       }, handler) {
-        if (typeof path22 !== "string") {
+        if (typeof path23 !== "string") {
           throw new InvalidArgumentError("path must be a string");
-        } else if (path22[0] !== "/" && !(path22.startsWith("http://") || path22.startsWith("https://")) && method2 !== "CONNECT") {
+        } else if (path23[0] !== "/" && !(path23.startsWith("http://") || path23.startsWith("https://")) && method2 !== "CONNECT") {
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        } else if (invalidPathRegex.test(path22)) {
+        } else if (invalidPathRegex.test(path23)) {
           throw new InvalidArgumentError("invalid request path");
         }
         if (typeof method2 !== "string") {
@@ -1775,7 +1775,7 @@ var require_request = __commonJS({
         this.completed = false;
         this.aborted = false;
         this.upgrade = upgrade || null;
-        this.path = query ? buildURL(path22, query) : path22;
+        this.path = query ? buildURL(path23, query) : path23;
         this.origin = origin;
         this.idempotent = idempotent == null ? method2 === "HEAD" || method2 === "GET" : idempotent;
         this.blocking = blocking == null ? false : blocking;
@@ -6468,7 +6468,7 @@ var require_client_h1 = __commonJS({
       return method2 !== "GET" && method2 !== "HEAD" && method2 !== "OPTIONS" && method2 !== "TRACE" && method2 !== "CONNECT";
     }
     function writeH1(client2, request) {
-      const { method: method2, path: path22, host, upgrade, blocking, reset: reset3 } = request;
+      const { method: method2, path: path23, host, upgrade, blocking, reset: reset3 } = request;
       let { body, headers, contentLength } = request;
       const expectsPayload = method2 === "PUT" || method2 === "POST" || method2 === "PATCH" || method2 === "QUERY" || method2 === "PROPFIND" || method2 === "PROPPATCH";
       if (util.isFormDataLike(body)) {
@@ -6549,7 +6549,7 @@ var require_client_h1 = __commonJS({
       if (blocking) {
         socket[kBlocking] = true;
       }
-      let header2 = `${method2} ${path22} HTTP/1.1\r
+      let header2 = `${method2} ${path23} HTTP/1.1\r
 `;
       if (typeof host === "string") {
         header2 += `host: ${host}\r
@@ -7078,7 +7078,7 @@ var require_client_h2 = __commonJS({
     }
     function writeH2(client2, request) {
       const session = client2[kHTTP2Session];
-      const { method: method2, path: path22, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
+      const { method: method2, path: path23, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
       let { body } = request;
       if (upgrade) {
         util.errorRequest(client2, request, new Error("Upgrade not supported for H2"));
@@ -7175,7 +7175,7 @@ var require_client_h2 = __commonJS({
         });
         return true;
       }
-      headers[HTTP2_HEADER_PATH] = path22;
+      headers[HTTP2_HEADER_PATH] = path23;
       headers[HTTP2_HEADER_SCHEME] = "https";
       const expectsPayload = method2 === "PUT" || method2 === "POST" || method2 === "PATCH";
       if (body && typeof body.read === "function") {
@@ -7528,9 +7528,9 @@ var require_redirect_handler = __commonJS({
           return this.handler.onHeaders(statusCode, headers, resume, statusText);
         }
         const { origin, pathname, search } = util.parseURL(new URL(this.location, this.opts.origin && new URL(this.opts.path, this.opts.origin)));
-        const path22 = search ? `${pathname}${search}` : pathname;
+        const path23 = search ? `${pathname}${search}` : pathname;
         this.opts.headers = cleanRequestHeaders(this.opts.headers, statusCode === 303, this.opts.origin !== origin);
-        this.opts.path = path22;
+        this.opts.path = path23;
         this.opts.origin = origin;
         this.opts.maxRedirections = 0;
         this.opts.query = null;
@@ -8769,10 +8769,10 @@ var require_proxy_agent = __commonJS({
         };
         const {
           origin,
-          path: path22 = "/",
+          path: path23 = "/",
           headers = {}
         } = opts;
-        opts.path = origin + path22;
+        opts.path = origin + path23;
         if (!("host" in headers) && !("Host" in headers)) {
           const { host } = new URL2(origin);
           headers.host = host;
@@ -10744,20 +10744,20 @@ var require_mock_utils = __commonJS({
       }
       return true;
     }
-    function safeUrl(path22) {
-      if (typeof path22 !== "string") {
-        return path22;
+    function safeUrl(path23) {
+      if (typeof path23 !== "string") {
+        return path23;
       }
-      const pathSegments = path22.split("?");
+      const pathSegments = path23.split("?");
       if (pathSegments.length !== 2) {
-        return path22;
+        return path23;
       }
       const qp = new URLSearchParams(pathSegments.pop());
       qp.sort();
       return [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path22, method: method2, body, headers }) {
-      const pathMatch = matchValue(mockDispatch2.path, path22);
+    function matchKey(mockDispatch2, { path: path23, method: method2, body, headers }) {
+      const pathMatch = matchValue(mockDispatch2.path, path23);
       const methodMatch = matchValue(mockDispatch2.method, method2);
       const bodyMatch = typeof mockDispatch2.body !== "undefined" ? matchValue(mockDispatch2.body, body) : true;
       const headersMatch = matchHeaders(mockDispatch2, headers);
@@ -10779,7 +10779,7 @@ var require_mock_utils = __commonJS({
     function getMockDispatch(mockDispatches, key2) {
       const basePath = key2.query ? buildURL(key2.path, key2.query) : key2.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
-      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path22 }) => matchValue(safeUrl(path22), resolvedPath));
+      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path23 }) => matchValue(safeUrl(path23), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
@@ -10817,9 +10817,9 @@ var require_mock_utils = __commonJS({
       }
     }
     function buildKey(opts) {
-      const { path: path22, method: method2, body, headers, query } = opts;
+      const { path: path23, method: method2, body, headers, query } = opts;
       return {
-        path: path22,
+        path: path23,
         method: method2,
         body,
         headers,
@@ -11282,10 +11282,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         const withPrettyHeaders = pendingInterceptors.map(
-          ({ method: method2, path: path22, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method: method2, path: path23, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method2,
             Origin: origin,
-            Path: path22,
+            Path: path23,
             "Status code": statusCode,
             Persistent: persist ? PERSISTENT : NOT_PERSISTENT,
             Invocations: timesInvoked,
@@ -16164,9 +16164,9 @@ var require_util6 = __commonJS({
         }
       }
     }
-    function validateCookiePath(path22) {
-      for (let i3 = 0; i3 < path22.length; ++i3) {
-        const code2 = path22.charCodeAt(i3);
+    function validateCookiePath(path23) {
+      for (let i3 = 0; i3 < path23.length; ++i3) {
+        const code2 = path23.charCodeAt(i3);
         if (code2 < 32 || // exclude CTLs (0-31)
         code2 > 126 || // exclude DEL and non-ascii
         code2 === 59) {
@@ -19086,11 +19086,11 @@ var require_undici = __commonJS({
           if (typeof opts.path !== "string") {
             throw new InvalidArgumentError("invalid opts.path");
           }
-          let path22 = opts.path;
+          let path23 = opts.path;
           if (!opts.path.startsWith("/")) {
-            path22 = `/${path22}`;
+            path23 = `/${path23}`;
           }
-          url = new URL(util.parseOrigin(url).origin + path22);
+          url = new URL(util.parseOrigin(url).origin + path23);
         } else {
           if (!opts) {
             opts = typeof url === "object" ? url : {};
@@ -19243,9 +19243,9 @@ function hasPlural(dict2, key2, style, ordinal = false) {
 function messageId(text4, plural) {
   return plural ? `${plural.ordinal ? "ordinal" : "plural"}${JSON.stringify([...PLURAL_CATEGORIES.map((c) => plural[c] ?? null), ...plural["=0"] !== void 0 ? [plural["=0"]] : []])}` : text4;
 }
-function pluralsIn(flat) {
+function pluralsIn(flat2) {
   const out = /* @__PURE__ */ new Map();
-  for (const [key2, value] of flat) {
+  for (const [key2, value] of flat2) {
     const split = splitPluralKey(key2);
     if (split) {
       out.set(split.base, { ...out.get(split.base), [split.category]: fromDictFormat(value) });
@@ -19527,7 +19527,7 @@ var require_path = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
     var os6 = __require("os");
-    var path22 = __require("path");
+    var path23 = __require("path");
     var IS_WINDOWS_PLATFORM = os6.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
@@ -19539,7 +19539,7 @@ var require_path = __commonJS({
     }
     exports.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path22.resolve(cwd, filepath);
+      return path23.resolve(cwd, filepath);
     }
     exports.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -19813,11 +19813,11 @@ var require_utils2 = __commonJS({
     }, []);
     exports.flatten = (...args) => {
       const result = [];
-      const flat = (arr) => {
+      const flat2 = (arr) => {
         for (let i3 = 0; i3 < arr.length; i3++) {
           const ele = arr[i3];
           if (Array.isArray(ele)) {
-            flat(ele);
+            flat2(ele);
             continue;
           }
           if (ele !== void 0) {
@@ -19826,7 +19826,7 @@ var require_utils2 = __commonJS({
         }
         return result;
       };
-      flat(args);
+      flat2(args);
       return result;
     };
   }
@@ -20836,7 +20836,7 @@ var require_braces = __commonJS({
 var require_constants7 = __commonJS({
   "../../node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
-    var path22 = __require("path");
+    var path23 = __require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DEFAULT_MAX_EXTGLOB_RECURSION = 0;
@@ -21010,7 +21010,7 @@ var require_constants7 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path22.sep,
+      SEP: path23.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -21037,7 +21037,7 @@ var require_constants7 = __commonJS({
 var require_utils3 = __commonJS({
   "../../node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
-    var path22 = __require("path");
+    var path23 = __require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -21066,7 +21066,7 @@ var require_utils3 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path22.sep === "\\";
+      return win32 === true || path23.sep === "\\";
     };
     exports.escapeLast = (input, char, lastIdx) => {
       const idx = input.lastIndexOf(char, lastIdx);
@@ -21930,9 +21930,9 @@ var require_parse3 = __commonJS({
                 const idx = prev.value.lastIndexOf("[");
                 const pre = prev.value.slice(0, idx);
                 const rest3 = prev.value.slice(idx + 2);
-                const posix11 = POSIX_REGEX_SOURCE[rest3];
-                if (posix11) {
-                  prev.value = pre + posix11;
+                const posix12 = POSIX_REGEX_SOURCE[rest3];
+                if (posix12) {
+                  prev.value = pre + posix12;
                   state.backtrack = true;
                   advance3();
                   if (!bos.output && tokens2.indexOf(prev) === 1) {
@@ -22430,7 +22430,7 @@ var require_parse3 = __commonJS({
 var require_picomatch = __commonJS({
   "../../node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
-    var path22 = __require("path");
+    var path23 = __require("path");
     var scan = require_scan();
     var parse21 = require_parse3();
     var utils = require_utils3();
@@ -22453,7 +22453,7 @@ var require_picomatch = __commonJS({
         throw new TypeError("Expected pattern to be a non-empty string");
       }
       const opts = options || {};
-      const posix11 = utils.isWindows(options);
+      const posix12 = utils.isWindows(options);
       const regex2 = isState ? picomatch.compileRe(glob, options) : picomatch.makeRe(glob, options, false, true);
       const state = regex2.state;
       delete regex2.state;
@@ -22463,8 +22463,8 @@ var require_picomatch = __commonJS({
         isIgnored2 = picomatch(opts.ignore, ignoreOpts, returnState);
       }
       const matcher = (input, returnObject = false) => {
-        const { isMatch, match: match2, output } = picomatch.test(input, regex2, options, { glob, posix: posix11 });
-        const result = { glob, state, regex: regex2, posix: posix11, input, output, match: match2, isMatch };
+        const { isMatch, match: match2, output } = picomatch.test(input, regex2, options, { glob, posix: posix12 });
+        const result = { glob, state, regex: regex2, posix: posix12, input, output, match: match2, isMatch };
         if (typeof opts.onResult === "function") {
           opts.onResult(result);
         }
@@ -22489,7 +22489,7 @@ var require_picomatch = __commonJS({
       }
       return matcher;
     };
-    picomatch.test = (input, regex2, options, { glob, posix: posix11 } = {}) => {
+    picomatch.test = (input, regex2, options, { glob, posix: posix12 } = {}) => {
       if (typeof input !== "string") {
         throw new TypeError("Expected input to be a string");
       }
@@ -22497,7 +22497,7 @@ var require_picomatch = __commonJS({
         return { isMatch: false, output: "" };
       }
       const opts = options || {};
-      const format = opts.format || (posix11 ? utils.toPosixSlashes : null);
+      const format = opts.format || (posix12 ? utils.toPosixSlashes : null);
       let match2 = input === glob;
       let output = match2 && format ? format(input) : input;
       if (match2 === false) {
@@ -22506,16 +22506,16 @@ var require_picomatch = __commonJS({
       }
       if (match2 === false || opts.capture === true) {
         if (opts.matchBase === true || opts.basename === true) {
-          match2 = picomatch.matchBase(input, regex2, options, posix11);
+          match2 = picomatch.matchBase(input, regex2, options, posix12);
         } else {
           match2 = regex2.exec(output);
         }
       }
       return { isMatch: Boolean(match2), match: match2, output };
     };
-    picomatch.matchBase = (input, glob, options, posix11 = utils.isWindows(options)) => {
+    picomatch.matchBase = (input, glob, options, posix12 = utils.isWindows(options)) => {
       const regex2 = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
-      return regex2.test(path22.basename(input));
+      return regex2.test(path23.basename(input));
     };
     picomatch.isMatch = (str2, patterns, options) => picomatch(patterns, options)(str2);
     picomatch.parse = (pattern, options) => {
@@ -22702,9 +22702,9 @@ var require_micromatch = __commonJS({
       return [].concat(patterns).every((p) => picomatch(p, options)(str2));
     };
     micromatch.capture = (glob, input, options) => {
-      let posix11 = utils.isWindows(options);
+      let posix12 = utils.isWindows(options);
       let regex2 = picomatch.makeRe(String(glob), { ...options, capture: true });
-      let match2 = regex2.exec(posix11 ? utils.toPosixSlashes(input) : input);
+      let match2 = regex2.exec(posix12 ? utils.toPosixSlashes(input) : input);
       if (match2) {
         return match2.slice(1).map((v2) => v2 === void 0 ? "" : v2);
       }
@@ -22742,7 +22742,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
-    var path22 = __require("path");
+    var path23 = __require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -22837,7 +22837,7 @@ var require_pattern = __commonJS({
     }
     exports.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename3 = path22.basename(pattern);
+      const basename3 = path23.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename3);
     }
     exports.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -22895,7 +22895,7 @@ var require_pattern = __commonJS({
     }
     exports.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute2(pattern) {
-      return path22.isAbsolute(pattern);
+      return path23.isAbsolute(pattern);
     }
     exports.isAbsolute = isAbsolute2;
   }
@@ -23070,10 +23070,10 @@ var require_utils4 = __commonJS({
     exports.array = array2;
     var errno = require_errno();
     exports.errno = errno;
-    var fs22 = require_fs();
-    exports.fs = fs22;
-    var path22 = require_path();
-    exports.path = path22;
+    var fs23 = require_fs();
+    exports.fs = fs23;
+    var path23 = require_path();
+    exports.path = path23;
     var pattern = require_pattern();
     exports.pattern = pattern;
     var stream = require_stream();
@@ -23185,8 +23185,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read2(path22, settings, callback) {
-      settings.fs.lstat(path22, (lstatError, lstat2) => {
+    function read2(path23, settings, callback) {
+      settings.fs.lstat(path23, (lstatError, lstat2) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -23195,7 +23195,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat2);
           return;
         }
-        settings.fs.stat(path22, (statError, stat2) => {
+        settings.fs.stat(path23, (statError, stat2) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -23227,13 +23227,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read2(path22, settings) {
-      const lstat2 = settings.fs.lstatSync(path22);
+    function read2(path23, settings) {
+      const lstat2 = settings.fs.lstatSync(path23);
       if (!lstat2.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat2;
       }
       try {
-        const stat2 = settings.fs.statSync(path22);
+        const stat2 = settings.fs.statSync(path23);
         if (settings.markSymbolicLink) {
           stat2.isSymbolicLink = () => true;
         }
@@ -23255,12 +23255,12 @@ var require_fs2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs22 = __require("fs");
+    var fs23 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs22.lstat,
-      stat: fs22.stat,
-      lstatSync: fs22.lstatSync,
-      statSync: fs22.statSync
+      lstat: fs23.lstat,
+      stat: fs23.stat,
+      lstatSync: fs23.lstatSync,
+      statSync: fs23.statSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -23277,12 +23277,12 @@ var require_settings = __commonJS({
   "../../node_modules/@nodelib/fs.stat/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var fs22 = require_fs2();
+    var fs23 = require_fs2();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLink = this._getValue(this._options.followSymbolicLink, true);
-        this.fs = fs22.createFileSystemAdapter(this._options.fs);
+        this.fs = fs23.createFileSystemAdapter(this._options.fs);
         this.markSymbolicLink = this._getValue(this._options.markSymbolicLink, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
       }
@@ -23304,17 +23304,17 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports.Settings = settings_1.default;
-    function stat2(path22, optionsOrSettingsOrCallback, callback) {
+    function stat2(path23, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path22, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path23, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path22, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path23, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat2;
-    function statSync5(path22, optionsOrSettings) {
+    function statSync5(path23, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path22, settings);
+      return sync.read(path23, settings);
     }
     exports.statSync = statSync5;
     function getSettings(settingsOrOptions = {}) {
@@ -23437,8 +23437,8 @@ var require_utils5 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.fs = void 0;
-    var fs22 = require_fs3();
-    exports.fs = fs22;
+    var fs23 = require_fs3();
+    exports.fs = fs23;
   }
 });
 
@@ -23530,16 +23530,16 @@ var require_async2 = __commonJS({
           return;
         }
         const tasks = names3.map((name) => {
-          const path22 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path23 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done2) => {
-            fsStat.stat(path22, settings.fsStatSettings, (error2, stats) => {
+            fsStat.stat(path23, settings.fsStatSettings, (error2, stats) => {
               if (error2 !== null) {
                 done2(error2);
                 return;
               }
               const entry = {
                 name,
-                path: path22,
+                path: path23,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -23633,14 +23633,14 @@ var require_fs4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs22 = __require("fs");
+    var fs23 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs22.lstat,
-      stat: fs22.stat,
-      lstatSync: fs22.lstatSync,
-      statSync: fs22.statSync,
-      readdir: fs22.readdir,
-      readdirSync: fs22.readdirSync
+      lstat: fs23.lstat,
+      stat: fs23.stat,
+      lstatSync: fs23.lstatSync,
+      statSync: fs23.statSync,
+      readdir: fs23.readdir,
+      readdirSync: fs23.readdirSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -23657,15 +23657,15 @@ var require_settings2 = __commonJS({
   "../../node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path22 = __require("path");
+    var path23 = __require("path");
     var fsStat = require_out();
-    var fs22 = require_fs4();
+    var fs23 = require_fs4();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
-        this.fs = fs22.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path22.sep);
+        this.fs = fs23.createFileSystemAdapter(this._options.fs);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path23.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -23692,17 +23692,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports.Settings = settings_1.default;
-    function scandir(path22, optionsOrSettingsOrCallback, callback) {
+    function scandir(path23, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path22, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path23, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path22, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path23, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.scandir = scandir;
-    function scandirSync(path22, optionsOrSettings) {
+    function scandirSync(path23, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path22, settings);
+      return sync.read(path23, settings);
     }
     exports.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -24350,7 +24350,7 @@ var require_settings3 = __commonJS({
   "../../node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path22 = __require("path");
+    var path23 = __require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -24360,7 +24360,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path22.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path23.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -24422,7 +24422,7 @@ var require_reader2 = __commonJS({
   "../../node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path22 = __require("path");
+    var path23 = __require("path");
     var fsStat = require_out();
     var utils = require_utils4();
     var Reader = class {
@@ -24435,7 +24435,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path22.resolve(this._settings.cwd, filepath);
+        return path23.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -24851,7 +24851,7 @@ var require_provider = __commonJS({
   "../../node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path22 = __require("path");
+    var path23 = __require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error();
@@ -24865,7 +24865,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path22.resolve(this._settings.cwd, task.base);
+        return path23.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -25046,16 +25046,16 @@ var require_settings4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = void 0;
-    var fs22 = __require("fs");
+    var fs23 = __require("fs");
     var os6 = __require("os");
     var CPU_COUNT = Math.max(os6.cpus().length, 1);
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = {
-      lstat: fs22.lstat,
-      lstatSync: fs22.lstatSync,
-      stat: fs22.stat,
-      statSync: fs22.statSync,
-      readdir: fs22.readdir,
-      readdirSync: fs22.readdirSync
+      lstat: fs23.lstat,
+      lstatSync: fs23.lstatSync,
+      stat: fs23.stat,
+      statSync: fs23.statSync,
+      readdir: fs23.readdir,
+      readdirSync: fs23.readdirSync
     };
     var Settings = class {
       constructor(_options = {}) {
@@ -25156,19 +25156,19 @@ var require_out4 = __commonJS({
         return utils.path.convertPathToPattern(source2);
       }
       FastGlob2.convertPathToPattern = convertPathToPattern;
-      let posix11;
-      (function(posix12) {
+      let posix12;
+      (function(posix13) {
         function escapePath2(source2) {
           assertPatternsInput(source2);
           return utils.path.escapePosixPath(source2);
         }
-        posix12.escapePath = escapePath2;
+        posix13.escapePath = escapePath2;
         function convertPathToPattern2(source2) {
           assertPatternsInput(source2);
           return utils.path.convertPosixPathToPattern(source2);
         }
-        posix12.convertPathToPattern = convertPathToPattern2;
-      })(posix11 = FastGlob2.posix || (FastGlob2.posix = {}));
+        posix13.convertPathToPattern = convertPathToPattern2;
+      })(posix12 = FastGlob2.posix || (FastGlob2.posix = {}));
       let win32;
       (function(win322) {
         function escapePath2(source2) {
@@ -57045,11 +57045,11 @@ var require_visitors = __commonJS({
       }
       visitor._verified = true;
     }
-    function validateVisitorMethods(path22, val) {
+    function validateVisitorMethods(path23, val) {
       const fns = [].concat(val);
       for (const fn2 of fns) {
         if (typeof fn2 !== "function") {
-          throw new TypeError(`Non-function found defined in ${path22} with type ${typeof fn2}`);
+          throw new TypeError(`Non-function found defined in ${path23} with type ${typeof fn2}`);
         }
       }
     }
@@ -57092,8 +57092,8 @@ var require_visitors = __commonJS({
         fns = fns.map(function(fn2) {
           let newFn = fn2;
           if (state) {
-            newFn = function(path22) {
-              fn2.call(state, path22, state);
+            newFn = function(path23) {
+              fn2.call(state, path23, state);
             };
           }
           if (wrapper) {
@@ -57126,8 +57126,8 @@ var require_visitors = __commonJS({
     function wrapCheck(nodeType, fn2) {
       const fnKey = `is${nodeType}`;
       const validator2 = virtualTypesValidators[fnKey];
-      const newFn = function(path22) {
-        if (validator2.call(path22)) {
+      const newFn = function(path23) {
+        if (validator2.call(path23)) {
           return fn2.apply(this, arguments);
         }
       };
@@ -57152,24 +57152,24 @@ var require_visitors = __commonJS({
       }
     }
     var _environmentVisitor = {
-      FunctionParent(path22) {
-        if (path22.isArrowFunctionExpression()) return;
-        path22.skip();
-        if (path22.isMethod()) {
-          if (!path22.requeueComputedKeyAndDecorators) {
-            _context.requeueComputedKeyAndDecorators.call(path22);
+      FunctionParent(path23) {
+        if (path23.isArrowFunctionExpression()) return;
+        path23.skip();
+        if (path23.isMethod()) {
+          if (!path23.requeueComputedKeyAndDecorators) {
+            _context.requeueComputedKeyAndDecorators.call(path23);
           } else {
-            path22.requeueComputedKeyAndDecorators();
+            path23.requeueComputedKeyAndDecorators();
           }
         }
       },
-      Property(path22) {
-        if (path22.isObjectProperty()) return;
-        path22.skip();
-        if (!path22.requeueComputedKeyAndDecorators) {
-          _context.requeueComputedKeyAndDecorators.call(path22);
+      Property(path23) {
+        if (path23.isObjectProperty()) return;
+        path23.skip();
+        if (!path23.requeueComputedKeyAndDecorators) {
+          _context.requeueComputedKeyAndDecorators.call(path23);
         } else {
-          path22.requeueComputedKeyAndDecorators();
+          path23.requeueComputedKeyAndDecorators();
         }
       }
     };
@@ -57203,18 +57203,18 @@ var require_renamer = __commonJS({
           node2.name = state.newName;
         }
       },
-      Scope(path22, state) {
-        if (!path22.scope.bindingIdentifierEquals(state.oldName, state.binding.identifier)) {
-          path22.skip();
-          if (path22.isMethod()) {
-            if (!path22.requeueComputedKeyAndDecorators) {
-              _context.requeueComputedKeyAndDecorators.call(path22);
+      Scope(path23, state) {
+        if (!path23.scope.bindingIdentifierEquals(state.oldName, state.binding.identifier)) {
+          path23.skip();
+          if (path23.isMethod()) {
+            if (!path23.requeueComputedKeyAndDecorators) {
+              _context.requeueComputedKeyAndDecorators.call(path23);
             } else {
-              path22.requeueComputedKeyAndDecorators();
+              path23.requeueComputedKeyAndDecorators();
             }
           }
-          if (path22.isSwitchStatement()) {
-            path22.context.maybeQueue(path22.get("discriminant"));
+          if (path23.isSwitchStatement()) {
+            path23.context.maybeQueue(path23.get("discriminant"));
           }
         }
       },
@@ -57231,9 +57231,9 @@ var require_renamer = __commonJS({
           if ((_node$extra = node2.extra) != null && _node$extra.shorthand) node2.extra.shorthand = false;
         }
       },
-      "AssignmentExpression|Declaration|VariableDeclarator"(path22, state) {
-        if (path22.isVariableDeclaration()) return;
-        const ids = path22.isAssignmentExpression() ? getAssignmentIdentifiers(path22.node) : path22.getOuterBindingIdentifiers();
+      "AssignmentExpression|Declaration|VariableDeclarator"(path23, state) {
+        if (path23.isVariableDeclaration()) return;
+        const ids = path23.isAssignmentExpression() ? getAssignmentIdentifiers(path23.node) : path23.getOuterBindingIdentifiers();
         for (const name in ids) {
           if (name === state.oldName) ids[name].name = state.newName;
         }
@@ -57263,11 +57263,11 @@ var require_renamer = __commonJS({
         }
         maybeExportDeclar.splitExportDeclaration();
       }
-      maybeConvertFromClassFunctionDeclaration(path22) {
-        return path22;
+      maybeConvertFromClassFunctionDeclaration(path23) {
+        return path23;
       }
-      maybeConvertFromClassFunctionExpression(path22) {
-        return path22;
+      maybeConvertFromClassFunctionExpression(path23) {
+        return path23;
       }
       rename() {
         const {
@@ -57277,9 +57277,9 @@ var require_renamer = __commonJS({
         } = this;
         const {
           scope,
-          path: path22
+          path: path23
         } = binding2;
-        const parentDeclar = path22.find((path23) => path23.isDeclaration() || path23.isFunctionExpression() || path23.isClassExpression());
+        const parentDeclar = path23.find((path24) => path24.isDeclaration() || path24.isFunctionExpression() || path24.isClassExpression());
         if (parentDeclar) {
           const bindingIds = parentDeclar.getOuterBindingIdentifiers();
           if (bindingIds[oldName] === binding2.identifier) {
@@ -57305,8 +57305,8 @@ var require_renamer = __commonJS({
           this.binding.identifier.name = newName;
         }
         if (parentDeclar) {
-          this.maybeConvertFromClassFunctionDeclaration(path22);
-          this.maybeConvertFromClassFunctionExpression(path22);
+          this.maybeConvertFromClassFunctionDeclaration(path23);
+          this.maybeConvertFromClassFunctionExpression(path23);
         }
       }
     };
@@ -57329,17 +57329,17 @@ var require_traverseForScope = __commonJS({
     var {
       VISITOR_KEYS: VISITOR_KEYS4
     } = _t;
-    function traverseForScope(path22, visitors6, state) {
+    function traverseForScope(path23, visitors6, state) {
       const exploded = (0, _visitors.explode)(visitors6);
       if (exploded.enter || exploded.exit) {
         throw new Error("Should not be used with enter/exit visitors.");
       }
-      _traverse9(path22.parentPath, path22.parent, path22.node, path22.container, path22.key, path22.listKey, path22.hub, path22);
+      _traverse9(path23.parentPath, path23.parent, path23.node, path23.container, path23.key, path23.listKey, path23.hub, path23);
       function _traverse9(parentPath, parent, node2, container, key2, listKey, hub, inPath) {
         if (!node2) {
           return;
         }
-        const path23 = inPath || _index.NodePath.get({
+        const path24 = inPath || _index.NodePath.get({
           hub,
           parentPath,
           parent,
@@ -57347,14 +57347,14 @@ var require_traverseForScope = __commonJS({
           listKey,
           key: key2
         });
-        _context._forceSetScope.call(path23);
+        _context._forceSetScope.call(path24);
         const visitor = exploded[node2.type];
         if (visitor != null && visitor.enter) {
           for (const visit of visitor.enter) {
-            visit.call(state, path23, state);
+            visit.call(state, path24, state);
           }
         }
-        if (path23.shouldSkip) {
+        if (path24.shouldSkip) {
           return;
         }
         const keys = VISITOR_KEYS4[node2.type];
@@ -57367,15 +57367,15 @@ var require_traverseForScope = __commonJS({
           if (Array.isArray(prop2)) {
             for (let i3 = 0; i3 < prop2.length; i3++) {
               const value = prop2[i3];
-              _traverse9(path23, node2, value, prop2, i3, key3);
+              _traverse9(path24, node2, value, prop2, i3, key3);
             }
           } else {
-            _traverse9(path23, node2, prop2, node2, key3, null);
+            _traverse9(path24, node2, prop2, node2, key3, null);
           }
         }
         if (visitor != null && visitor.exit) {
           for (const visit of visitor.exit) {
-            visit.call(state, path23, state);
+            visit.call(state, path24, state);
           }
         }
       }
@@ -57395,7 +57395,7 @@ var require_binding = __commonJS({
       constructor({
         identifier: identifier2,
         scope,
-        path: path22,
+        path: path23,
         kind: kind2
       }) {
         this.identifier = void 0;
@@ -57409,10 +57409,10 @@ var require_binding = __commonJS({
         this.references = 0;
         this.identifier = identifier2;
         this.scope = scope;
-        this.path = path22;
+        this.path = path23;
         this.kind = kind2;
-        if ((kind2 === "var" || kind2 === "hoisted") && isInitInLoop(path22)) {
-          this.reassign(path22);
+        if ((kind2 === "var" || kind2 === "hoisted") && isInitInLoop(path23)) {
+          this.reassign(path23);
         }
         this.clearValue();
       }
@@ -57430,20 +57430,20 @@ var require_binding = __commonJS({
         this.hasValue = false;
         this.value = null;
       }
-      reassign(path22) {
+      reassign(path23) {
         this.constant = false;
-        if (this.constantViolations.includes(path22)) {
+        if (this.constantViolations.includes(path23)) {
           return;
         }
-        this.constantViolations.push(path22);
+        this.constantViolations.push(path23);
       }
-      reference(path22) {
-        if (this.referencePaths.includes(path22)) {
+      reference(path23) {
+        if (this.referencePaths.includes(path23)) {
           return;
         }
         this.referenced = true;
         this.references++;
-        this.referencePaths.push(path22);
+        this.referencePaths.push(path23);
       }
       dereference() {
         this.references--;
@@ -57451,12 +57451,12 @@ var require_binding = __commonJS({
       }
     };
     exports.default = Binding2;
-    function isInitInLoop(path22) {
-      const isFunctionDeclarationOrHasInit = !path22.isVariableDeclarator() || path22.node.init;
+    function isInitInLoop(path23) {
+      const isFunctionDeclarationOrHasInit = !path23.isVariableDeclarator() || path23.node.init;
       for (let {
         parentPath,
         key: key2
-      } = path22; parentPath; {
+      } = path23; parentPath; {
         parentPath,
         key: key2
       } = parentPath) {
@@ -57495,11 +57495,11 @@ var require_cache2 = __commonJS({
     function clearScope() {
       exports.scope = scope = /* @__PURE__ */ new WeakMap();
     }
-    function getCachedPaths(path22) {
+    function getCachedPaths(path23) {
       const {
         parent,
         parentPath
-      } = path22;
+      } = path23;
       return pathsCache.get(parent);
     }
     function getOrCreateCachedPaths(node2, parentPath) {
@@ -57775,128 +57775,128 @@ var require_scope = __commonJS({
       scope.bindings = /* @__PURE__ */ Object.create(null);
       scope.globals = /* @__PURE__ */ Object.create(null);
     }
-    function isAnonymousFunctionExpression(path22) {
-      return path22.isFunctionExpression() && !path22.node.id || path22.isArrowFunctionExpression();
+    function isAnonymousFunctionExpression(path23) {
+      return path23.isFunctionExpression() && !path23.node.id || path23.isArrowFunctionExpression();
     }
     var NOT_LOCAL_BINDING = /* @__PURE__ */ Symbol.for("should not be considered a local binding");
     var collectorVisitor = {
-      ForStatement(path22) {
-        const declar = path22.get("init");
+      ForStatement(path23) {
+        const declar = path23.get("init");
         if (declar.isVar()) {
           const {
             scope
-          } = path22;
+          } = path23;
           const parentScope = scope.getFunctionParent() || scope.getProgramParent();
           parentScope.registerBinding("var", declar);
         }
       },
-      Declaration(path22) {
-        if (path22.isBlockScoped()) return;
-        if (path22.isImportDeclaration()) return;
-        if (path22.isExportDeclaration()) return;
-        const parent = path22.scope.getFunctionParent() || path22.scope.getProgramParent();
-        parent.registerDeclaration(path22);
+      Declaration(path23) {
+        if (path23.isBlockScoped()) return;
+        if (path23.isImportDeclaration()) return;
+        if (path23.isExportDeclaration()) return;
+        const parent = path23.scope.getFunctionParent() || path23.scope.getProgramParent();
+        parent.registerDeclaration(path23);
       },
-      ImportDeclaration(path22) {
-        const parent = path22.scope.getBlockParent();
-        parent.registerDeclaration(path22);
+      ImportDeclaration(path23) {
+        const parent = path23.scope.getBlockParent();
+        parent.registerDeclaration(path23);
       },
-      TSImportEqualsDeclaration(path22) {
-        const parent = path22.scope.getBlockParent();
-        parent.registerDeclaration(path22);
+      TSImportEqualsDeclaration(path23) {
+        const parent = path23.scope.getBlockParent();
+        parent.registerDeclaration(path23);
       },
-      ReferencedIdentifier(path22, state) {
-        if (t10.isTSQualifiedName(path22.parent) && path22.parent.right === path22.node) {
+      ReferencedIdentifier(path23, state) {
+        if (t10.isTSQualifiedName(path23.parent) && path23.parent.right === path23.node) {
           return;
         }
-        if (path22.parentPath.isTSImportEqualsDeclaration()) return;
-        state.references.push(path22);
+        if (path23.parentPath.isTSImportEqualsDeclaration()) return;
+        state.references.push(path23);
       },
-      ForXStatement(path22, state) {
-        const left = path22.get("left");
+      ForXStatement(path23, state) {
+        const left = path23.get("left");
         if (left.isPattern() || left.isIdentifier()) {
-          state.constantViolations.push(path22);
+          state.constantViolations.push(path23);
         } else if (left.isVar()) {
           const {
             scope
-          } = path22;
+          } = path23;
           const parentScope = scope.getFunctionParent() || scope.getProgramParent();
           parentScope.registerBinding("var", left);
         }
       },
       ExportDeclaration: {
-        exit(path22) {
+        exit(path23) {
           const {
             node: node2,
             scope
-          } = path22;
+          } = path23;
           if (isExportAllDeclaration(node2)) return;
           const declar = node2.declaration;
           if (isClassDeclaration(declar) || isFunctionDeclaration4(declar)) {
             const id3 = declar.id;
             if (!id3) return;
             const binding2 = scope.getBinding(id3.name);
-            binding2 == null || binding2.reference(path22);
+            binding2 == null || binding2.reference(path23);
           } else if (isVariableDeclaration6(declar)) {
             for (const decl of declar.declarations) {
               for (const name of Object.keys(getBindingIdentifiers(decl))) {
                 const binding2 = scope.getBinding(name);
-                binding2 == null || binding2.reference(path22);
+                binding2 == null || binding2.reference(path23);
               }
             }
           }
         }
       },
-      LabeledStatement(path22) {
-        path22.scope.getBlockParent().registerDeclaration(path22);
+      LabeledStatement(path23) {
+        path23.scope.getBlockParent().registerDeclaration(path23);
       },
-      AssignmentExpression(path22, state) {
-        state.assignments.push(path22);
+      AssignmentExpression(path23, state) {
+        state.assignments.push(path23);
       },
-      UpdateExpression(path22, state) {
-        state.constantViolations.push(path22);
+      UpdateExpression(path23, state) {
+        state.constantViolations.push(path23);
       },
-      UnaryExpression(path22, state) {
-        if (path22.node.operator === "delete") {
-          state.constantViolations.push(path22);
+      UnaryExpression(path23, state) {
+        if (path23.node.operator === "delete") {
+          state.constantViolations.push(path23);
         }
       },
-      BlockScoped(path22) {
-        let scope = path22.scope;
-        if (scope.path === path22) scope = scope.parent;
+      BlockScoped(path23) {
+        let scope = path23.scope;
+        if (scope.path === path23) scope = scope.parent;
         const parent = scope.getBlockParent();
-        parent.registerDeclaration(path22);
-        if (path22.isClassDeclaration() && path22.node.id) {
-          const id3 = path22.node.id;
+        parent.registerDeclaration(path23);
+        if (path23.isClassDeclaration() && path23.node.id) {
+          const id3 = path23.node.id;
           const name = id3.name;
-          path22.scope.bindings[name] = path22.scope.parent.getBinding(name);
+          path23.scope.bindings[name] = path23.scope.parent.getBinding(name);
         }
       },
-      CatchClause(path22) {
-        path22.scope.registerBinding("let", path22);
+      CatchClause(path23) {
+        path23.scope.registerBinding("let", path23);
       },
-      Function(path22) {
-        const params = path22.get("params");
+      Function(path23) {
+        const params = path23.get("params");
         for (const param of params) {
-          path22.scope.registerBinding("param", param);
+          path23.scope.registerBinding("param", param);
         }
-        if (path22.isFunctionExpression() && path22.node.id && !path22.node.id[NOT_LOCAL_BINDING]) {
-          path22.scope.registerBinding("local", path22.get("id"), path22);
-        }
-      },
-      ClassExpression(path22) {
-        if (path22.node.id && !path22.node.id[NOT_LOCAL_BINDING]) {
-          path22.scope.registerBinding("local", path22.get("id"), path22);
+        if (path23.isFunctionExpression() && path23.node.id && !path23.node.id[NOT_LOCAL_BINDING]) {
+          path23.scope.registerBinding("local", path23.get("id"), path23);
         }
       },
-      TSTypeAnnotation(path22) {
-        path22.skip();
+      ClassExpression(path23) {
+        if (path23.node.id && !path23.node.id[NOT_LOCAL_BINDING]) {
+          path23.scope.registerBinding("local", path23.get("id"), path23);
+        }
+      },
+      TSTypeAnnotation(path23) {
+        path23.skip();
       }
     };
     var scopeVisitor;
     var uid = 0;
     var Scope7 = class _Scope {
-      constructor(path22) {
+      constructor(path23) {
         this.uid = void 0;
         this.path = void 0;
         this.block = void 0;
@@ -57910,15 +57910,15 @@ var require_scope = __commonJS({
         this.crawling = void 0;
         const {
           node: node2
-        } = path22;
+        } = path23;
         const cached = _cache.scope.get(node2);
-        if ((cached == null ? void 0 : cached.path) === path22) {
+        if ((cached == null ? void 0 : cached.path) === path23) {
           return cached;
         }
         _cache.scope.set(node2, this);
         this.uid = uid++;
         this.block = node2;
-        this.path = path22;
+        this.path = path23;
         this.labels = /* @__PURE__ */ new Map();
         this.inited = false;
         Object.defineProperties(this, {
@@ -57938,14 +57938,14 @@ var require_scope = __commonJS({
       }
       get parent() {
         var _parent;
-        let parent, path22 = this.path;
+        let parent, path23 = this.path;
         do {
           var _path;
-          const shouldSkip = path22.key === "key" || path22.listKey === "decorators";
-          path22 = path22.parentPath;
-          if (shouldSkip && path22.isMethod()) path22 = path22.parentPath;
-          if ((_path = path22) != null && _path.isScope()) parent = path22;
-        } while (path22 && !parent);
+          const shouldSkip = path23.key === "key" || path23.listKey === "decorators";
+          path23 = path23.parentPath;
+          if (shouldSkip && path23.isMethod()) path23 = path23.parentPath;
+          if ((_path = path23) != null && _path.isScope()) parent = path23;
+        } while (path23 && !parent);
         return (_parent = parent) == null ? void 0 : _parent.scope;
       }
       get references() {
@@ -58058,62 +58058,62 @@ var require_scope = __commonJS({
       getLabel(name) {
         return this.labels.get(name);
       }
-      registerLabel(path22) {
-        this.labels.set(path22.node.label.name, path22);
+      registerLabel(path23) {
+        this.labels.set(path23.node.label.name, path23);
       }
-      registerDeclaration(path22) {
-        if (path22.isLabeledStatement()) {
-          this.registerLabel(path22);
-        } else if (path22.isFunctionDeclaration()) {
-          this.registerBinding("hoisted", path22.get("id"), path22);
-        } else if (path22.isVariableDeclaration()) {
-          const declarations = path22.get("declarations");
+      registerDeclaration(path23) {
+        if (path23.isLabeledStatement()) {
+          this.registerLabel(path23);
+        } else if (path23.isFunctionDeclaration()) {
+          this.registerBinding("hoisted", path23.get("id"), path23);
+        } else if (path23.isVariableDeclaration()) {
+          const declarations = path23.get("declarations");
           const {
             kind: kind2
-          } = path22.node;
+          } = path23.node;
           for (const declar of declarations) {
             this.registerBinding(kind2 === "using" || kind2 === "await using" ? "const" : kind2, declar);
           }
-        } else if (path22.isClassDeclaration()) {
-          if (path22.node.declare) return;
-          this.registerBinding("let", path22);
-        } else if (path22.isImportDeclaration()) {
-          const isTypeDeclaration = path22.node.importKind === "type" || path22.node.importKind === "typeof";
-          const specifiers = path22.get("specifiers");
+        } else if (path23.isClassDeclaration()) {
+          if (path23.node.declare) return;
+          this.registerBinding("let", path23);
+        } else if (path23.isImportDeclaration()) {
+          const isTypeDeclaration = path23.node.importKind === "type" || path23.node.importKind === "typeof";
+          const specifiers = path23.get("specifiers");
           for (const specifier of specifiers) {
             const isTypeSpecifier = isTypeDeclaration || specifier.isImportSpecifier() && (specifier.node.importKind === "type" || specifier.node.importKind === "typeof");
             this.registerBinding(isTypeSpecifier ? "unknown" : "module", specifier);
           }
-        } else if (path22.isExportDeclaration()) {
-          const declar = path22.get("declaration");
+        } else if (path23.isExportDeclaration()) {
+          const declar = path23.get("declaration");
           if (declar.isClassDeclaration() || declar.isFunctionDeclaration() || declar.isVariableDeclaration()) {
             this.registerDeclaration(declar);
           }
         } else {
-          this.registerBinding("unknown", path22);
+          this.registerBinding("unknown", path23);
         }
       }
       buildUndefinedNode() {
         return buildUndefinedNode();
       }
-      registerConstantViolation(path22) {
-        const ids = path22.getAssignmentIdentifiers();
+      registerConstantViolation(path23) {
+        const ids = path23.getAssignmentIdentifiers();
         for (const name of Object.keys(ids)) {
           var _this$getBinding;
-          (_this$getBinding = this.getBinding(name)) == null || _this$getBinding.reassign(path22);
+          (_this$getBinding = this.getBinding(name)) == null || _this$getBinding.reassign(path23);
         }
       }
-      registerBinding(kind2, path22, bindingPath = path22) {
+      registerBinding(kind2, path23, bindingPath = path23) {
         if (!kind2) throw new ReferenceError("no `kind`");
-        if (path22.isVariableDeclaration()) {
-          const declarators = path22.get("declarations");
+        if (path23.isVariableDeclaration()) {
+          const declarators = path23.get("declarations");
           for (const declar of declarators) {
             this.registerBinding(kind2, declar);
           }
           return;
         }
         const parent = this.getProgramParent();
-        const ids = path22.getOuterBindingIdentifiers(true);
+        const ids = path23.getOuterBindingIdentifiers(true);
         for (const name of Object.keys(ids)) {
           parent.references[name] = true;
           for (const id3 of ids[name]) {
@@ -58255,7 +58255,7 @@ var require_scope = __commonJS({
         }
       }
       crawl() {
-        const path22 = this.path;
+        const path23 = this.path;
         resetScope(this);
         this.data = /* @__PURE__ */ Object.create(null);
         let scope = this;
@@ -58273,27 +58273,27 @@ var require_scope = __commonJS({
         };
         this.crawling = true;
         scopeVisitor || (scopeVisitor = _index.default.visitors.merge([{
-          Scope(path23) {
-            resetScope(path23.scope);
+          Scope(path24) {
+            resetScope(path24.scope);
           }
         }, collectorVisitor]));
-        if (path22.type !== "Program") {
-          const typeVisitors = scopeVisitor[path22.type];
+        if (path23.type !== "Program") {
+          const typeVisitors = scopeVisitor[path23.type];
           if (typeVisitors) {
             for (const visit of typeVisitors.enter) {
-              visit.call(state, path22, state);
+              visit.call(state, path23, state);
             }
           }
         }
-        path22.traverse(scopeVisitor, state);
+        path23.traverse(scopeVisitor, state);
         this.crawling = false;
-        for (const path23 of state.assignments) {
-          const ids = path23.getAssignmentIdentifiers();
+        for (const path24 of state.assignments) {
+          const ids = path24.getAssignmentIdentifiers();
           for (const name of Object.keys(ids)) {
-            if (path23.scope.getBinding(name)) continue;
+            if (path24.scope.getBinding(name)) continue;
             programParent.addGlobal(ids[name]);
           }
-          path23.scope.registerConstantViolation(path23);
+          path24.scope.registerConstantViolation(path24);
         }
         for (const ref2 of state.references) {
           const binding2 = ref2.scope.getBinding(ref2.node.name);
@@ -58303,19 +58303,19 @@ var require_scope = __commonJS({
             programParent.addGlobal(ref2.node);
           }
         }
-        for (const path23 of state.constantViolations) {
-          path23.scope.registerConstantViolation(path23);
+        for (const path24 of state.constantViolations) {
+          path24.scope.registerConstantViolation(path24);
         }
       }
       push(opts) {
-        let path22 = this.path;
-        if (path22.isPattern()) {
-          path22 = this.getPatternParent().path;
-        } else if (!path22.isBlockStatement() && !path22.isProgram()) {
-          path22 = this.getBlockParent().path;
+        let path23 = this.path;
+        if (path23.isPattern()) {
+          path23 = this.getPatternParent().path;
+        } else if (!path23.isBlockStatement() && !path23.isProgram()) {
+          path23 = this.getBlockParent().path;
         }
-        if (path22.isSwitchStatement()) {
-          path22 = (this.getFunctionParent() || this.getProgramParent()).path;
+        if (path23.isSwitchStatement()) {
+          path23 = (this.getFunctionParent() || this.getProgramParent()).path;
         }
         const {
           init: init2,
@@ -58323,29 +58323,29 @@ var require_scope = __commonJS({
           kind: kind2 = "var",
           id: id3
         } = opts;
-        if (!init2 && !unique && (kind2 === "var" || kind2 === "let") && isAnonymousFunctionExpression(path22) && isCallExpression7(path22.parent, {
-          callee: path22.node
-        }) && path22.parent.arguments.length <= path22.node.params.length && isIdentifier11(id3)) {
-          path22.pushContainer("params", id3);
-          path22.scope.registerBinding("param", path22.get("params")[path22.node.params.length - 1]);
+        if (!init2 && !unique && (kind2 === "var" || kind2 === "let") && isAnonymousFunctionExpression(path23) && isCallExpression7(path23.parent, {
+          callee: path23.node
+        }) && path23.parent.arguments.length <= path23.node.params.length && isIdentifier11(id3)) {
+          path23.pushContainer("params", id3);
+          path23.scope.registerBinding("param", path23.get("params")[path23.node.params.length - 1]);
           return;
         }
-        if (path22.isLoop() || path22.isCatchClause() || path22.isFunction()) {
-          path22.ensureBlock();
-          path22 = path22.get("body");
+        if (path23.isLoop() || path23.isCatchClause() || path23.isFunction()) {
+          path23.ensureBlock();
+          path23 = path23.get("body");
         }
         const blockHoist = opts._blockHoist == null ? 2 : opts._blockHoist;
         const dataKey = `declaration:${kind2}:${blockHoist}`;
-        let declarPath = !unique && path22.getData(dataKey);
+        let declarPath = !unique && path23.getData(dataKey);
         if (!declarPath) {
           const declar = variableDeclaration(kind2, []);
           declar._blockHoist = blockHoist;
-          [declarPath] = path22.unshiftContainer("body", [declar]);
-          if (!unique) path22.setData(dataKey, declarPath);
+          [declarPath] = path23.unshiftContainer("body", [declar]);
+          if (!unique) path23.setData(dataKey, declarPath);
         }
         const declarator2 = variableDeclarator(id3, init2);
         const len = declarPath.node.declarations.push(declarator2);
-        path22.scope.registerBinding(kind2, declarPath.get("declarations")[len - 1]);
+        path23.scope.registerBinding(kind2, declarPath.get("declarations")[len - 1]);
       }
       getProgramParent() {
         let scope = this;
@@ -58490,15 +58490,15 @@ var require_scope = __commonJS({
           const binding2 = this.bindings[name];
           if (!binding2) continue;
           const {
-            path: path22
+            path: path23
           } = binding2;
-          if (!path22.isVariableDeclarator()) continue;
+          if (!path23.isVariableDeclarator()) continue;
           const {
             parent,
             parentPath
-          } = path22;
+          } = path23;
           if (parent.kind !== "var" || seen2.has(parent)) continue;
-          seen2.add(path22.parent);
+          seen2.add(path23.parent);
           let firstId;
           const init2 = [];
           for (const decl of parent.declarations) {
@@ -59145,16 +59145,16 @@ var require_resolve_uri_umd = __commonJS({
       }
       function parseFileUrl2(input) {
         const match2 = fileRegex2.exec(input);
-        const path22 = match2[2];
-        return makeUrl2("file:", "", match2[1] || "", "", isAbsolutePath2(path22) ? path22 : "/" + path22, match2[3] || "", match2[4] || "");
+        const path23 = match2[2];
+        return makeUrl2("file:", "", match2[1] || "", "", isAbsolutePath2(path23) ? path23 : "/" + path23, match2[3] || "", match2[4] || "");
       }
-      function makeUrl2(scheme, user, host, port, path22, query, hash2) {
+      function makeUrl2(scheme, user, host, port, path23, query, hash2) {
         return {
           scheme,
           user,
           host,
           port,
-          path: path22,
+          path: path23,
           query,
           hash: hash2,
           type: 7
@@ -59184,11 +59184,11 @@ var require_resolve_uri_umd = __commonJS({
         url.type = input ? input.startsWith("?") ? 3 : input.startsWith("#") ? 2 : 4 : 1;
         return url;
       }
-      function stripPathFilename2(path22) {
-        if (path22.endsWith("/.."))
-          return path22;
-        const index = path22.lastIndexOf("/");
-        return path22.slice(0, index + 1);
+      function stripPathFilename2(path23) {
+        if (path23.endsWith("/.."))
+          return path23;
+        const index = path23.lastIndexOf("/");
+        return path23.slice(0, index + 1);
       }
       function mergePaths2(url, base) {
         normalizePath2(base, base.type);
@@ -59226,14 +59226,14 @@ var require_resolve_uri_umd = __commonJS({
           pieces[pointer++] = piece;
           positive++;
         }
-        let path22 = "";
+        let path23 = "";
         for (let i3 = 1; i3 < pointer; i3++) {
-          path22 += "/" + pieces[i3];
+          path23 += "/" + pieces[i3];
         }
-        if (!path22 || addTrailingSlash && !path22.endsWith("/..")) {
-          path22 += "/";
+        if (!path23 || addTrailingSlash && !path23.endsWith("/..")) {
+          path23 += "/";
         }
-        url.path = path22;
+        url.path = path23;
       }
       function resolve5(input, base) {
         if (!input && !base)
@@ -59274,13 +59274,13 @@ var require_resolve_uri_umd = __commonJS({
           case 3:
             return queryHash;
           case 4: {
-            const path22 = url.path.slice(1);
-            if (!path22)
+            const path23 = url.path.slice(1);
+            if (!path23)
               return queryHash || ".";
-            if (isRelative2(base || input) && !isRelative2(path22)) {
-              return "./" + path22 + queryHash;
+            if (isRelative2(base || input) && !isRelative2(path23)) {
+              return "./" + path23 + queryHash;
             }
-            return path22 + queryHash;
+            return path23 + queryHash;
           }
           case 5:
             return url.path + queryHash;
@@ -59379,10 +59379,10 @@ var require_trace_mapping_umd = __commonJS({
       module2.exports = __toCommonJS(trace_mapping_exports);
       var import_sourcemap_codec7 = __toESM2(require_sourcemap_codec());
       var import_resolve_uri2 = __toESM2(require_resolve_uri());
-      function stripFilename2(path22) {
-        if (!path22) return "";
-        const index = path22.lastIndexOf("/");
-        return path22.slice(0, index + 1);
+      function stripFilename2(path23) {
+        if (!path23) return "";
+        const index = path23.lastIndexOf("/");
+        return path23.slice(0, index + 1);
       }
       function resolver2(mapUrl, sourceRoot) {
         const from = stripFilename2(mapUrl);
@@ -65713,56 +65713,56 @@ var require_ancestry = __commonJS({
       VISITOR_KEYS: VISITOR_KEYS4
     } = _t;
     function findParent(callback) {
-      let path22 = this;
-      while (path22 = path22.parentPath) {
-        if (callback(path22)) return path22;
+      let path23 = this;
+      while (path23 = path23.parentPath) {
+        if (callback(path23)) return path23;
       }
       return null;
     }
     function find(callback) {
-      let path22 = this;
+      let path23 = this;
       do {
-        if (callback(path22)) return path22;
-      } while (path22 = path22.parentPath);
+        if (callback(path23)) return path23;
+      } while (path23 = path23.parentPath);
       return null;
     }
     function getFunctionParent() {
       return this.findParent((p) => p.isFunction());
     }
     function getStatementParent() {
-      let path22 = this;
+      let path23 = this;
       do {
-        if (!path22.parentPath || Array.isArray(path22.container) && path22.isStatement()) {
+        if (!path23.parentPath || Array.isArray(path23.container) && path23.isStatement()) {
           break;
         } else {
-          path22 = path22.parentPath;
+          path23 = path23.parentPath;
         }
-      } while (path22);
-      if (path22 && (path22.isProgram() || path22.isFile())) {
+      } while (path23);
+      if (path23 && (path23.isProgram() || path23.isFile())) {
         throw new Error("File/Program node, we can't possibly find a statement parent to this");
       }
-      return path22;
+      return path23;
     }
     function getEarliestCommonAncestorFrom(paths) {
       return this.getDeepestCommonAncestorFrom(paths, function(deepest, i3, ancestries) {
         let earliest;
         const keys = VISITOR_KEYS4[deepest.type];
         for (const ancestry of ancestries) {
-          const path22 = ancestry[i3 + 1];
+          const path23 = ancestry[i3 + 1];
           if (!earliest) {
-            earliest = path22;
+            earliest = path23;
             continue;
           }
-          if (path22.listKey && earliest.listKey === path22.listKey) {
-            if (path22.key < earliest.key) {
-              earliest = path22;
+          if (path23.listKey && earliest.listKey === path23.listKey) {
+            if (path23.key < earliest.key) {
+              earliest = path23;
               continue;
             }
           }
           const earliestKeyIndex = keys.indexOf(earliest.parentKey);
-          const currentKeyIndex = keys.indexOf(path22.parentKey);
+          const currentKeyIndex = keys.indexOf(path23.parentKey);
           if (earliestKeyIndex > currentKeyIndex) {
-            earliest = path22;
+            earliest = path23;
           }
         }
         return earliest;
@@ -65777,11 +65777,11 @@ var require_ancestry = __commonJS({
       }
       let minDepth = Infinity;
       let lastCommonIndex, lastCommon;
-      const ancestries = paths.map((path22) => {
+      const ancestries = paths.map((path23) => {
         const ancestry = [];
         do {
-          ancestry.unshift(path22);
-        } while ((path22 = path22.parentPath) && path22 !== this);
+          ancestry.unshift(path23);
+        } while ((path23 = path23.parentPath) && path23 !== this);
         if (ancestry.length < minDepth) {
           minDepth = ancestry.length;
         }
@@ -65809,11 +65809,11 @@ var require_ancestry = __commonJS({
       }
     }
     function getAncestry() {
-      let path22 = this;
+      let path23 = this;
       const paths = [];
       do {
-        paths.push(path22);
-      } while (path22 = path22.parentPath);
+        paths.push(path23);
+      } while (path23 = path23.parentPath);
       return paths;
     }
     function isAncestor(maybeDescendant) {
@@ -65823,10 +65823,10 @@ var require_ancestry = __commonJS({
       return !!this.findParent((parent) => parent === maybeAncestor);
     }
     function inType(...candidateTypes) {
-      let path22 = this;
-      while (path22) {
-        if (candidateTypes.includes(path22.node.type)) return true;
-        path22 = path22.parentPath;
+      let path23 = this;
+      while (path23) {
+        if (candidateTypes.includes(path23.node.type)) return true;
+        path23 = path23.parentPath;
       }
       return false;
     }
@@ -65897,14 +65897,14 @@ var require_inferer_reference = __commonJS({
       } else if (node2.name === "arguments") {
       }
     }
-    function getTypeAnnotationBindingConstantViolations(binding2, path22, name) {
+    function getTypeAnnotationBindingConstantViolations(binding2, path23, name) {
       const types2 = [];
       const functionConstantViolations = [];
-      let constantViolations = getConstantViolationsBefore(binding2, path22, functionConstantViolations);
-      const testType = getConditionalAnnotation(binding2, path22, name);
+      let constantViolations = getConstantViolationsBefore(binding2, path23, functionConstantViolations);
+      const testType = getConditionalAnnotation(binding2, path23, name);
       if (testType) {
         const testConstantViolations = getConstantViolationsBefore(binding2, testType.ifStatement);
-        constantViolations = constantViolations.filter((path23) => !testConstantViolations.includes(path23));
+        constantViolations = constantViolations.filter((path24) => !testConstantViolations.includes(path24));
         types2.push(testType.typeAnnotation);
       }
       if (constantViolations.length) {
@@ -65918,20 +65918,20 @@ var require_inferer_reference = __commonJS({
       }
       return (0, _util.createUnionType)(types2);
     }
-    function getConstantViolationsBefore(binding2, path22, functions) {
+    function getConstantViolationsBefore(binding2, path23, functions) {
       const violations = binding2.constantViolations.slice();
       violations.unshift(binding2.path);
       return violations.filter((violation) => {
         violation = violation.resolve();
-        const status2 = violation._guessExecutionStatusRelativeTo(path22);
+        const status2 = violation._guessExecutionStatusRelativeTo(path23);
         if (functions && status2 === "unknown") functions.push(violation);
         return status2 === "before";
       });
     }
-    function inferAnnotationFromBinaryExpression(name, path22) {
-      const operator = path22.node.operator;
-      const right = path22.get("right").resolve();
-      const left = path22.get("left").resolve();
+    function inferAnnotationFromBinaryExpression(name, path23) {
+      const operator = path23.node.operator;
+      const right = path23.get("right").resolve();
+      const left = path23.get("left").resolve();
       let target;
       if (left.isIdentifier({
         name
@@ -65975,11 +65975,11 @@ var require_inferer_reference = __commonJS({
       if (typeof typeValue !== "string") return;
       return createTypeAnnotationBasedOnTypeof(typeValue);
     }
-    function getParentConditionalPath(binding2, path22, name) {
+    function getParentConditionalPath(binding2, path23, name) {
       let parentPath;
-      while (parentPath = path22.parentPath) {
+      while (parentPath = path23.parentPath) {
         if (parentPath.isIfStatement() || parentPath.isConditionalExpression()) {
-          if (path22.key === "test") {
+          if (path23.key === "test") {
             return;
           }
           return parentPath;
@@ -65987,24 +65987,24 @@ var require_inferer_reference = __commonJS({
         if (parentPath.isFunction()) {
           if (name == null || parentPath.parentPath.scope.getBinding(name) !== binding2) return;
         }
-        path22 = parentPath;
+        path23 = parentPath;
       }
     }
-    function getConditionalAnnotation(binding2, path22, name) {
-      const ifStatement = getParentConditionalPath(binding2, path22, name);
+    function getConditionalAnnotation(binding2, path23, name) {
+      const ifStatement = getParentConditionalPath(binding2, path23, name);
       if (!ifStatement) return;
       const test = ifStatement.get("test");
       const paths = [test];
       const types2 = [];
       for (let i3 = 0; i3 < paths.length; i3++) {
-        const path23 = paths[i3];
-        if (path23.isLogicalExpression()) {
-          if (path23.node.operator === "&&") {
-            paths.push(path23.get("left"));
-            paths.push(path23.get("right"));
+        const path24 = paths[i3];
+        if (path24.isLogicalExpression()) {
+          if (path24.node.operator === "&&") {
+            paths.push(path24.get("left"));
+            paths.push(path24.get("right"));
           }
-        } else if (path23.isBinaryExpression()) {
-          const type = inferAnnotationFromBinaryExpression(name, path23);
+        } else if (path24.isBinaryExpression()) {
+          const type = inferAnnotationFromBinaryExpression(name, path24);
           if (type) types2.push(type);
         }
       }
@@ -66823,12 +66823,12 @@ var require_hoister = __commonJS({
       variableDeclarator
     } = _t2;
     var referenceVisitor = {
-      ReferencedIdentifier(path22, state) {
-        if (path22.isJSXIdentifier() && react.isCompatTag(path22.node.name) && !path22.parentPath.isJSXMemberExpression()) {
+      ReferencedIdentifier(path23, state) {
+        if (path23.isJSXIdentifier() && react.isCompatTag(path23.node.name) && !path23.parentPath.isJSXMemberExpression()) {
           return;
         }
-        if (path22.node.name === "this") {
-          let scope = path22.scope;
+        if (path23.node.name === "this") {
+          let scope = path23.scope;
           do {
             if (scope.path.isFunction() && !scope.path.isArrowFunctionExpression()) {
               break;
@@ -66836,21 +66836,21 @@ var require_hoister = __commonJS({
           } while (scope = scope.parent);
           if (scope) state.breakOnScopePaths.push(scope.path);
         }
-        const binding2 = path22.scope.getBinding(path22.node.name);
+        const binding2 = path23.scope.getBinding(path23.node.name);
         if (!binding2) return;
         for (const violation of binding2.constantViolations) {
           if (violation.scope !== binding2.path.scope) {
             state.mutableBinding = true;
-            path22.stop();
+            path23.stop();
             return;
           }
         }
-        if (binding2 !== state.scope.getBinding(path22.node.name)) return;
-        state.bindings[path22.node.name] = binding2;
+        if (binding2 !== state.scope.getBinding(path23.node.name)) return;
+        state.bindings[path23.node.name] = binding2;
       }
     };
     var PathHoister = class {
-      constructor(path22, scope) {
+      constructor(path23, scope) {
         this.breakOnScopePaths = void 0;
         this.bindings = void 0;
         this.mutableBinding = void 0;
@@ -66863,7 +66863,7 @@ var require_hoister = __commonJS({
         this.mutableBinding = false;
         this.scopes = [];
         this.scope = scope;
-        this.path = path22;
+        this.path = path23;
         this.attachAfter = false;
       }
       isCompatibleScope(scope) {
@@ -66889,11 +66889,11 @@ var require_hoister = __commonJS({
         } while (scope = scope.parent);
       }
       getAttachmentPath() {
-        let path22 = this._getAttachmentPath();
-        if (!path22) return;
-        let targetScope = path22.scope;
-        if (targetScope.path === path22) {
-          targetScope = path22.scope.parent;
+        let path23 = this._getAttachmentPath();
+        if (!path23) return;
+        let targetScope = path23.scope;
+        if (targetScope.path === path23) {
+          targetScope = path23.scope.parent;
         }
         if (targetScope.path.isProgram() || targetScope.path.isFunction()) {
           for (const name of Object.keys(this.bindings)) {
@@ -66903,18 +66903,18 @@ var require_hoister = __commonJS({
               continue;
             }
             const bindingParentPath = this.getAttachmentParentForPath(binding2.path);
-            if (bindingParentPath.key >= path22.key) {
+            if (bindingParentPath.key >= path23.key) {
               this.attachAfter = true;
-              path22 = binding2.path;
+              path23 = binding2.path;
               for (const violationPath of binding2.constantViolations) {
-                if (this.getAttachmentParentForPath(violationPath).key > path22.key) {
-                  path22 = violationPath;
+                if (this.getAttachmentParentForPath(violationPath).key > path23.key) {
+                  path23 = violationPath;
                 }
               }
             }
           }
         }
-        return path22;
+        return path23;
       }
       _getAttachmentPath() {
         const scopes = this.scopes;
@@ -66939,13 +66939,13 @@ var require_hoister = __commonJS({
         const scope = this.scopes.pop();
         if (scope) return this.getAttachmentParentForPath(scope.path);
       }
-      getAttachmentParentForPath(path22) {
+      getAttachmentParentForPath(path23) {
         do {
-          if (!path22.parentPath || Array.isArray(path22.container) && path22.isStatement()) {
-            return path22;
+          if (!path23.parentPath || Array.isArray(path23.container) && path23.isStatement()) {
+            return path23;
           }
-        } while (path22 = path22.parentPath);
-        return path22;
+        } while (path23 = path23.parentPath);
+        return path23;
       }
       hasOwnParamBindings(scope) {
         for (const name of Object.keys(this.bindings)) {
@@ -67047,18 +67047,18 @@ var require_modification = __commonJS({
       for (let i3 = 0; i3 < nodes.length; i3++) {
         var _this$context;
         const to = from + i3;
-        const path22 = this.getSibling(to);
-        paths.push(path22);
+        const path23 = this.getSibling(to);
+        paths.push(path23);
         if ((_this$context = this.context) != null && _this$context.queue) {
-          _context.pushContext.call(path22, this.context);
+          _context.pushContext.call(path23, this.context);
         }
       }
       const contexts = _context._getQueueContexts.call(this);
-      for (const path22 of paths) {
-        _context.setScope.call(path22);
-        path22.debug("Inserted.");
+      for (const path23 of paths) {
+        _context.setScope.call(path23);
+        path23.debug("Inserted.");
         for (const context of contexts) {
-          context.maybeQueue(path22, true);
+          context.maybeQueue(path23, true);
         }
       }
       return paths;
@@ -67070,8 +67070,8 @@ var require_modification = __commonJS({
       return _containerInsert.call(this, this.key + 1, nodes);
     }
     var last = (arr) => arr[arr.length - 1];
-    function isHiddenInSequenceExpression(path22) {
-      return isSequenceExpression(path22.parent) && (last(path22.parent.expressions) !== path22.node || isHiddenInSequenceExpression(path22.parentPath));
+    function isHiddenInSequenceExpression(path23) {
+      return isSequenceExpression(path23.parent) && (last(path23.parent.expressions) !== path23.node || isHiddenInSequenceExpression(path23.parentPath));
     }
     function isAlmostConstantAssignment(node2, scope) {
       if (!isAssignmentExpression2(node2) || !isIdentifier11(node2.left)) {
@@ -67145,9 +67145,9 @@ var require_modification = __commonJS({
       if (!this.parent) return;
       const paths = (0, _cache.getCachedPaths)(this);
       if (!paths) return;
-      for (const [, path22] of paths) {
-        if (typeof path22.key === "number" && path22.container === this.container && path22.key >= fromIndex) {
-          path22.key += incrementBy;
+      for (const [, path23] of paths) {
+        if (typeof path23.key === "number" && path23.container === this.container && path23.key >= fromIndex) {
+          path23.key += incrementBy;
         }
       }
     }
@@ -67181,27 +67181,27 @@ var require_modification = __commonJS({
       _removal._assertUnremoved.call(this);
       const verifiedNodes = _verifyNodeList.call(this, nodes);
       const container = this.node[listKey];
-      const path22 = _index.default.get({
+      const path23 = _index.default.get({
         parentPath: this,
         parent: this.node,
         container,
         listKey,
         key: 0
       }).setContext(this.context);
-      return _containerInsertBefore.call(path22, verifiedNodes);
+      return _containerInsertBefore.call(path23, verifiedNodes);
     }
     function pushContainer(listKey, nodes) {
       _removal._assertUnremoved.call(this);
       const verifiedNodes = _verifyNodeList.call(this, nodes);
       const container = this.node[listKey];
-      const path22 = _index.default.get({
+      const path23 = _index.default.get({
         parentPath: this,
         parent: this.node,
         container,
         listKey,
         key: container.length
       }).setContext(this.context);
-      return path22.replaceWithMultiple(verifiedNodes);
+      return path23.replaceWithMultiple(verifiedNodes);
     }
     exports.hoist = function hoist(scope = this.scope) {
       const hoister = new _hoister.default(this, scope);
@@ -67379,9 +67379,9 @@ var require_replacement = __commonJS({
         id: id3
       }));
       const completionRecords = callee.getCompletionRecords();
-      for (const path22 of completionRecords) {
-        if (!path22.isExpressionStatement()) continue;
-        const loop = path22.findParent((path23) => path23.isLoop());
+      for (const path23 of completionRecords) {
+        if (!path23.isExpressionStatement()) continue;
+        const loop = path23.findParent((path24) => path24.isLoop());
         if (loop) {
           let uid = loop.getData("expressionReplacementReturnUid");
           if (!uid) {
@@ -67391,9 +67391,9 @@ var require_replacement = __commonJS({
           } else {
             uid = identifier2(uid.name);
           }
-          path22.get("expression").replaceWith(assignmentExpression("=", cloneNode(uid), path22.node.expression));
+          path23.get("expression").replaceWith(assignmentExpression("=", cloneNode(uid), path23.node.expression));
         } else {
-          path22.replaceWith(returnStatement(path22.node.expression));
+          path23.replaceWith(returnStatement(path23.node.expression));
         }
       }
       callee.arrowFunctionToExpression();
@@ -67502,16 +67502,16 @@ var require_evaluation = __commonJS({
       const res = this.evaluate();
       if (res.confident) return !!res.value;
     }
-    function deopt(path22, state) {
+    function deopt(path23, state) {
       if (!state.confident) return;
-      state.deoptPath = path22;
+      state.deoptPath = path23;
       state.confident = false;
     }
     var Globals = /* @__PURE__ */ new Map([["undefined", void 0], ["Infinity", Infinity], ["NaN", NaN]]);
-    function evaluateCached(path22, state) {
+    function evaluateCached(path23, state) {
       const {
         node: node2
-      } = path22;
+      } = path23;
       const {
         seen: seen2
       } = state;
@@ -67520,7 +67520,7 @@ var require_evaluation = __commonJS({
         if (existing.resolved) {
           return existing.value;
         } else {
-          deopt(path22, state);
+          deopt(path23, state);
           return;
         }
       } else {
@@ -67528,7 +67528,7 @@ var require_evaluation = __commonJS({
           resolved: false
         };
         seen2.set(node2, item);
-        const val = _evaluate(path22, state);
+        const val = _evaluate(path23, state);
         if (state.confident) {
           item.resolved = true;
           item.value = val;
@@ -67536,55 +67536,55 @@ var require_evaluation = __commonJS({
         return val;
       }
     }
-    function _evaluate(path22, state) {
+    function _evaluate(path23, state) {
       if (!state.confident) return;
-      if (path22.isSequenceExpression()) {
-        const exprs = path22.get("expressions");
+      if (path23.isSequenceExpression()) {
+        const exprs = path23.get("expressions");
         return evaluateCached(exprs[exprs.length - 1], state);
       }
-      if (path22.isStringLiteral() || path22.isNumericLiteral() || path22.isBooleanLiteral()) {
-        return path22.node.value;
+      if (path23.isStringLiteral() || path23.isNumericLiteral() || path23.isBooleanLiteral()) {
+        return path23.node.value;
       }
-      if (path22.isNullLiteral()) {
+      if (path23.isNullLiteral()) {
         return null;
       }
-      if (path22.isTemplateLiteral()) {
-        return evaluateQuasis(path22, path22.node.quasis, state);
+      if (path23.isTemplateLiteral()) {
+        return evaluateQuasis(path23, path23.node.quasis, state);
       }
-      if (path22.isTaggedTemplateExpression() && path22.get("tag").isMemberExpression()) {
-        const object4 = path22.get("tag.object");
+      if (path23.isTaggedTemplateExpression() && path23.get("tag").isMemberExpression()) {
+        const object4 = path23.get("tag.object");
         const {
           node: {
             name
           }
         } = object4;
-        const property2 = path22.get("tag.property");
-        if (object4.isIdentifier() && name === "String" && !path22.scope.getBinding(name) && property2.isIdentifier() && property2.node.name === "raw") {
-          return evaluateQuasis(path22, path22.node.quasi.quasis, state, true);
+        const property2 = path23.get("tag.property");
+        if (object4.isIdentifier() && name === "String" && !path23.scope.getBinding(name) && property2.isIdentifier() && property2.node.name === "raw") {
+          return evaluateQuasis(path23, path23.node.quasi.quasis, state, true);
         }
       }
-      if (path22.isConditionalExpression()) {
-        const testResult = evaluateCached(path22.get("test"), state);
+      if (path23.isConditionalExpression()) {
+        const testResult = evaluateCached(path23.get("test"), state);
         if (!state.confident) return;
         if (testResult) {
-          return evaluateCached(path22.get("consequent"), state);
+          return evaluateCached(path23.get("consequent"), state);
         } else {
-          return evaluateCached(path22.get("alternate"), state);
+          return evaluateCached(path23.get("alternate"), state);
         }
       }
-      if (path22.isExpressionWrapper()) {
-        return evaluateCached(path22.get("expression"), state);
+      if (path23.isExpressionWrapper()) {
+        return evaluateCached(path23.get("expression"), state);
       }
-      if (path22.isMemberExpression() && !path22.parentPath.isCallExpression({
-        callee: path22.node
+      if (path23.isMemberExpression() && !path23.parentPath.isCallExpression({
+        callee: path23.node
       })) {
-        const property2 = path22.get("property");
-        const object4 = path22.get("object");
+        const property2 = path23.get("property");
+        const object4 = path23.get("object");
         if (object4.isLiteral()) {
           const value = object4.node.value;
           const type = typeof value;
           let key2 = null;
-          if (path22.node.computed) {
+          if (path23.node.computed) {
             key2 = evaluateCached(property2, state);
             if (!state.confident) return;
           } else if (property2.isIdentifier()) {
@@ -67595,10 +67595,10 @@ var require_evaluation = __commonJS({
           }
         }
       }
-      if (path22.isReferencedIdentifier()) {
-        const binding2 = path22.scope.getBinding(path22.node.name);
+      if (path23.isReferencedIdentifier()) {
+        const binding2 = path23.scope.getBinding(path23.node.name);
         if (binding2) {
-          if (binding2.constantViolations.length > 0 || path22.node.start < binding2.path.node.end) {
+          if (binding2.constantViolations.length > 0 || path23.node.start < binding2.path.node.end) {
             deopt(binding2.path, state);
             return;
           }
@@ -67607,7 +67607,7 @@ var require_evaluation = __commonJS({
             let hasUnsafeBlock = !bindingPathScope.path.parentPath.isBlockStatement();
             for (let scope = bindingPathScope.parent; scope; scope = scope.parent) {
               var _scope$path$parentPat;
-              if (scope === path22.scope) {
+              if (scope === path23.scope) {
                 if (hasUnsafeBlock) {
                   deopt(binding2.path, state);
                   return;
@@ -67623,7 +67623,7 @@ var require_evaluation = __commonJS({
             return binding2.value;
           }
         }
-        const name = path22.node.name;
+        const name = path23.node.name;
         if (Globals.has(name)) {
           if (!binding2) {
             return Globals.get(name);
@@ -67632,7 +67632,7 @@ var require_evaluation = __commonJS({
           return;
         }
         if (!binding2) {
-          deopt(path22, state);
+          deopt(path23, state);
           return;
         }
         const bindingPath = binding2.path;
@@ -67653,19 +67653,19 @@ var require_evaluation = __commonJS({
         }
         return value;
       }
-      if (path22.isUnaryExpression({
+      if (path23.isUnaryExpression({
         prefix: true
       })) {
-        if (path22.node.operator === "void") {
+        if (path23.node.operator === "void") {
           return void 0;
         }
-        const argument = path22.get("argument");
-        if (path22.node.operator === "typeof" && (argument.isFunction() || argument.isClass())) {
+        const argument = path23.get("argument");
+        if (path23.node.operator === "typeof" && (argument.isFunction() || argument.isClass())) {
           return "function";
         }
         const arg = evaluateCached(argument, state);
         if (!state.confident) return;
-        switch (path22.node.operator) {
+        switch (path23.node.operator) {
           case "!":
             return !arg;
           case "+":
@@ -67678,9 +67678,9 @@ var require_evaluation = __commonJS({
             return typeof arg;
         }
       }
-      if (path22.isArrayExpression()) {
+      if (path23.isArrayExpression()) {
         const arr = [];
-        const elems = path22.get("elements");
+        const elems = path23.get("elements");
         for (const elem of elems) {
           const elemValue = elem.evaluate();
           if (elemValue.confident) {
@@ -67692,9 +67692,9 @@ var require_evaluation = __commonJS({
         }
         return arr;
       }
-      if (path22.isObjectExpression()) {
+      if (path23.isObjectExpression()) {
         const obj = {};
-        const props = path22.get("properties");
+        const props = path23.get("properties");
         for (const prop2 of props) {
           if (prop2.isObjectMethod() || prop2.isSpreadElement()) {
             deopt(prop2, state);
@@ -67725,14 +67725,14 @@ var require_evaluation = __commonJS({
         }
         return obj;
       }
-      if (path22.isLogicalExpression()) {
+      if (path23.isLogicalExpression()) {
         const wasConfident = state.confident;
-        const left = evaluateCached(path22.get("left"), state);
+        const left = evaluateCached(path23.get("left"), state);
         const leftConfident = state.confident;
         state.confident = wasConfident;
-        const right = evaluateCached(path22.get("right"), state);
+        const right = evaluateCached(path23.get("right"), state);
         const rightConfident = state.confident;
-        switch (path22.node.operator) {
+        switch (path23.node.operator) {
           case "||":
             state.confident = leftConfident && (!!left || rightConfident);
             if (!state.confident) return;
@@ -67747,12 +67747,12 @@ var require_evaluation = __commonJS({
             return left != null ? left : right;
         }
       }
-      if (path22.isBinaryExpression()) {
-        const left = evaluateCached(path22.get("left"), state);
+      if (path23.isBinaryExpression()) {
+        const left = evaluateCached(path23.get("left"), state);
         if (!state.confident) return;
-        const right = evaluateCached(path22.get("right"), state);
+        const right = evaluateCached(path23.get("right"), state);
         if (!state.confident) return;
-        switch (path22.node.operator) {
+        switch (path23.node.operator) {
           case "-":
             return left - right;
           case "+":
@@ -67795,11 +67795,11 @@ var require_evaluation = __commonJS({
             return left >>> right;
         }
       }
-      if (path22.isCallExpression()) {
-        const callee = path22.get("callee");
+      if (path23.isCallExpression()) {
+        const callee = path23.get("callee");
         let context;
         let func;
-        if (callee.isIdentifier() && !path22.scope.getBinding(callee.node.name) && (isValidObjectCallee(callee.node.name) || isValidIdentifierCallee(callee.node.name))) {
+        if (callee.isIdentifier() && !path23.scope.getBinding(callee.node.name) && (isValidObjectCallee(callee.node.name) || isValidIdentifierCallee(callee.node.name))) {
           func = global[callee.node.name];
         }
         if (callee.isMemberExpression()) {
@@ -67821,17 +67821,17 @@ var require_evaluation = __commonJS({
           }
         }
         if (func) {
-          const args = path22.get("arguments").map((arg) => evaluateCached(arg, state));
+          const args = path23.get("arguments").map((arg) => evaluateCached(arg, state));
           if (!state.confident) return;
           return func.apply(context, args);
         }
       }
-      deopt(path22, state);
+      deopt(path23, state);
     }
-    function evaluateQuasis(path22, quasis, state, raw = false) {
+    function evaluateQuasis(path23, quasis, state, raw = false) {
       let str2 = "";
       let i3 = 0;
-      const exprs = path22.isTemplateLiteral() ? path22.get("expressions") : path22.get("quasi.expressions");
+      const exprs = path23.isTemplateLiteral() ? path23.get("expressions") : path23.get("quasi.expressions");
       for (const elem of quasis) {
         if (!state.confident) break;
         str2 += raw ? elem.value.raw : elem.value.cooked;
@@ -68625,8 +68625,8 @@ var require_conversion = __commonJS({
       }
       hoistFunctionEnvironment(this);
     }
-    function setType(path22, type) {
-      path22.node.type = type;
+    function setType(path23, type) {
+      path23.node.type = type;
     }
     function arrowFunctionToExpression({
       allowInsertArrow = true,
@@ -69041,14 +69041,14 @@ var require_conversion = __commonJS({
       return this;
     }
     var refersOuterBindingVisitor = {
-      "ReferencedIdentifier|BindingIdentifier"(path22, state) {
-        if (path22.node.name !== state.name) return;
+      "ReferencedIdentifier|BindingIdentifier"(path23, state) {
+        if (path23.node.name !== state.name) return;
         state.needsRename = true;
-        path22.stop();
+        path23.stop();
       },
-      Scope(path22, state) {
-        if (path22.scope.hasOwnBinding(state.name)) {
-          path22.skip();
+      Scope(path23, state) {
+        if (path23.scope.hasOwnBinding(state.name)) {
+          path23.skip();
         }
       }
     };
@@ -69197,21 +69197,21 @@ var require_introspection = __commonJS({
       return false;
     }
     function isCompletionRecord(allowInsideFunction) {
-      let path22 = this;
+      let path23 = this;
       let first = true;
       do {
         const {
           type,
           container
-        } = path22;
-        if (!first && (path22.isFunction() || type === "StaticBlock")) {
+        } = path23;
+        if (!first && (path23.isFunction() || type === "StaticBlock")) {
           return !!allowInsideFunction;
         }
         first = false;
-        if (Array.isArray(container) && path22.key !== container.length - 1) {
+        if (Array.isArray(container) && path23.key !== container.length - 1) {
           return false;
         }
-      } while ((path22 = path22.parentPath) && !path22.isProgram() && !path22.isDoExpression());
+      } while ((path23 = path23.parentPath) && !path23.isProgram() && !path23.isDoExpression());
       return true;
     }
     function isStatementOrBlock() {
@@ -69233,21 +69233,21 @@ var require_introspection = __commonJS({
       }
       const binding2 = this.scope.getBinding(this.node.name);
       if ((binding2 == null ? void 0 : binding2.kind) !== "module") return false;
-      const path22 = binding2.path;
-      const parent = path22.parentPath;
+      const path23 = binding2.path;
+      const parent = path23.parentPath;
       if (!parent.isImportDeclaration()) return false;
       if (parent.node.source.value === moduleSource) {
         if (!importName) return true;
       } else {
         return false;
       }
-      if (path22.isImportDefaultSpecifier() && importName === "default") {
+      if (path23.isImportDefaultSpecifier() && importName === "default") {
         return true;
       }
-      if (path22.isImportNamespaceSpecifier() && importName === "*") {
+      if (path23.isImportNamespaceSpecifier() && importName === "*") {
         return true;
       }
-      if (path22.isImportSpecifier() && isIdentifier11(path22.node.imported, {
+      if (path23.isImportSpecifier() && isIdentifier11(path23.node.imported, {
         name: importName
       })) {
         return true;
@@ -69265,8 +69265,8 @@ var require_introspection = __commonJS({
     function willIMaybeExecuteBefore(target) {
       return this._guessExecutionStatusRelativeTo(target) !== "after";
     }
-    function getOuterFunction(path22) {
-      return path22.isProgram() ? path22 : (path22.parentPath.scope.getFunctionParent() || path22.parentPath.scope.getProgramParent()).path;
+    function getOuterFunction(path23) {
+      return path23.isProgram() ? path23 : (path23.parentPath.scope.getFunctionParent() || path23.parentPath.scope.getProgramParent()).path;
     }
     function isExecutionUncertain(type, key2) {
       switch (type) {
@@ -69298,8 +69298,8 @@ var require_introspection = __commonJS({
     }
     function isExecutionUncertainInList(paths, maxIndex) {
       for (let i3 = 0; i3 < maxIndex; i3++) {
-        const path22 = paths[i3];
-        if (isExecutionUncertain(path22.parent.type, path22.parentKey)) {
+        const path23 = paths[i3];
+        if (isExecutionUncertain(path23.parent.type, path23.parentKey)) {
           return true;
         }
       }
@@ -69329,10 +69329,10 @@ var require_introspection = __commonJS({
         this: 0
       };
       while (!commonPath && commonIndex.this < paths.this.length) {
-        const path22 = paths.this[commonIndex.this];
-        commonIndex.target = paths.target.indexOf(path22);
+        const path23 = paths.this[commonIndex.this];
+        commonIndex.target = paths.target.indexOf(path23);
         if (commonIndex.target >= 0) {
-          commonPath = path22;
+          commonPath = path23;
         } else {
           commonIndex.this++;
         }
@@ -69370,13 +69370,13 @@ var require_introspection = __commonJS({
       if (!binding2.references) return "before";
       const referencePaths = binding2.referencePaths;
       let allStatus;
-      for (const path22 of referencePaths) {
-        const childOfFunction = !!path22.find((path23) => path23.node === target.node);
+      for (const path23 of referencePaths) {
+        const childOfFunction = !!path23.find((path24) => path24.node === target.node);
         if (childOfFunction) continue;
-        if (path22.key !== "callee" || !path22.parentPath.isCallExpression()) {
+        if (path23.key !== "callee" || !path23.parentPath.isCallExpression()) {
           return "unknown";
         }
-        const status2 = _guessExecutionStatusRelativeToCached(base, path22, cache);
+        const status2 = _guessExecutionStatusRelativeToCached(base, path23, cache);
         if (allStatus && allStatus !== status2) {
           return "unknown";
         } else {
@@ -69494,19 +69494,19 @@ var require_introspection = __commonJS({
     }
     function isInStrictMode() {
       const start2 = this.isProgram() ? this : this.parentPath;
-      const strictParent = start2.find((path22) => {
-        if (path22.isProgram({
+      const strictParent = start2.find((path23) => {
+        if (path23.isProgram({
           sourceType: "module"
         })) return true;
-        if (path22.isClass()) return true;
-        if (path22.isArrowFunctionExpression() && !path22.get("body").isBlockStatement()) {
+        if (path23.isClass()) return true;
+        if (path23.isArrowFunctionExpression() && !path23.get("body").isBlockStatement()) {
           return false;
         }
         let body;
-        if (path22.isFunction()) {
-          body = path22.node.body;
-        } else if (path22.isProgram()) {
-          body = path22.node;
+        if (path23.isFunction()) {
+          body = path23.node.body;
+        } else if (path23.isProgram()) {
+          body = path23.node;
         } else {
           return false;
         }
@@ -69555,16 +69555,16 @@ var require_family = __commonJS({
     } = _t;
     var NORMAL_COMPLETION = 0;
     var BREAK_COMPLETION = 1;
-    function NormalCompletion(path22) {
+    function NormalCompletion(path23) {
       return {
         type: NORMAL_COMPLETION,
-        path: path22
+        path: path23
       };
     }
-    function BreakCompletion(path22) {
+    function BreakCompletion(path23) {
       return {
         type: BREAK_COMPLETION,
-        path: path22
+        path: path23
       };
     }
     function getOpposite() {
@@ -69575,9 +69575,9 @@ var require_family = __commonJS({
       }
       return null;
     }
-    function addCompletionRecords(path22, records, context) {
-      if (path22) {
-        records.push(..._getCompletionRecords(path22, context));
+    function addCompletionRecords(path23, records, context) {
+      if (path23) {
+        records.push(..._getCompletionRecords(path23, context));
       }
       return records;
     }
@@ -69627,16 +69627,16 @@ var require_family = __commonJS({
       if (context.canHaveBreak) {
         let lastNormalCompletions = [];
         for (let i3 = 0; i3 < paths.length; i3++) {
-          const path22 = paths[i3];
+          const path23 = paths[i3];
           const newContext = Object.assign({}, context, {
             inCaseClause: false
           });
-          if (path22.isBlockStatement() && (context.inCaseClause || context.shouldPopulateBreak)) {
+          if (path23.isBlockStatement() && (context.inCaseClause || context.shouldPopulateBreak)) {
             newContext.shouldPopulateBreak = true;
           } else {
             newContext.shouldPopulateBreak = false;
           }
-          const statementCompletions = _getCompletionRecords(path22, newContext);
+          const statementCompletions = _getCompletionRecords(path23, newContext);
           if (statementCompletions.length > 0 && statementCompletions.every((c) => c.type === BREAK_COMPLETION)) {
             if (lastNormalCompletions.length > 0 && statementCompletions.every((c) => c.path.isBreakStatement({
               label: null
@@ -69686,35 +69686,35 @@ var require_family = __commonJS({
       }
       return completions;
     }
-    function _getCompletionRecords(path22, context) {
+    function _getCompletionRecords(path23, context) {
       let records = [];
-      if (path22.isIfStatement()) {
-        records = addCompletionRecords(path22.get("consequent"), records, context);
-        records = addCompletionRecords(path22.get("alternate"), records, context);
-      } else if (path22.isDoExpression() || path22.isFor() || path22.isWhile() || path22.isLabeledStatement()) {
-        return addCompletionRecords(path22.get("body"), records, context);
-      } else if (path22.isProgram() || path22.isBlockStatement()) {
-        return getStatementListCompletion(path22.get("body"), context);
-      } else if (path22.isFunction()) {
-        return _getCompletionRecords(path22.get("body"), context);
-      } else if (path22.isTryStatement()) {
-        records = addCompletionRecords(path22.get("block"), records, context);
-        records = addCompletionRecords(path22.get("handler"), records, context);
-      } else if (path22.isCatchClause()) {
-        return addCompletionRecords(path22.get("body"), records, context);
-      } else if (path22.isSwitchStatement()) {
-        return completionRecordForSwitch(path22.get("cases"), records, context);
-      } else if (path22.isSwitchCase()) {
-        return getStatementListCompletion(path22.get("consequent"), {
+      if (path23.isIfStatement()) {
+        records = addCompletionRecords(path23.get("consequent"), records, context);
+        records = addCompletionRecords(path23.get("alternate"), records, context);
+      } else if (path23.isDoExpression() || path23.isFor() || path23.isWhile() || path23.isLabeledStatement()) {
+        return addCompletionRecords(path23.get("body"), records, context);
+      } else if (path23.isProgram() || path23.isBlockStatement()) {
+        return getStatementListCompletion(path23.get("body"), context);
+      } else if (path23.isFunction()) {
+        return _getCompletionRecords(path23.get("body"), context);
+      } else if (path23.isTryStatement()) {
+        records = addCompletionRecords(path23.get("block"), records, context);
+        records = addCompletionRecords(path23.get("handler"), records, context);
+      } else if (path23.isCatchClause()) {
+        return addCompletionRecords(path23.get("body"), records, context);
+      } else if (path23.isSwitchStatement()) {
+        return completionRecordForSwitch(path23.get("cases"), records, context);
+      } else if (path23.isSwitchCase()) {
+        return getStatementListCompletion(path23.get("consequent"), {
           canHaveBreak: true,
           shouldPopulateBreak: false,
           inCaseClause: true,
           shouldPreserveBreak: context.shouldPreserveBreak
         });
-      } else if (path22.isBreakStatement()) {
-        records.push(BreakCompletion(path22));
+      } else if (path23.isBreakStatement()) {
+        records.push(BreakCompletion(path23));
       } else {
-        records.push(NormalCompletion(path22));
+        records.push(NormalCompletion(path23));
       }
       return records;
     }
@@ -69794,19 +69794,19 @@ var require_family = __commonJS({
       }
     }
     function _getPattern(parts, context) {
-      let path22 = this;
+      let path23 = this;
       for (const part of parts) {
         if (part === ".") {
-          path22 = path22.parentPath;
+          path23 = path23.parentPath;
         } else {
-          if (Array.isArray(path22)) {
-            path22 = path22[part];
+          if (Array.isArray(path23)) {
+            path23 = path23[part];
           } else {
-            path22 = path22.get(part, context);
+            path23 = path23.get(part, context);
           }
         }
       }
-      return path22;
+      return path23;
     }
     function getAssignmentIdentifiers() {
       return _getAssignmentIdentifiers(this.node);
@@ -69818,8 +69818,8 @@ var require_family = __commonJS({
       return _getOuterBindingIdentifiers(this.node, duplicates);
     }
     function getBindingIdentifierPaths(duplicates = false, outerOnly = false) {
-      const path22 = this;
-      const search = [path22];
+      const path23 = this;
+      const search = [path23];
       const ids = /* @__PURE__ */ Object.create(null);
       while (search.length) {
         const id3 = search.shift();
@@ -70018,13 +70018,13 @@ var require_path2 = __commonJS({
         }
         const targetNode = container[key2];
         const paths = cache.getOrCreateCachedPaths(parent, parentPath);
-        let path22 = paths.get(targetNode);
-        if (!path22) {
-          path22 = new NodePath(hub, parent);
-          if (targetNode) paths.set(targetNode, path22);
+        let path23 = paths.get(targetNode);
+        if (!path23) {
+          path23 = new NodePath(hub, parent);
+          if (targetNode) paths.set(targetNode, path23);
         }
-        _context.setup.call(path22, parentPath, container, listKey, key2);
-        return path22;
+        _context.setup.call(path23, parentPath, container, listKey, key2);
+        return path23;
       }
       getScope(scope) {
         return this.isScope() ? new _index2.default(this) : scope;
@@ -70058,12 +70058,12 @@ var require_path2 = __commonJS({
       }
       getPathLocation() {
         const parts = [];
-        let path22 = this;
+        let path23 = this;
         do {
-          let key2 = path22.key;
-          if (path22.inList) key2 = `${path22.listKey}[${key2}]`;
+          let key2 = path23.key;
+          if (path23.inList) key2 = `${path23.listKey}[${key2}]`;
           parts.unshift(key2);
-        } while (path22 = path22.parentPath);
+        } while (path23 = path23.parentPath);
         return parts.join(".");
       }
       debug(message) {
@@ -70295,12 +70295,12 @@ var require_context = __commonJS({
           hub
         });
       }
-      maybeQueue(path22, notPriority) {
+      maybeQueue(path23, notPriority) {
         if (this.queue) {
           if (notPriority) {
-            this.queue.push(path22);
+            this.queue.push(path23);
           } else {
-            this.priorityQueue.push(path22);
+            this.priorityQueue.push(path23);
           }
         }
       }
@@ -70329,19 +70329,19 @@ var require_context = __commonJS({
         let stop = false;
         let visitIndex = 0;
         for (; visitIndex < queue.length; ) {
-          const path22 = queue[visitIndex];
+          const path23 = queue[visitIndex];
           visitIndex++;
-          _context.resync.call(path22);
-          if (path22.contexts.length === 0 || path22.contexts[path22.contexts.length - 1] !== this) {
-            _context.pushContext.call(path22, this);
+          _context.resync.call(path23);
+          if (path23.contexts.length === 0 || path23.contexts[path23.contexts.length - 1] !== this) {
+            _context.pushContext.call(path23, this);
           }
-          if (path22.key === null) continue;
+          if (path23.key === null) continue;
           const {
             node: node2
-          } = path22;
+          } = path23;
           if (visited.has(node2)) continue;
           if (node2) visited.add(node2);
-          if (path22.visit()) {
+          if (path23.visit()) {
             stop = true;
             break;
           }
@@ -70387,13 +70387,13 @@ var require_traverse_node = __commonJS({
     var {
       VISITOR_KEYS: VISITOR_KEYS4
     } = _t;
-    function traverseNode(node2, opts, scope, state, path22, skipKeys, visitSelf) {
+    function traverseNode(node2, opts, scope, state, path23, skipKeys, visitSelf) {
       const keys = VISITOR_KEYS4[node2.type];
       if (!keys) return false;
-      const context = new _context.default(scope, opts, state, path22);
+      const context = new _context.default(scope, opts, state, path23);
       if (visitSelf) {
-        if (skipKeys != null && skipKeys[path22.parentKey]) return false;
-        return context.visitQueue([path22]);
+        if (skipKeys != null && skipKeys[path23.parentKey]) return false;
+        return context.visitQueue([path23]);
       }
       for (const key2 of keys) {
         if (skipKeys != null && skipKeys[key2]) continue;
@@ -70475,11 +70475,11 @@ var require_context2 = __commonJS({
       return denylist == null ? void 0 : denylist.includes(this.node.type);
     }
     exports.isBlacklisted = isDenylisted;
-    function restoreContext(path22, context) {
-      if (path22.context !== context) {
-        path22.context = context;
-        path22.state = context.state;
-        path22.opts = context.opts;
+    function restoreContext(path23, context) {
+      if (path23.context !== context) {
+        path23.context = context;
+        path23.state = context.state;
+        path23.opts = context.opts;
       }
     }
     function visit() {
@@ -70519,14 +70519,14 @@ var require_context2 = __commonJS({
     }
     function _forceSetScope() {
       var _this$scope;
-      let path22 = this.parentPath;
-      if ((this.key === "key" || this.listKey === "decorators") && path22.isMethod() || this.key === "discriminant" && path22.isSwitchStatement()) {
-        path22 = path22.parentPath;
+      let path23 = this.parentPath;
+      if ((this.key === "key" || this.listKey === "decorators") && path23.isMethod() || this.key === "discriminant" && path23.isSwitchStatement()) {
+        path23 = path23.parentPath;
       }
       let target;
-      while (path22 && !target) {
-        target = path22.scope;
-        path22 = path22.parentPath;
+      while (path23 && !target) {
+        target = path23.scope;
+        path23 = path23.parentPath;
       }
       this.scope = this.getScope(target);
       (_this$scope = this.scope) == null || _this$scope.init();
@@ -70534,16 +70534,16 @@ var require_context2 = __commonJS({
     function setScope() {
       var _this$opts2, _this$scope2;
       if ((_this$opts2 = this.opts) != null && _this$opts2.noScope) return;
-      let path22 = this.parentPath;
-      if ((this.key === "key" || this.listKey === "decorators") && path22.isMethod() || this.key === "discriminant" && path22.isSwitchStatement()) {
-        path22 = path22.parentPath;
+      let path23 = this.parentPath;
+      if ((this.key === "key" || this.listKey === "decorators") && path23.isMethod() || this.key === "discriminant" && path23.isSwitchStatement()) {
+        path23 = path23.parentPath;
       }
       let target;
-      while (path22 && !target) {
+      while (path23 && !target) {
         var _path$opts;
-        if ((_path$opts = path22.opts) != null && _path$opts.noScope) return;
-        target = path22.scope;
-        path22 = path22.parentPath;
+        if ((_path$opts = path23.opts) != null && _path$opts.noScope) return;
+        target = path23.scope;
+        path23 = path23.parentPath;
       }
       this.scope = this.getScope(target);
       (_this$scope2 = this.scope) == null || _this$scope2.init();
@@ -70651,12 +70651,12 @@ var require_context2 = __commonJS({
       }
     }
     function _getQueueContexts() {
-      let path22 = this;
+      let path23 = this;
       let contexts = this.contexts;
       while (!contexts.length) {
-        path22 = path22.parentPath;
-        if (!path22) break;
-        contexts = path22.contexts;
+        path23 = path23.parentPath;
+        if (!path23) break;
+        contexts = path23.contexts;
       }
       return contexts;
     }
@@ -70727,8 +70727,8 @@ var require_lib8 = __commonJS({
       traverseFast(node2, enter);
       return;
     };
-    traverse10.node = function(node2, opts, scope, state, path22, skipKeys) {
-      (0, _traverseNode.traverseNode)(node2, opts, scope, state, path22, skipKeys);
+    traverse10.node = function(node2, opts, scope, state, path23, skipKeys) {
+      (0, _traverseNode.traverseNode)(node2, opts, scope, state, path23, skipKeys);
     };
     traverse10.clearNode = function(node2, opts) {
       removeProperties(node2, opts);
@@ -70961,84 +70961,84 @@ function localizeFormats(code2, filePath, opts) {
     }
   }
   traverse(ast, {
-    CallExpression(path22) {
-      const callee = path22.node.callee;
-      const [first, second] = path22.node.arguments;
+    CallExpression(path23) {
+      const callee = path23.node.callee;
+      const [first, second] = path23.node.arguments;
       if (t.isIdentifier(callee) && dateFns.has(callee.name) && dateFns.get(callee.name) === "format" && first && t.isStringLiteral(second)) {
         const options = dateOptions(second.value, "date-fns");
         if (options) {
-          replace(path22.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(first.start, first.end)})`);
+          replace(path23.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(first.start, first.end)})`);
           return;
         }
       }
       if (t.isMemberExpression(callee) && t.isIdentifier(callee.property, { name: "format" }) && t.isCallExpression(callee.object) && t.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name) && t.isStringLiteral(first)) {
         const options = dateOptions(first.value, "dayjs");
         if (options) {
-          replace(path22.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(callee.object.start, callee.object.end)}.toDate())`);
+          replace(path23.node, `new Intl.DateTimeFormat(${opts.lang}, ${options}).format(${code2.slice(callee.object.start, callee.object.end)}.toDate())`);
           return;
         }
       }
       const relative3 = t.isIdentifier(callee) && ["formatDistance", "formatDistanceToNow", "formatDistanceStrict", "formatRelative"].includes(dateFns.get(callee.name) ?? "") || t.isMemberExpression(callee) && t.isIdentifier(callee.property) && ["fromNow", "toNow", "from", "to", "calendar"].includes(callee.property.name) && t.isCallExpression(callee.object) && t.isIdentifier(callee.object.callee) && dateLibs.has(callee.object.callee.name);
       if (relative3) {
-        const at2 = path22.node.loc?.start ?? { line: 0, column: 0 };
-        warnings2.push({ filePath, loc: { line: at2.line, column: at2.column }, text: code2.slice(path22.node.start, path22.node.end), reason: "relative time from a date library stays English: use Intl.RelativeTimeFormat with the app language" });
+        const at2 = path23.node.loc?.start ?? { line: 0, column: 0 };
+        warnings2.push({ filePath, loc: { line: at2.line, column: at2.column }, text: code2.slice(path23.node.start, path23.node.end), reason: "relative time from a date library stays English: use Intl.RelativeTimeFormat with the app language" });
       }
-      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property, { name: "localeCompare" }) && path22.node.arguments.length === 1) {
-        changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: "(compared in the app language)" });
-        s.appendLeft(path22.node.arguments[0].end, `, ${opts.lang}`);
+      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property, { name: "localeCompare" }) && path23.node.arguments.length === 1) {
+        changes.push({ line: lineOf2(path23.node), before: code2.slice(path23.node.start, path23.node.end), after: "(compared in the app language)" });
+        s.appendLeft(path23.node.arguments[0].end, `, ${opts.lang}`);
         return;
       }
-      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property) && (callee.property.name === "toUpperCase" || callee.property.name === "toLowerCase") && !path22.node.arguments.length && (path22.parentPath.isJSXExpressionContainer() || t.isCallExpression(callee.object) && t.isIdentifier(callee.object.callee, { name: "t" }))) {
+      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property) && (callee.property.name === "toUpperCase" || callee.property.name === "toLowerCase") && !path23.node.arguments.length && (path23.parentPath.isJSXExpressionContainer() || t.isCallExpression(callee.object) && t.isIdentifier(callee.object.callee, { name: "t" }))) {
         const name = callee.property.name === "toUpperCase" ? "toLocaleUpperCase" : "toLocaleLowerCase";
-        changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: `(${name} in the app language)` });
-        s.overwrite(callee.property.start, path22.node.end, `${name}(${opts.lang})`);
+        changes.push({ line: lineOf2(path23.node), before: code2.slice(path23.node.start, path23.node.end), after: `(${name} in the app language)` });
+        s.overwrite(callee.property.start, path23.node.end, `${name}(${opts.lang})`);
         return;
       }
-      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property, { name: "join" }) && path22.node.arguments.length === 1 && t.isStringLiteral(path22.node.arguments[0]) && /^,\s?$/.test(path22.node.arguments[0].value) && path22.parentPath.isJSXExpressionContainer() && path22.parentPath.parentPath?.isJSXElement()) {
-        replace(path22.node, `new Intl.ListFormat(${opts.lang}, { style: 'short', type: 'unit' }).format(Array.from(${code2.slice(callee.object.start, callee.object.end)}, String))`);
+      if (t.isMemberExpression(callee) && t.isIdentifier(callee.property, { name: "join" }) && path23.node.arguments.length === 1 && t.isStringLiteral(path23.node.arguments[0]) && /^,\s?$/.test(path23.node.arguments[0].value) && path23.parentPath.isJSXExpressionContainer() && path23.parentPath.parentPath?.isJSXElement()) {
+        replace(path23.node, `new Intl.ListFormat(${opts.lang}, { style: 'short', type: 'unit' }).format(Array.from(${code2.slice(callee.object.start, callee.object.end)}, String))`);
         return;
       }
       if (!t.isMemberExpression(callee) || !t.isIdentifier(callee.property) || !TO_LOCALE.has(callee.property.name)) return;
-      const [locale] = path22.node.arguments;
+      const [locale] = path23.node.arguments;
       if (isLocaleLiteral(locale)) replace(locale, opts.lang);
       else if (isDefaultLocale(locale)) {
         if (locale) replace(locale, opts.lang);
         else {
           const open3 = code2.indexOf("(", callee.end);
-          changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: `${code2.slice(path22.node.start, open3 + 1)}${opts.lang}${code2.slice(open3 + 1, path22.node.end)}` });
+          changes.push({ line: lineOf2(path23.node), before: code2.slice(path23.node.start, path23.node.end), after: `${code2.slice(path23.node.start, open3 + 1)}${opts.lang}${code2.slice(open3 + 1, path23.node.end)}` });
           s.appendLeft(open3 + 1, opts.lang);
         }
       }
     },
-    NewExpression(path22) {
-      const callee = path22.node.callee;
+    NewExpression(path23) {
+      const callee = path23.node.callee;
       const intl = t.isMemberExpression(callee) && t.isIdentifier(callee.object, { name: "Intl" }) && t.isIdentifier(callee.property) && INTL.has(callee.property.name);
       if (!intl) return;
-      const [locale] = path22.node.arguments;
+      const [locale] = path23.node.arguments;
       if (isLocaleLiteral(locale)) replace(locale, opts.lang);
       else if (isDefaultLocale(locale) && locale) replace(locale, opts.lang);
       else if (!locale) {
         const open3 = code2.indexOf("(", callee.end);
-        if (open3 !== -1 && open3 < path22.node.end) s.appendLeft(open3 + 1, opts.lang), changes.push({ line: lineOf2(path22.node), before: code2.slice(path22.node.start, path22.node.end), after: "(app language)" });
+        if (open3 !== -1 && open3 < path23.node.end) s.appendLeft(open3 + 1, opts.lang), changes.push({ line: lineOf2(path23.node), before: code2.slice(path23.node.start, path23.node.end), after: "(app language)" });
       }
     },
-    TemplateLiteral(path22) {
-      const { quasis, expressions } = path22.node;
-      const list4 = handBuiltList(path22.node, code2);
+    TemplateLiteral(path23) {
+      const { quasis, expressions } = path23.node;
+      const list4 = handBuiltList(path23.node, code2);
       if (list4) {
-        replace(path22.node, `new Intl.ListFormat(${opts.lang}, { type: '${list4.type}' }).format(${list4.items})`);
+        replace(path23.node, `new Intl.ListFormat(${opts.lang}, { type: '${list4.type}' }).format(${list4.items})`);
         return;
       }
       if (expressions.length !== 1 || quasis[1].value.cooked !== "") return;
-      if (inUrlAttribute(path22)) return;
+      if (inUrlAttribute(path23)) return;
       const symbol = quasis[0].value.cooked ?? "";
       const currency = currencyOf(symbol);
       if (!currency) return;
       const amount = expressions[0];
-      replace(path22.node, currencyFormat(opts.lang, currency, code2.slice(amount.start, amount.end)));
+      replace(path23.node, currencyFormat(opts.lang, currency, code2.slice(amount.start, amount.end)));
     },
-    JSXElement(path22) {
-      const kids = path22.node.children;
+    JSXElement(path23) {
+      const kids = path23.node.children;
       for (let i3 = 0; i3 < kids.length - 1; i3++) {
         const text4 = kids[i3];
         const value = kids[i3 + 1];
@@ -71110,8 +71110,8 @@ var init_locale_formats = __esm({
     };
     SYMBOL_AT_END = new RegExp(`(${[...Object.keys(CURRENCY), "$"].sort((a, b4) => b4.length - a.length).map((k) => k.replace(/\$/g, "\\$")).join("|")})$`);
     URL_ATTRIBUTES = /* @__PURE__ */ new Set(["href", "src", "srcset", "action", "formaction", "poster", "data", "cite", "background", "ping", "to", "url"]);
-    inUrlAttribute = (path22) => {
-      const attr2 = path22.findParent((p) => p.isJSXAttribute());
+    inUrlAttribute = (path23) => {
+      const attr2 = path23.findParent((p) => p.isJSXAttribute());
       if (!attr2 || !attr2.isJSXAttribute()) return false;
       const name = attr2.node.name;
       return URL_ATTRIBUTES.has((t.isJSXIdentifier(name) ? name.name : name.name.name).toLowerCase());
@@ -71151,8 +71151,8 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   }
   const directives = ast.program.directives;
   const directivesEnd = directives.length ? directives[directives.length - 1].end : null;
-  const record = (path22, nodeType, text4, range, kind2, params = [], attributeName, plural, components) => {
-    const loc2 = range.end > range.start ? positionAt(range.start) : path22.node.loc?.start ?? { line: 0, column: 0 };
+  const record = (path23, nodeType, text4, range, kind2, params = [], attributeName, plural, components) => {
+    const loc2 = range.end > range.start ? positionAt(range.start) : path23.node.loc?.start ?? { line: 0, column: 0 };
     if (!plural && (kind2 === "jsxChild" || kind2 === "attrValue" || kind2 === "expression" || kind2 === "trans")) {
       const versions = versionValues(text4, params.map((p) => p.name));
       if (versions) {
@@ -71160,7 +71160,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
         params = [...params, ...versions.params];
       }
     }
-    let hook = resolveHookTarget(path22, code2, !!options.server, !!options.server && kind2 === "trans");
+    let hook = resolveHookTarget(path23, code2, !!options.server, !!options.server && kind2 === "trans");
     let contextual = false;
     if ("reason" in hook && hook.reason === OUTSIDE_COMPONENTS && !options.server && options.richText !== false && !options.richFunction && (kind2 === "jsxChild" || kind2 === "trans") && !plural) {
       hook = { fnStart: -1, componentName: "module", mode: "reuse", insertAt: -1, bodyEnd: -1, indent: "" };
@@ -71172,7 +71172,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       return null;
     }
     const id3 = `str_${extractedStrings.length + 1}`;
-    const owner = path22.findParent((p) => p.isJSXElement());
+    const owner = path23.findParent((p) => p.isJSXElement());
     const element3 = owner ? elementName(owner.node) : void 0;
     extractedStrings.push({
       id: id3,
@@ -71200,22 +71200,22 @@ function parseAndScanComponent(code2, filePath, options = {}) {
     if (s) s.stateDefault = true;
   };
   const consumed = /* @__PURE__ */ new Set();
-  const visitChildren = (path22) => {
-    if (consumed.has(path22.node)) return;
-    const children = withoutEdgeIcons(path22.node.children);
-    const rich = options.richText !== false && !mergeTextRun(children, code2) && !isIgnored(path22, true) ? mergeRichText(children, code2, attributes2, /\.tsx?$/.test(filePath) ? (name) => !fromPackages.has(name) : null) : null;
+  const visitChildren = (path23) => {
+    if (consumed.has(path23.node)) return;
+    const children = withoutEdgeIcons(path23.node.children);
+    const rich = options.richText !== false && !mergeTextRun(children, code2) && !isIgnored(path23, true) ? mergeRichText(children, code2, attributes2, /\.tsx?$/.test(filePath) ? (name) => !fromPackages.has(name) : null) : null;
     if (rich && isTranslatable(rich.text.replace(/<[^>]+>/g, " "))) {
       const first2 = children.find((c) => !isBlankText(c));
-      const firstPath2 = path22.get("children").find((c) => c.node === first2);
+      const firstPath2 = path23.get("children").find((c) => c.node === first2);
       for (const n4 of rich.consumed) consumed.add(n4);
       record(firstPath2, "TemplateLiteral", rich.text, rich.range, "trans", rich.params, void 0, void 0, rich.components);
       return;
     }
     const merged = mergeTextRun(children, code2, options.ordinals !== false);
-    if (!merged || !isTranslatable(merged.text) || isIgnored(path22, true)) return;
+    if (!merged || !isTranslatable(merged.text) || isIgnored(path23, true)) return;
     const first = children.find((c) => !isBlankText(c));
-    const firstPath = path22.get("children").find((c) => c.node === first);
-    for (const c of path22.node.children) if (t2.isJSXText(c)) consumed.add(c);
+    const firstPath = path23.get("children").find((c) => c.node === first);
+    for (const c of path23.node.children) if (t2.isJSXText(c)) consumed.add(c);
     for (const n4 of merged.consumed) consumed.add(n4);
     for (const sub of merged.subs) {
       const id3 = record(firstPath, "TemplateLiteral", sub.plural.other, { start: 0, end: 0 }, "pluralPart", [{ name: "count", source: sub.param.source }], void 0, sub.plural);
@@ -71321,10 +71321,10 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   }
   const renderedImports = [];
   traverse2(ast, {
-    CallExpression(path22) {
-      const callee = path22.node.callee;
-      if (!t2.isIdentifier(callee) || expressionSlot(path22, attributes2) === null) return;
-      const at2 = path22.scope.getBinding(callee.name)?.path;
+    CallExpression(path23) {
+      const callee = path23.node.callee;
+      if (!t2.isIdentifier(callee) || expressionSlot(path23, attributes2) === null) return;
+      const at2 = path23.scope.getBinding(callee.name)?.path;
       if (!at2?.isImportSpecifier() || !at2.parentPath.isImportDeclaration()) return;
       const source2 = at2.parentPath.node.source.value;
       const imported = at2.node.imported;
@@ -71334,48 +71334,48 @@ function parseAndScanComponent(code2, filePath, options = {}) {
   traverse2(ast, {
     JSXElement: visitChildren,
     JSXFragment: visitChildren,
-    JSXText(path22) {
-      if (!t2.isJSXElement(path22.parent) && !t2.isJSXFragment(path22.parent)) return;
-      if (consumed.has(path22.node)) return;
-      if (isIgnored(path22)) return;
-      const { start: start2, end: end2 } = path22.node;
+    JSXText(path23) {
+      if (!t2.isJSXElement(path23.parent) && !t2.isJSXFragment(path23.parent)) return;
+      if (consumed.has(path23.node)) return;
+      if (isIgnored(path23)) return;
+      const { start: start2, end: end2 } = path23.node;
       const raw = code2.slice(start2, end2);
       const lead = raw.length - raw.trimStart().length;
       const trimmed = raw.trim();
       const text4 = normalizeWhitespace(decodeEntities(trimmed));
       if (!isTranslatable(text4)) return;
       if (new RegExp("^\\p{L}$", "u").test(text4)) {
-        const siblings = path22.parent.children;
-        const i3 = siblings.indexOf(path22.node);
+        const siblings = path23.parent.children;
+        const i3 = siblings.indexOf(path23.node);
         if (/^\S/.test(raw) && t2.isJSXExpressionContainer(siblings[i3 - 1]) || /\S$/.test(raw) && t2.isJSXExpressionContainer(siblings[i3 + 1])) return;
       }
-      record(path22, "JSXText", text4, { start: start2 + lead, end: start2 + lead + trimmed.length }, "jsxChild");
+      record(path23, "JSXText", text4, { start: start2 + lead, end: start2 + lead + trimmed.length }, "jsxChild");
     },
-    JSXAttribute(path22) {
-      const name = attributeNameOf(path22.node);
-      const value = path22.node.value;
-      const copyProp = !attributes2.has(name) && t2.isStringLiteral(value) && componentCopyProp(path22, name) && new RegExp("\\p{L}", "u").test(value.value) && (/\s/.test(value.value.trim()) || new RegExp("^\\p{Lu}", "u").test(value.value.trim()));
-      const opening = path22.parentPath;
+    JSXAttribute(path23) {
+      const name = attributeNameOf(path23.node);
+      const value = path23.node.value;
+      const copyProp = !attributes2.has(name) && t2.isStringLiteral(value) && componentCopyProp(path23, name) && new RegExp("\\p{L}", "u").test(value.value) && (/\s/.test(value.value.trim()) || new RegExp("^\\p{Lu}", "u").test(value.value.trim()));
+      const opening = path23.parentPath;
       const metaText = name === "content" && opening?.isJSXOpeningElement() && t2.isJSXIdentifier(opening.node.name, { name: "meta" }) && metaHoldsText(opening.node.attributes.flatMap((a) => t2.isJSXAttribute(a) && t2.isStringLiteral(a.value) ? [{ name: attributeNameOf(a), value: a.value.value }] : []));
       if (!attributes2.has(name) && !copyProp && !metaText) return;
       if (!t2.isStringLiteral(value)) return;
-      if (isIgnored(path22)) return;
+      if (isIgnored(path23)) return;
       const text4 = normalizeWhitespace(value.value);
       if (!isTranslatable(text4)) return;
-      record(path22, "JSXAttribute", text4, { start: value.start, end: value.end }, "attrValue", [], name);
+      record(path23, "JSXAttribute", text4, { start: value.start, end: value.end }, "attrValue", [], name);
     },
     // gender === 'female' ? 'She liked your post' : 'He liked your post': one message with a
     // variant per gender (i18next context), so every language can word each one.
-    ConditionalExpression(path22) {
-      if (t2.isConditionalExpression(path22.parent) && path22.parent.alternate === path22.node) return;
-      const select = genderSelect(path22.node, code2);
-      if (!select || !expressionSlot(path22, attributes2) || isIgnored(path22)) return;
+    ConditionalExpression(path23) {
+      if (t2.isConditionalExpression(path23.parent) && path23.parent.alternate === path23.node) return;
+      const select = genderSelect(path23.node, code2);
+      if (!select || !expressionSlot(path23, attributes2) || isIgnored(path23)) return;
       const texts = select.branches.map((b4) => normalizeWhitespace(b4.literal.value));
       if (!texts.every(isTranslatable)) return;
-      const group = `select_${path22.node.start}`;
+      const group = `select_${path23.node.start}`;
       const before2 = extractedStrings.length;
       const base = select.branches.find((b4) => b4.value === null);
-      record(path22, "StringLiteral", normalizeWhitespace(base.literal.value), { start: path22.node.start, end: path22.node.end }, "select");
+      record(path23, "StringLiteral", normalizeWhitespace(base.literal.value), { start: path23.node.start, end: path23.node.end }, "select");
       if (extractedStrings.length === before2) return;
       extractedStrings[extractedStrings.length - 1].select = { group, value: null };
       sites.get(extractedStrings[extractedStrings.length - 1].id).selectOn = select.on;
@@ -71390,10 +71390,10 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       }
     },
     // 'Hello ' + name + ', welcome' in JSX: one message, `Hello {name}, welcome`.
-    BinaryExpression(path22) {
-      if (path22.node.operator !== "+" || t2.isBinaryExpression(path22.parent) && path22.parent.operator === "+") return;
-      const slot = expressionSlot(path22, attributes2);
-      if (!slot || isIgnored(path22)) return;
+    BinaryExpression(path23) {
+      if (path23.node.operator !== "+" || t2.isBinaryExpression(path23.parent) && path23.parent.operator === "+") return;
+      const slot = expressionSlot(path23, attributes2);
+      if (!slot || isIgnored(path23)) return;
       const parts = [];
       const flatten2 = (n4) => {
         if (t2.isBinaryExpression(n4) && n4.operator === "+") {
@@ -71401,7 +71401,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
           flatten2(n4.right);
         } else parts.push(n4);
       };
-      flatten2(path22.node);
+      flatten2(path23.node);
       if (!parts.some((p) => t2.isStringLiteral(p) && new RegExp("\\p{L}", "u").test(p.value))) return;
       const params = [];
       let text4 = "";
@@ -71421,13 +71421,13 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       text4 = normalizeWhitespace(text4);
       if (!isTranslatable(text4)) return;
       for (const part of parts) consumed.add(part);
-      record(path22, slot.attributeName ? "JSXAttribute" : "TemplateLiteral", text4, { start: path22.node.start, end: path22.node.end }, "expression", params, slot.attributeName);
+      record(path23, slot.attributeName ? "JSXAttribute" : "TemplateLiteral", text4, { start: path23.node.start, end: path23.node.end }, "expression", params, slot.attributeName);
     },
     // document.title = 'Settings · Acme Tasks' (or a template literal with values).
-    AssignmentExpression(path22) {
-      const { left, right } = path22.node;
-      if (!t2.isMemberExpression(left) || !t2.isIdentifier(left.object, { name: "document" }) || !t2.isIdentifier(left.property, { name: "title" }) || isIgnored(path22)) return;
-      const value = path22.get("right");
+    AssignmentExpression(path23) {
+      const { left, right } = path23.node;
+      if (!t2.isMemberExpression(left) || !t2.isIdentifier(left.object, { name: "document" }) || !t2.isIdentifier(left.property, { name: "title" }) || isIgnored(path23)) return;
+      const value = path23.get("right");
       if (t2.isStringLiteral(right)) {
         const text4 = normalizeWhitespace(right.value);
         if (!isTranslatable(text4)) return;
@@ -71451,10 +71451,10 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       }
     },
     // Messages shown through code: setError('…'), toast.error('…'), alert('…'), and zod/yup messages.
-    CallExpression(path22) {
-      const shown = messageCall(path22.node) ?? pushedMessages(path22);
+    CallExpression(path23) {
+      const shown = messageCall(path23.node) ?? pushedMessages(path23);
       if (!shown) return;
-      path22.traverse({
+      path23.traverse({
         StringLiteral(literalPath) {
           const literal5 = literalPath.node;
           if (!shown.literals.includes(literal5) || consumed.has(literal5) || constantStrings.has(literal5)) return;
@@ -71467,45 +71467,45 @@ function parseAndScanComponent(code2, filePath, options = {}) {
             return;
           }
           const id3 = record(literalPath, "StringLiteral", text4, { start: literal5.start, end: literal5.end }, "expression");
-          if (id3 && isStateDefault(path22.node, literal5)) markStateDefault(id3);
+          if (id3 && isStateDefault(path23.node, literal5)) markStateDefault(id3);
         }
       });
     },
-    StringLiteral(path22) {
-      if (consumed.has(path22.node)) return;
-      if (constantStrings.has(path22.node)) return;
-      const slot = expressionSlot(path22, attributes2) ?? (shownListItem(path22) ? {} : null);
-      if (!slot || isIgnored(path22)) return;
-      const text4 = normalizeWhitespace(path22.node.value);
+    StringLiteral(path23) {
+      if (consumed.has(path23.node)) return;
+      if (constantStrings.has(path23.node)) return;
+      const slot = expressionSlot(path23, attributes2) ?? (shownListItem(path23) ? {} : null);
+      if (!slot || isIgnored(path23)) return;
+      const text4 = normalizeWhitespace(path23.node.value);
       if (!isTranslatable(text4)) return;
       record(
-        path22,
+        path23,
         slot.attributeName ? "JSXAttribute" : "StringLiteral",
         text4,
-        { start: path22.node.start, end: path22.node.end },
+        { start: path23.node.start, end: path23.node.end },
         "expression",
         [],
         slot.attributeName
       );
     },
-    TemplateLiteral(path22) {
-      if (t2.isTaggedTemplateExpression(path22.parent) || consumed.has(path22.node)) return;
-      const call7 = path22.parentPath;
-      const shownProse = !!call7?.isCallExpression() && call7.node.arguments[0] === path22.node && !!(messageCall(call7.node) ?? pushedMessages(call7));
-      const slot = expressionSlot(path22, attributes2) ?? (shownProse ? {} : null);
-      if (!slot || isIgnored(path22)) return;
-      if (shownProse && !expressionSlot(path22, attributes2)) {
-        const words = path22.node.quasis.map((q) => q.value.cooked ?? "").join(" x ").trim();
+    TemplateLiteral(path23) {
+      if (t2.isTaggedTemplateExpression(path23.parent) || consumed.has(path23.node)) return;
+      const call7 = path23.parentPath;
+      const shownProse = !!call7?.isCallExpression() && call7.node.arguments[0] === path23.node && !!(messageCall(call7.node) ?? pushedMessages(call7));
+      const slot = expressionSlot(path23, attributes2) ?? (shownProse ? {} : null);
+      if (!slot || isIgnored(path23)) return;
+      if (shownProse && !expressionSlot(path23, attributes2)) {
+        const words = path23.node.quasis.map((q) => q.value.cooked ?? "").join(" x ").trim();
         if (!/\s/.test(words) || !new RegExp("^\\p{Lu}", "u").test(words)) return;
       }
       const params = [];
-      const plurals = path22.node.expressions.map((e2) => pluralTernary(e2));
+      const plurals = path23.node.expressions.map((e2) => pluralTernary(e2));
       const plural = plurals.filter(Boolean).length === 1 ? plurals.find(Boolean) : null;
       if (plural) params.push({ name: "count", source: code2.slice(plural.count.start, plural.count.end) });
       const priced = /* @__PURE__ */ new Set();
-      const placeholders = path22.node.expressions.map((expr, i3) => {
+      const placeholders = path23.node.expressions.map((expr, i3) => {
         if (plural && plurals[i3] === plural) return null;
-        const money2 = moneyPlaceholder(path22.node.quasis[i3].value.cooked ?? "", expr, code2, params);
+        const money2 = moneyPlaceholder(path23.node.quasis[i3].value.cooked ?? "", expr, code2, params);
         if (money2) {
           priced.add(i3);
           if (!params.includes(money2.param)) params.push(money2.param);
@@ -71520,7 +71520,7 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       });
       const build3 = (form) => {
         let template4 = "";
-        path22.node.quasis.forEach((q, idx) => {
+        path23.node.quasis.forEach((q, idx) => {
           const quasi2 = q.value.cooked ?? q.value.raw;
           template4 += priced.has(idx) ? quasi2.slice(0, -currencyAtEnd(quasi2, money?.currency).symbol.length) : quasi2;
           if (idx < placeholders.length) template4 += placeholders[idx] === null ? plural[form] : `{${placeholders[idx]}}`;
@@ -71530,16 +71530,16 @@ function parseAndScanComponent(code2, filePath, options = {}) {
       const text4 = build3("other");
       if (!isTranslatable(text4)) return;
       const id3 = record(
-        path22,
+        path23,
         slot.attributeName ? "JSXAttribute" : "TemplateLiteral",
         text4,
-        { start: path22.node.start, end: path22.node.end },
+        { start: path23.node.start, end: path23.node.end },
         "expression",
         params,
         slot.attributeName,
         plural ? { one: build3("one"), other: text4 } : void 0
       );
-      if (id3 && call7?.isCallExpression() && isStateDefault(call7.node, path22.node)) markStateDefault(id3);
+      if (id3 && call7?.isCallExpression() && isStateDefault(call7.node, path23.node)) markStateDefault(id3);
     }
   });
   return {
@@ -71852,7 +71852,7 @@ function moneyPlaceholder(before2, expr, code2, taken) {
   const source2 = currencyFormat(money.lang, found2.currency, code2.slice(expr.start, expr.end));
   return { symbol: found2.symbol, param: taken.find((p) => p.source === source2) ?? { name: uniqueName(paramNameFor(amount), taken), source: source2 } };
 }
-function isIgnored(path22, includeSelf = false) {
+function isIgnored(path23, includeSelf = false) {
   const test = (p) => {
     if (!p.isJSXElement()) return false;
     if (IGNORED_ELEMENTS.has(elementName(p.node))) return true;
@@ -71864,7 +71864,7 @@ function isIgnored(path22, includeSelf = false) {
       return name === "translate" && t2.isStringLiteral(a.value) && a.value.value === "no";
     });
   };
-  return includeSelf && test(path22) || !!path22.findParent(test);
+  return includeSelf && test(path23) || !!path23.findParent(test);
 }
 function genderSelect(node2, code2) {
   const branches2 = [];
@@ -71941,14 +71941,14 @@ function messageCall(call7) {
   }
   return null;
 }
-function pushedMessages(path22) {
-  const callee = path22.node.callee;
+function pushedMessages(path23) {
+  const callee = path23.node.callee;
   if (!t2.isMemberExpression(callee) || !t2.isIdentifier(callee.object) || !t2.isIdentifier(callee.property) || !/^(push|unshift)$/.test(callee.property.name)) return null;
   const list4 = callee.object.name;
-  const binding2 = path22.scope.getBinding(list4);
+  const binding2 = path23.scope.getBinding(list4);
   const shown = /(errors|warnings|messages|problems|issues|notices|alerts)$/i.test(list4) || !!binding2?.referencePaths.some((r) => r.parentPath?.isCallExpression() && t2.isIdentifier(r.parentPath.node.callee) && SETTER.test(r.parentPath.node.callee.name) && r.parentPath.node.arguments.includes(r.node));
   if (!shown) return null;
-  return { literals: path22.node.arguments.filter((a) => t2.isStringLiteral(a)), prose: true };
+  return { literals: path23.node.arguments.filter((a) => t2.isStringLiteral(a)), prose: true };
 }
 function languageTagged(list4) {
   const languages = /* @__PURE__ */ new Set();
@@ -72043,26 +72043,26 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
     return { reads, followed, ignored };
   };
   traverse2(ast, {
-    ImportDeclaration(path22) {
+    ImportDeclaration(path23) {
       if (!imported || !external) return;
-      const copy = imported(path22.node.source.value);
+      const copy = imported(path23.node.source.value);
       if (!copy) return;
-      for (const spec2 of path22.node.specifiers) {
+      for (const spec2 of path23.node.specifiers) {
         if (!t2.isImportSpecifier(spec2)) continue;
         const name = t2.isIdentifier(spec2.imported) ? spec2.imported.name : spec2.imported.value;
         const info2 = copy.get(name);
-        const binding2 = info2 && path22.scope.getBinding(spec2.local.name);
+        const binding2 = info2 && path23.scope.getBinding(spec2.local.name);
         if (!info2 || !binding2?.referencePaths.length) continue;
         const { reads, followed } = follow(binding2, new Set(info2.fields), info2.kind === "list", info2.kind === "lookup");
         const hooks = reads.map((r) => hookFor(r.path));
-        external(path22.node.source.value, name, followed && reads.length && hooks.every(Boolean) ? reads.map((r, i3) => ({ path: r.path, hook: hooks[i3] })) : null);
+        external(path23.node.source.value, name, followed && reads.length && hooks.every(Boolean) ? reads.map((r, i3) => ({ path: r.path, hook: hooks[i3] })) : null);
       }
     },
-    VariableDeclarator(path22) {
-      if (!path22.parentPath.parentPath?.isProgram() && !path22.parentPath.parentPath?.isExportNamedDeclaration()) return;
-      if (!t2.isIdentifier(path22.node.id)) return;
-      const name = path22.node.id.name;
-      const init2 = unwrap2(path22.node.init);
+    VariableDeclarator(path23) {
+      if (!path23.parentPath.parentPath?.isProgram() && !path23.parentPath.parentPath?.isExportNamedDeclaration()) return;
+      if (!t2.isIdentifier(path23.node.id)) return;
+      const name = path23.node.id.name;
+      const init2 = unwrap2(path23.node.init);
       const copy = /* @__PURE__ */ new Map();
       const collect = (obj) => {
         if (!t2.isObjectExpression(obj)) return;
@@ -72087,7 +72087,7 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
         const texts = items.map((s) => normalizeWhitespace(s.value));
         if (texts.every(isTranslatable) && texts.some((x) => /\s/.test(x) && new RegExp("^\\p{Lu}", "u").test(x))) copy.set(ITEM, items);
       }
-      const binding2 = path22.scope.getBinding(name);
+      const binding2 = path23.scope.getBinding(name);
       if (!binding2) return;
       if (!isLookup && !(isList && languageTagged(init2))) {
         const others = /* @__PURE__ */ new Map();
@@ -72107,13 +72107,13 @@ function scanConstants(ast, add, hookFor, use, report, move, imported, external)
         }
       }
       if (!copy.size) return;
-      if (path22.parentPath.parentPath?.isExportNamedDeclaration() && !binding2.referencePaths.length) return;
+      if (path23.parentPath.parentPath?.isExportNamedDeclaration() && !binding2.referencePaths.length) return;
       const { reads, followed, ignored } = follow(binding2, new Set(copy.keys()), isList, isLookup);
       if (followed && !reads.length && ignored) return;
       const hooks = reads.map((r) => hookFor(r.path));
       if (!followed || !reads.length || hooks.some((h) => !h)) {
         const literals = [...copy.values()].flat();
-        const why = move(path22, new Set(isLookup ? [] : copy.keys()), literals);
+        const why = move(path23, new Set(isLookup ? [] : copy.keys()), literals);
         if (why === null) return;
         for (const l2 of literals) report(l2, normalizeWhitespace(l2.value), `copy in the constant ${name}, ${why}: build it with t() in the component that renders it`);
         return;
@@ -72223,8 +72223,8 @@ function scanHelpers(ast, code2, add, hookFor, subscribe) {
     }
   });
 }
-function expressionSlot(path22, attributes2) {
-  let current2 = path22;
+function expressionSlot(path23, attributes2) {
+  let current2 = path23;
   for (; ; ) {
     const parent = current2.parentPath;
     if (!parent) return null;
@@ -72247,8 +72247,8 @@ function expressionSlot(path22, attributes2) {
     }
   }
 }
-function shownListItem(path22) {
-  const list4 = path22.parentPath;
+function shownListItem(path23) {
+  const list4 = path23.parentPath;
   const member2 = list4?.parentPath;
   const call7 = member2?.parentPath;
   if (!list4?.isArrayExpression() || !member2?.isMemberExpression() || member2.node.object !== list4.node || member2.node.computed || !t2.isIdentifier(member2.node.property, { name: "map" })) return false;
@@ -72304,12 +72304,12 @@ function componentNameOf(fn2) {
   if (holder.isExportDefaultDeclaration()) return "default";
   return null;
 }
-function resolveHookTarget(path22, code2, server = false, needsI18n = false) {
-  let fn2 = path22.getFunctionParent();
+function resolveHookTarget(path23, code2, server = false, needsI18n = false) {
+  let fn2 = path23.getFunctionParent();
   let name = null;
   while (fn2) {
-    if (fn2.isClassMethod() || fn2.isClassPrivateMethod()) return classTarget(fn2, fn2, path22, code2, server);
-    if (fn2.parentPath.isClassProperty() || fn2.parentPath.isClassPrivateProperty()) return classTarget(fn2, fn2.parentPath, path22, code2, server);
+    if (fn2.isClassMethod() || fn2.isClassPrivateMethod()) return classTarget(fn2, fn2, path23, code2, server);
+    if (fn2.parentPath.isClassProperty() || fn2.parentPath.isClassPrivateProperty()) return classTarget(fn2, fn2.parentPath, path23, code2, server);
     name = componentNameOf(fn2);
     if (name) break;
     fn2 = fn2.parentPath.getFunctionParent();
@@ -72317,7 +72317,7 @@ function resolveHookTarget(path22, code2, server = false, needsI18n = false) {
   if (!fn2 || !name) return { reason: OUTSIDE_COMPONENTS };
   if (fn2.node.async && !server) return { reason: `component ${name} is async (server component?)` };
   if (server && fn2.node.generator) return { reason: `component ${name} is a generator` };
-  const binding2 = path22.scope.getBinding("t");
+  const binding2 = path23.scope.getBinding("t");
   const base = {
     fnStart: fn2.node.start,
     componentName: name,
@@ -72333,13 +72333,13 @@ function resolveHookTarget(path22, code2, server = false, needsI18n = false) {
     if (needsI18n && decl.isVariableDeclarator() && t2.isObjectPattern(decl.node.id)) {
       const props = decl.node.id.properties;
       if (!props.some((p) => t2.isObjectProperty(p) && t2.isIdentifier(p.key, { name: "i18n" }))) {
-        if (path22.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
+        if (path23.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
         addI18nAt = props[props.length - 1].end;
       }
     }
     return { ...base, mode: "reuse", insertAt: -1, bodyEnd: -1, indent: "", ...addI18nAt !== void 0 ? { addI18nAt } : {} };
   }
-  if (needsI18n && path22.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
+  if (needsI18n && path23.scope.getBinding("i18n")) return { reason: `identifier "i18n" is already bound in ${name}` };
   const body = fn2.node.body;
   if (t2.isBlockStatement(body)) {
     const first = body.body[0];
@@ -72362,11 +72362,11 @@ function resolveHookTarget(path22, code2, server = false, needsI18n = false) {
   const indent2 = /^[ \t]*/.exec(code2.slice(lineStart))[0];
   return { ...base, mode: "wrapExpression", insertAt: start2, bodyEnd: end2, indent: indent2 };
 }
-function classTarget(fn2, member2, path22, code2, server) {
+function classTarget(fn2, member2, path23, code2, server) {
   const cls = member2.parentPath?.parentPath;
   if (server || !cls?.isClassDeclaration() || !cls.node.id || !isComponentClass(cls.node.superClass)) return { reason: "inside a class (not a React component)" };
   const name = cls.node.id.name;
-  if (member2.node.static || fn2.isClassMethod() && fn2.node.kind !== "method") return globalClassTarget(fn2, path22, code2, name);
+  if (member2.node.static || fn2.isClassMethod() && fn2.node.kind !== "method") return globalClassTarget(fn2, path23, code2, name);
   const program2 = cls.parentPath.isProgram() ? cls.parentPath.node : cls.parentPath.parentPath?.node;
   if (!program2 || !t2.isProgram(program2)) return { reason: `class component ${name} isn't declared at the top of the file` };
   const typeParams = cls.node.superTypeParameters?.params;
@@ -72377,10 +72377,10 @@ function classTarget(fn2, member2, path22, code2, server) {
   } else {
     const ref2 = program2.body.find((n4) => t2.isExportDefaultDeclaration(n4) && t2.isIdentifier(n4.declaration, { name }));
     if (ref2) wrap = { className: name, refStart: ref2.declaration.start, refEnd: ref2.declaration.end, ...typed };
-    else if (!new RegExp(`withTranslation\\([^)]*\\)\\(\\s*${name}\\s*\\)`).test(code2)) return unwrappedClassTarget(fn2, path22, code2, name);
+    else if (!new RegExp(`withTranslation\\([^)]*\\)\\(\\s*${name}\\s*\\)`).test(code2)) return unwrappedClassTarget(fn2, path23, code2, name);
   }
   const base = { fnStart: fn2.node.start, componentName: name, bodyEnd: -1, ...wrap ? { wrap } : {} };
-  const binding2 = path22.scope.getBinding("t");
+  const binding2 = path23.scope.getBinding("t");
   if (binding2) {
     const init2 = binding2.path.isVariableDeclarator() ? binding2.path.node.init : null;
     const fromProps = t2.isMemberExpression(init2) && t2.isThisExpression(init2.object) && t2.isIdentifier(init2.property, { name: "props" });
@@ -72393,8 +72393,8 @@ function classTarget(fn2, member2, path22, code2, server) {
   const lineStart = code2.lastIndexOf("\n", first.start - 1) + 1;
   return { ...base, mode: "classMethod", insertAt: first.start, indent: /^[ \t]*/.exec(code2.slice(lineStart))[0] };
 }
-function unwrappedClassTarget(fn2, path22, code2, name) {
-  if (path22.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
+function unwrappedClassTarget(fn2, path23, code2, name) {
+  if (path23.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
   if (fn2.isClassMethod() && t2.isIdentifier(fn2.node.key, { name: "render" })) {
     const body = fn2.node.body.body;
     if (!body.length) return { reason: `${name}'s render() is empty` };
@@ -72402,10 +72402,10 @@ function unwrappedClassTarget(fn2, path22, code2, name) {
     const lineStart = code2.lastIndexOf("\n", first.start - 1) + 1;
     return { fnStart: fn2.node.start, componentName: name, mode: "classRender", insertAt: first.start, bodyEnd: body[body.length - 1].end, indent: /^[ \t]*/.exec(code2.slice(lineStart))[0] };
   }
-  return globalClassTarget(fn2, path22, code2, name);
+  return globalClassTarget(fn2, path23, code2, name);
 }
-function globalClassTarget(fn2, path22, code2, name) {
-  if (path22.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
+function globalClassTarget(fn2, path23, code2, name) {
+  if (path23.scope.getBinding("t")) return { reason: `identifier "t" is already bound in ${name}` };
   const body = fn2.node.body;
   if (!t2.isBlockStatement(body) || !body.body.length) return { reason: `in a one-line arrow in ${name}: give it a block body` };
   const superAt = body.body.findIndex((s) => t2.isExpressionStatement(s) && t2.isCallExpression(s.expression) && t2.isSuper(s.expression.callee));
@@ -72416,15 +72416,15 @@ function globalClassTarget(fn2, path22, code2, name) {
 }
 function scanActionStates(ast, add, hookFor, use, report) {
   traverse2(ast, {
-    CallExpression(path22) {
-      const callee = path22.node.callee;
+    CallExpression(path23) {
+      const callee = path23.node.callee;
       const named2 = t2.isIdentifier(callee) ? callee.name : t2.isMemberExpression(callee) && t2.isIdentifier(callee.property) ? callee.property.name : "";
       if (!/^use(ActionState|FormState)$/.test(named2)) return;
-      const decl = path22.parentPath;
+      const decl = path23.parentPath;
       if (!decl.isVariableDeclarator() || !t2.isArrayPattern(decl.node.id) || !t2.isIdentifier(decl.node.id.elements[0])) return;
-      const fnRef = path22.node.arguments[0];
+      const fnRef = path23.node.arguments[0];
       if (!t2.isIdentifier(fnRef)) return;
-      const fnPath = path22.scope.getBinding(fnRef.name)?.path;
+      const fnPath = path23.scope.getBinding(fnRef.name)?.path;
       const fn2 = fnPath?.isFunctionDeclaration() ? fnPath.node : fnPath?.isVariableDeclarator() && (t2.isArrowFunctionExpression(fnPath.node.init) || t2.isFunctionExpression(fnPath.node.init)) ? fnPath.node.init : null;
       if (!fn2) return;
       const copy = /* @__PURE__ */ new Map();
@@ -72856,9 +72856,9 @@ function walk(node2, state, visitors6) {
   const stop = () => {
     stopped = true;
   };
-  function visit_children(node3, path22, state2) {
+  function visit_children(node3, path23, state2) {
     let mutations = null;
-    path22.push(node3);
+    path23.push(node3);
     for (const key2 in node3) {
       if (key2 === "type" || // avoid manipulating the prototype
       key2 === "__proto__") {
@@ -72872,7 +72872,7 @@ function walk(node2, state, visitors6) {
           for (let i3 = 0; i3 < len; i3++) {
             const node4 = child_node[i3];
             if (node4 && typeof node4 === "object") {
-              const result = visit(node4, path22, state2);
+              const result = visit(node4, path23, state2);
               if (result) {
                 (mutated_array ??= child_node.slice())[i3] = result;
               }
@@ -72885,7 +72885,7 @@ function walk(node2, state, visitors6) {
           const result = visit(
             /** @type {T} */
             child_node,
-            path22,
+            path23,
             state2
           );
           if (result) {
@@ -72894,12 +72894,12 @@ function walk(node2, state, visitors6) {
         }
       }
     }
-    path22.pop();
+    path23.pop();
     if (mutations) {
       return apply_mutations(node3, mutations);
     }
   }
-  function visit(node3, path22, state2) {
+  function visit(node3, path23, state2) {
     if (stopped) return;
     if (!node3.type) return;
     const visitor = (
@@ -72910,28 +72910,28 @@ function walk(node2, state, visitors6) {
       ]
     );
     if (!universal && !visitor) {
-      return visit_children(node3, path22, state2);
+      return visit_children(node3, path23, state2);
     }
     let result;
     let next_result;
-    const next2 = (next_state = state2) => next_result = visit_children(node3, path22, next_state);
+    const next2 = (next_state = state2) => next_result = visit_children(node3, path23, next_state);
     const visit_node = (next_node, next_state = state2) => {
-      path22.push(node3);
-      const result2 = visit(next_node, path22, next_state) ?? next_node;
-      path22.pop();
+      path23.push(node3);
+      const result2 = visit(next_node, path23, next_state) ?? next_node;
+      path23.pop();
       return result2;
     };
     if (universal) {
       let inner_result;
       result = universal(node3, {
         // Don't spread for performance reasons
-        path: path22,
+        path: path23,
         state: state2,
         /** @param {U} next_state */
         next: (next_state = state2) => {
           state2 = next_state;
           inner_result = visitor ? visitor(node3, {
-            path: path22,
+            path: path23,
             state: next_state,
             next: next2,
             stop,
@@ -72948,7 +72948,7 @@ function walk(node2, state, visitors6) {
     } else {
       result = /** @type {Visitor<T, U, T>} */
       visitor(node3, {
-        path: path22,
+        path: path23,
         state: state2,
         next: next2,
         stop,
@@ -74632,8 +74632,8 @@ function convert(source2, ast) {
           else: elseblock
         };
       },
-      ExpressionTag(node2, { path: path22 }) {
-        const parent = path22.at(-1);
+      ExpressionTag(node2, { path: path23 }) {
+        const parent = path23.at(-1);
         if (parent?.type === "Attribute") {
           if (source2[parent.start] === "{") {
             return {
@@ -74765,14 +74765,14 @@ function convert(source2, ast) {
           )
         };
       },
-      Attribute(node2, { visit, next: next2, path: path22 }) {
+      Attribute(node2, { visit, next: next2, path: path23 }) {
         if (node2.value !== true && !Array.isArray(node2.value)) {
-          path22.push(node2);
+          path23.push(node2);
           const value = (
             /** @type {Legacy.LegacyAttribute['value']} */
             [visit(node2.value)]
           );
-          path22.pop();
+          path23.pop();
           return {
             ...node2,
             value
@@ -74781,14 +74781,14 @@ function convert(source2, ast) {
           return next2();
         }
       },
-      StyleDirective(node2, { visit, next: next2, path: path22 }) {
+      StyleDirective(node2, { visit, next: next2, path: path23 }) {
         if (node2.value !== true && !Array.isArray(node2.value)) {
-          path22.push(node2);
+          path23.push(node2);
           const value = (
             /** @type {Legacy.LegacyStyleDirective['value']} */
             [visit(node2.value)]
           );
-          path22.pop();
+          path23.pop();
           return {
             ...node2,
             value
@@ -74981,8 +74981,8 @@ function convert(source2, ast) {
           )
         };
       },
-      Text(node2, { path: path22 }) {
-        const parent = path22.at(-1);
+      Text(node2, { path: path23 }) {
+        const parent = path23.at(-1);
         if (parent?.type === "RegularElement" && parent.name === "style") {
           return (
             /** @type {AST.Text} */
@@ -87317,7 +87317,7 @@ function get_comment_handlers(source2, comments, index = 0) {
       if (comments.length === 0) return;
       comments = comments.filter((comment) => comment.start >= index).map(({ type, value, start: start2, end: end2 }) => ({ type, value, start: start2, end: end2 }));
       walk(ast, null, {
-        _(node2, { next: next2, path: path22 }) {
+        _(node2, { next: next2, path: path23 }) {
           let comment;
           while (comments[0] && comments[0].start < node2.start) {
             comment = /** @type {CommentWithLocation} */
@@ -87328,7 +87328,7 @@ function get_comment_handlers(source2, comments, index = 0) {
           if (comments[0]) {
             const parent = (
               /** @type {any} */
-              path22.at(-1)
+              path23.at(-1)
             );
             if (parent === void 0 || node2.end !== parent.end) {
               const slice = source2.slice(node2.end, comments[0].start);
@@ -87815,8 +87815,8 @@ function member(object4, property2, computed = false, optional = false) {
   }
   return { type: "MemberExpression", object: object4, property: property2, computed, optional };
 }
-function member_id(path22) {
-  const parts = path22.split(".");
+function member_id(path23) {
+  const parts = path23.split(".");
   let expression = id(parts[0]);
   for (let i3 = 1; i3 < parts.length; i3 += 1) {
     expression = member(expression, id(parts[i3]));
@@ -88054,8 +88054,8 @@ function extract_all_identifiers_from_expression(expr) {
     expr,
     {},
     {
-      Identifier(node2, { path: path22 }) {
-        const parent = path22.at(-1);
+      Identifier(node2, { path: path23 }) {
+        const parent = path23.at(-1);
         if (parent?.type !== "MemberExpression" || parent.property !== node2 || parent.computed) {
           nodes.push(node2);
         }
@@ -88065,9 +88065,9 @@ function extract_all_identifiers_from_expression(expr) {
           keypath.push(node2.name);
         }
       },
-      Literal(node2, { path: path22 }) {
+      Literal(node2, { path: path23 }) {
         const value = typeof node2.value === "string" ? `"${node2.value}"` : String(node2.value);
-        const parent = path22.at(-1);
+        const parent = path23.at(-1);
         if (parent?.type === "MemberExpression" && parent.computed && parent.property === node2) {
           keypath.push(`[${value}]`);
         } else {
@@ -88249,12 +88249,12 @@ function _extract_paths(paths, inserts, param, expression, update_expression, ha
   }
   return paths;
 }
-function get_parent(path22, at2) {
-  let node2 = path22.at(at2);
+function get_parent(path23, at2) {
+  let node2 = path23.at(at2);
   if (node2.type === "TSNonNullExpression" || node2.type === "TSAsExpression") {
     return (
       /** @type {T} */
-      path22.at(at2 < 0 ? at2 - 1 : at2 + 1)
+      path23.at(at2 < 0 ? at2 - 1 : at2 + 1)
     );
   }
   return (
@@ -94018,8 +94018,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       context.visit(child, state2);
     }
   };
-  const SvelteDirective = (node2, { state: state2, path: path22, visit }) => {
-    state2.scope.reference(id(node2.name.split(".")[0]), path22);
+  const SvelteDirective = (node2, { state: state2, path: path23, visit }) => {
+    state2.scope.reference(id(node2.name.split(".")[0]), path23);
     if (node2.expression) {
       visit(node2.expression);
     }
@@ -94033,8 +94033,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       context.next();
     },
     // references
-    Identifier(node2, { path: path22, state: state2 }) {
-      const parent2 = path22.at(-1);
+    Identifier(node2, { path: path23, state: state2 }) {
+      const parent2 = path23.at(-1);
       if (parent2 && is_reference(
         node2,
         /** @type {Node} */
@@ -94043,11 +94043,11 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       // but for the migration they aren't, so we need to filter them out here
       // TODO -> once migration script is gone we can remove this check
       !parent2.type.startsWith("TS")) {
-        references.push([state2.scope, { node: node2, path: path22.slice() }]);
+        references.push([state2.scope, { node: node2, path: path23.slice() }]);
       }
     },
-    LabeledStatement(node2, { path: path22, next: next2 }) {
-      if (path22.length > 1 || !allow_reactive_declarations) return next2();
+    LabeledStatement(node2, { path: path23, next: next2 }) {
+      if (path23.length > 1 || !allow_reactive_declarations) return next2();
       if (node2.label.name !== "$") return next2();
       const scope2 = state.scope.child();
       scopes.set(node2, scope2);
@@ -94148,8 +94148,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
       if (node2.id) state2.scope.declare(node2.id, "normal", "let", node2);
       next2();
     },
-    VariableDeclaration(node2, { state: state2, path: path22, next: next2 }) {
-      const is_parent_const_tag = path22.at(-1)?.type === "ConstTag";
+    VariableDeclaration(node2, { state: state2, path: path23, next: next2 }) {
+      const is_parent_const_tag = path23.at(-1)?.type === "ConstTag";
       for (const declarator2 of node2.declarations) {
         const bindings = [];
         state2.scope.declarators.set(declarator2, bindings);
@@ -94307,9 +94307,9 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
     // handled by `Identifier`. This is the special case for the shorthand
     // eg <button style:height /> where the variable has the same name of
     // the css property
-    StyleDirective(node2, { path: path22, state: state2, next: next2 }) {
+    StyleDirective(node2, { path: path23, state: state2, next: next2 }) {
       if (node2.value === true) {
-        state2.scope.reference(id(node2.name), path22.concat(node2));
+        state2.scope.reference(id(node2.name), path23.concat(node2));
       }
       next2();
     }
@@ -94320,8 +94320,8 @@ function create_scopes(ast, root, allow_reactive_declarations, parent) {
     if (binding2) continue;
     scope.declare(id3, "legacy_reactive", "let");
   }
-  for (const [scope2, { node: node2, path: path22 }] of references) {
-    scope2.reference(node2, path22);
+  for (const [scope2, { node: node2, path: path23 }] of references) {
+    scope2.reference(node2, path23);
   }
   for (const [scope2, node2, value] of updates) {
     for (const expression of unwrap_pattern(node2)) {
@@ -95033,16 +95033,16 @@ var init_scope = __esm({
        * @param {Identifier} node
        * @param {AST.SvelteNode[]} path
        */
-      reference(node2, path22) {
-        path22 = [...path22];
+      reference(node2, path23) {
+        path23 = [...path23];
         let references = this.references.get(node2.name);
         if (!references) this.references.set(node2.name, references = []);
-        references.push({ node: node2, path: path22 });
+        references.push({ node: node2, path: path23 });
         const binding2 = this.declarations.get(node2.name);
         if (binding2) {
-          binding2.references.push({ node: node2, path: path22 });
+          binding2.references.push({ node: node2, path: path23 });
         } else if (this.parent) {
-          this.parent.reference(node2, path22);
+          this.parent.reference(node2, path23);
         } else {
           this.root.conflicts.add(node2.name);
         }
@@ -95302,11 +95302,11 @@ var init_utils2 = __esm({
 function is_global_block_selector(simple_selector) {
   return simple_selector.type === "PseudoClassSelector" && simple_selector.name === "global" && simple_selector.args === null;
 }
-function is_unscoped(path22) {
-  return path22.filter((node2) => node2.type === "Rule").every((node2) => node2.metadata.has_global_selectors);
+function is_unscoped(path23) {
+  return path23.filter((node2) => node2.type === "Rule").every((node2) => node2.metadata.has_global_selectors);
 }
-function is_in_global_block(path22) {
-  return path22.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
+function is_in_global_block(path23) {
+  return path23.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
 }
 function analyze_css(stylesheet, analysis) {
   const css_state = {
@@ -95975,10 +95975,10 @@ function unquote(str2) {
 }
 function get_ancestor_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ new Set()) {
   const ancestors = [];
-  const path22 = node2.metadata.path;
-  let i3 = path22.length;
+  const path23 = node2.metadata.path;
+  let i3 = path23.length;
   while (i3--) {
-    const parent = path22[i3];
+    const parent = path23[i3];
     if (parent.type === "SnippetBlock") {
       if (!seen2.has(parent)) {
         seen2.add(parent);
@@ -95991,7 +95991,7 @@ function get_ancestor_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ new
     if (parent.type === "RegularElement" || parent.type === "SvelteElement") {
       if (parent.type === "RegularElement" && parent.name === "option") {
         const is_direct_child = ancestors.length === 0;
-        const select_element = path22.findLast(
+        const select_element = path23.findLast(
           (element3, j) => element3.type === "RegularElement" && element3.name === "select" && j < i3
         );
         if (select_element && (!adjacent_only || is_direct_child)) {
@@ -96045,8 +96045,8 @@ function get_descendant_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ n
   }
   walk_children(node2.type === "RenderTag" ? node2 : node2.fragment);
   if (node2.type === "RegularElement" && node2.name === "selectedcontent") {
-    const path22 = node2.metadata.path;
-    const select_element = path22.findLast(
+    const path23 = node2.metadata.path;
+    const select_element = path23.findLast(
       (element3) => element3.type === "RegularElement" && element3.name === "select"
     );
     if (select_element) {
@@ -96070,10 +96070,10 @@ function get_descendant_elements(node2, adjacent_only, seen2 = /* @__PURE__ */ n
   return descendants;
 }
 function get_element_parent(node2) {
-  let path22 = node2.metadata.path;
-  let i3 = path22.length;
+  let path23 = node2.metadata.path;
+  let i3 = path23.length;
   while (i3--) {
-    const parent = path22[i3];
+    const parent = path23[i3];
     if (parent.type === "RegularElement" || parent.type === "SvelteElement") {
       return parent;
     }
@@ -96082,13 +96082,13 @@ function get_element_parent(node2) {
 }
 function get_possible_element_siblings(node2, direction, adjacent_only, seen2 = /* @__PURE__ */ new Set()) {
   const result = /* @__PURE__ */ new Map();
-  const path22 = node2.metadata.path;
+  const path23 = node2.metadata.path;
   let current2 = node2;
-  let i3 = path22.length;
+  let i3 = path23.length;
   while (i3--) {
     const fragment2 = (
       /** @type {Compiler.AST.Fragment} */
-      path22[i3--]
+      path23[i3--]
     );
     let j = fragment2.nodes.indexOf(current2) + (direction === FORWARD ? 1 : -1);
     while (j >= 0 && j < fragment2.nodes.length) {
@@ -96122,7 +96122,7 @@ function get_possible_element_siblings(node2, direction, adjacent_only, seen2 = 
       }
       j = direction === FORWARD ? j + 1 : j - 1;
     }
-    current2 = path22[i3];
+    current2 = path23[i3];
     if (!current2) break;
     if (current2.type === "Component" || current2.type === "SvelteComponent" || current2.type === "SvelteSelf") {
       continue;
@@ -96610,10 +96610,10 @@ var init_AnimateDirective = __esm({
 });
 
 // ../../node_modules/svelte/src/compiler/phases/2-analyze/visitors/shared/fragment.js
-function mark_subtree_dynamic(path22) {
-  let i3 = path22.length;
+function mark_subtree_dynamic(path23) {
+  let i3 = path23.length;
   while (i3--) {
-    const node2 = path22[i3];
+    const node2 = path23[i3];
     if (node2.type === "Fragment") {
       if (node2.metadata.dynamic) return;
       node2.metadata.dynamic = true;
@@ -96759,11 +96759,11 @@ function AwaitExpression(node2, context) {
   }
   context.next();
 }
-function is_reactive_expression(path22, in_derived) {
+function is_reactive_expression(path23, in_derived) {
   if (in_derived) return true;
-  let i3 = path22.length;
+  let i3 = path23.length;
   while (i3--) {
-    const parent = path22[i3];
+    const parent = path23[i3];
     if (parent.type === "ArrowFunctionExpression" || parent.type === "FunctionExpression" || parent.type === "FunctionDeclaration") {
       return false;
     }
@@ -96773,10 +96773,10 @@ function is_reactive_expression(path22, in_derived) {
   }
   return false;
 }
-function is_last_evaluated_expression(path22, node2) {
-  let i3 = path22.length;
+function is_last_evaluated_expression(path23, node2) {
+  let i3 = path23.length;
   while (i3--) {
-    const parent = path22[i3];
+    const parent = path23[i3];
     if (parent.type === "ConstTag") {
       return false;
     }
@@ -98423,17 +98423,17 @@ function LabeledStatement(node2, context) {
       for (const [name, nodes] of context.state.scope.references) {
         const binding2 = context.state.scope.get(name);
         if (binding2 === null) continue;
-        for (const { node: node3, path: path22 } of nodes) {
+        for (const { node: node3, path: path23 } of nodes) {
           let left = node3;
-          let i3 = path22.length - 1;
+          let i3 = path23.length - 1;
           let parent2 = (
             /** @type {Expression} */
-            path22.at(i3)
+            path23.at(i3)
           );
           while (parent2.type === "MemberExpression") {
             left = parent2;
             parent2 = /** @type {Expression} */
-            path22.at(--i3);
+            path23.at(--i3);
           }
           if (parent2.type === "AssignmentExpression" && parent2.operator === "=" && parent2.left === left) {
             continue;
@@ -110023,10 +110023,10 @@ function match_schema(schema, tag_name, attribute_map) {
     return true;
   });
 }
-function is_parent(path22, elements) {
-  let i3 = path22.length;
+function is_parent(path23, elements) {
+  let i3 = path23.length;
   while (i3--) {
-    const parent = path22[i3];
+    const parent = path23[i3];
     if (parent.type === "SvelteElement") return true;
     if (parent.type === "RegularElement") {
       return elements.includes(parent.name);
@@ -110511,8 +110511,8 @@ function SnippetBlock(node2, context) {
       context.state.analysis.module.scope.declarations.set(name2, binding2);
     }
   }
-  const { path: path22 } = context;
-  const parent = path22.at(-2);
+  const { path: path23 } = context;
+  const parent = path23.at(-2);
   if (!parent) return;
   if (parent.type === "Component" && parent.attributes.some(
     (attribute2) => (attribute2.type === "Attribute" || attribute2.type === "BindDirective") && attribute2.name === node2.expression.name
@@ -110997,19 +110997,19 @@ function VariableDeclarator(node2, context) {
     const init2 = node2.init;
     const rune = get_rune(init2, context.state.scope);
     const { paths } = extract_paths(node2.id, id("dummy"));
-    for (const path22 of paths) {
+    for (const path23 of paths) {
       validate_identifier_name(context.state.scope.get(
         /** @type {Identifier} */
-        path22.node.name
+        path23.node.name
       ));
     }
     if (rune === "$state" || rune === "$state.raw" || rune === "$derived" || rune === "$derived.by" || rune === "$props") {
-      for (const path22 of paths) {
+      for (const path23 of paths) {
         const binding2 = (
           /** @type {Binding} */
-          context.state.scope.get(path22.node.name)
+          context.state.scope.get(path23.node.name)
         );
-        binding2.kind = rune === "$state" ? "state" : rune === "$state.raw" ? "raw_state" : rune === "$derived" || rune === "$derived.by" ? "derived" : path22.is_rest ? "rest_prop" : "prop";
+        binding2.kind = rune === "$state" ? "state" : rune === "$state.raw" ? "raw_state" : rune === "$derived" || rune === "$derived.by" ? "derived" : path23.is_rest ? "rest_prop" : "prop";
         if (rune === "$props" && binding2.kind === "rest_prop" && node2.id.type === "ObjectPattern") {
           const { properties } = node2.id;
           const exclude_props = [];
@@ -111261,15 +111261,15 @@ function analyze_component(root, source2, options) {
         if (declaration2 === null && /[a-z]/.test(store_name[0])) {
           global_reference_invalid(references[0].node, name2);
         } else if (declaration2 !== null && is_rune(name2)) {
-          for (const { node: node2, path: path22 } of references) {
-            if (path22.at(-1)?.type === "CallExpression") {
+          for (const { node: node2, path: path23 } of references) {
+            if (path23.at(-1)?.type === "CallExpression") {
               store_rune_conflict(node2, store_name);
             }
           }
         }
       }
       if (module.ast) {
-        for (const { node: node2, path: path22 } of references) {
+        for (const { node: node2, path: path23 } of references) {
           if (
             /** @type {number} */
             node2.start > /** @type {number} */
@@ -111278,7 +111278,7 @@ function analyze_component(root, source2, options) {
             module.ast.end && // const state = $state(0) is valid
             get_rune(
               /** @type {ESTree.Node} */
-              path22.at(-1),
+              path23.at(-1),
               module.scope
             ) === null
           ) {
@@ -111437,10 +111437,10 @@ function analyze_component(root, source2, options) {
     }
     for (const binding2 of instance.scope.declarations.values()) {
       if (binding2.kind !== "normal") continue;
-      for (const { node: node2, path: path22 } of binding2.references) {
+      for (const { node: node2, path: path23 } of binding2.references) {
         if (node2 === binding2.node) continue;
         if (binding2.updated) {
-          if (path22[path22.length - 1].type === "StyleDirective" || path22.some((node3) => node3.type === "Fragment") || path22[1].type === "LabeledStatement" && path22[1].label.name === "$") {
+          if (path23[path23.length - 1].type === "StyleDirective" || path23.some((node3) => node3.type === "Fragment") || path23[1].type === "LabeledStatement" && path23[1].label.name === "$") {
             binding2.kind = "state";
           }
         }
@@ -111537,17 +111537,17 @@ function analyze_component(root, source2, options) {
     for (const scope2 of [module.scope, instance.scope]) {
       outer: for (const [name2, binding2] of scope2.declarations) {
         if (binding2.kind === "normal" && binding2.reassigned) {
-          inner: for (const { path: path22 } of binding2.references) {
-            if (path22[0].type !== "Fragment") continue;
-            for (let i3 = 1; i3 < path22.length; i3 += 1) {
-              const type = path22[i3].type;
+          inner: for (const { path: path23 } of binding2.references) {
+            if (path23[0].type !== "Fragment") continue;
+            for (let i3 = 1; i3 < path23.length; i3 += 1) {
+              const type = path23[i3].type;
               if (type === "FunctionDeclaration" || type === "FunctionExpression" || type === "ArrowFunctionExpression") {
                 continue inner;
               }
               if (type === "BindDirective" && /** @type {AST.BindDirective} */
-              path22[i3].name === "this") {
+              path23[i3].name === "this") {
                 for (let j = i3 - 1; j >= 0; j -= 1) {
-                  const type2 = path22[j].type;
+                  const type2 = path23[j].type;
                   if (type2 === "IfBlock" || type2 === "EachBlock" || type2 === "AwaitBlock" || type2 === "KeyBlock") {
                     non_reactive_update(binding2.node, name2);
                     continue outer;
@@ -112075,8 +112075,8 @@ var init_analyze = __esm({
     init_fragment2();
     init_state();
     visitors3 = {
-      _(node2, { state, next: next2, path: path22 }) {
-        const parent = path22.at(-1);
+      _(node2, { state, next: next2, path: path23 }) {
+        const parent = path23.at(-1);
         const ignores = [];
         if (parent?.type === "Fragment" && node2.type !== "Comment" && node2.type !== "Text") {
           const idx = parent.nodes.indexOf(
@@ -112960,7 +112960,7 @@ function write_for_head_declaration(node2, context, no_in = false) {
 }
 function handle_var_declaration(node2, context, no_in = false) {
   const open3 = context.new();
-  const join20 = context.new();
+  const join21 = context.new();
   const child_context = context.new();
   context.append(child_context);
   if (node2.declare) {
@@ -112974,7 +112974,7 @@ function handle_var_declaration(node2, context, no_in = false) {
   child_context.append(open3);
   let first = true;
   for (const d3 of node2.declarations) {
-    if (!first) child_context.append(join20);
+    if (!first) child_context.append(join21);
     first = false;
     handle_var_declarator(d3, child_context, no_in);
   }
@@ -112983,11 +112983,11 @@ function handle_var_declaration(node2, context, no_in = false) {
   if (multiline) {
     context.multiline = true;
     if (node2.declarations.length > 1) open3.indent();
-    join20.write(",");
-    join20.newline();
+    join21.write(",");
+    join21.newline();
     if (node2.declarations.length > 1) context.dedent();
   } else {
-    join20.write(", ");
+    join21.write(", ");
   }
 }
 function quote(string3, char) {
@@ -113343,7 +113343,7 @@ var init_ts = __esm({
           }
           if (node2.typeArguments) context.visit(node2.typeArguments);
           const open3 = context.new();
-          const join20 = context.new();
+          const join21 = context.new();
           context.write("(");
           context.append(open3);
           const child_context = context.new();
@@ -113361,17 +113361,17 @@ var init_ts = __esm({
             if (!is_last) context2.write(",");
             const next2 = is_last ? node2.loc?.end ?? null : node2.arguments[i3 + 1]?.loc?.start ?? null;
             flush_trailing_comments(context2, arg.loc?.end ?? null, next2);
-            if (!is_last) context2.append(join20);
+            if (!is_last) context2.append(join21);
           }
           context.multiline ||= child_context.multiline || final_context.multiline;
           if (child_context.multiline) {
             open3.indent();
             open3.newline();
-            join20.newline();
+            join21.newline();
             context.dedent();
             context.newline();
           } else {
-            join20.write(" ");
+            join21.write(" ");
           }
           context.write(")");
         },
@@ -115770,16 +115770,16 @@ function parseAbsoluteUrl(input) {
 }
 function parseFileUrl(input) {
   const match2 = fileRegex.exec(input);
-  const path22 = match2[2];
-  return makeUrl("file:", "", match2[1] || "", "", isAbsolutePath(path22) ? path22 : "/" + path22, match2[3] || "", match2[4] || "");
+  const path23 = match2[2];
+  return makeUrl("file:", "", match2[1] || "", "", isAbsolutePath(path23) ? path23 : "/" + path23, match2[3] || "", match2[4] || "");
 }
-function makeUrl(scheme, user, host, port, path22, query, hash2) {
+function makeUrl(scheme, user, host, port, path23, query, hash2) {
   return {
     scheme,
     user,
     host,
     port,
-    path: path22,
+    path: path23,
     query,
     hash: hash2,
     type: 7
@@ -115809,11 +115809,11 @@ function parseUrl(input) {
   url.type = input ? input.startsWith("?") ? 3 : input.startsWith("#") ? 2 : 4 : 1;
   return url;
 }
-function stripPathFilename(path22) {
-  if (path22.endsWith("/.."))
-    return path22;
-  const index = path22.lastIndexOf("/");
-  return path22.slice(0, index + 1);
+function stripPathFilename(path23) {
+  if (path23.endsWith("/.."))
+    return path23;
+  const index = path23.lastIndexOf("/");
+  return path23.slice(0, index + 1);
 }
 function mergePaths(url, base) {
   normalizePath(base, base.type);
@@ -115851,14 +115851,14 @@ function normalizePath(url, type) {
     pieces[pointer++] = piece;
     positive++;
   }
-  let path22 = "";
+  let path23 = "";
   for (let i3 = 1; i3 < pointer; i3++) {
-    path22 += "/" + pieces[i3];
+    path23 += "/" + pieces[i3];
   }
-  if (!path22 || addTrailingSlash && !path22.endsWith("/..")) {
-    path22 += "/";
+  if (!path23 || addTrailingSlash && !path23.endsWith("/..")) {
+    path23 += "/";
   }
-  url.path = path22;
+  url.path = path23;
 }
 function resolve2(input, base) {
   if (!input && !base)
@@ -115899,13 +115899,13 @@ function resolve2(input, base) {
     case 3:
       return queryHash;
     case 4: {
-      const path22 = url.path.slice(1);
-      if (!path22)
+      const path23 = url.path.slice(1);
+      if (!path23)
         return queryHash || ".";
-      if (isRelative(base || input) && !isRelative(path22)) {
-        return "./" + path22 + queryHash;
+      if (isRelative(base || input) && !isRelative(path23)) {
+        return "./" + path23 + queryHash;
       }
-      return path22 + queryHash;
+      return path23 + queryHash;
     }
     case 5:
       return url.path + queryHash;
@@ -115923,10 +115923,10 @@ var init_resolve_uri = __esm({
 });
 
 // ../../node_modules/@jridgewell/trace-mapping/dist/trace-mapping.mjs
-function stripFilename(path22) {
-  if (!path22) return "";
-  const index = path22.lastIndexOf("/");
-  return path22.slice(0, index + 1);
+function stripFilename(path23) {
+  if (!path23) return "";
+  const index = path23.lastIndexOf("/");
+  return path23.slice(0, index + 1);
 }
 function resolver(mapUrl, sourceRoot) {
   const from = stripFilename(mapUrl);
@@ -116818,8 +116818,8 @@ function render_stylesheet(source2, analysis, options) {
   }
   return css;
 }
-function is_in_global_block2(path22) {
-  return path22.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
+function is_in_global_block2(path23) {
+  return path23.some((node2) => node2.type === "Rule" && node2.metadata.is_global_block);
 }
 function remove_global_pseudo_class(selector, combinator, state) {
   if (selector.args === null) {
@@ -116894,7 +116894,7 @@ var init_css2 = __esm({
         context.state.code.addSourcemapLocation(node2.end);
         context.next();
       },
-      Atrule(node2, { state, next: next2, path: path22 }) {
+      Atrule(node2, { state, next: next2, path: path23 }) {
         if (is_keyframes_node(node2)) {
           let start2 = node2.start + node2.name.length + 1;
           while (state.code.original[start2] === " ") start2 += 1;
@@ -116902,7 +116902,7 @@ var init_css2 = __esm({
           while (state.code.original[end2] !== "{" && state.code.original[end2] !== " ") end2 += 1;
           if (node2.prelude.startsWith("-global-")) {
             state.code.remove(start2, start2 + 8);
-          } else if (!is_in_global_block2(path22)) {
+          } else if (!is_in_global_block2(path23)) {
             state.code.prependRight(start2, `${state.hash}-`);
           }
           return;
@@ -116939,12 +116939,12 @@ var init_css2 = __esm({
           }
         }
       },
-      Rule(node2, { state, next: next2, visit, path: path22 }) {
+      Rule(node2, { state, next: next2, visit, path: path23 }) {
         if (state.minify) {
           remove_preceding_whitespace(node2.start, state);
           remove_preceding_whitespace(node2.block.end - 1, state);
         }
-        if (!dev && is_empty(node2, is_in_global_block2(path22))) {
+        if (!dev && is_empty(node2, is_in_global_block2(path23))) {
           if (state.minify) {
             state.code.remove(node2.start, node2.end);
           } else {
@@ -116954,7 +116954,7 @@ var init_css2 = __esm({
           }
           return;
         }
-        if (!is_used(node2) && !is_in_global_block2(path22)) {
+        if (!is_used(node2) && !is_in_global_block2(path23)) {
           if (state.minify) {
             state.code.remove(node2.start, node2.end);
           } else {
@@ -116982,9 +116982,9 @@ var init_css2 = __esm({
         }
         next2();
       },
-      SelectorList(node2, { state, next: next2, path: path22 }) {
-        const parent = path22.at(-1);
-        if ((!is_in_global_block2(path22) || node2.children.length > 1 && parent?.type === "Rule" && parent.metadata.is_global_block) && !path22.find((n4) => n4.type === "ComplexSelector" && !n4.metadata.used)) {
+      SelectorList(node2, { state, next: next2, path: path23 }) {
+        const parent = path23.at(-1);
+        if ((!is_in_global_block2(path23) || node2.children.length > 1 && parent?.type === "Rule" && parent.metadata.is_global_block) && !path23.find((n4) => n4.type === "ComplexSelector" && !n4.metadata.used)) {
           const children = node2.children;
           let pruning = false;
           let prune_start = children[0].start;
@@ -117133,14 +117133,14 @@ function visit_assignment_expression(node2, context, build_assignment3) {
     for (const { id: id3 } of inserts) {
       id3.name = context.state.scope.generate("$$array");
     }
-    const assignments = paths.map((path22) => {
-      const value2 = path22.expression;
-      let assignment2 = build_assignment3("=", path22.node, value2, context);
+    const assignments = paths.map((path23) => {
+      const value2 = path23.expression;
+      let assignment2 = build_assignment3("=", path23.node, value2, context);
       if (assignment2 !== null) changed = true;
       return assignment2 ?? assignment(
         "=",
         /** @type {Pattern} */
-        context.visit(path22.node),
+        context.visit(path23.node),
         /** @type {Expression} */
         context.visit(value2)
       );
@@ -117751,7 +117751,7 @@ function sort_const_tags(nodes, state) {
   }
   return [...sorted, ...other];
 }
-function clean_nodes(parent, nodes, path22, namespace = "html", state, preserve_whitespace, preserve_comments) {
+function clean_nodes(parent, nodes, path23, namespace = "html", state, preserve_whitespace, preserve_comments) {
   if (!state.analysis.runes) {
     nodes = sort_const_tags(nodes, state);
   }
@@ -117785,7 +117785,7 @@ function clean_nodes(parent, nodes, path22, namespace = "html", state, preserve_
       last.raw = last.raw.replace(regex_ends_with_whitespaces, "");
       last.data = last.data.replace(regex_ends_with_whitespaces, "");
     }
-    const can_remove_entirely = namespace === "svg" && (parent.type !== "RegularElement" || parent.name !== "text") && !path22.some((n4) => n4.type === "RegularElement" && n4.name === "text") || parent.type === "RegularElement" && // TODO others?
+    const can_remove_entirely = namespace === "svg" && (parent.type !== "RegularElement" || parent.name !== "text") && !path23.some((n4) => n4.type === "RegularElement" && n4.name === "text") || parent.type === "RegularElement" && // TODO others?
     (parent.name === "select" || parent.name === "tr" || parent.name === "table" || parent.name === "tbody" || parent.name === "thead" || parent.name === "tfoot" || parent.name === "colgroup" || parent.name === "datalist");
     for (let i3 = 0; i3 < regular.length; i3++) {
       const prev = regular[i3 - 1];
@@ -119877,13 +119877,13 @@ function VariableDeclaration(node2, context) {
             const call8 = call("$.derived", expression);
             declarations.push(declarator(id3, call8));
           }
-          for (const path22 of paths) {
+          for (const path23 of paths) {
             const expression = (
               /** @type {Expression} */
-              context.visit(path22.expression)
+              context.visit(path23.expression)
             );
             const call8 = call("$.derived", thunk(expression));
-            declarations.push(declarator(path22.node, call8));
+            declarations.push(declarator(path23.node, call8));
           }
         }
         continue;
@@ -119927,18 +119927,18 @@ function VariableDeclaration(node2, context) {
             id3.name = context.state.scope.generate("$$array");
             declarations.push(declarator(id3, value));
           }
-          for (const path22 of paths) {
-            const value = path22.expression;
+          for (const path23 of paths) {
+            const value = path23.expression;
             const name = (
               /** @type {Identifier} */
-              path22.node.name
+              path23.node.name
             );
             const binding3 = (
               /** @type {Binding} */
               context.state.scope.get(name)
             );
             const prop3 = member(id("$$props"), literal2(binding3.prop_alias ?? name), true);
-            declarations.push(declarator(path22.node, build_fallback(prop3, value)));
+            declarations.push(declarator(path23.node, build_fallback(prop3, value)));
           }
           continue;
         }
@@ -119993,9 +119993,9 @@ function create_state_declarators(declarator2, scope, value) {
       id3.name = scope.generate("$$array");
       return declarator(id3, value2);
     }),
-    ...paths.map((path22) => {
-      const value2 = path22.expression;
-      return declarator(path22.node, value2);
+    ...paths.map((path23) => {
+      const value2 = path23.expression;
+      return declarator(path23.node, value2);
     })
   ];
 }
@@ -120694,12 +120694,12 @@ function build_bind_this(expression, value, { state, visit }) {
   const seen2 = [];
   const transform2 = { ...state.transform };
   walk(getter ?? expression, null, {
-    Identifier(node3, { path: path22 }) {
+    Identifier(node3, { path: path23 }) {
       if (seen2.includes(node3.name)) return;
       seen2.push(node3.name);
       const parent = (
         /** @type {Expression} */
-        path22.at(-1)
+        path23.at(-1)
       );
       if (!is_reference(node3, parent)) return;
       const binding2 = state.scope.get(node3.name);
@@ -120800,23 +120800,23 @@ function validate_mutation(node2, context, expression) {
     context.state
   );
   state.analysis.needs_mutation_validation = true;
-  const path22 = [];
+  const path23 = [];
   while (left.type === "MemberExpression") {
     if (left.property.type === "Literal") {
-      path22.unshift(left.property);
+      path23.unshift(left.property);
     } else if (left.property.type === "Identifier") {
       const transform2 = Object.hasOwn(context.state.transform, left.property.name) ? context.state.transform[left.property.name] : null;
       if (left.computed) {
-        path22.unshift(transform2?.read ? transform2.read(left.property) : left.property);
+        path23.unshift(transform2?.read ? transform2.read(left.property) : left.property);
       } else {
-        path22.unshift(literal2(left.property.name));
+        path23.unshift(literal2(left.property.name));
       }
     } else {
       return expression;
     }
     left = left.object;
   }
-  path22.unshift(literal2(name.name));
+  path23.unshift(literal2(name.name));
   const loc2 = locator(
     /** @type {number} */
     left.start
@@ -120824,7 +120824,7 @@ function validate_mutation(node2, context, expression) {
   return call(
     "$$ownership_validator.mutation",
     literal2(binding2.prop_alias),
-    array(path22),
+    array(path23),
     expression,
     loc2 && literal2(loc2.line),
     loc2 && literal2(loc2.column)
@@ -121083,9 +121083,9 @@ function build_assignment2(operator, left, right, context) {
   const binding2 = context.state.scope.get(object4.name);
   if (!binding2) return null;
   const transform2 = Object.hasOwn(context.state.transform, object4.name) ? context.state.transform[object4.name] : null;
-  const path22 = context.path.map((node2) => node2.type);
+  const path23 = context.path.map((node2) => node2.type);
   if (object4 === left && transform2?.assign) {
-    const is_primitive = path22.at(-1) === "BindDirective" && path22.at(-2) === "RegularElement";
+    const is_primitive = path23.at(-1) === "BindDirective" && path23.at(-2) === "RegularElement";
     let value = (
       /** @type {Expression} */
       context.visit(build_assignment_value(operator, left, right))
@@ -121125,8 +121125,8 @@ function build_assignment2(operator, left, right, context) {
     }
     return mutation;
   }
-  let should_transform = dev && path22.at(-1) !== "ExpressionStatement" && is_non_coercive_operator(operator) && !context.state.scope.evaluate(right).is_primitive;
-  if (path22.at(-1) === "ArrowFunctionExpression" && (path22.at(-2) === "RegularElement" || path22.at(-2) === "SvelteElement")) {
+  let should_transform = dev && path23.at(-1) !== "ExpressionStatement" && is_non_coercive_operator(operator) && !context.state.scope.evaluate(right).is_primitive;
+  if (path23.at(-1) === "ArrowFunctionExpression" && (path23.at(-2) === "RegularElement" || path23.at(-2) === "SvelteElement")) {
     const element3 = (
       /** @type {AST.RegularElement} */
       context.path.at(-2)
@@ -121142,7 +121142,7 @@ function build_assignment2(operator, left, right, context) {
       should_transform = false;
     }
   }
-  if (path22.at(-1) === "BindDirective" || path22.at(-1) === "Component" || path22.at(-1) === "SvelteComponent" || path22.at(-1) === "ArrowFunctionExpression" && (path22.at(-2) === "BindDirective" || path22.at(-2) === "Component" && path22.at(-3) === "Fragment" || path22.at(-2) === "SequenceExpression" && (path22.at(-3) === "Component" || path22.at(-3) === "SvelteComponent" || path22.at(-3) === "BindDirective"))) {
+  if (path23.at(-1) === "BindDirective" || path23.at(-1) === "Component" || path23.at(-1) === "SvelteComponent" || path23.at(-1) === "ArrowFunctionExpression" && (path23.at(-2) === "BindDirective" || path23.at(-2) === "Component" && path23.at(-3) === "Fragment" || path23.at(-2) === "SequenceExpression" && (path23.at(-3) === "Component" || path23.at(-3) === "SvelteComponent" || path23.at(-3) === "BindDirective"))) {
     should_transform = false;
   }
   if (left.type === "MemberExpression" && should_transform) {
@@ -123781,24 +123781,24 @@ function EachBlock3(node2, context) {
       );
       declarations.push(var_builder(id3, call("$.derived", expression)));
     }
-    for (const path22 of paths) {
+    for (const path23 of paths) {
       const name = (
         /** @type {Identifier} */
-        path22.node.name
+        path23.node.name
       );
-      const needs_derived = path22.has_default_value;
+      const needs_derived = path23.has_default_value;
       const fn2 = thunk(
         /** @type {Expression} */
-        context.visit(path22.expression, child_state)
+        context.visit(path23.expression, child_state)
       );
-      declarations.push(let_builder(path22.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
+      declarations.push(let_builder(path23.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
       const read2 = needs_derived ? get_value : call;
       child_state.transform[name] = {
         read: read2,
         assign: (_2, value) => {
           const left = (
             /** @type {Pattern} */
-            path22.update_expression
+            path23.update_expression
           );
           return sequence([assignment("=", left, value), ...sequence2]);
         },
@@ -124780,17 +124780,17 @@ function SnippetBlock3(node2, context) {
         ))
       );
     }
-    for (const path22 of paths) {
+    for (const path23 of paths) {
       const name = (
         /** @type {Identifier} */
-        path22.node.name
+        path23.node.name
       );
-      const needs_derived = path22.has_default_value;
+      const needs_derived = path23.has_default_value;
       const fn2 = thunk(
         /** @type {Expression} */
-        context.visit(path22.expression, child_state)
+        context.visit(path23.expression, child_state)
       );
-      declarations.push(let_builder(path22.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
+      declarations.push(let_builder(path23.node, needs_derived ? call("$.derived_safe_equal", fn2) : fn2));
       transform2[name] = {
         read: needs_derived ? get_value : call
       };
@@ -125521,17 +125521,17 @@ function VariableDeclaration2(node2, context) {
               }
               return declarator(id3, call7);
             }),
-            ...paths.map((path22) => {
+            ...paths.map((path23) => {
               const value2 = (
                 /** @type {Expression} */
-                context.visit(path22.expression)
+                context.visit(path23.expression)
               );
               const binding2 = context.state.scope.get(
                 /** @type {Identifier} */
-                path22.node.name
+                path23.node.name
               );
               return declarator(
-                path22.node,
+                path23.node,
                 binding2?.kind === "state" || binding2?.kind === "raw_state" ? create_state_declarator(binding2.node, value2) : value2
               );
             })
@@ -125608,18 +125608,18 @@ function VariableDeclaration2(node2, context) {
             }
             declarations.push(declarator(id3, call7));
           }
-          for (const path22 of paths) {
+          for (const path23 of paths) {
             const expression2 = (
               /** @type {Expression} */
-              context.visit(path22.expression)
+              context.visit(path23.expression)
             );
             const call7 = call("$.derived", thunk(expression2));
             declarations.push(
               declarator(
-                path22.node,
+                path23.node,
                 dev ? call("$.tag", call7, literal2(
                   /** @type {Identifier} */
-                  path22.node.name
+                  path23.node.name
                 )) : call7
               )
             );
@@ -125666,10 +125666,10 @@ function VariableDeclaration2(node2, context) {
             );
             declarations.push(declarator(id3, call("$.derived", expression)));
           }
-          for (const path22 of paths) {
+          for (const path23 of paths) {
             const name = (
               /** @type {Identifier} */
-              path22.node.name
+              path23.node.name
             );
             const binding3 = (
               /** @type {Binding} */
@@ -125677,11 +125677,11 @@ function VariableDeclaration2(node2, context) {
             );
             const value = (
               /** @type {Expression} */
-              context.visit(path22.expression)
+              context.visit(path23.expression)
             );
             declarations.push(
               declarator(
-                path22.node,
+                path23.node,
                 binding3.kind === "bindable_prop" ? get_prop_source(binding3, context.state, binding3.prop_alias ?? name, value) : value
               )
             );
@@ -125745,21 +125745,21 @@ function create_state_declarators2(declarator2, context, value) {
       );
       return declarator(id3, call("$.derived", expression));
     }),
-    ...paths.map((path22) => {
+    ...paths.map((path23) => {
       const value2 = (
         /** @type {Expression} */
-        context.visit(path22.expression)
+        context.visit(path23.expression)
       );
       const binding2 = context.state.scope.get(
         /** @type {Identifier} */
-        path22.node.name
+        path23.node.name
       );
       return declarator(
-        path22.node,
+        path23.node,
         binding2?.kind === "state" ? mutable_source(
           value2,
           /** @type {Identifier} */
-          path22.node.name
+          path23.node.name
         ) : value2
       );
     })
@@ -127705,7 +127705,7 @@ var init_print = __esm({
       DeclarationTag(node2, context) {
         context.write("{");
         const open3 = context.new();
-        const join20 = context.new();
+        const join21 = context.new();
         const child_context = context.new();
         context.append(child_context);
         child_context.write(`${node2.declaration.kind} `);
@@ -127713,7 +127713,7 @@ var init_print = __esm({
         const declarations = node2.declaration.declarations;
         let first = true;
         for (const d3 of declarations) {
-          if (!first) child_context.append(join20);
+          if (!first) child_context.append(join21);
           first = false;
           child_context.visit(d3);
         }
@@ -127722,11 +127722,11 @@ var init_print = __esm({
         if (multiline) {
           context.multiline = true;
           if (declarations.length > 1) open3.indent();
-          join20.write(",");
-          join20.newline();
+          join21.write(",");
+          join21.newline();
           if (declarations.length > 1) context.dedent();
         } else {
-          join20.write(", ");
+          join21.write(", ");
         }
         context.write("}");
       },
@@ -128315,8 +128315,8 @@ function trim_block(state, start2, end2) {
     state.str.update(start2 + 1, end2 - 1, without_parens.trim());
   }
 }
-function migrate_slot_usage(node2, path22, state) {
-  const parent = path22.at(-2);
+function migrate_slot_usage(node2, path23, state) {
+  const parent = path23.at(-2);
   if (parent?.type !== "Component" && parent?.type !== "SvelteComponent" && node2.type !== "Component" && node2.type !== "SvelteComponent") {
     return;
   }
@@ -128404,7 +128404,7 @@ ${state.indent}`
     state.str.appendLeft(
       inner_start,
       `{#snippet ${snippet_name}(${props})}
-${state.indent.repeat(path22.length)}`
+${state.indent.repeat(path23.length)}`
     );
     state.str.indent(state.indent, {
       exclude: [
@@ -128414,19 +128414,19 @@ ${state.indent.repeat(path22.length)}`
     });
     if (inner_end < node2.fragment.nodes[node2.fragment.nodes.length - 1].end) {
       state.str.prependLeft(inner_end, `{/snippet}
-${state.indent.repeat(path22.length)}`);
+${state.indent.repeat(path23.length)}`);
     } else {
       state.str.prependLeft(
         inner_end,
-        `${state.indent.repeat(path22.length)}{/snippet}
-${state.indent.repeat(path22.length - 1)}`
+        `${state.indent.repeat(path23.length)}{/snippet}
+${state.indent.repeat(path23.length - 1)}`
       );
     }
   } else {
     state.str.prependLeft(
       node2.start,
       `{#snippet ${snippet_name}(${props})}
-${state.indent.repeat(path22.length - 2)}`
+${state.indent.repeat(path23.length - 2)}`
     );
     state.str.indent(state.indent, {
       exclude: [
@@ -128435,7 +128435,7 @@ ${state.indent.repeat(path22.length - 2)}`
       ]
     });
     const str2 = `
-${state.indent.repeat(path22.length - 2)}{/snippet}`;
+${state.indent.repeat(path23.length - 2)}{/snippet}`;
     if (node2.type === "SlotElement") {
       state.str.appendRight(node2.end, str2);
     } else {
@@ -128443,9 +128443,9 @@ ${state.indent.repeat(path22.length - 2)}{/snippet}`;
     }
   }
 }
-function extract_type_and_comment(declarator2, state, path22) {
+function extract_type_and_comment(declarator2, state, path23) {
   const str2 = state.str;
-  let parent = path22.at(-1);
+  let parent = path23.at(-1);
   if (parent?.type === "Program") {
     parent = void 0;
   }
@@ -128633,8 +128633,8 @@ function get_node_range(source2, node2) {
   start2 = idx;
   return { start: start2, end: end2 };
 }
-function handle_identifier(node2, state, path22) {
-  const parent = path22.at(-1);
+function handle_identifier(node2, state, path23) {
+  const parent = path23.at(-1);
   if (parent?.type === "MemberExpression" && parent.property === node2) return;
   if (state.analysis.uses_props && node2.name !== "$$slots") {
     if (node2.name === "$$props" || node2.name === "$$restProps") {
@@ -128802,8 +128802,8 @@ var init_migrate = __esm({
         }
         next2();
       },
-      Identifier(node2, { state, path: path22 }) {
-        handle_identifier(node2, state, path22);
+      Identifier(node2, { state, path: path23 }) {
+        handle_identifier(node2, state, path23);
       },
       ImportDeclaration(node2, { state }) {
         state.props_insertion_point = node2.end ?? state.props_insertion_point;
@@ -128873,7 +128873,7 @@ var init_migrate = __esm({
           );
         }
       },
-      VariableDeclaration(node2, { state, path: path22, visit, next: next2 }) {
+      VariableDeclaration(node2, { state, path: path23, visit, next: next2 }) {
         if (state.scope !== state.analysis.instance.scope) {
           return;
         }
@@ -128956,7 +128956,7 @@ var init_migrate = __esm({
                 ).toString() : "",
                 optional: !!declarator2.init,
                 bindable: binding2.updated,
-                ...extract_type_and_comment(declarator2, state, path22)
+                ...extract_type_and_comment(declarator2, state, path23)
               });
             }
             let start2 = (
@@ -129158,7 +129158,7 @@ ${indent2}// ${comment.value}`
             /** @type {number} */
             node2.end
           );
-          const parent = path22.at(-1);
+          const parent = path23.at(-1);
           if (parent?.type === "ExportNamedDeclaration") {
             start2 = /** @type {number} */
             parent.start;
@@ -129174,8 +129174,8 @@ ${indent2}// ${comment.value}`
           state.str.update(start2, end2, "");
         }
       },
-      BreakStatement(node2, { state, path: path22 }) {
-        if (path22[1].type !== "LabeledStatement") return;
+      BreakStatement(node2, { state, path: path23 }) {
+        if (path23[1].type !== "LabeledStatement") return;
         if (node2.label?.name !== "$") return;
         state.str.update(
           /** @type {number} */
@@ -129185,9 +129185,9 @@ ${indent2}// ${comment.value}`
           "return;"
         );
       },
-      LabeledStatement(node2, { path: path22, state, next: next2 }) {
+      LabeledStatement(node2, { path: path23, state, next: next2 }) {
         if (state.analysis.runes) return;
-        if (path22.length > 1) return;
+        if (path23.length > 1) return;
         if (node2.label.name !== "$") return;
         if (state.derived_labeled_statements.has(node2)) return;
         next2();
@@ -129318,10 +129318,10 @@ ${state.indent}});`
       }
     };
     template2 = {
-      Identifier(node2, { state, path: path22 }) {
-        handle_identifier(node2, state, path22);
+      Identifier(node2, { state, path: path23 }) {
+        handle_identifier(node2, state, path23);
       },
-      RegularElement(node2, { state, path: path22, next: next2 }) {
+      RegularElement(node2, { state, path: path23, next: next2 }) {
         const node_name = node2.name.replace(/[a-zA-Z-]*:/g, "");
         if (state.analysis.source[node2.end - 2] === "/" && !is_void(node_name) && !is_svg(node_name)) {
           let trimmed_position = node2.end - 2;
@@ -129329,7 +129329,7 @@ ${state.indent}});`
           state.str.remove(trimmed_position, node2.end - 1);
           state.str.appendLeft(node2.end, `</${node2.name}>`);
         }
-        migrate_slot_usage(node2, path22, state);
+        migrate_slot_usage(node2, path23, state);
         handle_events(node2, state);
         next2();
       },
@@ -129367,8 +129367,8 @@ ${indent2}`
         state.has_svelte_self = true;
         next2();
       },
-      SvelteElement(node2, { state, path: path22, next: next2 }) {
-        migrate_slot_usage(node2, path22, state);
+      SvelteElement(node2, { state, path: path23, next: next2 }) {
+        migrate_slot_usage(node2, path23, state);
         if (node2.tag.type === "Literal") {
           let is_static = true;
           let a = (
@@ -129398,13 +129398,13 @@ ${indent2}`
         handle_events(node2, state);
         next2();
       },
-      Component(node2, { state, path: path22, next: next2 }) {
+      Component(node2, { state, path: path23, next: next2 }) {
         next2();
-        migrate_slot_usage(node2, path22, state);
+        migrate_slot_usage(node2, path23, state);
       },
-      SvelteComponent(node2, { state, next: next2, path: path22 }) {
+      SvelteComponent(node2, { state, next: next2, path: path23 }) {
         next2();
-        migrate_slot_usage(node2, path22, state);
+        migrate_slot_usage(node2, path23, state);
         let expression = state.str.snip(
           /** @type {number} */
           node2.expression.start,
@@ -129415,13 +129415,13 @@ ${indent2}`
           let current_expression = expression;
           expression = state.scope.generate("SvelteComponent");
           let needs_derived = true;
-          for (let i3 = path22.length - 1; i3 >= 0; i3--) {
-            const part = path22[i3];
+          for (let i3 = path23.length - 1; i3 >= 0; i3--) {
+            const part = path23[i3];
             if (part.type === "EachBlock" || part.type === "AwaitBlock" || part.type === "IfBlock" || part.type === "SnippetBlock" || part.type === "Component" || part.type === "SvelteComponent") {
               let position2 = node2.start;
-              if (i3 !== path22.length - 1) {
-                for (let modifier = 1; modifier < path22.length - i3; modifier++) {
-                  const path_part = path22[i3 + modifier];
+              if (i3 !== path23.length - 1) {
+                for (let modifier = 1; modifier < path23.length - i3; modifier++) {
+                  const path_part = path23[i3 + modifier];
                   if ("start" in path_part) {
                     position2 = /** @type {number} */
                     path_part.start;
@@ -129460,8 +129460,8 @@ ${indent2}`
         const end_pos = state.str.original.indexOf("}", node2.expression.end) + 1;
         state.str.remove(this_pos, end_pos);
       },
-      SvelteFragment(node2, { state, path: path22, next: next2 }) {
-        migrate_slot_usage(node2, path22, state);
+      SvelteFragment(node2, { state, path: path23, next: next2 }) {
+        migrate_slot_usage(node2, path23, state);
         next2();
       },
       SvelteWindow(node2, { state, next: next2 }) {
@@ -129476,8 +129476,8 @@ ${indent2}`
         handle_events(node2, state);
         next2();
       },
-      SlotElement(node2, { state, path: path22, next: next2, visit }) {
-        migrate_slot_usage(node2, path22, state);
+      SlotElement(node2, { state, path: path23, next: next2, visit }) {
+        migrate_slot_usage(node2, path23, state);
         if (state.analysis.custom_element) return;
         let name = "children";
         let slot_name = "default";
@@ -129497,7 +129497,7 @@ ${indent2}`
             if (attr2.name === "name") {
               slot_name = /** @type {any} */
               attr2.value[0].data;
-              if (path22.some(
+              if (path23.some(
                 (parent) => (parent.type === "RegularElement" || parent.type === "SvelteElement" || parent.type === "Component" || parent.type === "SvelteComponent" || parent.type === "SvelteFragment") && parent.attributes.some(
                   (attribute2) => attribute2.type === "Attribute" && attribute2.name === "slot" && is_text_attribute(attribute2) && attribute2.value[0].data === slot_name
                 )
@@ -129560,7 +129560,7 @@ ${indent2}`
           existing_prop.type = `import('svelte').${slot_props ? "Snippet<[any]>" : "Snippet"}`;
           existing_prop.needs_refine_type = false;
         }
-        if (slot_name === "default" && path22.some(
+        if (slot_name === "default" && path23.some(
           (parent) => (parent.type === "SvelteComponent" || parent.type === "Component" || parent.type === "RegularElement" || parent.type === "SvelteElement" || parent.type === "SvelteFragment") && parent.attributes.some((attr2) => attr2.type === "LetDirective")
         )) {
           aliased_slot_name = `${name}_render`;
@@ -132039,27 +132039,27 @@ var require_util10 = __commonJS({
       };
     }
     var normalize2 = lruMemoize(function normalize3(aPath) {
-      var path22 = aPath;
+      var path23 = aPath;
       var url = urlParse(aPath);
       if (url) {
         if (!url.path) {
           return aPath;
         }
-        path22 = url.path;
+        path23 = url.path;
       }
-      var isAbsolute2 = exports.isAbsolute(path22);
+      var isAbsolute2 = exports.isAbsolute(path23);
       var parts = [];
       var start2 = 0;
       var i3 = 0;
       while (true) {
         start2 = i3;
-        i3 = path22.indexOf("/", start2);
+        i3 = path23.indexOf("/", start2);
         if (i3 === -1) {
-          parts.push(path22.slice(start2));
+          parts.push(path23.slice(start2));
           break;
         } else {
-          parts.push(path22.slice(start2, i3));
-          while (i3 < path22.length && path22[i3] === "/") {
+          parts.push(path23.slice(start2, i3));
+          while (i3 < path23.length && path23[i3] === "/") {
             i3++;
           }
         }
@@ -132080,18 +132080,18 @@ var require_util10 = __commonJS({
           }
         }
       }
-      path22 = parts.join("/");
-      if (path22 === "") {
-        path22 = isAbsolute2 ? "/" : ".";
+      path23 = parts.join("/");
+      if (path23 === "") {
+        path23 = isAbsolute2 ? "/" : ".";
       }
       if (url) {
-        url.path = path22;
+        url.path = path23;
         return urlGenerate(url);
       }
-      return path22;
+      return path23;
     });
     exports.normalize = normalize2;
-    function join20(aRoot, aPath) {
+    function join21(aRoot, aPath) {
       if (aRoot === "") {
         aRoot = ".";
       }
@@ -132123,7 +132123,7 @@ var require_util10 = __commonJS({
       }
       return joined;
     }
-    exports.join = join20;
+    exports.join = join21;
     exports.isAbsolute = function(aPath) {
       return aPath.charAt(0) === "/" || urlRegexp.test(aPath);
     };
@@ -132337,7 +132337,7 @@ var require_util10 = __commonJS({
             parsed.path = parsed.path.substring(0, index + 1);
           }
         }
-        sourceURL = join20(urlGenerate(parsed), sourceURL);
+        sourceURL = join21(urlGenerate(parsed), sourceURL);
       }
       return normalize2(sourceURL);
     }
@@ -135761,14 +135761,14 @@ For props declared with defineModel(), assign the returned ref to a variable and
     var whitespaceRE = /\s+[.[]\s*|\s*[.[]\s+/g;
     var getExpSource = (exp) => exp.type === 4 ? exp.content : exp.loc.source;
     var isMemberExpressionBrowser = (exp) => {
-      const path22 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
+      const path23 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
       let state = 0;
       let stateStack = [];
       let currentOpenBracketCount = 0;
       let currentOpenParensCount = 0;
       let currentStringType = null;
-      for (let i3 = 0; i3 < path22.length; i3++) {
-        const char = path22.charAt(i3);
+      for (let i3 = 0; i3 < path23.length; i3++) {
+        const char = path23.charAt(i3);
         switch (state) {
           case 0:
             if (char === "[") {
@@ -135804,7 +135804,7 @@ For props declared with defineModel(), assign the returned ref to a variable and
             } else if (char === `(`) {
               currentOpenParensCount++;
             } else if (char === `)`) {
-              if (i3 === path22.length - 1) {
+              if (i3 === path23.length - 1) {
                 return false;
               }
               if (!--currentOpenParensCount) {
@@ -142571,14 +142571,14 @@ For props declared with defineModel(), assign the returned ref to a variable and
     var whitespaceRE = /\s+[.[]\s*|\s*[.[]\s+/g;
     var getExpSource = (exp) => exp.type === 4 ? exp.content : exp.loc.source;
     var isMemberExpressionBrowser = (exp) => {
-      const path22 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
+      const path23 = getExpSource(exp).trim().replace(whitespaceRE, (s) => s.trim());
       let state = 0;
       let stateStack = [];
       let currentOpenBracketCount = 0;
       let currentOpenParensCount = 0;
       let currentStringType = null;
-      for (let i3 = 0; i3 < path22.length; i3++) {
-        const char = path22.charAt(i3);
+      for (let i3 = 0; i3 < path23.length; i3++) {
+        const char = path23.charAt(i3);
         switch (state) {
           case 0:
             if (char === "[") {
@@ -142614,7 +142614,7 @@ For props declared with defineModel(), assign the returned ref to a variable and
             } else if (char === `(`) {
               currentOpenParensCount++;
             } else if (char === `)`) {
-              if (i3 === path22.length - 1) {
+              if (i3 === path23.length - 1) {
                 return false;
               }
               if (!--currentOpenParensCount) {
@@ -182061,10 +182061,10 @@ function omitLeft(body, i3, multiple) {
 function PrintVisitor() {
   this.padding = 0;
 }
-function prefix(path22) {
-  if (path22.data) {
+function prefix(path23) {
+  if (path23.data) {
     return "@";
-  } else if (path22.this) {
+  } else if (path23.this) {
     return "this.";
   } else {
     return "";
@@ -182149,12 +182149,12 @@ function preparePath(data2, sexpr, parts, loc2) {
     loc: loc2
   };
 }
-function prepareMustache(path22, params, hash2, open3, strip, locInfo) {
+function prepareMustache(path23, params, hash2, open3, strip, locInfo) {
   let escapeFlag = open3.charAt(3) || open3.charAt(2), escaped = escapeFlag !== "{" && escapeFlag !== "&";
   let decorator = /\*/.test(open3);
   return {
     type: decorator ? "Decorator" : "MustacheStatement",
-    path: path22,
+    path: path23,
     params,
     hash: hash2,
     escaped,
@@ -182452,12 +182452,12 @@ function getNodeHandler(visitor, nodeType) {
   }
   return visitor.All;
 }
-function visitNode(visitor, path22) {
+function visitNode(visitor, path23) {
   let {
     node: node2,
     parent,
     parentKey
-  } = path22;
+  } = path23;
   let handler = getNodeHandler(visitor, node2.type);
   let enter;
   let exit;
@@ -182467,7 +182467,7 @@ function visitNode(visitor, path22) {
   }
   let result;
   if (enter !== void 0) {
-    result = enter(node2, path22);
+    result = enter(node2, path23);
   }
   if (result !== void 0 && result !== null) {
     if (JSON.stringify(node2) === JSON.stringify(result)) {
@@ -182476,18 +182476,18 @@ function visitNode(visitor, path22) {
       visitArray(visitor, result, parent, parentKey);
       return result;
     } else {
-      let path23 = new WalkerPath(result, parent, parentKey);
-      return visitNode(visitor, path23) || result;
+      let path24 = new WalkerPath(result, parent, parentKey);
+      return visitNode(visitor, path24) || result;
     }
   }
   if (result === void 0) {
     let keys = visitorKeys[node2.type];
     for (let i3 = 0; i3 < keys.length; i3++) {
       let key2 = keys[i3];
-      visitKey(visitor, handler, path22, key2);
+      visitKey(visitor, handler, path23, key2);
     }
     if (exit !== void 0) {
-      result = exit(node2, path22);
+      result = exit(node2, path23);
     }
   }
   return result;
@@ -182498,10 +182498,10 @@ function get3(node2, key2) {
 function set2(node2, key2, value) {
   node2[key2] = value;
 }
-function visitKey(visitor, handler, path22, key2) {
+function visitKey(visitor, handler, path23, key2) {
   let {
     node: node2
-  } = path22;
+  } = path23;
   let value = get3(node2, key2);
   if (!value) {
     return;
@@ -182521,9 +182521,9 @@ function visitKey(visitor, handler, path22, key2) {
     }
   }
   if (Array.isArray(value)) {
-    visitArray(visitor, value, path22, key2);
+    visitArray(visitor, value, path23, key2);
   } else {
-    let keyPath = new WalkerPath(value, path22, key2);
+    let keyPath = new WalkerPath(value, path23, key2);
     let result = visitNode(visitor, keyPath);
     if (result !== void 0) {
       assignKey(node2, key2, value, result);
@@ -182538,8 +182538,8 @@ function visitKey(visitor, handler, path22, key2) {
 function visitArray(visitor, array2, parent, parentKey) {
   for (let i3 = 0; i3 < array2.length; i3++) {
     let node2 = unwrap(array2[i3]);
-    let path22 = new WalkerPath(node2, parent, parentKey);
-    let result = visitNode(visitor, path22);
+    let path23 = new WalkerPath(node2, parent, parentKey);
+    let result = visitNode(visitor, path23);
     if (result !== void 0) {
       i3 += spliceArray(array2, i3, result) - 1;
     }
@@ -182575,8 +182575,8 @@ function spliceArray(array2, index, result) {
   }
 }
 function traverse3(node2, visitor) {
-  let path22 = new WalkerPath(node2);
-  visitNode(visitor, path22);
+  let path23 = new WalkerPath(node2);
+  visitNode(visitor, path23);
 }
 function walkBody(walker, body, callback) {
   for (const child of body) {
@@ -182595,8 +182595,8 @@ function childrenFor(node2) {
 function appendChild(parent, node2) {
   childrenFor(parent).push(node2);
 }
-function isHBSLiteral(path22) {
-  return path22.type === "StringLiteral" || path22.type === "BooleanLiteral" || path22.type === "NumberLiteral" || path22.type === "NullLiteral" || path22.type === "UndefinedLiteral";
+function isHBSLiteral(path23) {
+  return path23.type === "StringLiteral" || path23.type === "BooleanLiteral" || path23.type === "NumberLiteral" || path23.type === "NullLiteral" || path23.type === "UndefinedLiteral";
 }
 function printLiteral(literal5) {
   if (literal5.type === "UndefinedLiteral") {
@@ -182617,9 +182617,9 @@ function SOURCE() {
   }
   return _SOURCE;
 }
-function buildMustache(path22, params = [], hash2 = buildHash([]), trusting = false, loc2, strip) {
+function buildMustache(path23, params = [], hash2 = buildHash([]), trusting = false, loc2, strip) {
   return b3.mustache({
-    path: buildPath(path22),
+    path: buildPath(path23),
     params,
     hash: hash2,
     trusting,
@@ -182627,7 +182627,7 @@ function buildMustache(path22, params = [], hash2 = buildHash([]), trusting = fa
     loc: buildLoc(loc2 || null)
   });
 }
-function buildBlock(path22, params, hash2, _defaultBlock, _elseBlock = null, loc2, openStrip, inverseStrip, closeStrip) {
+function buildBlock(path23, params, hash2, _defaultBlock, _elseBlock = null, loc2, openStrip, inverseStrip, closeStrip) {
   let defaultBlock;
   let elseBlock = null;
   if (_defaultBlock.type === "Template") {
@@ -182650,7 +182650,7 @@ function buildBlock(path22, params, hash2, _defaultBlock, _elseBlock = null, loc
     elseBlock = _elseBlock;
   }
   return b3.block({
-    path: buildPath(path22),
+    path: buildPath(path23),
     params: params || [],
     hash: hash2 || buildHash([]),
     defaultBlock,
@@ -182661,9 +182661,9 @@ function buildBlock(path22, params, hash2, _defaultBlock, _elseBlock = null, loc
     closeStrip
   });
 }
-function buildElementModifier(path22, params, hash2, loc2) {
+function buildElementModifier(path23, params, hash2, loc2) {
   return b3.elementModifier({
-    path: buildPath(path22),
+    path: buildPath(path23),
     params: params || [],
     hash: hash2 || buildHash([]),
     loc: buildLoc(loc2 || null)
@@ -182701,24 +182701,24 @@ function buildElement(tag2, options = {}) {
     closeTag: _closeTag,
     loc: loc2
   } = options;
-  let path22;
+  let path23;
   let selfClosing;
   if (typeof tag2 === "string") {
     if (tag2.endsWith("/")) {
-      path22 = buildPath(tag2.slice(0, -1));
+      path23 = buildPath(tag2.slice(0, -1));
       selfClosing = true;
     } else {
-      path22 = buildPath(tag2);
+      path23 = buildPath(tag2);
     }
   } else if ("type" in tag2) {
     assert3(tag2.type === "PathExpression", `Invalid tag type ${tag2.type}`);
-    path22 = tag2;
+    path23 = tag2;
   } else if ("path" in tag2) {
     assert3(tag2.path.type === "PathExpression", `Invalid tag type ${tag2.path.type}`);
-    path22 = tag2.path;
+    path23 = tag2.path;
     selfClosing = tag2.selfClosing;
   } else {
-    path22 = buildPath(tag2.name);
+    path23 = buildPath(tag2.name);
     selfClosing = tag2.selfClosing;
   }
   let params = blockParams?.map((param) => {
@@ -182732,10 +182732,10 @@ function buildElement(tag2, options = {}) {
   if (_closeTag) {
     closeTag = buildLoc(_closeTag);
   } else if (_closeTag === void 0) {
-    closeTag = selfClosing || isVoidTag(path22.original) ? null : buildLoc(null);
+    closeTag = selfClosing || isVoidTag(path23.original) ? null : buildLoc(null);
   }
   return b3.element({
-    path: path22,
+    path: path23,
     selfClosing: selfClosing || false,
     attributes: attrs || [],
     params: params || [],
@@ -182760,9 +182760,9 @@ function buildText(chars2 = "", loc2) {
     loc: buildLoc(loc2 || null)
   });
 }
-function buildSexpr(path22, params = [], hash2 = buildHash([]), loc2) {
+function buildSexpr(path23, params = [], hash2 = buildHash([]), loc2) {
   return b3.sexpr({
-    path: buildPath(path22),
+    path: buildPath(path23),
     params,
     hash: hash2,
     loc: buildLoc(loc2 || null)
@@ -182810,17 +182810,17 @@ function buildCleanPath(head, tail = [], loc2) {
     loc: buildLoc(loc2 || null)
   });
 }
-function buildPath(path22, loc2) {
+function buildPath(path23, loc2) {
   let span2 = buildLoc(loc2 || null);
-  if (typeof path22 !== "string") {
-    if ("type" in path22) {
-      return path22;
+  if (typeof path23 !== "string") {
+    if ("type" in path23) {
+      return path23;
     } else {
-      assert3(path22.head.indexOf(".") === -1);
+      assert3(path23.head.indexOf(".") === -1);
       let {
         head: head2,
         tail: tail2
-      } = path22;
+      } = path23;
       return b3.path({
         head: b3.head({
           original: head2,
@@ -182836,7 +182836,7 @@ function buildPath(path22, loc2) {
   let {
     head,
     tail
-  } = buildHead(path22, span2);
+  } = buildHead(path23, span2);
   return b3.path({
     head,
     tail,
@@ -182926,7 +182926,7 @@ function literal4(type) {
   };
 }
 function buildLegacyMustache({
-  path: path22,
+  path: path23,
   params,
   hash: hash2,
   trusting,
@@ -182935,7 +182935,7 @@ function buildLegacyMustache({
 }) {
   const node2 = {
     type: "MustacheStatement",
-    path: path22,
+    path: path23,
     params,
     hash: hash2,
     trusting,
@@ -183060,13 +183060,13 @@ function updateTokenizerLocation(tokenizer3, content) {
   tokenizer3.column = column;
 }
 function acceptCallNodes(compiler, node2) {
-  let path22;
+  let path23;
   switch (node2.path.type) {
     case "PathExpression":
-      path22 = compiler.PathExpression(node2.path);
+      path23 = compiler.PathExpression(node2.path);
       break;
     case "SubExpression":
-      path22 = compiler.SubExpression(node2.path);
+      path23 = compiler.SubExpression(node2.path);
       break;
     case "HashLiteral":
       return compiler.HashLiteral(node2.path);
@@ -183091,31 +183091,31 @@ function acceptCallNodes(compiler, node2) {
     }
   }
   const params = node2.params.map((e2) => compiler.acceptNode(e2));
-  const end2 = isPresentArray(params) ? getLast(params).loc : path22.loc;
+  const end2 = isPresentArray(params) ? getLast(params).loc : path23.loc;
   const hash2 = node2.hash ? compiler.Hash(node2.hash) : b3.hash({
     pairs: [],
     loc: compiler.source.spanFor(end2).collapse("end")
   });
   return {
-    path: path22,
+    path: path23,
     params,
     hash: hash2
   };
 }
 function addElementModifier(element3, mustache) {
   const {
-    path: path22,
+    path: path23,
     params,
     hash: hash2,
     loc: loc2
   } = mustache;
-  if (isHBSLiteral(path22)) {
-    const modifier2 = `{{${printLiteral(path22)}}}`;
+  if (isHBSLiteral(path23)) {
+    const modifier2 = `{{${printLiteral(path23)}}}`;
     const tag2 = `<${element3.name} ... ${modifier2} ...`;
     throw generateSyntaxError(`In ${tag2}, ${modifier2} is not a valid modifier`, mustache.loc);
   }
   const modifier = b3.elementModifier({
-    path: path22,
+    path: path23,
     params,
     hash: hash2,
     loc: loc2
@@ -183761,11 +183761,11 @@ var init_es = __esm({
         }
         this.buffer += `<!--${comment.value}-->`;
       }
-      PathExpression(path22) {
-        if (this.handledByOverride(path22)) {
+      PathExpression(path23) {
+        if (this.handledByOverride(path23)) {
           return;
         }
-        this.buffer += path22.original;
+        this.buffer += path23.original;
       }
       SubExpression(sexp) {
         if (this.handledByOverride(sexp)) {
@@ -185811,8 +185811,8 @@ var init_es = __esm({
     };
     PrintVisitor.prototype.PathExpression = function(id3) {
       let head = typeof id3.head === "string" ? id3.head : `[${this.accept(id3.head)}]`;
-      let path22 = [head, ...id3.tail].join("/");
-      return "p%" + prefix(id3) + path22;
+      let path23 = [head, ...id3.tail].join("/");
+      return "p%" + prefix(id3) + path23;
     };
     PrintVisitor.prototype.StringLiteral = function(string3) {
       return '"' + string3.value + '"';
@@ -189445,8 +189445,8 @@ var init_es = __esm({
     };
     PathParentsIterator = class {
       path;
-      constructor(path22) {
-        this.path = path22;
+      constructor(path23) {
+        this.path = path23;
       }
       next() {
         if (this.path.parent) {
@@ -189587,7 +189587,7 @@ var init_es = __esm({
         };
       }
       mustache({
-        path: path22,
+        path: path23,
         params,
         hash: hash2,
         trusting,
@@ -189595,7 +189595,7 @@ var init_es = __esm({
         strip = DEFAULT_STRIP
       }) {
         return buildLegacyMustache({
-          path: path22,
+          path: path23,
           params,
           hash: hash2,
           trusting,
@@ -189604,7 +189604,7 @@ var init_es = __esm({
         });
       }
       block({
-        path: path22,
+        path: path23,
         params,
         hash: hash2,
         defaultBlock,
@@ -189616,7 +189616,7 @@ var init_es = __esm({
       }) {
         return {
           type: "BlockStatement",
-          path: path22,
+          path: path23,
           params,
           hash: hash2,
           program: defaultBlock,
@@ -189658,7 +189658,7 @@ var init_es = __esm({
         };
       }
       element({
-        path: path22,
+        path: path23,
         selfClosing,
         attributes: attributes2,
         modifiers: modifiers2,
@@ -189672,7 +189672,7 @@ var init_es = __esm({
         let _selfClosing = selfClosing;
         return {
           type: "ElementNode",
-          path: path22,
+          path: path23,
           attributes: attributes2,
           modifiers: modifiers2,
           params,
@@ -189712,14 +189712,14 @@ var init_es = __esm({
         };
       }
       elementModifier({
-        path: path22,
+        path: path23,
         params,
         hash: hash2,
         loc: loc2
       }) {
         return {
           type: "ElementModifierStatement",
-          path: path22,
+          path: path23,
           params,
           hash: hash2,
           loc: loc2
@@ -189748,14 +189748,14 @@ var init_es = __esm({
         };
       }
       sexpr({
-        path: path22,
+        path: path23,
         params,
         hash: hash2,
         loc: loc2
       }) {
         return {
           type: "SubExpression",
-          path: path22,
+          path: path23,
           params,
           hash: hash2,
           loc: loc2
@@ -190052,7 +190052,7 @@ var init_es = __esm({
           throw generateSyntaxError("Inverse sections (`{{^foo}}...{{/foo}}`) are not supported. Use `{{#unless foo}}...{{/unless}}` instead", this.source.spanFor(block3.loc));
         }
         const {
-          path: path22,
+          path: path23,
           params,
           hash: hash2
         } = acceptCallNodes(this, block3);
@@ -190102,7 +190102,7 @@ var init_es = __esm({
         const program2 = this.Program(repairedBlock.program, blockParams);
         const inverse = repairedBlock.inverse ? this.Program(repairedBlock.inverse, []) : null;
         const node2 = b3.block({
-          path: path22,
+          path: path23,
           params,
           hash: hash2,
           defaultBlock: program2,
@@ -190146,12 +190146,12 @@ var init_es = __esm({
           });
         } else {
           const {
-            path: path22,
+            path: path23,
             params,
             hash: hash2
           } = acceptCallNodes(this, rawMustache);
           mustache = b3.mustache({
-            path: path22,
+            path: path23,
             params,
             hash: hash2,
             trusting: !escaped,
@@ -190301,12 +190301,12 @@ var init_es = __esm({
       }
       SubExpression(sexpr) {
         const {
-          path: path22,
+          path: path23,
           params,
           hash: hash2
         } = acceptCallNodes(this, sexpr);
         return b3.sexpr({
-          path: path22,
+          path: path23,
           params,
           hash: hash2,
           loc: this.source.spanFor(sexpr.loc)
@@ -190315,29 +190315,29 @@ var init_es = __esm({
       HashLiteral(hash2) {
         throw generateSyntaxError(`Hash literals are not supported. Use named arguments (\`{{helper foo=bar}}\`) or the \`hash\` helper (\`(hash foo=bar)\`) instead`, this.source.spanFor(hash2.loc));
       }
-      PathExpression(path22) {
+      PathExpression(path23) {
         const {
           original
-        } = path22;
+        } = path23;
         let parts;
-        if (typeof path22.head === "object") {
-          throw generateSyntaxError(`A path cannot start with a sub-expression. Use the \`get\` helper (\`(get (foo) "bar")\`) instead`, this.source.spanFor(path22.loc));
+        if (typeof path23.head === "object") {
+          throw generateSyntaxError(`A path cannot start with a sub-expression. Use the \`get\` helper (\`(get (foo) "bar")\`) instead`, this.source.spanFor(path23.loc));
         }
         if (original.indexOf("/") !== -1) {
           if (original.slice(0, 2) === "./") {
-            throw generateSyntaxError(`Using "./" is not supported in Glimmer and unnecessary`, this.source.spanFor(path22.loc));
+            throw generateSyntaxError(`Using "./" is not supported in Glimmer and unnecessary`, this.source.spanFor(path23.loc));
           }
           if (original.slice(0, 3) === "../") {
-            throw generateSyntaxError(`Changing context using "../" is not supported in Glimmer`, this.source.spanFor(path22.loc));
+            throw generateSyntaxError(`Changing context using "../" is not supported in Glimmer`, this.source.spanFor(path23.loc));
           }
           if (original.indexOf(".") !== -1) {
-            throw generateSyntaxError(`Mixing '.' and '/' in paths is not supported in Glimmer; use only '.' to separate property paths`, this.source.spanFor(path22.loc));
+            throw generateSyntaxError(`Mixing '.' and '/' in paths is not supported in Glimmer; use only '.' to separate property paths`, this.source.spanFor(path23.loc));
           }
-          parts = [path22.parts.join("/")];
+          parts = [path23.parts.join("/")];
         } else if (original === ".") {
-          throw generateSyntaxError(`'.' is not a supported path in Glimmer; check for a path with a trailing '.'`, this.source.spanFor(path22.loc));
+          throw generateSyntaxError(`'.' is not a supported path in Glimmer; check for a path with a trailing '.'`, this.source.spanFor(path23.loc));
         } else {
-          parts = path22.parts;
+          parts = path23.parts;
         }
         let thisHead = false;
         if (/^this(?:\..+)?$/u.test(original)) {
@@ -190347,40 +190347,40 @@ var init_es = __esm({
         if (thisHead) {
           pathHead = b3.this({
             loc: this.source.spanFor({
-              start: path22.loc.start,
+              start: path23.loc.start,
               end: {
-                line: path22.loc.start.line,
-                column: path22.loc.start.column + 4
+                line: path23.loc.start.line,
+                column: path23.loc.start.column + 4
               }
             })
           });
-        } else if (path22.data) {
+        } else if (path23.data) {
           const head = parts.shift();
           if (head === void 0) {
-            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths beginning with @ must start with a-z.`, this.source.spanFor(path22.loc));
+            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths beginning with @ must start with a-z.`, this.source.spanFor(path23.loc));
           }
           pathHead = b3.atName({
             name: `@${head}`,
             loc: this.source.spanFor({
-              start: path22.loc.start,
+              start: path23.loc.start,
               end: {
-                line: path22.loc.start.line,
-                column: path22.loc.start.column + head.length + 1
+                line: path23.loc.start.line,
+                column: path23.loc.start.column + head.length + 1
               }
             })
           });
         } else {
           const head = parts.shift();
           if (head === void 0) {
-            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths must start with a-z or A-Z.`, this.source.spanFor(path22.loc));
+            throw generateSyntaxError(`Attempted to parse a path expression, but it was not valid. Paths must start with a-z or A-Z.`, this.source.spanFor(path23.loc));
           }
           pathHead = b3.var({
             name: head,
             loc: this.source.spanFor({
-              start: path22.loc.start,
+              start: path23.loc.start,
               end: {
-                line: path22.loc.start.line,
-                column: path22.loc.start.column + head.length
+                line: path23.loc.start.line,
+                column: path23.loc.start.column + head.length
               }
             })
           });
@@ -190388,7 +190388,7 @@ var init_es = __esm({
         return b3.path({
           head: pathHead,
           tail: parts,
-          loc: this.source.spanFor(path22.loc)
+          loc: this.source.spanFor(path23.loc)
         });
       }
       Hash(hash2) {
@@ -190524,7 +190524,7 @@ var init_es = __esm({
         } = this.currentStartTag;
         let nameLoc = nameStart.until(nameEnd);
         let [head, ...tail] = asPresentArray(name.split("."));
-        let path22 = b3.path({
+        let path23 = b3.path({
           head: b3.head({
             original: head,
             loc: nameLoc.sliceStartChars({
@@ -190543,7 +190543,7 @@ var init_es = __esm({
           loc: loc2
         } = this.finish(this.currentStartTag);
         let element3 = b3.element({
-          path: path22,
+          path: path23,
           selfClosing,
           attributes: attributes2,
           modifiers: modifiers2,
@@ -191760,12 +191760,12 @@ var init_es = __esm({
        */
       callParts(parts, context) {
         let {
-          path: path22,
+          path: path23,
           params,
           hash: hash2,
           loc: loc2
         } = parts;
-        let callee = this.normalize(path22, context);
+        let callee = this.normalize(path23, context);
         let paramList2 = params.map((p) => this.normalize(p, STRICT_RESOLUTION));
         let paramLoc = SpanList.range(paramList2, callee.loc.collapse("end"));
         let namedLoc = this.block.loc(hash2.loc);
@@ -191912,18 +191912,18 @@ var init_es = __esm({
        */
       MustacheStatement(mustache) {
         let {
-          path: path22,
+          path: path23,
           params,
           hash: hash2,
           trusting
         } = mustache;
         let loc2 = this.block.loc(mustache.loc);
         let value;
-        if (isLiteral(path22)) {
+        if (isLiteral(path23)) {
           if (params.length === 0 && hash2.pairs.length === 0) {
-            value = this.expr.normalize(path22);
+            value = this.expr.normalize(path23);
           } else {
-            assertIllegalLiteral(path22, loc2);
+            assertIllegalLiteral(path23, loc2);
           }
         } else {
           let resolution = this.block.resolutionFor(mustache, AppendSyntaxContext);
@@ -191931,7 +191931,7 @@ var init_es = __esm({
             throw generateSyntaxError(`You attempted to render a path (\`{{${resolution.path}}}\`), but ${resolution.head} was not in scope`, loc2);
           }
           let callParts = this.expr.callParts({
-            path: path22,
+            path: path23,
             params,
             hash: hash2,
             loc: loc2
@@ -192006,7 +192006,7 @@ var init_es = __esm({
         } = element3;
         let loc2 = this.ctx.loc(element3.loc);
         let [tagHead, ...rest2] = asPresentArray(tag2.split("."));
-        let path22 = this.classifyTag(tagHead, rest2, element3.loc);
+        let path23 = this.classifyTag(tagHead, rest2, element3.loc);
         let attrs = element3.attributes.filter((a) => a.name[0] !== "@").map((a) => this.attr(a));
         let args = element3.attributes.filter((a) => a.name[0] === "@").map((a) => this.arg(a));
         let modifiers2 = element3.modifiers.map((m2) => this.modifier(m2));
@@ -192026,7 +192026,7 @@ var init_es = __esm({
           chars: tag2.length,
           skipStart: 1
         });
-        if (path22 === "ElementHead") {
+        if (path23 === "ElementHead") {
           if (tag2[0] === ":") {
             return children.assertNamedBlock(tagOffsets.slice({
               skipStart: 1
@@ -192036,10 +192036,10 @@ var init_es = __esm({
           }
         }
         if (element3.selfClosing) {
-          return el.selfClosingComponent(path22, loc2);
+          return el.selfClosingComponent(path23, loc2);
         } else {
           let blocks = children.assertComponent(tag2, child.table, element3.blockParams.length > 0);
-          return el.componentWithNamedBlocks(path22, blocks, loc2);
+          return el.componentWithNamedBlocks(path23, blocks, loc2);
         }
       }
       modifier(m2) {
@@ -192064,16 +192064,16 @@ var init_es = __esm({
        */
       mustacheAttr(mustache) {
         let {
-          path: path22,
+          path: path23,
           params,
           hash: hash2,
           loc: loc2
         } = mustache;
-        if (isLiteral(path22)) {
+        if (isLiteral(path23)) {
           if (params.length === 0 && hash2.pairs.length === 0) {
-            return this.expr.normalize(path22);
+            return this.expr.normalize(path23);
           } else {
-            assertIllegalLiteral(path22, loc2);
+            assertIllegalLiteral(path23, loc2);
           }
         }
         let resolution = this.ctx.resolutionFor(mustache, AttrValueSyntaxContext);
@@ -192147,15 +192147,15 @@ var init_es = __esm({
           return;
         }
         let {
-          path: path22
+          path: path23
         } = value;
-        if (path22.type !== "PathExpression") {
+        if (path23.type !== "PathExpression") {
           return;
         }
-        if (path22.tail.length > 0) {
+        if (path23.tail.length > 0) {
           return;
         }
-        let resolution = this.ctx.resolutionFor(path22, () => {
+        let resolution = this.ctx.resolutionFor(path23, () => {
           return null;
         });
         if (resolution.result === "error" && resolution.path !== "has-block") {
@@ -192212,7 +192212,7 @@ var init_es = __esm({
         let pathEnd = variableLoc.getEnd().move(tailLength);
         let pathLoc = variableLoc.withEnd(pathEnd);
         if (isComponent) {
-          let path22 = b3.path({
+          let path23 = b3.path({
             head: b3.head({
               original: variable2,
               loc: variableLoc
@@ -192222,11 +192222,11 @@ var init_es = __esm({
           });
           let resolution = this.ctx.isLexicalVar(variable2) ? {
             result: STRICT_RESOLUTION
-          } : this.ctx.resolutionFor(path22, ComponentSyntaxContext);
+          } : this.ctx.resolutionFor(path23, ComponentSyntaxContext);
           if (resolution.result === "error") {
             throw generateSyntaxError(`You attempted to invoke a path (\`<${resolution.path}>\`) but ${resolution.head} was not in scope`, loc2);
           }
-          return new ExpressionNormalizer(this.ctx).normalize(path22, resolution.result);
+          return new ExpressionNormalizer(this.ctx).normalize(path23, resolution.result);
         } else {
           this.ctx.table.allocateFree(variable2, STRICT_RESOLUTION);
         }
@@ -192442,8 +192442,8 @@ var init_optional = __esm({
 
 // src/formats/markup.ts
 function paramName(source2, taken) {
-  const path22 = source2.trim().replace(/\.(?:length|size)$/, "");
-  const last = /([A-Za-z_$][\w$]*)\s*(?:\(\s*\))?\s*$/.exec(path22)?.[1];
+  const path23 = source2.trim().replace(/\.(?:length|size)$/, "");
+  const last = /([A-Za-z_$][\w$]*)\s*(?:\(\s*\))?\s*$/.exec(path23)?.[1];
   let base = last && /^[A-Za-z_]\w*$/.test(last) ? last : "value";
   if (base === "t" || base === "$t" || base === "_") base = "value";
   let name = base;
@@ -192671,12 +192671,12 @@ function scriptLiterals(script, offset2) {
   }
   const found2 = [];
   traverse4(ast, {
-    CallExpression(path22) {
-      const callee = path22.node.callee;
-      if (t3.isIdentifier(callee) && /^(useHead|useServerHead|useSeoMeta|useServerSeoMeta)$/.test(callee.name) && t3.isObjectExpression(path22.node.arguments[0])) {
+    CallExpression(path23) {
+      const callee = path23.node.callee;
+      if (t3.isIdentifier(callee) && /^(useHead|useServerHead|useSeoMeta|useServerSeoMeta)$/.test(callee.name) && t3.isObjectExpression(path23.node.arguments[0])) {
         const seo = /SeoMeta$/.test(callee.name);
         const field = (o, k) => o.properties.find((p) => t3.isObjectProperty(p) && !p.computed && (t3.isIdentifier(p.key, { name: k }) || t3.isStringLiteral(p.key, { value: k })));
-        for (const p of path22.node.arguments[0].properties) {
+        for (const p of path23.node.arguments[0].properties) {
           if (!t3.isObjectProperty(p) || p.computed) continue;
           const key2 = t3.isIdentifier(p.key) ? p.key.name : t3.isStringLiteral(p.key) ? p.key.value : "";
           const values = [];
@@ -192697,16 +192697,16 @@ function scriptLiterals(script, offset2) {
         return;
       }
       const sink = sinkName(callee);
-      const arg = path22.node.arguments[0];
+      const arg = path23.node.arguments[0];
       if (!sink || !arg) return;
       const lit2 = literalMessage(arg, offset2, script);
-      if (lit2) found2.push({ ...lit2, sink, method: inMethod(path22) });
+      if (lit2) found2.push({ ...lit2, sink, method: inMethod(path23) });
     },
-    AssignmentExpression(path22) {
-      const { left, right } = path22.node;
+    AssignmentExpression(path23) {
+      const { left, right } = path23.node;
       if (!t3.isMemberExpression(left) || !t3.isIdentifier(left.object, { name: "document" }) || !t3.isIdentifier(left.property, { name: "title" })) return;
       const lit2 = literalMessage(right, offset2, script);
-      if (lit2) found2.push({ ...lit2, sink: "document.title", method: inMethod(path22) });
+      if (lit2) found2.push({ ...lit2, sink: "document.title", method: inMethod(path23) });
     }
   });
   return found2;
@@ -192716,8 +192716,8 @@ function bindsName(script, name) {
     const ast = (0, import_parser3.parse)(script, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
     let bound = false;
     traverse4(ast, {
-      Scope(path22) {
-        if (path22.scope.hasOwnBinding(name)) bound = true, path22.stop();
+      Scope(path23) {
+        if (path23.scope.hasOwnBinding(name)) bound = true, path23.stop();
       }
     });
     return bound;
@@ -192790,8 +192790,8 @@ var init_script2 = __esm({
       }
       return null;
     };
-    inMethod = (path22) => {
-      const fn2 = path22.getFunctionParent();
+    inMethod = (path23) => {
+      const fn2 = path23.getFunctionParent();
       let p = fn2;
       while (p && p.isArrowFunctionExpression()) p = p.parentPath?.getFunctionParent() ?? null;
       return !!p && (p.isObjectMethod() || p.isFunctionExpression() && !!p.parentPath?.isObjectProperty());
@@ -202484,17 +202484,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key2, node2, visitor, path22) {
-      const ctrl = callVisitor(key2, node2, visitor, path22);
+    function visit_(key2, node2, visitor, path23) {
+      const ctrl = callVisitor(key2, node2, visitor, path23);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key2, path22, ctrl);
-        return visit_(key2, ctrl, visitor, path22);
+        replaceNode(key2, path23, ctrl);
+        return visit_(key2, ctrl, visitor, path23);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node2)) {
-          path22 = Object.freeze(path22.concat(node2));
+          path23 = Object.freeze(path23.concat(node2));
           for (let i3 = 0; i3 < node2.items.length; ++i3) {
-            const ci = visit_(i3, node2.items[i3], visitor, path22);
+            const ci = visit_(i3, node2.items[i3], visitor, path23);
             if (typeof ci === "number")
               i3 = ci - 1;
             else if (ci === BREAK)
@@ -202505,13 +202505,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node2)) {
-          path22 = Object.freeze(path22.concat(node2));
-          const ck = visit_("key", node2.key, visitor, path22);
+          path23 = Object.freeze(path23.concat(node2));
+          const ck = visit_("key", node2.key, visitor, path23);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node2.key = null;
-          const cv = visit_("value", node2.value, visitor, path22);
+          const cv = visit_("value", node2.value, visitor, path23);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -202532,17 +202532,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key2, node2, visitor, path22) {
-      const ctrl = await callVisitor(key2, node2, visitor, path22);
+    async function visitAsync_(key2, node2, visitor, path23) {
+      const ctrl = await callVisitor(key2, node2, visitor, path23);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key2, path22, ctrl);
-        return visitAsync_(key2, ctrl, visitor, path22);
+        replaceNode(key2, path23, ctrl);
+        return visitAsync_(key2, ctrl, visitor, path23);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node2)) {
-          path22 = Object.freeze(path22.concat(node2));
+          path23 = Object.freeze(path23.concat(node2));
           for (let i3 = 0; i3 < node2.items.length; ++i3) {
-            const ci = await visitAsync_(i3, node2.items[i3], visitor, path22);
+            const ci = await visitAsync_(i3, node2.items[i3], visitor, path23);
             if (typeof ci === "number")
               i3 = ci - 1;
             else if (ci === BREAK)
@@ -202553,13 +202553,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node2)) {
-          path22 = Object.freeze(path22.concat(node2));
-          const ck = await visitAsync_("key", node2.key, visitor, path22);
+          path23 = Object.freeze(path23.concat(node2));
+          const ck = await visitAsync_("key", node2.key, visitor, path23);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node2.key = null;
-          const cv = await visitAsync_("value", node2.value, visitor, path22);
+          const cv = await visitAsync_("value", node2.value, visitor, path23);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -202586,23 +202586,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key2, node2, visitor, path22) {
+    function callVisitor(key2, node2, visitor, path23) {
       if (typeof visitor === "function")
-        return visitor(key2, node2, path22);
+        return visitor(key2, node2, path23);
       if (identity.isMap(node2))
-        return visitor.Map?.(key2, node2, path22);
+        return visitor.Map?.(key2, node2, path23);
       if (identity.isSeq(node2))
-        return visitor.Seq?.(key2, node2, path22);
+        return visitor.Seq?.(key2, node2, path23);
       if (identity.isPair(node2))
-        return visitor.Pair?.(key2, node2, path22);
+        return visitor.Pair?.(key2, node2, path23);
       if (identity.isScalar(node2))
-        return visitor.Scalar?.(key2, node2, path22);
+        return visitor.Scalar?.(key2, node2, path23);
       if (identity.isAlias(node2))
-        return visitor.Alias?.(key2, node2, path22);
+        return visitor.Alias?.(key2, node2, path23);
       return void 0;
     }
-    function replaceNode(key2, path22, node2) {
-      const parent = path22[path22.length - 1];
+    function replaceNode(key2, path23, node2) {
+      const parent = path23[path23.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key2] = node2;
       } else if (identity.isPair(parent)) {
@@ -203214,10 +203214,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node3 = require_Node();
-    function collectionFromPath(schema, path22, value) {
+    function collectionFromPath(schema, path23, value) {
       let v2 = value;
-      for (let i3 = path22.length - 1; i3 >= 0; --i3) {
-        const k = path22[i3];
+      for (let i3 = path23.length - 1; i3 >= 0; --i3) {
+        const k = path23[i3];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v2;
@@ -203236,7 +203236,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path22) => path22 == null || typeof path22 === "object" && !!path22[Symbol.iterator]().next().done;
+    var isEmptyPath = (path23) => path23 == null || typeof path23 === "object" && !!path23[Symbol.iterator]().next().done;
     var Collection = class extends Node3.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -203266,11 +203266,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path22, value) {
-        if (isEmptyPath(path22))
+      addIn(path23, value) {
+        if (isEmptyPath(path23))
           this.add(value);
         else {
-          const [key2, ...rest2] = path22;
+          const [key2, ...rest2] = path23;
           const node2 = this.get(key2, true);
           if (identity.isCollection(node2))
             node2.addIn(rest2, value);
@@ -203284,8 +203284,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path22) {
-        const [key2, ...rest2] = path22;
+      deleteIn(path23) {
+        const [key2, ...rest2] = path23;
         if (rest2.length === 0)
           return this.delete(key2);
         const node2 = this.get(key2, true);
@@ -203299,8 +203299,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path22, keepScalar) {
-        const [key2, ...rest2] = path22;
+      getIn(path23, keepScalar) {
+        const [key2, ...rest2] = path23;
         const node2 = this.get(key2, true);
         if (rest2.length === 0)
           return !keepScalar && identity.isScalar(node2) ? node2.value : node2;
@@ -203318,8 +203318,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path22) {
-        const [key2, ...rest2] = path22;
+      hasIn(path23) {
+        const [key2, ...rest2] = path23;
         if (rest2.length === 0)
           return this.has(key2);
         const node2 = this.get(key2, true);
@@ -203329,8 +203329,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path22, value) {
-        const [key2, ...rest2] = path22;
+      setIn(path23, value) {
+        const [key2, ...rest2] = path23;
         if (rest2.length === 0) {
           this.set(key2, value);
         } else {
@@ -205845,9 +205845,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path22, value) {
+      addIn(path23, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path22, value);
+          this.contents.addIn(path23, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -205922,14 +205922,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path22) {
-        if (Collection.isEmptyPath(path22)) {
+      deleteIn(path23) {
+        if (Collection.isEmptyPath(path23)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path22) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path23) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -205944,10 +205944,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path22, keepScalar) {
-        if (Collection.isEmptyPath(path22))
+      getIn(path23, keepScalar) {
+        if (Collection.isEmptyPath(path23))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path22, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path23, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -205958,10 +205958,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path22) {
-        if (Collection.isEmptyPath(path22))
+      hasIn(path23) {
+        if (Collection.isEmptyPath(path23))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path22) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path23) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -205978,13 +205978,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path22, value) {
-        if (Collection.isEmptyPath(path22)) {
+      setIn(path23, value) {
+        if (Collection.isEmptyPath(path23)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path22), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path23), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path22, value);
+          this.contents.setIn(path23, value);
         }
       }
       /**
@@ -207945,9 +207945,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path22) => {
+    visit.itemAtPath = (cst, path23) => {
       let item = cst;
-      for (const [field, index] of path22) {
+      for (const [field, index] of path23) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -207956,23 +207956,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path22) => {
-      const parent = visit.itemAtPath(cst, path22.slice(0, -1));
-      const field = path22[path22.length - 1][0];
+    visit.parentCollection = (cst, path23) => {
+      const parent = visit.itemAtPath(cst, path23.slice(0, -1));
+      const field = path23[path23.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path22, item, visitor) {
-      let ctrl = visitor(item, path22);
+    function _visit(path23, item, visitor) {
+      let ctrl = visitor(item, path23);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token2 = item[field];
         if (token2 && "items" in token2) {
           for (let i3 = 0; i3 < token2.items.length; ++i3) {
-            const ci = _visit(Object.freeze(path22.concat([[field, i3]])), token2.items[i3], visitor);
+            const ci = _visit(Object.freeze(path23.concat([[field, i3]])), token2.items[i3], visitor);
             if (typeof ci === "number")
               i3 = ci - 1;
             else if (ci === BREAK)
@@ -207983,10 +207983,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path22);
+            ctrl = ctrl(item, path23);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path22) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path23) : ctrl;
     }
     exports.visit = visit;
   }
@@ -209288,14 +209288,14 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs22 = this.flowScalar(this.type);
+              const fs23 = this.flowScalar(this.type);
               if (atNextItem || it.value) {
-                map.items.push({ start: start2, key: fs22, sep: [] });
+                map.items.push({ start: start2, key: fs23, sep: [] });
                 this.onKeyLine = true;
               } else if (it.sep) {
-                this.stack.push(fs22);
+                this.stack.push(fs23);
               } else {
-                Object.assign(it, { key: fs22, sep: [] });
+                Object.assign(it, { key: fs23, sep: [] });
                 this.onKeyLine = true;
               }
               return;
@@ -209423,13 +209423,13 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs22 = this.flowScalar(this.type);
+              const fs23 = this.flowScalar(this.type);
               if (!it || it.value)
-                fc.items.push({ start: [], key: fs22, sep: [] });
+                fc.items.push({ start: [], key: fs23, sep: [] });
               else if (it.sep)
-                this.stack.push(fs22);
+                this.stack.push(fs23);
               else
-                Object.assign(it, { key: fs22, sep: [] });
+                Object.assign(it, { key: fs23, sep: [] });
               return;
             }
             case "flow-map-end":
@@ -212943,15 +212943,15 @@ function scanKit(code2, filePath) {
     strings2.push({ id: id3, originalText: lit2.text, nodeType: "StringLiteral", filePath, loc: lineOf(code2, lit2.start), component, element: sink, ...lit2.params.length ? { params: lit2.params.map((p) => p.name) } : {} });
   };
   traverse9(ast, {
-    CallExpression(path22) {
-      const callee = path22.node.callee;
+    CallExpression(path23) {
+      const callee = path23.node.callee;
       if (!t8.isIdentifier(callee) || callee.name !== "fail" && callee.name !== "error") return;
-      const at2 = path22.scope.getBinding(callee.name)?.path;
+      const at2 = path23.scope.getBinding(callee.name)?.path;
       if (!at2?.isImportSpecifier() || at2.parentPath.node.source.value !== "@sveltejs/kit") return;
-      const arg = path22.node.arguments[1];
+      const arg = path23.node.arguments[1];
       if (t8.isObjectExpression(arg)) {
-        for (const p of arg.properties) if (t8.isObjectProperty(p) && !p.computed) take(path22, p.value, `${callee.name}()`);
-      } else take(path22, arg, `${callee.name}()`);
+        for (const p of arg.properties) if (t8.isObjectProperty(p) && !p.computed) take(path23, p.value, `${callee.name}()`);
+      } else take(path23, arg, `${callee.name}()`);
     }
   });
   return { strings: strings2, warnings: warnings2, sites };
@@ -216430,7 +216430,7 @@ var init_setup_frameworks = __esm({
     init_seo();
     toPosix = (p) => p.split(path8.sep).join("/");
     GENERATED = "Generated by localize.dev";
-    SELF_VERSION = true ? "0.34.6" : "0.6.0";
+    SELF_VERSION = true ? "0.35.0" : "0.6.0";
     isGenerated = (code2) => /Generated by localize\.dev/i.test(code2);
     VUE_I18N = { "vue-i18n": "^11.1.0" };
     SVELTE_I18N = { "svelte-i18n": "^4.0.1" };
@@ -220130,7 +220130,7 @@ var init_setup = __esm({
     NOT_SOURCE = ["**/node_modules/**", "**/*.d.ts", "**/{dist,build,out,coverage,.next,.react-router,.svelte-kit,.output,.astro,.vercel,.netlify}/**"];
     ENTRY_NAMES = ["main", "index"].flatMap((n4) => ["tsx", "jsx", "ts", "js"].map((e2) => `${n4}.${e2}`));
     EXTS2 = ["tsx", "jsx", "ts", "js"];
-    SELF_VERSION2 = true ? "0.34.6" : "0.6.0";
+    SELF_VERSION2 = true ? "0.35.0" : "0.6.0";
     isLegacySwitcher = (code2) => isGenerated(code2) && code2.includes("function nameOf(") && code2.includes("<select") && !code2.includes("localize-dev/react");
     LOCKFILES = { npm: "package-lock.json", pnpm: "pnpm-lock.yaml", yarn: "yarn.lock", bun: "bun.lock" };
     LOCK_ONLY = {
@@ -220648,11 +220648,11 @@ function parse20(text4) {
     return null;
   }
 }
-function jsonCatalog(ctx, file2, at2, flat) {
+function jsonCatalog(ctx, file2, at2, flat2) {
   const styles = /* @__PURE__ */ new Map();
   const messages = [];
   const groups = /* @__PURE__ */ new Map();
-  for (const [p, text4] of flat) {
+  for (const [p, text4] of flat2) {
     const m2 = SUFFIX2.exec(p[p.length - 1]);
     if (!m2) continue;
     const base = [...p.slice(0, -1), m2[1]];
@@ -220667,7 +220667,7 @@ function jsonCatalog(ctx, file2, at2, flat) {
     styles.set(id3, { kind: "i18next", path: g3.path });
     messages.push({ key: id3, value: g3.forms, context: `plural "${g3.path.join(".")}"` });
   }
-  for (const [p, text4] of flat) {
+  for (const [p, text4] of flat2) {
     const suffix = SUFFIX2.exec(p[p.length - 1]);
     if (suffix && groups.has(JSON.stringify([...p.slice(0, -1), suffix[1]])) || !text4.trim()) continue;
     const key2 = JSON.stringify(p);
@@ -220789,9 +220789,132 @@ var init_json = __esm({
           const at2 = localeSegment(file2, ctx.sourceLocale);
           if (!at2) continue;
           const source2 = parse20(ctx.read(file2));
-          const flat = source2 && leaves(source2);
-          if (!flat?.length) continue;
-          catalogs.push(jsonCatalog(ctx, file2, at2, flat));
+          const flat2 = source2 && leaves(source2);
+          if (!flat2?.length) continue;
+          catalogs.push(jsonCatalog(ctx, file2, at2, flat2));
+        }
+        return catalogs;
+      }
+    };
+  }
+});
+
+// src/sync/formats/text-keyed-json.ts
+import * as fs15 from "node:fs";
+import * as path15 from "node:path";
+function flat(text4) {
+  try {
+    const v2 = text4?.trim() ? JSON.parse(text4) : null;
+    if (!v2 || typeof v2 !== "object" || Array.isArray(v2)) return null;
+    return Object.values(v2).every((x) => typeof x === "string") ? v2 : null;
+  } catch {
+    return null;
+  }
+}
+function codeMessages(cwd, dir) {
+  const root = path15.join(cwd, path15.dirname(dir));
+  const out = [];
+  for (const f2 of import_fast_glob12.default.sync(CODE, { cwd: root, ignore: CODE_IGNORE })) {
+    const code2 = fs15.readFileSync(path15.join(root, f2), "utf8");
+    for (const m2 of code2.matchAll(CALL)) {
+      const text4 = (m2[1] ?? m2[2] ?? m2[3]).replace(/\\n/g, "\n").replace(/\\(['"`\\])/g, "$1");
+      if (text4.trim() && !NAME.test(text4)) out.push(text4);
+    }
+  }
+  return out;
+}
+function unionOf(lists) {
+  const order = [];
+  const seen2 = /* @__PURE__ */ new Set();
+  for (const keys of lists) {
+    let after = -1;
+    for (const k of keys) {
+      if (seen2.has(k)) {
+        after = order.indexOf(k);
+        continue;
+      }
+      order.splice(after + 1, 0, k);
+      seen2.add(k);
+      after++;
+    }
+  }
+  return order;
+}
+function textKeyedCatalog(ctx, dir, files) {
+  const style = styleOf(files[0].code);
+  const fileFor = (locale) => files.find((f2) => toBcp47(f2.code) === toBcp47(locale))?.file ?? `${dir === "." ? "" : `${dir}/`}${spell(locale, style)}.json`;
+  const source2 = unionOf([...files.map((f2) => Object.keys(f2.messages)), codeMessages(ctx.cwd, dir)]);
+  const rank = new Map(source2.map((k, i3) => [k, i3]));
+  const messages = [];
+  for (const text4 of source2) {
+    if (!text4.trim()) continue;
+    if (parseIcuPlural(text4) || parseIcuSelect(text4) || hasNestedIcu(text4)) {
+      ctx.warn(`${dir}: "${text4}" is a plural or select message; translate it by hand.`);
+      continue;
+    }
+    messages.push({ key: JSON.stringify([text4]), value: text4 });
+  }
+  const textOf = (key2) => JSON.parse(key2)[0];
+  return {
+    label: "JSON (source text as keys)",
+    file: fileFor(ctx.sourceLocale),
+    messages,
+    locales: files.map((f2) => toBcp47(f2.code)).sort(),
+    textKeys: true,
+    tokens: TOKENS6,
+    targetFile: fileFor,
+    present(content) {
+      const target = flat(content) ?? {};
+      return new Set(messages.filter((m2) => target[textOf(m2.key)]?.trim()).map((m2) => m2.key));
+    },
+    write(content, _locale, values) {
+      const target = flat(content) ?? {};
+      const order = Object.keys(target);
+      const added = [...values.keys()].map(textOf).filter((t10) => !(t10 in target)).sort((a, b4) => rank.get(a) - rank.get(b4));
+      for (const text4 of added) {
+        let at2 = -1;
+        for (let i3 = rank.get(text4) - 1; i3 >= 0 && at2 < 0; i3--) at2 = order.indexOf(source2[i3]);
+        order.splice(at2 + 1, 0, text4);
+      }
+      for (const [key2, value] of values) if (typeof value === "string") target[textOf(key2)] = value;
+      const out = Object.fromEntries(order.filter((k) => k in target).map((k) => [k, target[k]]));
+      return `${JSON.stringify(out, null, indentOf(content))}${content === void 0 || content.endsWith("\n") ? "\n" : ""}`;
+    }
+  };
+}
+var import_fast_glob12, TOKENS6, CODE, CODE_IGNORE, CALL, NAME, looksLikeText, textKeyedJsonFormat;
+var init_text_keyed_json = __esm({
+  "src/sync/formats/text-keyed-json.ts"() {
+    "use strict";
+    import_fast_glob12 = __toESM(require_out4(), 1);
+    init_icu();
+    init_locale();
+    init_placeholders();
+    init_shared();
+    TOKENS6 = new RegExp([/\{\{[^{}]+\}\}/, /%\{\w+\}/, PRINTF].map((r) => r.source).join("|"));
+    CODE = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,astro}";
+    CODE_IGNORE = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.svelte-kit/**", "**/coverage/**", "**/*.d.ts", "**/tests/**", "**/*.{test,spec}.*"];
+    CALL = /(?<![\w$.])\$?t\(\s*(?:'((?:\\.|[^'\\\n])*)'|"((?:\\.|[^"\\\n])*)"|`((?:\\.|[^`\\$])*)`)\s*[,)]/g;
+    NAME = /^[\w$-]+(?:\.[\w$-]+)+$|^[a-z_$][\w$]*_[\w$]+$/;
+    looksLikeText = (key2) => !NAME.test(key2) && (/\s/.test(key2.trim()) || new RegExp("^\\p{Lu}\\p{Ll}*[.!?\u2026:]?$", "u").test(key2));
+    textKeyedJsonFormat = {
+      find(ctx) {
+        const folders = /* @__PURE__ */ new Map();
+        for (const file2 of ctx.files) {
+          const name = path15.posix.basename(file2, ".json");
+          const locale = file2.endsWith(".json") ? toBcp47(name) : null;
+          if (!locale || !isLanguage(locale.split("-")[0])) continue;
+          const dir = path15.posix.dirname(file2);
+          folders.set(dir, [...folders.get(dir) ?? [], { code: name, file: file2 }]);
+        }
+        const catalogs = [];
+        for (const [dir, entries] of folders) {
+          if (entries.some((e2) => toBcp47(e2.code) === toBcp47(ctx.sourceLocale))) continue;
+          const files = entries.map((e2) => ({ ...e2, messages: flat(ctx.read(e2.file)) }));
+          if (files.some((f2) => !f2.messages)) continue;
+          const keys = files.flatMap((f2) => Object.keys(f2.messages));
+          if (keys.length < 3 || keys.filter(looksLikeText).length < keys.length * 0.8) continue;
+          catalogs.push(textKeyedCatalog(ctx, dir, files));
         }
         return catalogs;
       }
@@ -220815,7 +220938,7 @@ function rootLocale(doc) {
   const key2 = root.items[0].key;
   return (0, import_yaml2.isScalar)(key2) && typeof key2.value === "string" ? key2.value : null;
 }
-var import_yaml2, TOKENS6, CATEGORIES, isPluralMap, yamlFormat;
+var import_yaml2, TOKENS7, CATEGORIES, isPluralMap, yamlFormat;
 var init_yaml = __esm({
   "src/sync/formats/yaml.ts"() {
     "use strict";
@@ -220824,7 +220947,7 @@ var init_yaml = __esm({
     init_locale();
     init_placeholders();
     init_shared();
-    TOKENS6 = new RegExp([/%\{\w+\}/, /%<\w+>[sdif]/, /\{\{[^{}]+\}\}/, PRINTF].map((r) => r.source).join("|"));
+    TOKENS7 = new RegExp([/%\{\w+\}/, /%<\w+>[sdif]/, /\{\{[^{}]+\}\}/, PRINTF].map((r) => r.source).join("|"));
     CATEGORIES = new Set(PLURAL_CATEGORIES);
     isPluralMap = (v2) => {
       const keys = Object.keys(v2);
@@ -220864,7 +220987,7 @@ var init_yaml = __esm({
             file: file2,
             messages,
             locales: siblingLocales(ctx.files, file2, at2, ctx.sourceLocale),
-            tokens: TOKENS6,
+            tokens: TOKENS7,
             targetFile: (locale) => swapLocale(file2, at2, locale),
             present(content, locale) {
               const target = load(content);
@@ -220898,8 +221021,8 @@ var init_yaml = __esm({
 
 // src/sync/lock.ts
 import { createHash } from "node:crypto";
-import * as fs15 from "node:fs";
-import * as path15 from "node:path";
+import * as fs16 from "node:fs";
+import * as path16 from "node:path";
 function displayKey(key2) {
   if (!key2.startsWith("[")) return key2;
   try {
@@ -220911,7 +221034,7 @@ function displayKey(key2) {
 }
 function readLock(cwd) {
   try {
-    const lock = JSON.parse(fs15.readFileSync(path15.join(cwd, LOCK_FILE), "utf8"));
+    const lock = JSON.parse(fs16.readFileSync(path16.join(cwd, LOCK_FILE), "utf8"));
     return {
       messages: lock && typeof lock.messages === "object" ? lock.messages : {},
       ...lock && typeof lock.content === "object" ? { content: lock.content } : {}
@@ -220956,11 +221079,11 @@ __export(sync_exports, {
   translateFiles: () => translateFiles,
   vuePluralsIn: () => vuePluralsIn
 });
-import * as fs16 from "node:fs";
-import * as path16 from "node:path";
+import * as fs17 from "node:fs";
+import * as path17 from "node:path";
 function readText2(abs) {
-  if (!fs16.existsSync(abs)) return void 0;
-  const buf = fs16.readFileSync(abs);
+  if (!fs17.existsSync(abs)) return void 0;
+  const buf = fs17.readFileSync(abs);
   if (buf[0] === 255 && buf[1] === 254) return buf.subarray(2).toString("utf16le");
   if (buf[0] === 254 && buf[1] === 255) return Buffer.from(buf.subarray(2)).swap16().toString("utf16le");
   return buf.toString("utf8").replace(/^﻿/, "");
@@ -220969,7 +221092,7 @@ function vuePluralsIn(cwd, interpolation) {
   if (interpolation === "vue") return true;
   if (interpolation) return false;
   try {
-    const pkg = JSON.parse(fs16.readFileSync(path16.join(cwd, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs17.readFileSync(path17.join(cwd, "package.json"), "utf8"));
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
     return "vue" in deps || "nuxt" in deps || "vue-i18n" in deps;
   } catch {
@@ -220994,7 +221117,7 @@ function missingIn(catalog, locales2, current2, outdated) {
 async function localeFileGaps(cwd, opts) {
   const read2 = (file2) => {
     try {
-      return fs16.readFileSync(path16.join(cwd, file2), "utf8");
+      return fs17.readFileSync(path17.join(cwd, file2), "utf8");
     } catch {
       return void 0;
     }
@@ -221014,18 +221137,18 @@ async function localeFileGaps(cwd, opts) {
 async function findCatalogs(cwd, sourceLocale, opts = {}) {
   const cache = /* @__PURE__ */ new Map();
   const read2 = (file2) => {
-    if (!cache.has(file2)) cache.set(file2, readText2(path16.join(cwd, file2)));
+    if (!cache.has(file2)) cache.set(file2, readText2(path17.join(cwd, file2)));
     return cache.get(file2);
   };
-  const files = (await (0, import_fast_glob12.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false })).sort();
+  const files = (await (0, import_fast_glob13.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false })).sort();
   const ctx = { cwd, sourceLocale, files, read: read2, warn: opts.warn ?? (() => {
   }), vuePlurals: !!opts.vuePlurals };
   const seen2 = /* @__PURE__ */ new Set();
   return FORMATS.flatMap((f2) => f2.find(ctx)).filter((c) => !seen2.has(`${c.file}\0${c.label}`) && !!seen2.add(`${c.file}\0${c.label}`));
 }
 async function lockNewMessages(cwd, opts) {
-  const read2 = (file2) => opts.overlay?.has(file2) ? opts.overlay.get(file2) : readText2(path16.join(cwd, file2));
-  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob12.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
+  const read2 = (file2) => opts.overlay?.has(file2) ? opts.overlay.get(file2) : readText2(path17.join(cwd, file2));
+  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob13.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
   const ctx = { cwd, sourceLocale: opts.sourceLocale, files, read: read2, warn: () => {
   }, vuePlurals: !!opts.vuePlurals };
   const lockText = read2(LOCK_FILE);
@@ -221033,7 +221156,7 @@ async function lockNewMessages(cwd, opts) {
   const lock = readLock(cwd);
   if (opts.overlay?.has(LOCK_FILE)) lock.messages = JSON.parse(lockText).messages ?? {};
   let changed = false;
-  for (const catalog of FORMATS.flatMap((f2) => f2.find(ctx)).filter((c) => opts.onlyFiles.includes(c.file))) {
+  for (const catalog of FORMATS.flatMap((f2) => f2.find(ctx)).filter((c) => opts.onlyFiles.includes(c.file) && !c.textKeys)) {
     const known = lock.messages[catalog.file] ??= {};
     for (const m2 of catalog.messages) {
       if (known[displayKey(m2.key)] !== void 0) continue;
@@ -221050,10 +221173,10 @@ async function translateFiles(opts) {
   const cache = /* @__PURE__ */ new Map();
   const read2 = (file2) => {
     if (opts.overlay?.has(file2)) return opts.overlay.get(file2);
-    if (!cache.has(file2)) cache.set(file2, readText2(path16.join(cwd, file2)));
+    if (!cache.has(file2)) cache.set(file2, readText2(path17.join(cwd, file2)));
     return cache.get(file2);
   };
-  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob12.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
+  const files = [.../* @__PURE__ */ new Set([...await (0, import_fast_glob13.default)(PATTERNS, { cwd, ignore: IGNORE3, dot: false }), ...opts.overlay?.keys() ?? []])].sort();
   const ctx = { cwd, sourceLocale: opts.sourceLocale, files, read: read2, warn: (m2) => warnings2.push(m2), vuePlurals: !!opts.vuePlurals };
   const syntaxOf = (catalog) => catalog.label === "Flutter ARB" ? arbSyntax(read2("l10n.yaml")) : "other";
   const seen2 = /* @__PURE__ */ new Set();
@@ -221237,7 +221360,7 @@ async function translateFiles(opts) {
   }
   stats.strings = total - unfinished;
   const nextLock = readLock(cwd);
-  for (const catalog of catalogs) {
+  for (const catalog of catalogs.filter((c) => !c.textKeys)) {
     const plan = plans.find((p) => p.catalog === catalog);
     const byLocale = plan ? results.get(plan) : void 0;
     const before2 = lock.messages[catalog.file] ?? {};
@@ -221261,7 +221384,7 @@ async function translateFiles(opts) {
     }
   }
   const lockText = serializeLock(nextLock);
-  if (catalogs.length && lockText !== read2(LOCK_FILE)) {
+  if (catalogs.some((c) => !c.textKeys) && lockText !== read2(LOCK_FILE)) {
     contents.set(LOCK_FILE, lockText);
     changed.add(LOCK_FILE);
   }
@@ -221271,9 +221394,9 @@ async function translateFiles(opts) {
   }
   if (opts.write) {
     for (const f2 of out) {
-      const abs = path16.join(cwd, f2.path);
-      fs16.mkdirSync(path16.dirname(abs), { recursive: true });
-      fs16.writeFileSync(abs, f2.content);
+      const abs = path17.join(cwd, f2.path);
+      fs17.mkdirSync(path17.dirname(abs), { recursive: true });
+      fs17.writeFileSync(abs, f2.content);
     }
   }
   return {
@@ -221287,11 +221410,11 @@ async function translateFiles(opts) {
     ...failure ? { incomplete: { error: failure.error, strings: unfinished } } : {}
   };
 }
-var import_fast_glob12, FORMATS, PATTERNS, IGNORE3, MAX_TEXT, MAX_CONTEXT2;
+var import_fast_glob13, FORMATS, PATTERNS, IGNORE3, MAX_TEXT, MAX_CONTEXT2;
 var init_sync = __esm({
   "src/sync/index.ts"() {
     "use strict";
-    import_fast_glob12 = __toESM(require_out4(), 1);
+    import_fast_glob13 = __toESM(require_out4(), 1);
     init_pipeline();
     init_apple();
     init_arb();
@@ -221299,12 +221422,13 @@ var init_sync = __esm({
     init_chrome();
     init_json();
     init_po();
+    init_text_keyed_json();
     init_yaml();
     init_locale();
     init_placeholders();
     init_lock();
     init_validate();
-    FORMATS = [jsonFormat, yamlFormat, poFormat, arbFormat, androidFormat, ...appleFormats, chromeFormat];
+    FORMATS = [jsonFormat, textKeyedJsonFormat, yamlFormat, poFormat, arbFormat, androidFormat, ...appleFormats, chromeFormat];
     PATTERNS = ["**/*.{json,yml,yaml,po,arb,xcstrings}", "**/res/values*/*.xml", "**/composeResources/values*/*.xml", "**/*.lproj/*.strings", "**/_locales/*/messages.json"];
     IGNORE3 = [
       "**/node_modules/**",
@@ -221332,14 +221456,14 @@ var init_sync = __esm({
 });
 
 // src/pipeline.ts
-import * as fs17 from "node:fs";
-import * as path17 from "node:path";
+import * as fs18 from "node:fs";
+import * as path18 from "node:path";
 function qwikHead(cwd, config) {
   if (config.framework !== "qwik") return void 0;
   const file2 = solidModulePath(cwd, config);
-  const abs = path17.join(cwd, file2);
-  if (!fs17.existsSync(abs)) return true;
-  const code2 = fs17.readFileSync(abs, "utf8");
+  const abs = path18.join(cwd, file2);
+  if (!fs18.existsSync(abs)) return true;
+  const code2 = fs18.readFileSync(abs, "utf8");
   const exports = (name) => new RegExp(`export\\s+(?:function|const)\\s+${name}\\b`).test(code2);
   if (isGenerated(code2) || exports("translator") && exports("langOf")) return true;
   return `${file2} has no translator(lang) and langOf(pathname) for a route's head, where useTranslation() can't run: export them, then run again`;
@@ -221359,22 +221483,22 @@ function moneyOptions(cwd, config) {
   return { lang: config.framework === "solid" ? "i18n.language" : "i18next.language", currency: config.currency };
 }
 async function scanProject(cwd, config, log) {
-  const root = path17.join(cwd, config.srcDir);
-  const files = (await (0, import_fast_glob13.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
+  const root = path18.join(cwd, config.srcDir);
+  const files = (await (0, import_fast_glob14.default)(config.include, { cwd: root, ignore: config.ignore })).sort();
   const scanned = [];
   const moduleCopy = /* @__PURE__ */ new Map();
   const copyUses = /* @__PURE__ */ new Map();
-  const plainModule = (abs) => /\.(ts|js|mjs)$/.test(abs) && !abs.endsWith(".d.ts") && fs17.existsSync(abs) && fs17.statSync(abs).isFile();
+  const plainModule = (abs) => /\.(ts|js|mjs)$/.test(abs) && !abs.endsWith(".d.ts") && fs18.existsSync(abs) && fs18.statSync(abs).isFile();
   const resolver2 = createResolver(cwd);
   const resolveModule = (fromFile, specifier) => {
-    const abs = resolver2(path17.join(cwd, fromFile), specifier);
+    const abs = resolver2(path18.join(cwd, fromFile), specifier);
     return abs && plainModule(abs) ? abs : null;
   };
-  const modules = new Set((await (0, import_fast_glob13.default)("**/*.{ts,tsx,js,jsx,mjs}", { cwd: root, ignore: [...config.ignore, "**/*.d.ts"] })).map((f2) => path17.join(root, f2)));
-  const ignored = (abs) => !path17.relative(root, abs).startsWith("..") && !modules.has(abs);
+  const modules = new Set((await (0, import_fast_glob14.default)("**/*.{ts,tsx,js,jsx,mjs}", { cwd: root, ignore: [...config.ignore, "**/*.d.ts"] })).map((f2) => path18.join(root, f2)));
+  const ignored = (abs) => !path18.relative(root, abs).startsWith("..") && !modules.has(abs);
   const copyIn = (abs) => {
     if (ignored(abs)) return null;
-    if (!moduleCopy.has(abs)) moduleCopy.set(abs, exportedCopy(fs17.readFileSync(abs, "utf8")));
+    if (!moduleCopy.has(abs)) moduleCopy.set(abs, exportedCopy(fs18.readFileSync(abs, "utf8")));
     return moduleCopy.get(abs);
   };
   const warnings2 = [];
@@ -221391,8 +221515,8 @@ async function scanProject(cwd, config, log) {
   const next2 = nextAppRouter(cwd, config);
   const sideOf = next2 ? componentSides(cwd, next2.appDir) : null;
   for (const rel of files) {
-    const file2 = toPosix3(path17.join(config.srcDir, rel));
-    const code2 = fs17.readFileSync(path17.join(cwd, file2), "utf8");
+    const file2 = toPosix3(path18.join(config.srcDir, rel));
+    const code2 = fs18.readFileSync(path18.join(cwd, file2), "utf8");
     const adapter = await adapterFor(file2, config.framework);
     if (adapter) {
       try {
@@ -221429,11 +221553,11 @@ async function scanProject(cwd, config, log) {
       for (const use of result.renderedImports ?? []) {
         const abs = resolveModule(file2, use.specifier);
         if (!abs || listed.has(`${abs}\0${use.name}`)) continue;
-        if (!helpers.has(abs)) helpers.set(abs, exportedHelperCopy(fs17.readFileSync(abs, "utf8")));
+        if (!helpers.has(abs)) helpers.set(abs, exportedHelperCopy(fs18.readFileSync(abs, "utf8")));
         const found2 = helpers.get(abs).get(use.name);
         if (!found2) continue;
         listed.add(`${abs}\0${use.name}`);
-        const module = toPosix3(path17.relative(cwd, abs));
+        const module = toPosix3(path18.relative(cwd, abs));
         for (const f2 of found2) {
           warnings2.push({ filePath: module, loc: { line: f2.line, column: 0 }, text: f2.text, reason: `returned by ${use.name}(), in a module outside components that ${file2} renders, where no hook can run: return a key and render it with t(), or move the text into the component` });
         }
@@ -221448,7 +221572,7 @@ async function scanProject(cwd, config, log) {
       unreadable(file2, err);
     }
   }
-  const componentFiles = new Set(scanned.map((s) => path17.join(cwd, s.file)));
+  const componentFiles = new Set(scanned.map((s) => path18.join(cwd, s.file)));
   const others = [...modules].filter((f2) => !componentFiles.has(f2));
   const byModule = /* @__PURE__ */ new Map();
   for (const [id3, followed] of copyUses) {
@@ -221456,14 +221580,14 @@ async function scanProject(cwd, config, log) {
     if (!followed) continue;
     const importedElsewhere = others.some((f2) => {
       if (f2 === abs) return false;
-      const text4 = fs17.readFileSync(f2, "utf8");
-      return [...text4.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"]/g)].some((m2) => new RegExp(`\\b${name}\\b`).test(m2[1]) && resolveModule(toPosix3(path17.relative(cwd, f2)), m2[2]) === abs);
+      const text4 = fs18.readFileSync(f2, "utf8");
+      return [...text4.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"]/g)].some((m2) => new RegExp(`\\b${name}\\b`).test(m2[1]) && resolveModule(toPosix3(path18.relative(cwd, f2)), m2[2]) === abs);
     });
     if (!importedElsewhere) byModule.set(abs, [...byModule.get(abs) ?? [], name]);
   }
   for (const [abs, names3] of byModule) {
-    const code2 = fs17.readFileSync(abs, "utf8");
-    const file2 = toPosix3(path17.relative(cwd, abs));
+    const code2 = fs18.readFileSync(abs, "utf8");
+    const file2 = toPosix3(path18.relative(cwd, abs));
     const strings2 = [];
     const sites = /* @__PURE__ */ new Map();
     for (const name of names3) {
@@ -221477,7 +221601,7 @@ async function scanProject(cwd, config, log) {
   }
   const shell = spaShell(cwd, config);
   if (shell) {
-    const code2 = fs17.readFileSync(path17.join(cwd, shell), "utf8");
+    const code2 = fs18.readFileSync(path18.join(cwd, shell), "utf8");
     const strings2 = [];
     const take = (text4, key2, element3, at2) => {
       const message = normalizeWhitespace(decodeEntities(text4 ?? "")).trim();
@@ -221522,21 +221646,21 @@ async function pool(items, limit, fn2) {
 function richOptions(cwd, config, file2) {
   if (config.framework === "angular") return { richModule: "i18n-t", angularMajor: angularMajor(cwd) };
   if (config.framework === "ember") {
-    let spec3 = path17.posix.relative(path17.posix.dirname(file2), EMBER_RICH);
+    let spec3 = path18.posix.relative(path18.posix.dirname(file2), EMBER_RICH);
     if (!spec3.startsWith(".")) spec3 = `./${spec3}`;
     return { richModule: spec3 };
   }
   const target = config.framework === "svelte" && file2.endsWith(".svelte") ? svelteRichPath(cwd, config) : null;
   if (!target) return {};
-  let spec2 = path17.posix.relative(path17.posix.dirname(file2), target);
+  let spec2 = path18.posix.relative(path18.posix.dirname(file2), target);
   if (!spec2.startsWith(".")) spec2 = `./${spec2}`;
   return { richModule: spec2, ...svelteMajor(cwd) < 5 ? { richSlots: true } : {} };
 }
 async function runPipeline(opts) {
   const { cwd, config, translator, log } = opts;
   const { filesScanned, scanned, warnings: warnings2 } = await scanProject(cwd, config, log);
-  const store = storeFor(config, path17.basename(path17.resolve(cwd)));
-  const fileText = (p) => fs17.existsSync(path17.join(cwd, p)) ? fs17.readFileSync(path17.join(cwd, p), "utf8") : void 0;
+  const store = storeFor(config, path18.basename(path18.resolve(cwd)));
+  const fileText = (p) => fs18.existsSync(path18.join(cwd, p)) ? fs18.readFileSync(path18.join(cwd, p), "utf8") : void 0;
   const sourcePath = store.path(config.sourceLocale);
   const sourceDict = store.read(fileText(sourcePath), config.sourceLocale);
   const targets = new Map(
@@ -221754,19 +221878,19 @@ ${result.code}`;
     const solid2 = config.framework === "solid";
     let deps = {};
     try {
-      const pkg = JSON.parse(fs17.readFileSync(path17.join(cwd, "package.json"), "utf8"));
+      const pkg = JSON.parse(fs18.readFileSync(path18.join(cwd, "package.json"), "utf8"));
       deps = { ...pkg.dependencies, ...pkg.devDependencies };
     } catch {
     }
-    const ready = stats.stringsReplaced > 0 || (solid2 ? fs17.existsSync(path17.join(cwd, solidModulePath(cwd, config))) : component === "vue" ? "vue-i18n" in deps || "@nuxtjs/i18n" in deps : component === "svelte" ? "svelte-i18n" in deps : "i18next" in deps);
+    const ready = stats.stringsReplaced > 0 || (solid2 ? fs18.existsSync(path18.join(cwd, solidModulePath(cwd, config))) : component === "vue" ? "vue-i18n" in deps || "@nuxtjs/i18n" in deps : component === "svelte" ? "svelte-i18n" in deps : "i18next" in deps);
     const appRouter = nextAppRouter(cwd, config);
-    const all = ready && !appRouter ? (await (0, import_fast_glob13.default)(config.include, { cwd: path17.join(cwd, config.srcDir), ignore: config.ignore })).sort() : [];
+    const all = ready && !appRouter ? (await (0, import_fast_glob14.default)(config.include, { cwd: path18.join(cwd, config.srcDir), ignore: config.ignore })).sort() : [];
     localizeAllFormats = (vueModuleReady, again = false) => {
       for (const rel of all) {
-        const file2 = toPosix3(path17.join(config.srcDir, rel));
+        const file2 = toPosix3(path18.join(config.srcDir, rel));
         if (!(component ? file2.endsWith(`.${component}`) : /\.(tsx|jsx)$/.test(file2))) continue;
         const existing = files.find((f2) => f2.path === file2);
-        const code2 = existing?.content ?? fs17.readFileSync(path17.join(cwd, file2), "utf8");
+        const code2 = existing?.content ?? fs18.readFileSync(path18.join(cwd, file2), "utf8");
         const vueModule2 = component === "vue" && vueModuleReady ? relativeImport(file2, solidModulePath(cwd, config)) : void 0;
         const result = component ? localizeComponentFormats(code2, file2, { kind: component, vueModule: vueModule2, currency: config.currency }) : localizeFormats(
           code2,
@@ -221777,16 +221901,16 @@ ${result.code}`;
         if (result.code === code2) continue;
         if (existing) existing.content = result.code;
         else files.push({ path: file2, content: result.code });
-        if (result.changes.length) formats.set(file2, [...formats.get(file2) ?? [], ...existing ? linesAsWritten(result.changes, fs17.readFileSync(path17.join(cwd, file2), "utf8")) : result.changes]);
+        if (result.changes.length) formats.set(file2, [...formats.get(file2) ?? [], ...existing ? linesAsWritten(result.changes, fs18.readFileSync(path18.join(cwd, file2), "utf8")) : result.changes]);
         stats.formatsLocalized += result.changes.length;
       }
     };
-    localizeAllFormats(component === "vue" && fs17.existsSync(path17.join(cwd, solidModulePath(cwd, config))));
+    localizeAllFormats(component === "vue" && fs18.existsSync(path18.join(cwd, solidModulePath(cwd, config))));
   }
   const dicts = [[sourcePath, sourceDict, config.sourceLocale], ...[...targets].map(([l2, t10]) => [t10.path, t10.dict, l2])];
   for (const [p, content] of serializeAll(dicts)) {
     if (content === null) continue;
-    const missingArb = config.localesPath.endsWith(".arb") && opts.setup !== false && !fs17.existsSync(path17.join(cwd, p));
+    const missingArb = config.localesPath.endsWith(".arb") && opts.setup !== false && !fs18.existsSync(path18.join(cwd, p));
     if (content !== originals.get(p) || missingArb) files.push({ path: toPosix3(p), content });
   }
   const setup = opts.setup === false ? { files: [], addedDependencies: {}, notes: [] } : (
@@ -221794,7 +221918,7 @@ ${result.code}`;
     await planI18nSetup({ cwd, config, files, upgradeOnly: !stats.stringsReplaced })
   );
   const vueModule = solidModulePath(cwd, config);
-  if (component === "vue" && localizeAllFormats && setup.i18nFile === vueModule && !fs17.existsSync(path17.join(cwd, vueModule))) localizeAllFormats(true, true);
+  if (component === "vue" && localizeAllFormats && setup.i18nFile === vueModule && !fs18.existsSync(path18.join(cwd, vueModule))) localizeAllFormats(true, true);
   if (opts.setup !== false && setup.i18nFile) {
     const attributes2 = withLocaleAttributes(cwd, config);
     if (attributes2) {
@@ -221803,14 +221927,14 @@ ${result.code}`;
     }
   }
   const allFiles = mergeFiles(files, setup.files).filter((f2) => {
-    const abs = path17.join(cwd, f2.path);
-    return !fs17.existsSync(abs) || fs17.readFileSync(abs, "utf8") !== f2.content;
+    const abs = path18.join(cwd, f2.path);
+    return !fs18.existsSync(abs) || fs18.readFileSync(abs, "utf8") !== f2.content;
   });
   if (opts.write) {
     for (const f2 of allFiles) {
-      const abs = path17.join(cwd, f2.path);
-      fs17.mkdirSync(path17.dirname(abs), { recursive: true });
-      fs17.writeFileSync(abs, f2.content);
+      const abs = path18.join(cwd, f2.path);
+      fs18.mkdirSync(path18.dirname(abs), { recursive: true });
+      fs18.writeFileSync(abs, f2.content);
     }
   }
   return {
@@ -221928,12 +222052,12 @@ async function refreshOutdated(o) {
     vuePlurals: vuePluralsIn2(o.cwd, o.config.interpolation)
   });
 }
-var import_fast_glob13, USE_CLIENT2, duration, toPosix3, BATCH_SIZE, CONCURRENCY, EMAIL_LIBRARIES, isEmailTemplate;
+var import_fast_glob14, USE_CLIENT2, duration, toPosix3, BATCH_SIZE, CONCURRENCY, EMAIL_LIBRARIES, isEmailTemplate;
 var init_pipeline = __esm({
   "src/pipeline.ts"() {
     "use strict";
     init_dist();
-    import_fast_glob13 = __toESM(require_out4(), 1);
+    import_fast_glob14 = __toESM(require_out4(), 1);
     init_scanner();
     init_formats();
     init_transformer();
@@ -221958,7 +222082,7 @@ var init_pipeline = __esm({
       const s = Math.round(ms / 1e3);
       return s >= 60 ? `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s` : `${s}s`;
     };
-    toPosix3 = (p) => p.split(path17.sep).join("/");
+    toPosix3 = (p) => p.split(path18.sep).join("/");
     BATCH_SIZE = 10;
     CONCURRENCY = 2;
     EMAIL_LIBRARIES = /^(?:react-email|@react-email\/|jsx-email|mjml-react|@faire\/mjml-react)/;
@@ -221967,8 +222091,8 @@ var init_pipeline = __esm({
 });
 
 // src/action/main.ts
-import * as fs21 from "node:fs";
-import * as path21 from "node:path";
+import * as fs22 from "node:fs";
+import * as path22 from "node:path";
 
 // ../../node_modules/@actions/core/lib/command.js
 import * as os from "os";
@@ -222722,7 +222846,7 @@ async function createLocalizationPullRequest(params) {
   const edits = branchSha ? await keepEdits(github, repo, baseSha, branchSha, files) : { kept: [], replaced: [] };
   const tree = await github("POST", `${repo}/git/trees`, {
     base_tree: baseCommit.tree.sha,
-    tree: [...files].map(([path22, content]) => ({ path: path22, mode: "100644", type: "blob", content }))
+    tree: [...files].map(([path23, content]) => ({ path: path23, mode: "100644", type: "blob", content }))
   });
   const commit = await github("POST", `${repo}/git/commits`, {
     message: params.commitMessage ?? `i18n(localize.dev): extract UI strings into translation keys`,
@@ -222753,7 +222877,7 @@ async function keepEdits(github, repo, baseSha, branchSha, files) {
   const onBranch = await github("GET", `${repo}/compare/${baseSha}...${branchSha}`);
   const proposal = onBranch.commits[0]?.sha;
   if (!proposal || proposal === branchSha) return { kept, replaced };
-  const read2 = (path22, ref2) => github("GET", `${repo}/contents/${refPath(path22)}?ref=${ref2}`).then(
+  const read2 = (path23, ref2) => github("GET", `${repo}/contents/${refPath(path23)}?ref=${ref2}`).then(
     (file2) => file2.content === void 0 ? null : Buffer.from(file2.content, "base64").toString("utf8"),
     (err) => {
       if (err.status !== 404) throw err;
@@ -222761,23 +222885,23 @@ async function keepEdits(github, repo, baseSha, branchSha, files) {
     }
   );
   const changed = await github("GET", `${repo}/compare/${proposal}...${branchSha}`);
-  for (const { filename: path22 } of changed.files ?? []) {
-    const [before2, theirs, ours2] = await Promise.all([read2(path22, proposal), read2(path22, branchSha), files.has(path22) ? files.get(path22) : read2(path22, baseSha)]);
+  for (const { filename: path23 } of changed.files ?? []) {
+    const [before2, theirs, ours2] = await Promise.all([read2(path23, proposal), read2(path23, branchSha), files.has(path23) ? files.get(path23) : read2(path23, baseSha)]);
     if (theirs === null || theirs === ours2) continue;
     if (ours2 === before2) {
-      files.set(path22, theirs);
-      kept.push(path22);
+      files.set(path23, theirs);
+      kept.push(path23);
       continue;
     }
-    if (/\.(json|arb)$/i.test(path22) && before2 !== null && ours2 !== null) {
+    if (/\.(json|arb)$/i.test(path23) && before2 !== null && ours2 !== null) {
       try {
-        files.set(path22, mergeLocaleJson(before2, ours2, theirs, "theirs").text);
-        kept.push(path22);
+        files.set(path23, mergeLocaleJson(before2, ours2, theirs, "theirs").text);
+        kept.push(path23);
         continue;
       } catch {
       }
     }
-    replaced.push(path22);
+    replaced.push(path23);
   }
   return { kept, replaced };
 }
@@ -222804,8 +222928,8 @@ async function upsertPullRequestComment(p) {
 var refPath = (ref2) => ref2.split("/").map(encodeURIComponent).join("/");
 function client(token2, baseUrl = "https://api.github.com") {
   const root = baseUrl.replace(/\/+$/, "");
-  return async function github(method2, path22, body) {
-    const res = await fetch(`${root}${path22}`, {
+  return async function github(method2, path23, body) {
+    const res = await fetch(`${root}${path23}`, {
       method: method2,
       headers: {
         authorization: `Bearer ${token2}`,
@@ -222821,7 +222945,7 @@ function client(token2, baseUrl = "https://api.github.com") {
     if (!res.ok) {
       const detail = data2?.message ?? res.statusText;
       const errors = Array.isArray(data2?.errors) ? data2.errors.map((e2) => e2.message ?? e2.code).filter(Boolean) : [];
-      const error2 = new Error(`GitHub ${method2} ${path22.split("?")[0]} failed (${res.status}): ${[detail, ...errors].join("; ")}`);
+      const error2 = new Error(`GitHub ${method2} ${path23.split("?")[0]} failed (${res.status}): ${[detail, ...errors].join("; ")}`);
       error2.status = res.status;
       throw error2;
     }
@@ -222836,15 +222960,15 @@ init_setup();
 
 // src/check.ts
 init_config();
-var import_fast_glob15 = __toESM(require_out4(), 1);
+var import_fast_glob16 = __toESM(require_out4(), 1);
 init_dictionary();
 init_pipeline();
 init_stores();
 init_sync();
 init_placeholders();
 init_lock();
-import * as fs19 from "node:fs";
-import * as path19 from "node:path";
+import * as fs20 from "node:fs";
+import * as path20 from "node:path";
 
 // src/comments.ts
 var JS = { line: ["//"], block: ["/*", "*/"], quotes: ["'", '"', "`"], interp: [["`", "${", "}"]], regex: true };
@@ -223018,41 +223142,41 @@ init_text_ranges();
 init_rtl();
 
 // src/workspaces.ts
-var import_fast_glob14 = __toESM(require_out4(), 1);
+var import_fast_glob15 = __toESM(require_out4(), 1);
 init_framework();
 init_component_graph();
 init_setup();
 init_stores();
-import * as fs18 from "node:fs";
-import * as path18 from "node:path";
+import * as fs19 from "node:fs";
+import * as path19 from "node:path";
 function workspacePatterns(root) {
   try {
-    const pkg = JSON.parse(fs18.readFileSync(path18.join(root, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs19.readFileSync(path19.join(root, "package.json"), "utf8"));
     const ws = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages;
     if (Array.isArray(ws) && ws.length) return ws;
   } catch {
   }
-  const yaml = path18.join(root, "pnpm-workspace.yaml");
-  if (!fs18.existsSync(yaml)) return null;
-  const list4 = /^packages:\s*\n((?:[ \t]+-.*\n?|[ \t]*#.*\n?|[ \t]*\n)*)/m.exec(fs18.readFileSync(yaml, "utf8"))?.[1] ?? "";
+  const yaml = path19.join(root, "pnpm-workspace.yaml");
+  if (!fs19.existsSync(yaml)) return null;
+  const list4 = /^packages:\s*\n((?:[ \t]+-.*\n?|[ \t]*#.*\n?|[ \t]*\n)*)/m.exec(fs19.readFileSync(yaml, "utf8"))?.[1] ?? "";
   const patterns = [...list4.matchAll(/^[ \t]+-[ \t]*['"]?([^'"#\n]+?)['"]?[ \t]*(?:#.*)?$/gm)].map((m2) => m2[1]);
   return patterns.length ? patterns : null;
 }
 function librariesOf(cwd) {
-  const app = path18.resolve(cwd);
-  for (let dir = path18.dirname(app); ; dir = path18.dirname(dir)) {
+  const app = path19.resolve(cwd);
+  for (let dir = path19.dirname(app); ; dir = path19.dirname(dir)) {
     if (workspacePatterns(dir)) {
       const found2 = workspaceApps(dir);
-      const me = found2?.apps.find((a) => path18.resolve(dir, a.dir) === app);
-      return (me?.uses ?? []).map((l2) => path18.resolve(dir, l2));
+      const me = found2?.apps.find((a) => path19.resolve(dir, a.dir) === app);
+      return (me?.uses ?? []).map((l2) => path19.resolve(dir, l2));
     }
-    if (path18.dirname(dir) === dir) return [];
+    if (path19.dirname(dir) === dir) return [];
   }
 }
 function workspaceApps(root) {
   const patterns = workspacePatterns(root);
   if (!patterns) return null;
-  const manifests = import_fast_glob14.default.sync(
+  const manifests = import_fast_glob15.default.sync(
     patterns.map((p) => p.startsWith("!") ? `!${p.slice(1).replace(/\/+$/, "")}/package.json` : `${p.replace(/\/+$/, "")}/package.json`),
     { cwd: root, ignore: ["**/node_modules/**"] }
   );
@@ -223060,18 +223184,18 @@ function workspaceApps(root) {
   const libraries = [];
   const skipped = [];
   for (const manifest of manifests.sort()) {
-    const dir = path18.posix.dirname(manifest);
-    const pkg = JSON.parse(fs18.readFileSync(path18.join(root, manifest), "utf8"));
+    const dir = path19.posix.dirname(manifest);
+    const pkg = JSON.parse(fs19.readFileSync(path19.join(root, manifest), "utf8"));
     const library = !pkg.scripts?.dev && !pkg.scripts?.start;
     let framework;
     try {
-      framework = detectFramework(path18.join(root, dir));
+      framework = detectFramework(path19.join(root, dir));
     } catch (err) {
       if (!(err instanceof UnsupportedFrameworkError)) throw err;
       skipped.push({ dir, reason: library ? "a library without a UI framework" : err.message.split(":")[0] });
       continue;
     }
-    if (framework === "html" && !import_fast_glob14.default.sync("**/*.html", { cwd: path18.join(root, dir), ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"], deep: 6 }).length) {
+    if (framework === "html" && !import_fast_glob15.default.sync("**/*.html", { cwd: path19.join(root, dir), ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"], deep: 6 }).length) {
       skipped.push({ dir, reason: library ? "a library without a UI framework" : "no UI framework or HTML pages" });
       continue;
     }
@@ -223087,10 +223211,10 @@ function mergeLibraryLocales(root, lib, app, write3, pending = /* @__PURE__ */ n
   const from = storeFor(lib.config);
   const to = storeFor(app.config);
   const read2 = (dir, file2) => {
-    const rel = path18.posix.join(dir, file2);
+    const rel = path19.posix.join(dir, file2);
     if (pending.has(rel)) return pending.get(rel);
-    const abs = path18.join(root, rel);
-    return fs18.existsSync(abs) ? fs18.readFileSync(abs, "utf8") : void 0;
+    const abs = path19.join(root, rel);
+    return fs19.existsSync(abs) ? fs19.readFileSync(abs, "utf8") : void 0;
   };
   const merge = (into, add) => {
     let changed = false;
@@ -223114,10 +223238,10 @@ function mergeLibraryLocales(root, lib, app, write3, pending = /* @__PURE__ */ n
     if (locale === app.config.sourceLocale) merge(appSource, dict2);
     const content = to.serialize(dict2, locale, original, appSource);
     if (content === null || content === original) continue;
-    const file2 = path18.posix.join(app.dir, target);
+    const file2 = path19.posix.join(app.dir, target);
     if (write3) {
-      fs18.mkdirSync(path18.dirname(path18.join(root, file2)), { recursive: true });
-      fs18.writeFileSync(path18.join(root, file2), content);
+      fs19.mkdirSync(path19.dirname(path19.join(root, file2)), { recursive: true });
+      fs19.writeFileSync(path19.join(root, file2), content);
     }
     files.push({ path: file2, content });
   }
@@ -223125,7 +223249,7 @@ function mergeLibraryLocales(root, lib, app, write3, pending = /* @__PURE__ */ n
 }
 function declareLibraryImports(root, lib, apps, write3) {
   const pkgOf = (dir, files) => {
-    const text4 = files.find((f2) => f2.path === "package.json")?.content ?? (fs18.existsSync(path18.join(root, dir, "package.json")) ? fs18.readFileSync(path18.join(root, dir, "package.json"), "utf8") : void 0);
+    const text4 = files.find((f2) => f2.path === "package.json")?.content ?? (fs19.existsSync(path19.join(root, dir, "package.json")) ? fs19.readFileSync(path19.join(root, dir, "package.json"), "utf8") : void 0);
     return text4 === void 0 ? null : { text: text4, pkg: JSON.parse(text4) };
   };
   const own = pkgOf(lib.dir, lib.files);
@@ -223149,16 +223273,16 @@ function declareLibraryImports(root, lib, apps, write3) {
   const sorted = (deps) => Object.fromEntries(Object.entries({ ...deps, ...wanted }).sort(([a], [b4]) => a.localeCompare(b4)));
   const next2 = { ...own.pkg, peerDependencies: sorted(own.pkg.peerDependencies), devDependencies: sorted(own.pkg.devDependencies) };
   const content = writeJsonLike(own.text, next2);
-  const file2 = path18.posix.join(lib.dir, "package.json");
-  if (write3) fs18.writeFileSync(path18.join(root, file2), content);
+  const file2 = path19.posix.join(lib.dir, "package.json");
+  if (write3) fs19.writeFileSync(path19.join(root, file2), content);
   return { path: file2, content };
 }
 function libraryClientModules(root, lib, apps, write3) {
   const nextApp = apps.some((a) => {
     try {
-      const pkg = JSON.parse(fs18.readFileSync(path18.join(root, a.dir, "package.json"), "utf8"));
+      const pkg = JSON.parse(fs19.readFileSync(path19.join(root, a.dir, "package.json"), "utf8"));
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-      return !!deps.next && ["app", "src/app"].some((d3) => fs18.existsSync(path18.join(root, a.dir, d3)));
+      return !!deps.next && ["app", "src/app"].some((d3) => fs19.existsSync(path19.join(root, a.dir, d3)));
     } catch {
       return false;
     }
@@ -223168,19 +223292,19 @@ function libraryClientModules(root, lib, apps, write3) {
   for (const file2 of lib.files) {
     if (!/\.[jt]sx?$/.test(file2.path) || !/from\s*['"]react-i18next['"]/.test(file2.content) || USE_CLIENT3.test(file2.content)) continue;
     if (!canBeClientModule(file2.content)) {
-      cannot.push(path18.posix.join(lib.dir, file2.path));
+      cannot.push(path19.posix.join(lib.dir, file2.path));
       continue;
     }
     file2.content = `'use client';
 
 ${file2.content}`;
-    if (write3) fs18.writeFileSync(path18.join(root, lib.dir, file2.path), file2.content);
+    if (write3) fs19.writeFileSync(path19.join(root, lib.dir, file2.path), file2.content);
   }
   return cannot;
 }
 var USE_CLIENT3 = /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*(['"])use client\1/;
 function mergeResults(results) {
-  const at2 = (dir, p) => path18.posix.join(dir, p);
+  const at2 = (dir, p) => path19.posix.join(dir, p);
   const merged = {
     files: [],
     replacements: /* @__PURE__ */ new Map(),
@@ -223214,19 +223338,19 @@ function mergeResults(results) {
 
 // src/check.ts
 var QUOTED_KEYS = /* @__PURE__ */ new Set([void 0, "react", "react-native", "vue", "svelte", "angular", "astro", "solid", "qwik", "lit", "ember", "html"]);
-var CODE = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,astro,html,hbs,gjs,gts}";
+var CODE2 = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,astro,html,hbs,gjs,gts}";
 var IGNORE4 = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.nuxt/**", "**/.svelte-kit/**", "**/.output/**", "**/coverage/**", "**/*.d.ts"];
 async function unusedKeys(cwd, config) {
   const store = storeFor(config);
   const file2 = store.path(config.sourceLocale);
   if (!QUOTED_KEYS.has(config.framework) || store.textKeys) return { file: file2, keys: [] };
-  const abs = path19.join(cwd, file2);
-  if (!fs19.existsSync(abs)) return { file: file2, keys: [] };
-  const flat = [...flatten(store.read(fs19.readFileSync(abs, "utf8"), config.sourceLocale)).keys()];
-  const keys = [...new Set(flat.map(messageKeyIn(flat)))];
+  const abs = path20.join(cwd, file2);
+  if (!fs20.existsSync(abs)) return { file: file2, keys: [] };
+  const flat2 = [...flatten(store.read(fs20.readFileSync(abs, "utf8"), config.sourceLocale)).keys()];
+  const keys = [...new Set(flat2.map(messageKeyIn(flat2)))];
   let code2 = "";
-  for (const dir of [path19.join(cwd, config.srcDir), ...librariesOf(cwd).map((lib) => path19.join(lib, loadConfig(lib).srcDir))]) {
-    for (const f2 of await (0, import_fast_glob15.default)(CODE, { cwd: dir, ignore: IGNORE4 })) code2 += `${withoutComments(fs19.readFileSync(path19.join(dir, f2), "utf8"), f2)}
+  for (const dir of [path20.join(cwd, config.srcDir), ...librariesOf(cwd).map((lib) => path20.join(lib, loadConfig(lib).srcDir))]) {
+    for (const f2 of await (0, import_fast_glob16.default)(CODE2, { cwd: dir, ignore: IGNORE4 })) code2 += `${withoutComments(fs20.readFileSync(path20.join(dir, f2), "utf8"), f2)}
 `;
   }
   const prefixes = [...code2.matchAll(/`([\w.-]*)\$\{/g)].map((m2) => m2[1]).filter((p) => p.includes(".") || p.length > 2);
@@ -223248,22 +223372,22 @@ function messageKeyIn(sourceKeys) {
 }
 function localizedInPlace(cwd, config) {
   const store = storeFor(config);
-  const flat = flatOf(cwd, store, config.sourceLocale);
-  const ios2 = config.framework === "ios" ? swiftUIKeys(cwd, config, flat) : null;
-  if (!flat && !ios2) return () => false;
+  const flat2 = flatOf(cwd, store, config.sourceLocale);
+  const ios2 = config.framework === "ios" ? swiftUIKeys(cwd, config, flat2) : null;
+  if (!flat2 && !ios2) return () => false;
   return (s) => {
-    if (s.fixedKey) return flat?.get(s.fixedKey) === s.originalText;
+    if (s.fixedKey) return flat2?.get(s.fixedKey) === s.originalText;
     if (ios2 && s.element !== "UIKit") return ios2.has(formatFree(textKeyFor(s.originalText, config.interpolation, s.plural)));
     return false;
   };
 }
-function swiftUIKeys(cwd, config, flat) {
+function swiftUIKeys(cwd, config, flat2) {
   const keys = /* @__PURE__ */ new Set();
   const add = (key2) => keys.add(formatFree(decodeKey(key2.replace(/\.other$/, ""))));
-  for (const k of flat?.keys() ?? []) add(k);
-  for (const file2 of import_fast_glob15.default.sync("**/*.xcstrings", { cwd, ignore: IGNORE3 })) {
+  for (const k of flat2?.keys() ?? []) add(k);
+  for (const file2 of import_fast_glob16.default.sync("**/*.xcstrings", { cwd, ignore: IGNORE3 })) {
     try {
-      for (const k of flatten(xcstringsStore(file2, config.sourceLocale).read(fs19.readFileSync(path19.join(cwd, file2), "utf8"), config.sourceLocale)).keys()) add(k);
+      for (const k of flatten(xcstringsStore(file2, config.sourceLocale).read(fs20.readFileSync(path20.join(cwd, file2), "utf8"), config.sourceLocale)).keys()) add(k);
     } catch {
     }
   }
@@ -223272,9 +223396,9 @@ function swiftUIKeys(cwd, config, flat) {
 var FORMAT = new RegExp(PRINTF.source, "g");
 var formatFree = (key2) => key2.replace(FORMAT, (m2) => m2 === "%%" ? "%" : "%@").replace(/\s+/g, " ");
 function flatOf(cwd, store, locale) {
-  const file2 = path19.join(cwd, store.path(locale));
-  if (!fs19.existsSync(file2)) return null;
-  return flatten(store.read(fs19.readFileSync(file2, "utf8"), locale));
+  const file2 = path20.join(cwd, store.path(locale));
+  if (!fs20.existsSync(file2)) return null;
+  return flatten(store.read(fs20.readFileSync(file2, "utf8"), locale));
 }
 function pluralCategoriesOf(locale) {
   try {
@@ -223284,9 +223408,9 @@ function pluralCategoriesOf(locale) {
   }
 }
 function keysOf(cwd, store, locale, toMessage = messageKey) {
-  const file2 = path19.join(cwd, store.path(locale));
-  if (!fs19.existsSync(file2)) return null;
-  const dict2 = store.read(fs19.readFileSync(file2, "utf8"), locale);
+  const file2 = path20.join(cwd, store.path(locale));
+  if (!fs20.existsSync(file2)) return null;
+  const dict2 = store.read(fs20.readFileSync(file2, "utf8"), locale);
   return new Set([...flatten(dict2)].filter(([, v2]) => v2.trim() !== "").map(([k]) => toMessage(k)));
 }
 async function checkProject(cwd, config, log, only) {
@@ -223343,8 +223467,8 @@ async function checkProject(cwd, config, log, only) {
   const rawValues = [];
   if (only !== "translations") {
     const store = storeFor(config);
-    const abs = path19.join(cwd, store.path(config.sourceLocale));
-    const source2 = fs19.existsSync(abs) ? flatten(store.read(fs19.readFileSync(abs, "utf8"), config.sourceLocale)) : /* @__PURE__ */ new Map();
+    const abs = path20.join(cwd, store.path(config.sourceLocale));
+    const source2 = fs20.existsSync(abs) ? flatten(store.read(fs20.readFileSync(abs, "utf8"), config.sourceLocale)) : /* @__PURE__ */ new Map();
     for (const [key2, text4] of source2) {
       const value = RAW_VALUE.exec(text4);
       if (value) rawValues.push({ file: store.path(config.sourceLocale), line: 0, text: `${messageKey(key2)}: "${text4}" shows {${value[1]}} as stored` });
@@ -223369,7 +223493,7 @@ async function checkLocaleFiles(cwd, config) {
 }
 function hasConfiguredLocales(cwd) {
   try {
-    return Array.isArray(JSON.parse(fs19.readFileSync(path19.join(cwd, "localize.config.json"), "utf8")).targetLocales);
+    return Array.isArray(JSON.parse(fs20.readFileSync(path20.join(cwd, "localize.config.json"), "utf8")).targetLocales);
   } catch {
     return false;
   }
@@ -223377,20 +223501,20 @@ function hasConfiguredLocales(cwd) {
 async function checkWorkspaces(root, load2, log, only) {
   const found2 = workspaceApps(root);
   if (!found2) return null;
-  const configs = new Map(found2.apps.map((a) => [a.dir, load2(path19.join(root, a.dir))]));
+  const configs = new Map(found2.apps.map((a) => [a.dir, load2(path20.join(root, a.dir))]));
   const targets = [
     ...found2.libraries.map((l2) => {
       const users = found2.apps.filter((a) => a.uses?.includes(l2.dir));
-      return { dir: l2.dir, config: load2(path19.join(root, l2.dir), { targetLocales: [...new Set(users.flatMap((a) => configs.get(a.dir).targetLocales))] }) };
+      return { dir: l2.dir, config: load2(path20.join(root, l2.dir), { targetLocales: [...new Set(users.flatMap((a) => configs.get(a.dir).targetLocales))] }) };
     }),
     ...found2.apps.map((a) => ({ dir: a.dir, config: configs.get(a.dir) }))
   ];
   const packages = [];
-  for (const { dir, config } of targets) packages.push({ dir, result: withDir(await checkProject(path19.join(root, dir), config, log, only), dir) });
+  for (const { dir, config } of targets) packages.push({ dir, result: withDir(await checkProject(path20.join(root, dir), config, log, only), dir) });
   return { packages, skipped: found2.skipped, ok: packages.every((p) => p.result.ok) };
 }
 function withDir(r, dir) {
-  const at2 = (x) => ({ ...x, file: x.file ? path19.posix.join(dir, x.file) : x.file });
+  const at2 = (x) => ({ ...x, file: x.file ? path20.posix.join(dir, x.file) : x.file });
   return {
     ...r,
     hardcoded: r.hardcoded.map(at2),
@@ -223414,12 +223538,12 @@ var KEY_USES = [
 async function unknownKeys(cwd, config, only) {
   const store = storeFor(config);
   if (!QUOTED_KEYS.has(config.framework) || store.textKeys) return [];
-  const abs = path19.join(cwd, store.path(config.sourceLocale));
-  if (!fs19.existsSync(abs)) return [];
-  const known = new Set([...flatten(store.read(fs19.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].flatMap((k) => [k, messageKey(k), k.replace(/_(?:male|female|other)$/, "")]));
+  const abs = path20.join(cwd, store.path(config.sourceLocale));
+  if (!fs20.existsSync(abs)) return [];
+  const known = new Set([...flatten(store.read(fs20.readFileSync(abs, "utf8"), config.sourceLocale)).keys()].flatMap((k) => [k, messageKey(k), k.replace(/_(?:male|female|other)$/, "")]));
   const out = [];
-  for (const f2 of only ?? await (0, import_fast_glob15.default)(CODE, { cwd: path19.join(cwd, config.srcDir), ignore: IGNORE4 })) {
-    const text4 = withoutComments(fs19.readFileSync(path19.join(cwd, config.srcDir, f2), "utf8"), f2);
+  for (const f2 of only ?? await (0, import_fast_glob16.default)(CODE2, { cwd: path20.join(cwd, config.srcDir), ignore: IGNORE4 })) {
+    const text4 = withoutComments(fs20.readFileSync(path20.join(cwd, config.srcDir, f2), "utf8"), f2);
     const literal5 = textRanges(text4, f2);
     for (const re of KEY_USES) {
       for (const m2 of text4.matchAll(re)) {
@@ -223428,7 +223552,7 @@ async function unknownKeys(cwd, config, only) {
         if (/[{(\[,]\s*["'`]$/.test(text4.slice(Math.max(0, m2.index - 20), m2.index))) continue;
         if (literal5.some(([start2, end2]) => m2.index >= start2 && m2.index < end2)) continue;
         if (new RegExp(`exists\\(\\s*(['"\`])${key2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\1`).test(text4)) continue;
-        out.push({ file: path19.posix.join(config.srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: key2 });
+        out.push({ file: path20.posix.join(config.srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: key2 });
       }
     }
   }
@@ -223465,8 +223589,8 @@ async function fontCoverage(cwd, config) {
   const langs = config.targetLocales.map((l2) => l2.split("-")[0].toLowerCase());
   if (!langs.some((l2) => SUBSET[l2] || SCRIPT2[l2])) return [];
   const out = [];
-  for (const f2 of await (0, import_fast_glob15.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE4 })) {
-    const text4 = fs19.readFileSync(path19.join(cwd, f2), "utf8");
+  for (const f2 of await (0, import_fast_glob16.default)("**/*.{ts,tsx,js,jsx}", { cwd, ignore: IGNORE4 })) {
+    const text4 = fs20.readFileSync(path20.join(cwd, f2), "utf8");
     if (!/from\s*['"]next\/font\/google['"]/.test(text4)) continue;
     const fonts = [...text4.matchAll(/\b([A-Z]\w*)\(\s*\{([^}]*)\}\s*\)/g)];
     const covered = new Set(
@@ -223488,18 +223612,18 @@ async function fontCoverage(cwd, config) {
 var RAW_VALUE = /\{\{?\s*(status|state|type|role|kind|category|level|priority|plan|tier|stage|mode|gender)\s*\}?\}/i;
 var CSS_CONTENT = new RegExp(`\\bcontent\\s*:\\s*(["'])((?:(?!\\1).)*\\p{L}(?:(?!\\1).)*)\\1`, "gu");
 async function cssContentText(cwd, srcDir) {
-  const root = path19.join(cwd, srcDir);
+  const root = path20.join(cwd, srcDir);
   const out = [];
-  for (const f2 of await (0, import_fast_glob15.default)("**/*.{css,scss,sass,less,vue,svelte}", { cwd: root, ignore: IGNORE4 })) {
-    const text4 = fs19.readFileSync(path19.join(root, f2), "utf8");
+  for (const f2 of await (0, import_fast_glob16.default)("**/*.{css,scss,sass,less,vue,svelte}", { cwd: root, ignore: IGNORE4 })) {
+    const text4 = fs20.readFileSync(path20.join(root, f2), "utf8");
     for (const m2 of text4.matchAll(CSS_CONTENT)) {
       if (/^\\[0-9a-f]+$/i.test(m2[2])) continue;
-      out.push({ file: path19.posix.join(srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: m2[2] });
+      out.push({ file: path20.posix.join(srcDir, f2), line: text4.slice(0, m2.index).split("\n").length, text: m2[2] });
     }
   }
-  for (const f2 of await (0, import_fast_glob15.default)("**/*.{ts,tsx,js,jsx,mjs,gjs,gts}", { cwd: root, ignore: [...IGNORE4] })) {
-    for (const { line, text: text4 } of cssInScript(fs19.readFileSync(path19.join(root, f2), "utf8"))) {
-      for (const m2 of text4.matchAll(CSS_CONTENT)) if (!/^\\{1,2}[0-9a-f]+$/i.test(m2[2])) out.push({ file: path19.posix.join(srcDir, f2), line, text: m2[2] });
+  for (const f2 of await (0, import_fast_glob16.default)("**/*.{ts,tsx,js,jsx,mjs,gjs,gts}", { cwd: root, ignore: [...IGNORE4] })) {
+    for (const { line, text: text4 } of cssInScript(fs20.readFileSync(path20.join(root, f2), "utf8"))) {
+      for (const m2 of text4.matchAll(CSS_CONTENT)) if (!/^\\{1,2}[0-9a-f]+$/i.test(m2[2])) out.push({ file: path20.posix.join(srcDir, f2), line, text: m2[2] });
     }
   }
   return out;
@@ -223718,8 +223842,8 @@ init_stores();
 
 // src/tms/index.ts
 init_sync();
-import * as fs20 from "node:fs";
-import * as path20 from "node:path";
+import * as fs21 from "node:fs";
+import * as path21 from "node:path";
 
 // src/tms/types.ts
 var TmsError = class extends Error {
@@ -223755,9 +223879,9 @@ var CrowdinClient = class {
   files = null;
   dirs = /* @__PURE__ */ new Map();
   languages = null;
-  async api(method2, path22, body, what = `Crowdin ${method2} ${path22}`) {
+  async api(method2, path23, body, what = `Crowdin ${method2} ${path23}`) {
     const res = await check(
-      await this.fetchImpl(`${this.base}${path22}`, {
+      await this.fetchImpl(`${this.base}${path23}`, {
         method: method2,
         headers: { Authorization: `Bearer ${this.opts.token}`, ...body ? { "Content-Type": "application/json" } : {} },
         ...body ? { body: JSON.stringify(body) } : {}
@@ -223913,14 +224037,14 @@ var LokaliseClient = class {
   base;
   languages = null;
   sourceLocale = "en";
-  async api(method2, path22, body) {
+  async api(method2, path23, body) {
     const res = await check(
-      await this.fetchImpl(`${this.base}/projects/${encodeURIComponent(this.opts.projectId)}${path22}`, {
+      await this.fetchImpl(`${this.base}/projects/${encodeURIComponent(this.opts.projectId)}${path23}`, {
         method: method2,
         headers: { "X-Api-Token": this.opts.token, ...body ? { "Content-Type": "application/json" } : {} },
         ...body ? { body: JSON.stringify(body) } : {}
       }),
-      `Lokalise ${method2} ${path22}`
+      `Lokalise ${method2} ${path23}`
     );
     return await res.json();
   }
@@ -224061,9 +224185,9 @@ var TransifexClient = class {
   /** `public/locales/en/common.json` → `public-locales-en-common-json`. */
   slug = (file2) => file2.path.toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-|-$/g, "").slice(0, 50);
   resource = (file2) => `${this.project()}:r:${this.slug(file2)}`;
-  async request(method2, path22, body, what = `Transifex ${method2} ${path22}`) {
+  async request(method2, path23, body, what = `Transifex ${method2} ${path23}`) {
     return check(
-      await this.fetchImpl(path22.startsWith("http") ? path22 : `${this.base}${path22}`, {
+      await this.fetchImpl(path23.startsWith("http") ? path23 : `${this.base}${path23}`, {
         method: method2,
         headers: { Authorization: `Bearer ${this.opts.token}`, Accept: "application/vnd.api+json", ...body ? { "Content-Type": "application/vnd.api+json" } : {} },
         ...body ? { body: JSON.stringify(body) } : {},
@@ -224200,7 +224324,7 @@ async function syncFiles(cwd, sourceLocale) {
   }
   return { files, skipped };
 }
-var read = (cwd, file2) => fs20.existsSync(path20.join(cwd, file2)) ? fs20.readFileSync(path20.join(cwd, file2), "utf8") : void 0;
+var read = (cwd, file2) => fs21.existsSync(path21.join(cwd, file2)) ? fs21.readFileSync(path21.join(cwd, file2), "utf8") : void 0;
 async function push(o) {
   let sources = 0;
   let translations = 0;
@@ -224229,8 +224353,8 @@ async function pull(o) {
       o.log.info(`\u2B07\uFE0F  ${target} (${locale})`);
       changed.push({ path: target, content });
       if (o.write) {
-        fs20.mkdirSync(path20.dirname(path20.join(o.cwd, target)), { recursive: true });
-        fs20.writeFileSync(path20.join(o.cwd, target), content);
+        fs21.mkdirSync(path21.dirname(path21.join(o.cwd, target)), { recursive: true });
+        fs21.writeFileSync(path21.join(o.cwd, target), content);
       }
     }
   }
@@ -224242,10 +224366,10 @@ var BRANCH_PREFIX = "localize-dev/";
 function workingDirectory(root) {
   const input = getInput("working_directory").trim();
   if (!input) return "";
-  const dir = path21.posix.normalize(input.replace(/\\/g, "/")).replace(/\/+$/, "");
-  if (path21.posix.isAbsolute(dir) || dir === ".." || dir.startsWith("../")) throw new Error(`working_directory must be a folder inside the repository, not "${input}"`);
+  const dir = path22.posix.normalize(input.replace(/\\/g, "/")).replace(/\/+$/, "");
+  if (path22.posix.isAbsolute(dir) || dir === ".." || dir.startsWith("../")) throw new Error(`working_directory must be a folder inside the repository, not "${input}"`);
   if (dir === ".") return "";
-  if (!fs21.statSync(path21.join(root, dir), { throwIfNoEntry: false })?.isDirectory()) throw new Error(`working_directory: ${dir} isn't a folder in the repository`);
+  if (!fs22.statSync(path22.join(root, dir), { throwIfNoEntry: false })?.isDirectory()) throw new Error(`working_directory: ${dir} isn't a folder in the repository`);
   return dir;
 }
 async function openPullRequest(client2, githubToken, p) {
@@ -224308,7 +224432,7 @@ async function dashboardLanguages(client2, sourceLocale) {
 }
 function configWithLanguages(cwd, files, targets) {
   const file2 = "localize.config.json";
-  const text4 = files.find((f2) => f2.path === file2)?.content ?? (fs21.existsSync(path21.join(cwd, file2)) ? fs21.readFileSync(path21.join(cwd, file2), "utf8") : void 0);
+  const text4 = files.find((f2) => f2.path === file2)?.content ?? (fs22.existsSync(path22.join(cwd, file2)) ? fs22.readFileSync(path22.join(cwd, file2), "utf8") : void 0);
   if (text4 === void 0) return null;
   let raw;
   try {
@@ -224323,14 +224447,14 @@ function configWithLanguages(cwd, files, targets) {
   return { path: file2, content: `${JSON.stringify({ ...raw, targetLocales: [...listed, ...added] }, null, indent2)}
 ` };
 }
-var inRepo = (files, workdir) => workdir ? files.map((f2) => ({ ...f2, path: path21.posix.join(workdir, f2.path) })) : files;
+var inRepo = (files, workdir) => workdir ? files.map((f2) => ({ ...f2, path: path22.posix.join(workdir, f2.path) })) : files;
 async function withSourceDir(cwd, config, chosen) {
   const { config: resolved, note, empty: empty3 } = await resolveSourceDir(cwd, config, chosen).catch((err) => {
     if (!(err instanceof SourceDirError) || !err.apps.length) throw err;
     const named2 = workingDirectory(process.env.GITHUB_WORKSPACE ?? process.cwd());
     throw new SourceDirError(
       `${named2 ? `${named2} has no app code to scan, and looks like a monorepo` : "This looks like a monorepo, and the Action runs at its root"}. Set working_directory to the app to localize:
-` + err.apps.map((a) => `  working_directory: ${named2 ? path21.posix.join(named2, a.dir) : a.dir}   (${a.files} files)`).join("\n") + "\nOr workspaces: true to localize every app in the workspace.",
+` + err.apps.map((a) => `  working_directory: ${named2 ? path22.posix.join(named2, a.dir) : a.dir}   (${a.files} files)`).join("\n") + "\nOr workspaces: true to localize every app in the workspace.",
       false,
       err.apps
     );
@@ -224393,7 +224517,7 @@ async function main() {
   const offline = getBooleanInput("offline");
   const root = process.env.GITHUB_WORKSPACE ?? process.cwd();
   const workdir = workingDirectory(root);
-  const cwd = workdir ? path21.join(root, workdir) : root;
+  const cwd = workdir ? path22.join(root, workdir) : root;
   const [owner, repo] = (process.env.GITHUB_REPOSITORY ?? "/").split("/");
   const baseBranch = getInput("base_branch") || process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
   if (!owner || !repo || !baseBranch) throw new Error("Could not determine repository or branch from the environment");
@@ -224450,9 +224574,9 @@ async function main() {
     const libConfigs = /* @__PURE__ */ new Map();
     let stopped = false;
     for (const lib of found2.libraries) {
-      const dir = path21.join(cwd, lib.dir);
+      const dir = path22.join(cwd, lib.dir);
       const libConfig = await withSourceDir(dir, configAt(dir));
-      libConfig.targetLocales = [...new Set(found2.apps.filter((a) => a.uses?.includes(lib.dir)).flatMap((a) => configAt(path21.join(cwd, a.dir)).targetLocales))];
+      libConfig.targetLocales = [...new Set(found2.apps.filter((a) => a.uses?.includes(lib.dir)).flatMap((a) => configAt(path22.join(cwd, a.dir)).targetLocales))];
       info(`Localizing ${lib.dir} (${lib.framework} library)`);
       const r = await runPipeline({ cwd: dir, config: libConfig, translator, write: false, log, setup: false });
       libConfigs.set(lib.dir, libConfig);
@@ -224464,15 +224588,15 @@ async function main() {
     }
     for (const app of stopped ? [] : found2.apps) {
       info(`Localizing ${app.dir} (${app.framework})`);
-      const dir = path21.join(cwd, app.dir);
+      const dir = path22.join(cwd, app.dir);
       const appConfig = await withSourceDir(dir, configAt(dir));
       const r = await runPipeline({ cwd: dir, config: appConfig, translator, write: false, log });
-      const pending = new Map(results.concat({ dir: app.dir, result: r }).flatMap((x) => x.result.files.map((f2) => [path21.posix.join(x.dir, f2.path), f2.content])));
+      const pending = new Map(results.concat({ dir: app.dir, result: r }).flatMap((x) => x.result.files.map((f2) => [path22.posix.join(x.dir, f2.path), f2.content])));
       for (const libDir of app.uses ?? []) {
         const lib = libConfigs.get(libDir);
         if (!lib) continue;
         const merged = mergeLibraryLocales(cwd, { dir: libDir, config: lib }, { dir: app.dir, config: appConfig }, false, pending);
-        r.files = mergeFiles(r.files, merged.map((f2) => ({ ...f2, path: path21.posix.relative(app.dir, f2.path) })));
+        r.files = mergeFiles(r.files, merged.map((f2) => ({ ...f2, path: path22.posix.relative(app.dir, f2.path) })));
       }
       const relock = await lockNewMessages(dir, { sourceLocale: appConfig.sourceLocale, onlyFiles: [storeFor(appConfig).path(appConfig.sourceLocale)], overlay: new Map(r.files.map((f2) => [f2.path, f2.content])), vuePlurals: vuePluralsIn(dir, appConfig.interpolation) });
       if (relock) r.files = mergeFiles(r.files, [{ path: "localize.lock.json", content: relock }]);
@@ -224485,7 +224609,7 @@ async function main() {
       const users = found2.apps.filter((a) => a.uses?.includes(lib.dir)).map((a) => ({ dir: a.dir, files: results.find((x) => x.dir === a.dir)?.result.files ?? [] }));
       for (const file2 of libraryClientModules(cwd, { dir: lib.dir, files: libResult.files }, users, false)) warning(`${file2} uses react-i18next and is rendered by a Next.js app, but can't be a client module: give it 'use client' or move the copy to a client component.`);
       const pkg2 = declareLibraryImports(cwd, { dir: lib.dir, files: libResult.files }, users, false);
-      if (pkg2) libResult.files = mergeFiles(libResult.files, [{ ...pkg2, path: path21.posix.relative(lib.dir, pkg2.path) }]);
+      if (pkg2) libResult.files = mergeFiles(libResult.files, [{ ...pkg2, path: path22.posix.relative(lib.dir, pkg2.path) }]);
     }
     result = mergeResults(results);
   } else {
@@ -224559,7 +224683,7 @@ async function translateMode(o) {
   if (o.offline) throw new Error("mode: translate needs an api_key; there is nothing to do offline");
   const raw = (() => {
     try {
-      return JSON.parse(fs21.readFileSync(path21.join(o.cwd, "localize.config.json"), "utf8"));
+      return JSON.parse(fs22.readFileSync(path22.join(o.cwd, "localize.config.json"), "utf8"));
     } catch {
       return {};
     }
@@ -224632,7 +224756,7 @@ async function translateMode(o) {
 }
 function rawConfig(cwd) {
   try {
-    return JSON.parse(fs21.readFileSync(path21.join(cwd, "localize.config.json"), "utf8"));
+    return JSON.parse(fs22.readFileSync(path22.join(cwd, "localize.config.json"), "utf8"));
   } catch {
     return {};
   }
@@ -224657,7 +224781,7 @@ async function tmsPush(cwd, branch) {
   if (getInput("tms_push") !== "true") return;
   let defaultBranch;
   try {
-    defaultBranch = JSON.parse(fs21.readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")).repository?.default_branch;
+    defaultBranch = JSON.parse(fs22.readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")).repository?.default_branch;
   } catch {
   }
   if (branch !== defaultBranch) {
@@ -224679,7 +224803,7 @@ async function tmsPush(cwd, branch) {
 }
 var withPulled = (files, pulled, cwd) => {
   const paths = new Set(files.map((f2) => f2.path));
-  return [...files, ...pulled.filter((f2) => !paths.has(f2.path)).map((f2) => ({ path: f2.path, content: fs21.readFileSync(path21.join(cwd, f2.path), "utf8") }))];
+  return [...files, ...pulled.filter((f2) => !paths.has(f2.path)).map((f2) => ({ path: f2.path, content: fs22.readFileSync(path22.join(cwd, f2.path), "utf8") }))];
 };
 var reportFailure = null;
 main().catch(async (err) => {
